@@ -24,11 +24,10 @@ Registered User requirements:
 - see his own wishlist
 - see suggested mangas
 - see mangas read by followed users
-- buy directly a manga
 - add to the cart (?)
 - can see the cart (?)
 - modify the cart (?)
-- add payment method and complete the purchase of the items in the cart
+- add payment method and complete the purchase of the items in the cart (?)
 - modify profile info
 
 Manager requirements:
@@ -37,7 +36,8 @@ Manager requirements:
 - see analytics
 - browse mangas
 - browse users
-- browse orders
+- browse orders (?)
+  
 # NON FUNCTIONAL REQUIREMENTS
 - website available 24*7
 - responsive webpage, but some delays are acceptable
