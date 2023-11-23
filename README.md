@@ -10,6 +10,7 @@ Unregistered user requirements:
 - see full description of a manga with reviews
 - log in
 - sign up
+
 Registered User requirements:
 - browse the mangas
 - search a manga by some parameters
@@ -29,6 +30,7 @@ Registered User requirements:
 - modify the cart (?)
 - add payment method and complete the purchase of the items in the cart
 - modify profile info
+
 Manager requirements:
 - sign out
 - add/remove/update mangas
