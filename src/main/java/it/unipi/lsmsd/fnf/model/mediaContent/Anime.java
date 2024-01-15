@@ -1,0 +1,102 @@
+package it.unipi.lsmsd.fnf.model.mediaContent;
+
+import it.unipi.lsmsd.fnf.model.Review;
+
+import java.util.List;
+
+public class Anime extends MediaContent {
+    private int year;
+    private String season;
+    private String episodeCount;
+    private List<String> tags;
+    private List<String> relatedAnime;
+    private List<Review<Anime>> reviews;
+    private String producers;
+    private String studios;
+
+    public int getYear() {
+        return year;
+    }
+
+    public String getSeason() {
+        return season;
+    }
+
+    public String getEpisodeCount() {
+        return episodeCount;
+    }
+
+    public List<String> getTags() {
+        return tags;
+    }
+
+    public List<String> getRelatedAnime() {
+        return relatedAnime;
+    }
+
+    public List<Review<Anime>> getReviews() {
+        return reviews;
+    }
+
+    public String getProducers() {
+        return producers;
+    }
+
+    public String getStudios() {
+        return studios;
+    }
+
+    public void setYear(int year) {
+        this.year = year;
+    }
+
+    public void setSeason(String season) {
+        this.season = season;
+    }
+
+    public void setEpisodeCount(String episodeCount) {
+        this.episodeCount = episodeCount;
+    }
+
+    public void setTags(List<String> tags) {
+        this.tags = tags;
+    }
+
+    public void setRelatedAnime(List<String> relatedAnime) {
+        this.relatedAnime = relatedAnime;
+    }
+
+    public void setReviews(List<Review<Anime>> reviews) {
+        this.reviews = reviews;
+    }
+
+    public void setProducers(String producers) {
+        this.producers = producers;
+    }
+
+    public void setStudios(String studios) {
+        this.studios = studios;
+    }
+
+    public void addReview(Review<Anime> review) {
+        this.reviews.add(review);
+    }
+
+    public void removeReview(Review<Anime> review) {
+        this.reviews.remove(review);
+    }
+
+    @Override
+    public String toString() {
+        return "Anime{" +
+                "year=" + year +
+                ", season='" + season + '\'' +
+                ", episodeCount='" + episodeCount + '\'' +
+                ", tags=" + tags +
+                ", relatedAnime=" + relatedAnime +
+                ", reviews=" + reviews +
+                ", producers='" + producers + '\'' +
+                ", studios='" + studios + '\'' +
+                '}';
+    }
+}
