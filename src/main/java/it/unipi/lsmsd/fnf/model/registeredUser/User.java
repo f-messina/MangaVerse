@@ -3,16 +3,17 @@ package it.unipi.lsmsd.fnf.model.registeredUser;
 import it.unipi.lsmsd.fnf.model.PersonalList;
 import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
 
+import java.util.Date;
 import java.util.List;
 
 public class User extends RegisteredUser {
-    private String birthdate;
+    private Date birthdate;
     private String description;
     private String gender;
     private String location;
     private List<PersonalList> lists;
 
-    public String getBirthdate() {
+    public Date getBirthdate() {
         return birthdate;
     }
 
@@ -32,7 +33,7 @@ public class User extends RegisteredUser {
         return lists;
     }
 
-    public void setBirthdate(String birthdate) {
+    public void setBirthdate(Date birthdate) {
         this.birthdate = birthdate;
     }
 
