@@ -4,19 +4,14 @@ public abstract class MediaContentDTO {
     private String id;
     private String title;
     private String imageUrl;
-    private String type;
-    private String averageRating;
-    private String synopsis;
-    private String status;
+    private float averageRating;
 
-    public MediaContentDTO(String id, String title, String imageUrl, String type, String averageRating, String synopsis, String status) {
+
+    public MediaContentDTO(String id, String title, String imageUrl, float averageRating) {
         this.id = id;
         this.title = title;
         this.imageUrl = imageUrl;
-        this.type = type;
         this.averageRating = averageRating;
-        this.synopsis = synopsis;
-        this.status = status;
     }
     public MediaContentDTO(String id) {
         this.id = id;
@@ -46,37 +41,17 @@ public abstract class MediaContentDTO {
         this.imageUrl = imageUrl;
     }
 
-    public String getType() {
-        return type;
-    }
 
-    public void setType(String type) {
-        this.type = type;
-    }
 
-    public String getAverageRating() {
+    public float getAverageRating() {
         return averageRating;
     }
 
-    public void setAverageRating(String averageRating) {
+    public void setAverageRating(float averageRating) {
         this.averageRating = averageRating;
     }
 
-    public String getSynopsis() {
-        return synopsis;
-    }
 
-    public void setSynopsis(String synopsis) {
-        this.synopsis = synopsis;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
 
     @Override
     public String toString() {
@@ -84,10 +59,9 @@ public abstract class MediaContentDTO {
                 "id='" + id + '\'' +
                 ", title='" + title + '\'' +
                 ", imageUrl='" + imageUrl + '\'' +
-                ", type='" + type + '\'' +
+
                 ", averageRating='" + averageRating + '\'' +
-                ", synopsis='" + synopsis + '\'' +
-                ", status='" + status + '\'' +
+
                 '}';
     }
 }
