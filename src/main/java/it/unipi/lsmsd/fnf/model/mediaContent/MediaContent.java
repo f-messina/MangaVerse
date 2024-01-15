@@ -1,5 +1,9 @@
 package it.unipi.lsmsd.fnf.model.mediaContent;
 
+import it.unipi.lsmsd.fnf.model.enums.Status;
+
+import java.util.List;
+
 public abstract class MediaContent {
     private String id;
     private String title;
@@ -7,7 +11,7 @@ public abstract class MediaContent {
     private String type;
     private String averageRating;
     private String synopsis;
-    private String status;
+    private Status status;
 
     public String getId() {
         return id;
@@ -33,7 +37,7 @@ public abstract class MediaContent {
         return synopsis;
     }
 
-    public String getStatus() {
+    public Status getStatus() {
         return status;
     }
 
@@ -61,7 +65,7 @@ public abstract class MediaContent {
         this.synopsis = synopsis;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(Status status) {
         this.status = status;
     }
 

@@ -1,10 +1,11 @@
 package it.unipi.lsmsd.fnf.model;
 
+import it.unipi.lsmsd.fnf.model.mediaContent.MediaContent;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 
 import java.util.Date;
 
-public class Review<T> {
+public class Review<T extends MediaContent> {
     private String id;
     private Date date;
     private String comment;
