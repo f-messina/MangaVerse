@@ -19,16 +19,15 @@ public abstract class BaseMongoDBDAO {
     private static final String PROTOCOL = "mongodb://";
     private static final String MONGO_HOST = "localhost";
     private static final String MONGO_PORT = "27017";
-    private static final String MONGO_DB = "mangaVerse";
 
-    private static String connectionString = String.format("%s%s:%s/%s", PROTOCOL, MONGO_HOST, MONGO_PORT, MONGO_DB);
+    private static final String connectionString = String.format("%s%s:%s", PROTOCOL, MONGO_HOST, MONGO_PORT);
 
     public static MongoClient getConnection() {
-        ConnectionString connString = new ConnectionString(connectionString);
+        ConnectionString uri = new ConnectionString(connectionString);
 
         return MongoClients.create(
                 MongoClientSettings.builder()
-                        .applyConnectionString(connString)
+                        .applyConnectionString(uri)
                         .build()
         );
     }
