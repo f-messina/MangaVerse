@@ -12,7 +12,6 @@ import it.unipi.lsmsd.fnf.dto.RegisteredUserDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
 import it.unipi.lsmsd.fnf.model.PersonalList;
-
 import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
 import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
@@ -270,4 +269,5 @@ public class ListDAOImpl extends BaseMongoDBDAO implements ListDAO {
     public List<MangaDTO> findPopularManga(SearchCriteriaEnum criteria, String value) throws DAOException {
         return null;
     }
+  
 }

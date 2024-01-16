@@ -1,7 +1,5 @@
 package it.unipi.lsmsd.fnf.dao.mongo;
 
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoCollection;
 import it.unipi.lsmsd.fnf.dao.UserDAO;
 import it.unipi.lsmsd.fnf.dao.base.BaseMongoDBDAO;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
@@ -9,9 +7,11 @@ import it.unipi.lsmsd.fnf.model.registeredUser.Manager;
 import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import it.unipi.lsmsd.fnf.utils.ConverterUtils;
+
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoCollection;
 import org.bson.Document;
 import org.bson.types.ObjectId;
-
 import java.time.LocalDate;
 import java.util.Date;
 
@@ -89,6 +89,7 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
         }
         return doc;
     }
+  
     @Override
     public void insert(User user) throws DAOException {
 
@@ -112,7 +113,6 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
 
             Document filter = new Document("_id", id);
             users.deleteOne(filter);
-
         }
         catch (Exception e){
             throw new DAOException("Error removing user");
