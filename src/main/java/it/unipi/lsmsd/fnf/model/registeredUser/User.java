@@ -3,18 +3,19 @@ package it.unipi.lsmsd.fnf.model.registeredUser;
 import it.unipi.lsmsd.fnf.model.PersonalList;
 import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
 public class User extends RegisteredUser {
-    private Date birthdate;
+    private LocalDate birthday;
     private String description;
     private String gender;
     private String location;
     private List<PersonalList> lists;
 
-    public Date getBirthdate() {
-        return birthdate;
+    public LocalDate getBirthday() {
+        return birthday;
     }
 
     public String getDescription() {
@@ -33,8 +34,8 @@ public class User extends RegisteredUser {
         return lists;
     }
 
-    public void setBirthdate(Date birthdate) {
-        this.birthdate = birthdate;
+    public void setBirthday(LocalDate birthday) {
+        this.birthday = birthday;
     }
 
     public void setDescription(String description) {
@@ -64,7 +65,8 @@ public class User extends RegisteredUser {
     @Override
     public String toString() {
         return "User{" +
-                ", birthdate='" + birthdate + '\'' +
+                super.toString() +
+                ", birthday='" + birthday + '\'' +
                 ", description='" + description + '\'' +
                 ", gender='" + gender + '\'' +
                 ", location='" + location + '\'' +
