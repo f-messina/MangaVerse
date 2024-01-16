@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class BaseMongoDBDAO {
+public abstract class BaseMongoDBDAO {
     private static final String PROTOCOL = "mongodb://";
     private static final String MONGO_HOST = "localhost";
     private static final String MONGO_PORT = "27017";
