@@ -1,11 +1,12 @@
 package it.unipi.lsmsd.fnf.model.mediaContent;
 
 import it.unipi.lsmsd.fnf.model.enums.Status;
+import org.bson.types.ObjectId;
 
 import java.util.List;
 
 public abstract class MediaContent {
-    private String id;
+    private ObjectId id;
     private String title;
     private String imageUrl;
     private String type;
@@ -13,7 +14,7 @@ public abstract class MediaContent {
     private String synopsis;
     private Status status;
 
-    public String getId() {
+    public ObjectId getId() {
         return id;
     }
 
@@ -41,7 +42,7 @@ public abstract class MediaContent {
         return status;
     }
 
-    public void setId(String id) {
+    public void setId(ObjectId id) {
         this.id = id;
     }
 
