@@ -1,21 +1,16 @@
 package it.unipi.lsmsd.fnf.dao;
 
-import it.unipi.lsmsd.fnf.dao.exception.ExceptionDAO;
+import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
-
-import java.util.List;
+import org.bson.types.ObjectId;
 
 public interface UserDAO {
 
-    //add user
-    //remove user
-    //search user by username
-    //update user info
-    //
-    User addUser(User user) throws ExceptionDAO;
-    void removeUser(String username) throws ExceptionDAO;
-    RegisteredUser searchUserByUsername(String username) throws ExceptionDAO;
-    void updateUserInfo(RegisteredUser user) throws ExceptionDAO;
+    void insert(User user) throws DAOException;
+    void remove(ObjectId id) throws DAOException;
+    RegisteredUser find(ObjectId id) throws DAOException;
+    RegisteredUser find(String username) throws DAOException;
+    void update(RegisteredUser user) throws DAOException;
 
 }

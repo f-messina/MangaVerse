@@ -3,8 +3,6 @@ package it.unipi.lsmsd.fnf.model.mediaContent;
 import it.unipi.lsmsd.fnf.model.enums.Status;
 import org.bson.types.ObjectId;
 
-import java.util.List;
-
 public abstract class MediaContent {
     private ObjectId id;
     private String title;
