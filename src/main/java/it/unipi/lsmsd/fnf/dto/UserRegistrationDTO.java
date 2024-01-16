@@ -10,7 +10,7 @@ public class UserRegistrationDTO {
     private String gender;
     private String location;
     private Date birthday;
-
+    
     public String getUsername() {
         return username;
     }

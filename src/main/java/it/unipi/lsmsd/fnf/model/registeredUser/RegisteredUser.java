@@ -1,9 +1,11 @@
 package it.unipi.lsmsd.fnf.model.registeredUser;
 
+import org.bson.types.ObjectId;
+
 import java.util.Date;
 
 public abstract class RegisteredUser {
-    private String id;
+    private ObjectId id;
     private String username;
     private String password;
     private String email;
@@ -11,7 +13,7 @@ public abstract class RegisteredUser {
     private String profilePicUrl;
     private Date joinedDate;
 
-    public String getId() {
+    public ObjectId getId() {
         return id;
     }
 
@@ -39,7 +41,7 @@ public abstract class RegisteredUser {
         return joinedDate;
     }
 
-    public void setId(String id) {
+    public void setId(ObjectId id) {
         this.id = id;
     }
 
