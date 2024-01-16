@@ -16,6 +16,12 @@ public abstract class MediaContentDTO {
         this.averageRating = averageRating;
     }
 
+    public MediaContentDTO(ObjectId id, String title, String imageUrl) {
+        this.id = id;
+        this.title = title;
+        this.imageUrl = imageUrl;
+    }
+
     public ObjectId getId() {
         return id;
     }
