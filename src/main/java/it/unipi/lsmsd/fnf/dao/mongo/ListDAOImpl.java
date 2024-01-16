@@ -6,6 +6,7 @@ import com.mongodb.client.MongoCursor;
 import it.unipi.lsmsd.fnf.dao.ListDAO;
 import it.unipi.lsmsd.fnf.dao.base.BaseMongoDBDAO;
 import it.unipi.lsmsd.fnf.dao.enums.SearchCriteriaEnum;
+import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dto.PersonalListDTO;
 import it.unipi.lsmsd.fnf.dto.RegisteredUserDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
@@ -83,169 +84,190 @@ public class ListDAOImpl extends BaseMongoDBDAO implements ListDAO {
             userDoc.append("location", user.getLocation());
         }
         if (user.getBirthday() != null) {
-            userDoc.append("birthday", user.getBirthday());
+            userDoc.append("birthday", ConverterUtils.convertLocalDateToDate(user.getBirthday()));
         }
         return userDoc;
     }
 
     @Override
-    public List<PersonalList> findByUserId(ObjectId userId) {
-        MongoClient mongoClient = getConnection();
-        MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
-        List<PersonalList> PersonalLists = new ArrayList<>();
-        try (MongoCursor<Document> cursor = listsCollection.find(new Document("user.id", userId)).iterator()) {
-            while (cursor.hasNext()) {
-                PersonalLists.add(documentToPersonalList(cursor.next()));
+    public List<PersonalList> findByUserId(ObjectId userId) throws DAOException {
+        try (MongoClient mongoClient = getConnection()) {
+            MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
+            List<PersonalList> PersonalLists = new ArrayList<>();
+            try (MongoCursor<Document> cursor = listsCollection.find(new Document("user.id", userId)).iterator()) {
+                while (cursor.hasNext()) {
+                    PersonalLists.add(documentToPersonalList(cursor.next()));
+                }
             }
+            return PersonalLists;
+        } catch (Exception e) {
+            throw new DAOException("Error finding lists by user id");
         }
-        closeConnection(mongoClient);
-        return PersonalLists;
     }
 
     @Override
-    public List<PersonalList> findAll() {
-        MongoClient mongoClient = getConnection();
-        MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
-        List<PersonalList> personalLists = new ArrayList<>();
-        try (MongoCursor<Document> cursor = listsCollection.find().iterator()) {
-            while (cursor.hasNext()) {
-                personalLists.add(documentToPersonalList(cursor.next()));
+    public List<PersonalList> findAll() throws DAOException {
+        try (MongoClient mongoClient = getConnection()) {
+            MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
+            List<PersonalList> personalLists = new ArrayList<>();
+            try (MongoCursor<Document> cursor = listsCollection.find().iterator()) {
+                while (cursor.hasNext()) {
+                    personalLists.add(documentToPersonalList(cursor.next()));
+                }
             }
+            return personalLists;
+        } catch (Exception e) {
+            throw new DAOException("Error finding all lists");
         }
-        closeConnection(mongoClient);
-        return personalLists;
     }
 
     @Override
-    public PersonalList find(ObjectId id) {
-        MongoClient mongoClient = getConnection();
-        MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
-        PersonalList personalList = new PersonalList();
-        Document listDoc = listsCollection.find(new Document("_id", id)).first();
-        if (listDoc != null) {
-            personalList = documentToPersonalList(listDoc);
+    public PersonalList find(ObjectId id) throws DAOException {
+        try (MongoClient mongoClient = getConnection()) {
+            MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
+            PersonalList personalList = new PersonalList();
+            Document listDoc = listsCollection.find(new Document("_id", id)).first();
+            if (listDoc != null) {
+                personalList = documentToPersonalList(listDoc);
+            }
+            return personalList;
+        } catch (Exception e) {
+            throw new DAOException("Error finding list by id");
         }
-        closeConnection(mongoClient);
-        return personalList;
     }
 
     @Override
-    public void insert(PersonalListDTO list) {
-        MongoClient mongoClient = getConnection();
-        MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
-        List<Document> animeDoc = new ArrayList<>();
-        for (AnimeDTO anime : list.getAnime()) {
-            animeDoc.add(animeToDocument(anime));
-        }
-        List<Document> mangaDoc = new ArrayList<>();
-        for (MangaDTO manga : list.getManga()) {
-            mangaDoc.add(mangaToDocument(manga));
-        }
+    public void insert(PersonalListDTO list) throws DAOException {
+        try (MongoClient mongoClient = getConnection()) {
+            MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
+            List<Document> animeDoc = new ArrayList<>();
+            for (AnimeDTO anime : list.getAnime()) {
+                animeDoc.add(animeToDocument(anime));
+            }
+            List<Document> mangaDoc = new ArrayList<>();
+            for (MangaDTO manga : list.getManga()) {
+                mangaDoc.add(mangaToDocument(manga));
+            }
 
-        Document listDoc = new Document("name", list.getName())
-                .append("user", userToDocument(list.getUser()))
-                .append("anime_list", animeDoc)
-                .append("manga_list", mangaDoc);
-        listsCollection.insertOne(listDoc);
-        closeConnection(mongoClient);
+            Document listDoc = new Document("name", list.getName())
+                    .append("user", userToDocument(list.getUser()))
+                    .append("anime_list", animeDoc)
+                    .append("manga_list", mangaDoc);
+            listsCollection.insertOne(listDoc);
+        } catch (Exception e) {
+            throw new DAOException("Error inserting list");
+        }
     }
 
     @Override
-    public void insert(List<PersonalListDTO> lists) {
+    public void insert(List<PersonalListDTO> lists) throws DAOException {
         for (PersonalListDTO list : lists) {
             insert(list);
         }
     }
 
     @Override
-    public void insertAnime(ObjectId listId, AnimeDTO anime) {
-        MongoClient mongoClient = getConnection();
-        MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
-        Document animeDoc = animeToDocument(anime);
-        listsCollection.updateOne(new Document("_id", listId), new Document("$push", new Document("anime_list", animeDoc)));
-        closeConnection(mongoClient);
-    }
-
-    @Override
-    public void insertManga(ObjectId listId, MangaDTO manga) {
-        MongoClient mongoClient = getConnection();
-        MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
-        Document mangaDoc = mangaToDocument(manga);
-        listsCollection.updateOne(new Document("_id", listId), new Document("$push", new Document("manga_list", mangaDoc)));
-        closeConnection(mongoClient);
-    }
-
-    @Override
-    public void removeAnime(ObjectId listId, ObjectId animeId) {
-        MongoClient mongoClient = getConnection();
-        MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
-        listsCollection.updateOne(new Document("_id", listId), new Document("$pull", new Document("anime_list", new Document("id", animeId))));
-        closeConnection(mongoClient);
-    }
-
-    @Override
-    public void removeManga(ObjectId listId, ObjectId mangaId) {
-        MongoClient mongoClient = getConnection();
-        MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
-        listsCollection.updateOne(new Document("_id", listId), new Document("$pull", new Document("manga_list", new Document("id", mangaId))));
-        closeConnection(mongoClient);
-
-    }
-
-    @Override
-    public void update(PersonalListDTO list) {
-        MongoClient mongoClient = getConnection();
-        MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
-        List<Document> animeDoc = new ArrayList<>();
-        for (AnimeDTO anime : list.getAnime()) {
-            animeDoc.add(animeToDocument(anime));
+    public void insertAnime(ObjectId listId, AnimeDTO anime) throws DAOException {
+        try (MongoClient mongoClient = getConnection()) {
+            MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
+            Document animeDoc = animeToDocument(anime);
+            listsCollection.updateOne(new Document("_id", listId), new Document("$push", new Document("anime_list", animeDoc)));
+        } catch (Exception e) {
+            throw new DAOException("Error inserting anime");
         }
-        List<Document> mangaDoc = new ArrayList<>();
-        for (MangaDTO manga : list.getManga()) {
-            mangaDoc.add(mangaToDocument(manga));
+    }
+
+    @Override
+    public void insertManga(ObjectId listId, MangaDTO manga) throws DAOException {
+        try (MongoClient mongoClient = getConnection()) {
+            MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
+            Document mangaDoc = mangaToDocument(manga);
+            listsCollection.updateOne(new Document("_id", listId), new Document("$push", new Document("manga_list", mangaDoc)));
+        } catch (Exception e) {
+            throw new DAOException("Error inserting manga");
         }
-
-        Document listDoc = new Document("name", list.getName())
-                .append("user", userToDocument(list.getUser()))
-                .append("anime_list", animeDoc)
-                .append("manga_list", mangaDoc);
-        listsCollection.updateOne(new Document("_id", list.getId()), new Document("$set", listDoc));
-        closeConnection(mongoClient);
     }
 
     @Override
-    public void delete(ObjectId id) {
-        MongoClient mongoClient = getConnection();
-        MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
-        listsCollection.deleteOne(new Document("_id", id));
-        closeConnection(mongoClient);
+    public void removeAnime(ObjectId listId, ObjectId animeId) throws DAOException {
+        try (MongoClient mongoClient = getConnection()) {
+            MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
+            listsCollection.updateOne(new Document("_id", listId), new Document("$pull", new Document("anime_list", new Document("id", animeId))));
+        } catch (Exception e) {
+            throw new DAOException("Error removing anime");
+        }
     }
 
     @Override
-    public void deleteByUser(ObjectId userId) {
-        MongoClient mongoClient = getConnection();
-        MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
-        listsCollection.deleteMany(new Document("user.id", userId));
-        closeConnection(mongoClient);
+    public void removeManga(ObjectId listId, ObjectId mangaId) throws DAOException {
+        try (MongoClient mongoClient = getConnection()) {
+            MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
+            listsCollection.updateOne(new Document("_id", listId), new Document("$pull", new Document("manga_list", new Document("id", mangaId))));
+        } catch (Exception e) {
+            throw new DAOException("Error removing manga");
+        }
     }
 
     @Override
-    public List<AnimeDTO> findPopularAnime(SearchCriteriaEnum criteria) {
+    public void update(PersonalListDTO list) throws DAOException {
+        try (MongoClient mongoClient = getConnection()) {
+            MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
+            List<Document> animeDoc = new ArrayList<>();
+            for (AnimeDTO anime : list.getAnime()) {
+                animeDoc.add(animeToDocument(anime));
+            }
+            List<Document> mangaDoc = new ArrayList<>();
+            for (MangaDTO manga : list.getManga()) {
+                mangaDoc.add(mangaToDocument(manga));
+            }
+
+            Document listDoc = new Document("name", list.getName())
+                    .append("user", userToDocument(list.getUser()))
+                    .append("anime_list", animeDoc)
+                    .append("manga_list", mangaDoc);
+            listsCollection.updateOne(new Document("_id", list.getId()), new Document("$set", listDoc));
+        } catch (Exception e) {
+            throw new DAOException("Error updating list");
+        }
+    }
+
+    @Override
+    public void delete(ObjectId id) throws DAOException {
+        try (MongoClient mongoClient = getConnection()) {
+            MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
+            listsCollection.deleteOne(new Document("_id", id));
+        } catch (Exception e) {
+            throw new DAOException("Error deleting list");
+        }
+    }
+
+    @Override
+    public void deleteByUser(ObjectId userId) throws DAOException {
+        try (MongoClient mongoClient = getConnection()) {
+            MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
+            listsCollection.deleteMany(new Document("user.id", userId));
+        } catch (Exception e) {
+            throw new DAOException("Error deleting lists by user");
+        }
+    }
+
+    @Override
+    public List<AnimeDTO> findPopularAnime(SearchCriteriaEnum criteria) throws DAOException {
         return null;
     }
 
     @Override
-    public List<AnimeDTO> findPopularAnime(SearchCriteriaEnum criteria, String value) {
+    public List<AnimeDTO> findPopularAnime(SearchCriteriaEnum criteria, String value) throws DAOException {
         return null;
     }
 
     @Override
-    public List<MangaDTO> findPopularManga(SearchCriteriaEnum criteria) {
+    public List<MangaDTO> findPopularManga(SearchCriteriaEnum criteria) throws DAOException {
         return null;
     }
 
     @Override
-    public List<MangaDTO> findPopularManga(SearchCriteriaEnum criteria, String value) {
+    public List<MangaDTO> findPopularManga(SearchCriteriaEnum criteria, String value) throws DAOException {
         return null;
     }
 }
