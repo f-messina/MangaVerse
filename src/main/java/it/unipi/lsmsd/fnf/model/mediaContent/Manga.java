@@ -14,8 +14,8 @@ public class Manga extends MediaContent {
     private String background;
     private String titleEnglish;
     private String titleJapanese;
-    private Date startDate;
-    private Date endDate;
+    private String startDate;
+    private String endDate;
     private List<Review<Manga>> reviews;
 
     public List<String> getGenres() {
@@ -50,11 +50,11 @@ public class Manga extends MediaContent {
         return titleJapanese;
     }
 
-    public Date getStartDate() {
+    public String getStartDate() {
         return startDate;
     }
 
-    public Date getEndDate() {
+    public String getEndDate() {
         return endDate;
     }
 
@@ -94,11 +94,11 @@ public class Manga extends MediaContent {
         this.titleJapanese = titleJapanese;
     }
 
-    public void setStartDate(Date startDate) {
+    public void setStartDate(String startDate) {
         this.startDate = startDate;
     }
 
-    public void setEndDate(Date endDate) {
+    public void setEndDate(String endDate) {
         this.endDate = endDate;
     }
 
@@ -117,7 +117,8 @@ public class Manga extends MediaContent {
     @Override
     public String toString() {
         return "Manga{" +
-                "genres=" + genres +
+                super.toString() +
+                ", genres=" + genres +
                 ", themes=" + themes +
                 ", demographics=" + demographics +
                 ", authors=" + authors +

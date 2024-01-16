@@ -3,14 +3,12 @@ package it.unipi.lsmsd.fnf.model.mediaContent;
 import it.unipi.lsmsd.fnf.model.enums.Status;
 import org.bson.types.ObjectId;
 
-import java.util.List;
-
 public abstract class MediaContent {
     private ObjectId id;
     private String title;
     private String imageUrl;
     private String type;
-    private String averageRating;
+    private float averageRating;
     private String synopsis;
     private Status status;
 
@@ -30,7 +28,7 @@ public abstract class MediaContent {
         return type;
     }
 
-    public String getAverageRating() {
+    public float getAverageRating() {
         return averageRating;
     }
 
@@ -58,7 +56,7 @@ public abstract class MediaContent {
         this.type = type;
     }
 
-    public void setAverageRating(String averageRating) {
+    public void setAverageRating(float averageRating) {
         this.averageRating = averageRating;
     }
 

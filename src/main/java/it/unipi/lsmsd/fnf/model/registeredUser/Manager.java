@@ -2,13 +2,14 @@ package it.unipi.lsmsd.fnf.model.registeredUser;
 
 import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 public class Manager extends RegisteredUser {
-    private Date hiredDate;
+    private LocalDate hiredDate;
     private String title;
 
-    public Date getHiredDate() {
+    public LocalDate getHiredDate() {
         return hiredDate;
     }
 
@@ -16,7 +17,7 @@ public class Manager extends RegisteredUser {
         return title;
     }
 
-    public void setHiredDate(Date hiredDate) {
+    public void setHiredDate(LocalDate hiredDate) {
         this.hiredDate = hiredDate;
     }
 
@@ -27,7 +28,8 @@ public class Manager extends RegisteredUser {
     @Override
     public String toString() {
         return "Manager{" +
-                "hiredDate=" + hiredDate +
+                super.toString() +
+                ", hiredDate=" + hiredDate +
                 ", title='" + title + '\'' +
                 '}';
     }
