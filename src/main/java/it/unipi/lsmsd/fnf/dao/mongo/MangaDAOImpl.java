@@ -2,173 +2,285 @@ package it.unipi.lsmsd.fnf.dao.mongo;
 
 import it.unipi.lsmsd.fnf.dao.MangaDAO;
 import it.unipi.lsmsd.fnf.dao.base.BaseMongoDBDAO;
+import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.model.Review;
 import it.unipi.lsmsd.fnf.model.enums.Status;
-import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
+
 import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
 
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
+import it.unipi.lsmsd.fnf.model.mediaContent.MangaAuthor;
+import it.unipi.lsmsd.fnf.model.registeredUser.User;
+import it.unipi.lsmsd.fnf.utils.ConverterUtils;
 import org.bson.Document;
+import org.bson.types.ObjectId;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class MangaDAOImpl implements MangaDAO {
+public class MangaDAOImpl extends BaseMongoDBDAO implements MangaDAO {
 
-    private static final String MANGA = "manga";
+    @Override
+    public void insertManga(Manga manga) throws DAOException {
+        try (MongoClient mongoClient = getConnection()) {
+            MongoCollection<Document> mangaCollection = mongoClient.getDatabase("mangaVerse").getCollection("manga");
 
-    private final MongoClient mongoClient;
-    private final MongoCollection<Document> mangaCollection;
+            mangaCollection.insertOne(mangaToDocument(manga));
+        } catch (Exception e) {
+            throw new DAOException("Error while inserting manga", e);
+        }
+    }
 
 
+    @Override
+    public void updateManga(Manga manga) throws DAOException {
+        try (MongoClient mongoClient = getConnection()) {
+            MongoCollection<Document> mangaCollection = mongoClient.getDatabase("mangaVerse").getCollection("manga");
 
-    public MangaDAOImpl() {
-        this.mongoClient = BaseMongoDBDAO.getConnection();
-        MongoDatabase database = mongoClient.getDatabase(BaseMongoDBDAO.getMongoDBName());
-        this.mangaCollection = database.getCollection(MANGA);
+            Document filter = new Document("_id", manga.getId());
+            mangaCollection.updateOne(filter, new Document("$set", mangaToDocument(manga)));
+        } catch (Exception e) {
+            throw new DAOException("Error while updating manga", e);
+        }
+    }
+
+
+    @Override
+    public Manga searchMangaByTitle(String title) throws DAOException {
+        try (MongoClient mongoClient = getConnection()) {
+            MongoCollection<Document> mangaCollection = mongoClient.getDatabase("mangaVerse").getCollection("manga");
+
+            Document query = new Document("title", title);
+            Manga result = new Manga();
+
+            Document mangaDoc = mangaCollection.find(query).first();
+            if (mangaDoc != null) {
+                result = documentToManga(mangaDoc);
+            }
+            return result;
+        } catch (Exception e) {
+            throw new DAOException("Error while searching manga by title", e);
+        }
     }
 
     @Override
-    public void addManga(Manga manga) {
-        Document animeDocument = new Document("_id", manga.getId())
-                .append("title", manga.getTitle())
-                .append("type", manga.getType())
-                .append("themes", manga.getThemes())
+    public List<Manga> searchMangaByStartDate(int startDate) throws DAOException {
+        try (MongoClient mongoClient = getConnection()) {
+            MongoCollection<Document> mangaCollection = mongoClient.getDatabase("mangaVerse").getCollection("manga");
+
+            Document query = new Document("start_date", startDate);
+            List<Manga> result = new ArrayList<>();
+            mangaCollection.find(query).forEach(document -> {
+                Manga manga = documentToManga(document);
+                result.add(manga);
+            });
+            return result;
+        } catch (Exception e) {
+            throw new DAOException("Error while searching manga by start date", e);
+        }
+    }
+
+    @Override
+    public List<Manga> searchMangaByGenres(List<String> genres) throws DAOException {
+        try (MongoClient mongoClient = getConnection()) {
+            MongoCollection<Document> mangaCollection = mongoClient.getDatabase("mangaVerse").getCollection("manga");
+
+            Document query = new Document("genres", new Document("$in", genres));
+            List<Manga> result = new ArrayList<>();
+            mangaCollection.find(query).forEach(document -> {
+                Manga manga = documentToManga(document);
+                result.add(manga);
+            });
+            return result;
+        } catch (Exception e) {
+            throw new DAOException("Error while searching manga by genres", e);
+        }
+    }
+
+
+    @Override
+    public void removeManga(String mangaId) throws DAOException {
+        try (MongoClient mongoClient = getConnection()) {
+            MongoCollection<Document> mangaCollection = mongoClient.getDatabase("mangaVerse").getCollection("manga");
+
+            Document query = new Document("_id", new ObjectId(mangaId));
+            mangaCollection.deleteOne(query);
+        } catch (Exception e) {
+            throw new DAOException("Error while removing manga", e);
+        }
+    }
+
+
+
+    private Document mangaToDocument(Manga manga) {
+        Document doc = new Document("title", manga.getTitle())
                 .append("status", manga.getStatus())
-                .append("demographic", manga.getDemographics())
-                .append("image", manga.getImageUrl())
-                .append("authors", manga.getAuthors())
-                .append("genres", manga.getGenres())
-                .append("startDate", manga.getStartDate())
-                .append("endDate", manga.getEndDate())
-                .append("background", manga.getBackground())
-                .append("titleEnglish", manga.getTitleEnglish())
-                .append("titleJapanese", manga.getTitleJapanese())
-                .append("serializations", manga.getSerializations())
-                .append("synopsis", manga.getSynopsis());
-        // append recent reviews and average Rating?
+                .append("type", manga.getType());
+        if (manga.getImageUrl() != null) {
+            doc.append("picture", manga.getImageUrl());
+        }
+        if (manga.getGenres() != null) {
+            doc.append("genres", manga.getGenres());
+        }
+        if (manga.getStartDate() != null) {
+            doc.append("start_date", manga.getStartDate());
+        }
 
+        if (manga.getEndDate() != null) {
+            doc.append("end_date", manga.getEndDate());
+        }
 
-        mangaCollection.insertOne(animeDocument);
-    }
+        if (manga.getDemographics() != null) {
+            doc.append("demographics", manga.getDemographics());
+        }
+        if (manga.getSerializations() != null) {
+            doc.append("serializations", manga.getSerializations());
+        }
+        if (manga.getSynopsis() != null) {
+            doc.append("synopsis", manga.getSynopsis());
+        }
+        if (manga.getThemes() != null) {
+            doc.append("themes", manga.getThemes());
+        }
+        if (manga.getBackground() != null) {
+            doc.append("background", manga.getBackground());
+        }
 
-    @Override
-    public void updateManga(Manga manga) {
-        Document filter = new Document("_id", manga.getId());
-        Document update = new Document("$set", new Document("title",manga.getTitle()))
-                .append("title", manga.getTitle())
-                .append("type", manga.getType())
-                .append("themes", manga.getThemes())
-                .append("status", manga.getStatus())
-                .append("demographic", manga.getDemographics())
-                .append("image", manga.getImageUrl())
-                .append("authors", manga.getAuthors())
-                .append("genres", manga.getGenres())
-                .append("startDate", manga.getStartDate())
-                .append("endDate", manga.getEndDate())
-                .append("background", manga.getBackground())
-                .append("reviews", manga.getReviews())
-                .append("averageRating", manga.getAverageRating())
-                .append("titleEnglish", manga.getTitleEnglish())
-                .append("titleJapanese", manga.getTitleJapanese())
-                .append("serializations", manga.getSerializations())
-                .append("synopsis", manga.getSynopsis());
+        if (manga.getTitleEnglish() != null) {
+            doc.append("title_english", manga.getTitleEnglish());
+        }
 
-        mangaCollection.updateOne(filter, update);
-    }
+        if (manga.getTitleJapanese() != null) {
+            doc.append("title_japanese", manga.getTitleJapanese());
+        }
 
-    @Override
-    public List<Manga> searchMangaByTitle(String title) {
-        Document query = new Document("title", title);
-        List<Manga> result = new ArrayList<>();
+        if (manga.getAverageRating() != 0) {
+            doc.append("average_rating", manga.getAverageRating());
+        }
 
-        mangaCollection.find(query).forEach(document -> {
-            Manga manga = documentToManga(document);
-            result.add(manga);
-        });
+        if (manga.getVolumes() != 0) {
+            doc.append("volumes", manga.getVolumes());
+        }
 
-        return result;
-    }
+        if (manga.getChapters() != 0) {
+            doc.append("chapters", manga.getChapters());
+        }
 
-    @Override
-    public List<Manga>  searchMangaByStartDate(int startDate) {
-        Document query = new Document("startDate", startDate);
-        List<Manga> result = new ArrayList<>();
+        if(manga.getAuthors() != null) {
+            List<Document> authorsDocument = new ArrayList<>();
+            for (MangaAuthor author : manga.getAuthors()) {
+                Document authorDocument = new Document()
+                        .append("id", author.getId())
+                        .append("name", author.getName())
+                        .append("role", author.getRole());
+                authorsDocument.add(authorDocument);
+            }
+            doc.append("authors", authorsDocument);
+        }
 
-        mangaCollection.find(query).forEach(document -> {
-            Manga manga = documentToManga(document);
-            result.add(manga);
-        });
-
-        return result;
-    }
-
-    @Override
-    public List<Manga> searchMangaByGenres(List<String> genres) {
-        Document query = new Document("genres", new Document("$in", genres));
-        List<Manga> result = new ArrayList<>();
-
-        mangaCollection.find(query).forEach(document -> {
-            Manga manga = documentToManga(document);
-            result.add(manga);
-        });
-
-        return result;
-    }
-
-    @Override
-    public void removeAnime(String mangaId) {
-
-    }
-
-    @Override
-    public void removeManga(String mangaId) {
-        Document query = new Document("_id", mangaId);
-        mangaCollection.deleteOne(query);
-    }
-
-    @Override
-    public void closeConnection() {
-        BaseMongoDBDAO.closeConnection(mongoClient);
+        if (manga.getReviews() != null) {
+            List<Document> reviewsDocuments = new ArrayList<>();
+            for (Review<Manga> review : manga.getReviews()) {
+                Document reviewDocument = new Document()
+                        .append("id", review.getId())
+                        .append("user", new Document()
+                                .append("id", review.getUser().getId())
+                                .append("username", review.getUser().getUsername())
+                                .append("picture", review.getUser().getprofilePicUrl()))
+                        .append("comment", review.getComment())
+                        .append("date", ConverterUtils.convertLocalDateToDate(review.getDate()));
+                reviewsDocuments.add(reviewDocument);
+            }
+            doc.append("recent_reviews", reviewsDocuments);
+        }
+        return doc;
     }
 
     private Manga documentToManga(Document document) {
         Manga manga = new Manga();
-        manga.setId(document.getObjectId("_id").toString());
+        manga.setId(document.getObjectId("_id"));
         manga.setTitle(document.getString("title"));
         manga.setType(document.getString("type"));
-        manga.setThemes(Collections.singletonList(document.getString("themes")));
         manga.setStatus(Status.valueOf(document.getString("status")));
-        manga.setDemographics(Collections.singletonList(document.getString("demographics")));
-        manga.setImageUrl(document.getString("image"));
-        manga.setGenres(Collections.singletonList(document.getString("genres")));
-        manga.setSerializations(Collections.singletonList(document.getString("serializations")));
-        manga.setBackground(document.getString("background"));
-        manga.setTitleEnglish(document.getString("titleEnglish"));
-        manga.setTitleJapanese(document.getString("titleJapanese"));
-        manga.setStartDate(document.getDate("startDate"));
-        manga.setEndDate(document.getDate("endDate"));
 
-
-        List<Document> reviewsDocuments = document.getList("reviews",Document.class);
-        List<Review<Anime>> reviewList = new ArrayList<>();
-        manga.setReviews(reviewList);
-
-        List<Document> authorsDocuments = document.getList("authors",Document.class);
-        List<Review<Anime>> authorList = new ArrayList<>();
-
-        if(authorsDocuments != null) {
-            for(Document authorDocument : authorsDocuments) {
-
+        List<Document> reviewsDocuments = document.getList("recent_reviews",Document.class);
+        List<Review<Manga>> reviewList = new ArrayList<>();
+        if(reviewsDocuments != null) {
+            for(Document reviewDocument : reviewsDocuments) {
+                Review<Manga> review = new Review<>();
+                User reviewer = new User();
+                Document userDocument = reviewDocument.get("user", Document.class);
+                reviewer.setId(userDocument.getObjectId("_id"));
+                reviewer.setUsername(userDocument.getString("username"));
+                reviewer.setprofilePicUrl(userDocument.getString("picture"));
+                review.setUser(reviewer);
+                review.setId(reviewDocument.getObjectId("_id"));
+                review.setComment(reviewDocument.getString("comment"));
+                review.setDate(ConverterUtils.convertDateToLocalDate(reviewDocument.getDate("date")));
+                reviewList.add(review);
             }
         }
-        manga.setAuthors(authorList);
+        manga.setReviews(reviewList);
+        manga.setAverageRating(document.getDouble("average_rating"));
 
+        if (document.getString("themes") != null) {
+            manga.setThemes(Collections.singletonList(document.getString("themes")));
 
-        manga.setAverageRating(document.getDouble("averageRating"));
+        }
+        if (document.getString("genres") != null) {
+            manga.setGenres(Collections.singletonList(document.getString("genres")));
+        }
+        if (document.getString("picture") != null) {
+            manga.setImageUrl(document.getString("picture"));
+
+        }
+        if (document.getString("demographics") != null) {
+            manga.setDemographics(Collections.singletonList(document.getString("demographics")));
+        }
+        if (document.getString("Serializations") != null) {
+            manga.setSerializations(Collections.singletonList(document.getString("serializations")));
+        }
+        if (document.getString("background") != null) {
+            manga.setBackground(document.getString("background"));
+        }
+        if (document.getString("title_english") != null) {
+            manga.setTitleEnglish(document.getString("title_english"));
+        }
+        if (document.getString("title_japanese") != null) {
+            manga.setTitleEnglish(document.getString("title_japanese"));
+        }
+        if (document.getDate("start_date") != null) {
+            manga.setStartDate(document.getString("start_date"));
+        }
+        if (document.getDate("end_date") != null) {
+            manga.setEndDate(document.getString("end_date"));
+        }
+        if (document.getInteger("volumes") != null) {
+            manga.setVolumes(document.getInteger("volumes"));
+        }
+        if (document.getInteger("chapters") != null) {
+            manga.setChapters(document.getInteger("chapters"));
+        }
+
+        List<Document> authorsDocument = document.getList("authors", Document.class);
+        List<MangaAuthor> authorsList = new ArrayList<>();
+        if (authorsDocument != null) {
+            for (Document authorDocument : authorsDocument) {
+                MangaAuthor author = new MangaAuthor();
+                author.setId(authorDocument.getInteger("id"));
+                author.setName(authorDocument.getString("name"));
+                author.setRole(authorDocument.getString("role"));
+                authorsList.add(author);
+            }
+        }
+        manga.setAuthors(authorsList);
+
 
         return manga;
-
     }
+
+}
+
+
