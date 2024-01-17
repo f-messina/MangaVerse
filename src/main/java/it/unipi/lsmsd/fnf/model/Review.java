@@ -11,7 +11,7 @@ public class Review<T extends MediaContent> {
     private ObjectId id;
     private LocalDate date;
     private String comment;
-    private int rating;
+    private Integer rating;
     private T mediaContent;
     private User user;
 
@@ -27,7 +27,7 @@ public class Review<T extends MediaContent> {
         return comment;
     }
 
-    public int getRating() {
+    public Integer getRating() {
         return rating;
     }
 
@@ -51,7 +51,7 @@ public class Review<T extends MediaContent> {
         this.comment = comment;
     }
 
-    public void setRating(int rating) {
+    public void setRating(Integer rating) {
         this.rating = rating;
     }
 

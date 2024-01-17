@@ -5,15 +5,14 @@ import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dto.PersonalListDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
-import it.unipi.lsmsd.fnf.model.PersonalList;
 import org.bson.types.ObjectId;
 
 import java.util.List;
 
 public interface ListDAO {
-    public List<PersonalList> findByUserId(ObjectId userId) throws DAOException;
-    public List<PersonalList> findAll() throws DAOException;
-    public PersonalList find(ObjectId id) throws DAOException;
+    public List<PersonalListDTO> findByUserId(ObjectId userId) throws DAOException;
+    public List<PersonalListDTO> findAll() throws DAOException;
+    public PersonalListDTO find(ObjectId id) throws DAOException;
     public void insert(PersonalListDTO list) throws DAOException;
     public void insert(List<PersonalListDTO> lists) throws DAOException;
     public void update(PersonalListDTO list) throws DAOException;

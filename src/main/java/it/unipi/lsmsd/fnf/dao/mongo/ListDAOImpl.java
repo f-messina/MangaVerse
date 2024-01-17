@@ -10,10 +10,6 @@ import it.unipi.lsmsd.fnf.dto.PersonalListDTO;
 import it.unipi.lsmsd.fnf.dto.RegisteredUserDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
-import it.unipi.lsmsd.fnf.model.PersonalList;
-import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
-import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
-import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import it.unipi.lsmsd.fnf.utils.ConverterUtils;
 import org.bson.Document;
 import org.bson.types.ObjectId;
@@ -23,18 +19,18 @@ import java.util.List;
 
 public class ListDAOImpl extends BaseMongoDBDAO implements ListDAO {
 
-    private PersonalList documentToPersonalList(Document document) {
-        User user = new User();
+    private PersonalListDTO documentToPersonalList(Document document) {
+        RegisteredUserDTO user = new RegisteredUserDTO();
         Document userDoc = (Document) document.get("user");
         user.setId(userDoc.getObjectId("id"));
         user.setLocation(userDoc.getString("location"));
         user.setBirthday(ConverterUtils.convertDateToLocalDate(userDoc.getDate("birthday")));
 
-        List<Anime> anime_list = new ArrayList<>();
+        List<AnimeDTO> anime_list = new ArrayList<>();
         List<Document> animeDoc = document.getList("anime_list", Document.class);
         if (animeDoc != null) {
             for (Document doc : animeDoc) {
-                Anime anime = new Anime();
+                AnimeDTO anime = new AnimeDTO();
                 anime.setId(doc.getObjectId("id"));
                 anime.setTitle(doc.getString("title"));
                 anime.setImageUrl(doc.getString("picture"));
@@ -42,11 +38,11 @@ public class ListDAOImpl extends BaseMongoDBDAO implements ListDAO {
             }
         }
 
-        List<Manga> manga_list = new ArrayList<>();
+        List<MangaDTO> manga_list = new ArrayList<>();
         List<Document> mangaDoc = document.getList("manga_list", Document.class);
         if (mangaDoc != null) {
             for (Document doc : mangaDoc) {
-                Manga manga = new Manga();
+                MangaDTO manga = new MangaDTO();
                 manga.setId(doc.getObjectId("id"));
                 manga.setTitle(doc.getString("title"));
                 manga.setImageUrl(doc.getString("picture"));
@@ -54,7 +50,7 @@ public class ListDAOImpl extends BaseMongoDBDAO implements ListDAO {
             }
         }
 
-        PersonalList list = new PersonalList();
+        PersonalListDTO list = new PersonalListDTO();
         list.setId(document.getObjectId("_id"));
         list.setName(document.getString("name"));
         list.setUser(user);
@@ -88,10 +84,10 @@ public class ListDAOImpl extends BaseMongoDBDAO implements ListDAO {
     }
 
     @Override
-    public List<PersonalList> findByUserId(ObjectId userId) throws DAOException {
+    public List<PersonalListDTO> findByUserId(ObjectId userId) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
-            List<PersonalList> personalLists = new ArrayList<>();
+            List<PersonalListDTO> personalLists = new ArrayList<>();
             listsCollection.find(new Document("user.id", userId)).forEach(document -> {
                 personalLists.add(documentToPersonalList(document));
             });
@@ -102,10 +98,10 @@ public class ListDAOImpl extends BaseMongoDBDAO implements ListDAO {
     }
 
     @Override
-    public List<PersonalList> findAll() throws DAOException {
+    public List<PersonalListDTO> findAll() throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
-            List<PersonalList> personalLists = new ArrayList<>();
+            List<PersonalListDTO> personalLists = new ArrayList<>();
             listsCollection.find().forEach(document -> {
                 personalLists.add(documentToPersonalList(document));
             });
@@ -116,10 +112,10 @@ public class ListDAOImpl extends BaseMongoDBDAO implements ListDAO {
     }
 
     @Override
-    public PersonalList find(ObjectId id) throws DAOException {
+    public PersonalListDTO find(ObjectId id) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
-            PersonalList personalList = new PersonalList();
+            PersonalListDTO personalList = new PersonalListDTO();
             Document listDoc = listsCollection.find(new Document("_id", id)).first();
             if (listDoc != null) {
                 personalList = documentToPersonalList(listDoc);

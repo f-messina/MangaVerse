@@ -16,7 +16,47 @@ import java.util.Collections;
 import java.util.List;
 
 public class MangaDAOImpl implements MangaDAO {
+    @Override
+    public void addManga(Manga manga) {
 
+    }
+
+    @Override
+    public void updateManga(Manga manga) {
+
+    }
+
+    @Override
+    public List<Manga> searchMangaByTitle(String title) {
+        return null;
+    }
+
+    @Override
+    public List<Manga> searchMangaByStartDate(int startDate) {
+        return null;
+    }
+
+    @Override
+    public List<Manga> searchMangaByGenres(List<String> genres) {
+        return null;
+    }
+
+    @Override
+    public void removeAnime(String mangaId) {
+
+    }
+
+    @Override
+    public void removeManga(String mangaId) {
+
+    }
+
+    @Override
+    public void closeConnection() {
+
+    }
+
+    /*
     private static final String MANGA = "manga";
 
     private final MongoClient mongoClient;
@@ -170,5 +210,6 @@ public class MangaDAOImpl implements MangaDAO {
         manga.setAverageRating(document.getDouble("averageRating"));
 
         return manga;
-
     }
+     */
+}

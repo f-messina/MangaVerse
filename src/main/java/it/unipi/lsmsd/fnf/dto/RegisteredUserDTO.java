@@ -13,6 +13,9 @@ public class RegisteredUserDTO {
     private LocalDate birthday;
     private int age;
 
+    public RegisteredUserDTO() {
+    }
+
     public RegisteredUserDTO(ObjectId id, String username, String profilePicUrl) {
         this.id = id;
         this.username = username;
