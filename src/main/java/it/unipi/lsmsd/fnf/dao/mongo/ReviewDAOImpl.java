@@ -20,75 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
-
-    private Document reviewToDocument(ReviewDTO review) {
-        Document reviewDocument = new Document()
-                .append("id", review.getId())
-                .append("user", new Document()
-                        .append("id", review.getUser().getId())
-                        .append("username", review.getUser().getUsername())
-                        .append("picture", review.getUser().getProfilePicUrl()))
-                .append("date", ConverterUtils.convertLocalDateToDate(review.getDate()));
-        if (review.getComment() != null) {
-            reviewDocument.append("comment", review.getComment());
-        }
-        if (review.getRating() != null) {
-            reviewDocument.append("rating", review.getRating());
-        }
-        if (review.getMediaContent() instanceof AnimeDTO) {
-            reviewDocument.append("anime", new Document()
-                    .append("id", review.getMediaContent().getId())
-                    .append("title", review.getMediaContent().getTitle())
-                    .append("image", review.getMediaContent().getImageUrl()));
-        } else if (review.getMediaContent() instanceof MangaDTO) {
-            reviewDocument.append("manga", new Document()
-                    .append("id", review.getMediaContent().getId())
-                    .append("title", review.getMediaContent().getTitle())
-                    .append("image", review.getMediaContent().getImageUrl()));
-        }
-
-        return reviewDocument;
-    }
-
-    private ReviewDTO documentToReview(Document reviewDoc) {
-        ObjectId reviewId = reviewDoc.getObjectId("_id");
-        LocalDate date = ConverterUtils.convertDateToLocalDate(reviewDoc.getDate("date"));
-        String comment = null;
-        if (reviewDoc.getString("comment") != null) {
-             comment = reviewDoc.getString("comment");
-        }
-        Integer rating = null;
-        if (reviewDoc.getInteger("rating") != null) {
-            rating = reviewDoc.getInteger("rating");
-        }
-
-        MediaContentDTO mediaDTO;
-        Document mediaDoc = reviewDoc.get("anime", Document.class);
-        if (mediaDoc != null) {
-            mediaDTO = new AnimeDTO(
-                    mediaDoc.getObjectId("id"),
-                    mediaDoc.getString("title"),
-                    mediaDoc.getString("image")
-            );
-        } else {
-            mediaDoc = reviewDoc.get("manga", Document.class);
-            mediaDTO = new MangaDTO(
-                    mediaDoc.getObjectId("id"),
-                    mediaDoc.getString("title"),
-                    mediaDoc.getString("image")
-            );
-        }
-
-        RegisteredUserDTO userDTO = new RegisteredUserDTO(
-                reviewDoc.get("user", Document.class).getObjectId("id"),
-                reviewDoc.get("user", Document.class).getString("username"),
-                reviewDoc.get("user", Document.class).getString("picture")
-        );
-
-        return new ReviewDTO(reviewId, date, comment, rating, mediaDTO, userDTO);
-    }
-
-
     @Override
     public void insert(ReviewDTO review) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
@@ -228,5 +159,72 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
         } catch (Exception e) {
             throw new DAOException("Error while finding reviews by user and media", e);
         }
+    }
+
+    private Document reviewToDocument(ReviewDTO review) {
+        Document reviewDocument = new Document()
+                .append("id", review.getId())
+                .append("user", new Document()
+                        .append("id", review.getUser().getId())
+                        .append("username", review.getUser().getUsername())
+                        .append("picture", review.getUser().getProfilePicUrl()))
+                .append("date", ConverterUtils.convertLocalDateToDate(review.getDate()));
+        if (review.getComment() != null) {
+            reviewDocument.append("comment", review.getComment());
+        }
+        if (review.getRating() != null) {
+            reviewDocument.append("rating", review.getRating());
+        }
+        if (review.getMediaContent() instanceof AnimeDTO) {
+            reviewDocument.append("anime", new Document()
+                    .append("id", review.getMediaContent().getId())
+                    .append("title", review.getMediaContent().getTitle())
+                    .append("image", review.getMediaContent().getImageUrl()));
+        } else if (review.getMediaContent() instanceof MangaDTO) {
+            reviewDocument.append("manga", new Document()
+                    .append("id", review.getMediaContent().getId())
+                    .append("title", review.getMediaContent().getTitle())
+                    .append("image", review.getMediaContent().getImageUrl()));
+        }
+
+        return reviewDocument;
+    }
+
+    private ReviewDTO documentToReview(Document reviewDoc) {
+        ObjectId reviewId = reviewDoc.getObjectId("_id");
+        LocalDate date = ConverterUtils.convertDateToLocalDate(reviewDoc.getDate("date"));
+        String comment = null;
+        if (reviewDoc.getString("comment") != null) {
+            comment = reviewDoc.getString("comment");
+        }
+        Integer rating = null;
+        if (reviewDoc.getInteger("rating") != null) {
+            rating = reviewDoc.getInteger("rating");
+        }
+
+        MediaContentDTO mediaDTO;
+        Document mediaDoc = reviewDoc.get("anime", Document.class);
+        if (mediaDoc != null) {
+            mediaDTO = new AnimeDTO(
+                    mediaDoc.getObjectId("id"),
+                    mediaDoc.getString("title"),
+                    mediaDoc.getString("image")
+            );
+        } else {
+            mediaDoc = reviewDoc.get("manga", Document.class);
+            mediaDTO = new MangaDTO(
+                    mediaDoc.getObjectId("id"),
+                    mediaDoc.getString("title"),
+                    mediaDoc.getString("image")
+            );
+        }
+
+        RegisteredUserDTO userDTO = new RegisteredUserDTO(
+                reviewDoc.get("user", Document.class).getObjectId("id"),
+                reviewDoc.get("user", Document.class).getString("username"),
+                reviewDoc.get("user", Document.class).getString("picture")
+        );
+
+        return new ReviewDTO(reviewId, date, comment, rating, mediaDTO, userDTO);
     }
 }
