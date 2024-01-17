@@ -1,23 +1,23 @@
 package it.unipi.lsmsd.fnf.dao;
 
+import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
 
 import java.util.List;
 
 public interface MangaDAO {
-    void addManga(Manga manga);
 
-    void updateManga(Manga manga);
+    void updateManga(Manga manga) throws DAOException;
 
-    List<Manga> searchMangaByTitle(String title);
+    void insertManga(Manga manga) throws DAOException;
 
-    List<Manga>  searchMangaByStartDate(int startDate);
+    Manga searchMangaByTitle(String title) throws DAOException;
 
-    List<Manga> searchMangaByGenres(List<String> genres);
+    List<Manga>  searchMangaByStartDate(int startDate) throws DAOException;
 
-    void removeAnime(String mangaId);
+    List<Manga> searchMangaByGenres(List<String> genres) throws DAOException;
 
-    void removeManga(String mangaId);
 
-    void closeConnection();
+    void removeManga(String mangaId) throws DAOException;
+
 }
