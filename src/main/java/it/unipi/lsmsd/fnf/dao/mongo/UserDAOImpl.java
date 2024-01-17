@@ -13,10 +13,111 @@ import com.mongodb.client.MongoCollection;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import java.time.LocalDate;
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
+  
+    @Override
+    public void insert(User user) throws DAOException {
+
+
+        try (MongoClient mongoClient = getConnection()) {
+            MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
+            // Set the current date for joinedDate
+            user.setJoinedDate(LocalDate.now());
+
+            users.insertOne(RegisteredUserToDocument(user));
+        }
+        catch (Exception e){
+            throw new DAOException("Error adding new user", e);
+        }
+    }
+
+    @Override
+    public void remove(ObjectId id) throws DAOException {
+        try (MongoClient mongoClient = getConnection()) {
+            MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
+
+            Document filter = new Document("_id", id);
+            users.deleteOne(filter);
+        }
+        catch (Exception e){
+            throw new DAOException("Error removing user", e);
+        }
+    }
+
+    @Override
+    public RegisteredUser find(ObjectId id) throws DAOException {
+        try (MongoClient mongoClient = getConnection()) {
+            MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
+
+            // Create a filter to find the user by username
+            Document filter = new Document("_id", id);
+
+            // Find the document in the collection
+            Document userDocument = users.find(filter).first();
+
+            if (userDocument != null) {
+                return documentToRegisteredUser(userDocument);
+            } else {
+                throw new DAOException("User not found with the username: " + id);
+            }
+        }
+        catch (Exception e){
+            throw new DAOException("Error searching user by username: "+ id, e);
+        }
+    }
+
+    @Override
+    public RegisteredUser find(String username) throws DAOException {
+        try (MongoClient mongoClient = getConnection()) {
+            MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
+
+            // Create a filter to find the user by username
+            Document filter = new Document("username", username);
+
+            // Find the document in the collection
+            Document userDocument = users.find(filter).first();
+
+            if (userDocument != null) {
+                return documentToRegisteredUser(userDocument);
+            } else {
+                throw new DAOException("User not found with the username: " + username);
+            }
+        }
+        catch (Exception e){
+            throw new DAOException("Error searching user by username: "+ username, e);
+        }
+    }
+
+    public List<RegisteredUser> findAll() throws DAOException {
+        try (MongoClient mongoClient = getConnection()) {
+            MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
+
+            List<RegisteredUser> result = new ArrayList<>();
+            users.find().forEach(document -> {
+                RegisteredUser user = documentToRegisteredUser(document);
+                result.add(user);
+            });
+            return result;
+        }
+        catch (Exception e){
+            throw new DAOException("Error searching all the users", e);
+        }
+    }
+    @Override
+    public void update(RegisteredUser user) throws DAOException {
+        try (MongoClient mongoClient = getConnection()) {
+            MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
+
+            Document filter = new Document("_id", user.getId());
+            users.updateOne(filter,new Document("$set", RegisteredUserToDocument(user)));
+        } catch (Exception e){
+            throw new DAOException("Error updating user information for user with id: "+ user.getId(), e);
+        }
+    }
 
     private RegisteredUser documentToRegisteredUser(Document doc) {
         RegisteredUser user;
@@ -88,74 +189,6 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
             }
         }
         return doc;
-    }
-  
-    @Override
-    public void insert(User user) throws DAOException {
-
-
-        try (MongoClient mongoClient = getConnection()) {
-            MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
-            // Set the current date for joinedDate
-            user.setJoinedDate(LocalDate.now());
-
-            users.insertOne(RegisteredUserToDocument(user));
-        }
-        catch (Exception e){
-            throw new DAOException("Error adding new user");
-        }
-    }
-
-    @Override
-    public void remove(ObjectId id) throws DAOException {
-        try (MongoClient mongoClient = getConnection()) {
-            MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
-
-            Document filter = new Document("_id", id);
-            users.deleteOne(filter);
-        }
-        catch (Exception e){
-            throw new DAOException("Error removing user");
-        }
-    }
-
-    @Override
-    public RegisteredUser find(ObjectId id) throws DAOException {
-        return null;
-    }
-
-    @Override
-    public RegisteredUser find(String username) throws DAOException {
-        try (MongoClient mongoClient = getConnection()) {
-            MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
-
-            // Create a filter to find the user by username
-            Document filter = new Document("username", username);
-
-            // Find the document in the collection
-            Document userDocument = users.find(filter).first();
-
-            if (userDocument != null) {
-                return documentToRegisteredUser(userDocument);
-            } else {
-                throw new DAOException("User not found with the username: " + username);
-            }
-        }
-        catch (Exception e){
-            throw new DAOException("Error searching user by username: "+ username);
-        }
-    }
-
-    @Override
-    public void update(RegisteredUser user) throws DAOException {
-        try (MongoClient mongoClient = getConnection()) {
-            MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
-
-            Document filter = new Document("_id", user.getId());
-            users.updateOne(filter,new Document("$set", RegisteredUserToDocument(user)));
-        } catch (Exception e){
-            throw new DAOException("Error updating user information for user with id: "+ user.getId());
-        }
     }
 }
 
