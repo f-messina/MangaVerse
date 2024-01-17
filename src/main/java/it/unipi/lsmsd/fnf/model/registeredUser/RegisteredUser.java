@@ -1,17 +1,19 @@
 package it.unipi.lsmsd.fnf.model.registeredUser;
 
-import java.util.Date;
+import org.bson.types.ObjectId;
+
+import java.time.LocalDate;
 
 public abstract class RegisteredUser {
-    private String id;
+    private ObjectId id;
     private String username;
     private String password;
     private String email;
     private String fullname;
     private String profilePicUrl;
-    private Date joinedDate;
+    private LocalDate joinedDate;
 
-    public String getId() {
+    public ObjectId getId() {
         return id;
     }
 
@@ -35,11 +37,11 @@ public abstract class RegisteredUser {
         return profilePicUrl;
     }
 
-    public Date getJoinedDate() {
+    public LocalDate getJoinedDate() {
         return joinedDate;
     }
 
-    public void setId(String id) {
+    public void setId(ObjectId id) {
         this.id = id;
     }
 
@@ -63,7 +65,7 @@ public abstract class RegisteredUser {
         this.profilePicUrl = profilePicUrl;
     }
 
-    public void setJoinedDate(Date joinedDate) {
+    public void setJoinedDate(LocalDate joinedDate) {
         this.joinedDate = joinedDate;
     }
 

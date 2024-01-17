@@ -1,35 +1,36 @@
 package it.unipi.lsmsd.fnf.dto;
+import org.bson.types.ObjectId;
+
+import java.time.LocalDate;
 import java.util.Date;
 
 public class RegisteredUserDTO {
 
-    private String id;
+    private ObjectId id;
     private String username;
     private String profilePicUrl;
     private String location;
-    private Date birthday;
+    private LocalDate birthday;
+    private int age;
 
-    public RegisteredUserDTO(String id, String username, String profilePicUrl) {
+    public RegisteredUserDTO(ObjectId id, String username, String profilePicUrl) {
         this.id = id;
         this.username = username;
         this.profilePicUrl = profilePicUrl;
     }
 
-    public RegisteredUserDTO(String id, String location, Date birthday) {
+    public RegisteredUserDTO(ObjectId id, String location, LocalDate birthday) {
         this.id = id;
         this.location = location;
         this.birthday = birthday;
+        age = calculateAge();
     }
 
-    public RegisteredUserDTO(String id) {
-        this.id = id;
-    }
-
-    public String getId() {
+    public ObjectId getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(ObjectId id) {
         this.id = id;
     }
 
@@ -40,7 +41,6 @@ public class RegisteredUserDTO {
     public void setUsername(String username) {
         this.username = username;
     }
-
 
     public String getProfilePicUrl() {
         return profilePicUrl;
@@ -58,12 +58,29 @@ public class RegisteredUserDTO {
         this.location = location;
     }
 
-    public Date getBirthday() {
+    public LocalDate getBirthday() {
         return birthday;
     }
 
-    public void setBirthday(Date birthday) {
+    public void setBirthday(LocalDate birthday) {
         this.birthday = birthday;
+    }
+
+    public int getAge() {
+        if (age == 0 && birthday != null) {
+            age = calculateAge();
+        }
+        return age;
+    }
+
+    public int calculateAge() {
+        LocalDate now = LocalDate.now();
+        int age = now.getYear() - birthday.getYear();
+        if (now.getMonthValue() < birthday.getMonthValue() ||
+                (now.getMonthValue() == birthday.getMonthValue() && now.getDayOfMonth() < birthday.getDayOfMonth())) {
+            age--;
+        }
+        return age;
     }
 
     @Override

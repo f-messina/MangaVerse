@@ -1,5 +1,6 @@
 package it.unipi.lsmsd.fnf.dto;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 public class UserRegistrationDTO {
@@ -9,7 +10,7 @@ public class UserRegistrationDTO {
     private String fullname;
     private String gender;
     private String location;
-    private Date birthday;
+    private LocalDate birthday;
 
     public String getUsername() {
         return username;
@@ -59,11 +60,11 @@ public class UserRegistrationDTO {
         this.location = location;
     }
 
-    public Date getBirthday() {
+    public LocalDate getBirthday() {
         return birthday;
     }
 
-    public void setBirthday(Date birthday) {
+    public void setBirthday(LocalDate birthday) {
         this.birthday = birthday;
     }
 

@@ -7,7 +7,7 @@ import java.util.List;
 public class Anime extends MediaContent {
     private int year;
     private String season;
-    private String episodeCount;
+    private int episodeCount;
     private List<String> tags;
     private List<String> relatedAnime;
     private List<Review<Anime>> reviews;
@@ -22,7 +22,7 @@ public class Anime extends MediaContent {
         return season;
     }
 
-    public String getEpisodeCount() {
+    public int getEpisodeCount() {
         return episodeCount;
     }
 
@@ -54,7 +54,7 @@ public class Anime extends MediaContent {
         this.season = season;
     }
 
-    public void setEpisodeCount(String episodeCount) {
+    public void setEpisodeCount(int episodeCount) {
         this.episodeCount = episodeCount;
     }
 
@@ -89,7 +89,8 @@ public class Anime extends MediaContent {
     @Override
     public String toString() {
         return "Anime{" +
-                "year=" + year +
+                super.toString() +
+                ", year=" + year +
                 ", season='" + season + '\'' +
                 ", episodeCount='" + episodeCount + '\'' +
                 ", tags=" + tags +

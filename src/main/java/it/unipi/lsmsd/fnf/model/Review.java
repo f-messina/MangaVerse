@@ -2,22 +2,24 @@ package it.unipi.lsmsd.fnf.model;
 
 import it.unipi.lsmsd.fnf.model.mediaContent.MediaContent;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
+import org.bson.types.ObjectId;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 public class Review<T extends MediaContent> {
-    private String id;
-    private Date date;
+    private ObjectId id;
+    private LocalDate date;
     private String comment;
     private int rating;
     private T mediaContent;
     private User user;
 
-    public String getId() {
+    public ObjectId getId() {
         return id;
     }
 
-    public Date getDate() {
+    public LocalDate getDate() {
         return date;
     }
 
@@ -37,11 +39,11 @@ public class Review<T extends MediaContent> {
         return user;
     }
 
-    public void setId(String id) {
+    public void setId(ObjectId id) {
         this.id = id;
     }
 
-    public void setDate(Date date) {
+    public void setDate(LocalDate date) {
         this.date = date;
     }
 

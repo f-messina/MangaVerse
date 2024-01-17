@@ -1,21 +1,20 @@
 package it.unipi.lsmsd.fnf.dao.mongo;
 
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
 import it.unipi.lsmsd.fnf.dao.MangaDAO;
 import it.unipi.lsmsd.fnf.dao.base.BaseMongoDBDAO;
 import it.unipi.lsmsd.fnf.model.Review;
 import it.unipi.lsmsd.fnf.model.enums.Status;
 import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
 import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
-import org.bson.Document;
 
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import org.bson.Document;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-//Read manga, add manga, update manga info, search manga by name, author, year, remove manga
 public class MangaDAOImpl implements MangaDAO {
 
     private static final String MANGA = "manga";
@@ -173,4 +172,3 @@ public class MangaDAOImpl implements MangaDAO {
         return manga;
 
     }
-}
