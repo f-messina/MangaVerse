@@ -2,7 +2,6 @@ package it.unipi.lsmsd.fnf.dao.mongo;
 
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoCursor;
 import it.unipi.lsmsd.fnf.dao.ListDAO;
 import it.unipi.lsmsd.fnf.dao.base.BaseMongoDBDAO;
 import it.unipi.lsmsd.fnf.dao.enums.SearchCriteriaEnum;
@@ -32,7 +31,7 @@ public class ListDAOImpl extends BaseMongoDBDAO implements ListDAO {
         user.setBirthday(ConverterUtils.convertDateToLocalDate(userDoc.getDate("birthday")));
 
         List<Anime> anime_list = new ArrayList<>();
-        List<Document> animeDoc = (List<Document>) document.get("anime_list");
+        List<Document> animeDoc = document.getList("anime_list", Document.class);
         if (animeDoc != null) {
             for (Document doc : animeDoc) {
                 Anime anime = new Anime();
@@ -44,7 +43,7 @@ public class ListDAOImpl extends BaseMongoDBDAO implements ListDAO {
         }
 
         List<Manga> manga_list = new ArrayList<>();
-        List<Document> mangaDoc = (List<Document>) document.get("manga_list");
+        List<Document> mangaDoc = document.getList("manga_list", Document.class);
         if (mangaDoc != null) {
             for (Document doc : mangaDoc) {
                 Manga manga = new Manga();
@@ -92,13 +91,11 @@ public class ListDAOImpl extends BaseMongoDBDAO implements ListDAO {
     public List<PersonalList> findByUserId(ObjectId userId) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
-            List<PersonalList> PersonalLists = new ArrayList<>();
-            try (MongoCursor<Document> cursor = listsCollection.find(new Document("user.id", userId)).iterator()) {
-                while (cursor.hasNext()) {
-                    PersonalLists.add(documentToPersonalList(cursor.next()));
-                }
-            }
-            return PersonalLists;
+            List<PersonalList> personalLists = new ArrayList<>();
+            listsCollection.find(new Document("user.id", userId)).forEach(document -> {
+                personalLists.add(documentToPersonalList(document));
+            });
+            return personalLists;
         } catch (Exception e) {
             throw new DAOException("Error finding lists by user id");
         }
@@ -109,11 +106,9 @@ public class ListDAOImpl extends BaseMongoDBDAO implements ListDAO {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
             List<PersonalList> personalLists = new ArrayList<>();
-            try (MongoCursor<Document> cursor = listsCollection.find().iterator()) {
-                while (cursor.hasNext()) {
-                    personalLists.add(documentToPersonalList(cursor.next()));
-                }
-            }
+            listsCollection.find().forEach(document -> {
+                personalLists.add(documentToPersonalList(document));
+            });
             return personalLists;
         } catch (Exception e) {
             throw new DAOException("Error finding all lists");

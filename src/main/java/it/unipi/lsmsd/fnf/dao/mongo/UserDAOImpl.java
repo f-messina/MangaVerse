@@ -13,7 +13,8 @@ import com.mongodb.client.MongoCollection;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import java.time.LocalDate;
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
@@ -121,7 +122,24 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
 
     @Override
     public RegisteredUser find(ObjectId id) throws DAOException {
-        return null;
+        try (MongoClient mongoClient = getConnection()) {
+            MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
+
+            // Create a filter to find the user by username
+            Document filter = new Document("_id", id);
+
+            // Find the document in the collection
+            Document userDocument = users.find(filter).first();
+
+            if (userDocument != null) {
+                return documentToRegisteredUser(userDocument);
+            } else {
+                throw new DAOException("User not found with the username: " + id);
+            }
+        }
+        catch (Exception e){
+            throw new DAOException("Error searching user by username: "+ id);
+        }
     }
 
     @Override
@@ -146,6 +164,21 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
         }
     }
 
+    public List<RegisteredUser> findAll() throws DAOException {
+        try (MongoClient mongoClient = getConnection()) {
+            MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
+
+            List<RegisteredUser> result = new ArrayList<>();
+            users.find().forEach(document -> {
+                RegisteredUser user = documentToRegisteredUser(document);
+                result.add(user);
+            });
+            return result;
+        }
+        catch (Exception e){
+            throw new DAOException("Error searching all the users");
+        }
+    }
     @Override
     public void update(RegisteredUser user) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
