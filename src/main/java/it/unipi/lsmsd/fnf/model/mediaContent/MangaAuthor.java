@@ -5,6 +5,9 @@ public class MangaAuthor {
     private String name;
     private String role;
 
+    public MangaAuthor() {
+    }
+
     public MangaAuthor(int id, String name, String role) {
         this.id = id;
         this.name = name;

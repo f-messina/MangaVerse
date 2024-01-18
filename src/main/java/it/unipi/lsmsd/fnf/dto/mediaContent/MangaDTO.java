@@ -10,6 +10,8 @@ import java.util.List;
 
 public class MangaDTO extends MediaContentDTO{
 
+    public MangaDTO() {
+    }
 
     public MangaDTO(ObjectId id, String title, String imageUrl, float averageRating, String startDate, String endDate) {
         super(id, title, imageUrl, averageRating);

@@ -6,10 +6,12 @@ public abstract class MediaContentDTO {
     private ObjectId id;
     private String title;
     private String imageUrl;
-    private float averageRating;
+    private double averageRating;
 
+    public MediaContentDTO() {
+    }
 
-    public MediaContentDTO(ObjectId id, String title, String imageUrl, float averageRating) {
+    public MediaContentDTO(ObjectId id, String title, String imageUrl, double averageRating) {
         this.id = id;
         this.title = title;
         this.imageUrl = imageUrl;
@@ -46,11 +48,11 @@ public abstract class MediaContentDTO {
         this.imageUrl = imageUrl;
     }
 
-    public float getAverageRating() {
+    public double getAverageRating() {
         return averageRating;
     }
 
-    public void setAverageRating(float averageRating) {
+    public void setAverageRating(double averageRating) {
         this.averageRating = averageRating;
     }
 
