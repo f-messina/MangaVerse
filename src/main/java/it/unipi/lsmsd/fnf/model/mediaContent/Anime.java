@@ -5,16 +5,16 @@ import it.unipi.lsmsd.fnf.model.Review;
 import java.util.List;
 
 public class Anime extends MediaContent {
-    private int year;
+    private Integer year;
     private String season;
-    private int episodeCount;
+    private Integer episodeCount;
     private List<String> tags;
     private List<String> relatedAnime;
     private List<Review<Anime>> reviews;
     private String producers;
     private String studios;
 
-    public int getYear() {
+    public Integer getYear() {
         return year;
     }
 
@@ -22,7 +22,7 @@ public class Anime extends MediaContent {
         return season;
     }
 
-    public int getEpisodeCount() {
+    public Integer getEpisodeCount() {
         return episodeCount;
     }
 
@@ -46,7 +46,7 @@ public class Anime extends MediaContent {
         return studios;
     }
 
-    public void setYear(int year) {
+    public void setYear(Integer year) {
         this.year = year;
     }
 
@@ -54,7 +54,7 @@ public class Anime extends MediaContent {
         this.season = season;
     }
 
-    public void setEpisodeCount(int episodeCount) {
+    public void setEpisodeCount(Integer episodeCount) {
         this.episodeCount = episodeCount;
     }
 

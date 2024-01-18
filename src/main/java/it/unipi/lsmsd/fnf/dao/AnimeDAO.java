@@ -9,14 +9,13 @@ import org.bson.types.ObjectId;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public interface AnimeDAO {
 
     public void insert(Anime anime) throws DAOException;
     public void update(Anime anime) throws DAOException;
-    public Anime find(ObjectId id) throws DAOException;
-    public Anime searchByTitle(String title) throws DAOException;
-    public List<Anime> searchByYear(int year) throws DAOException;
-    public List<Anime> searchByTags(List<String> tags) throws DAOException;
+    public List<Anime> search(String title) throws DAOException;
+    public List<Anime> search(Map<String, Object> filters, Map<String, Integer> orderBy) throws DAOException;
     public void remove(String animeId) throws DAOException;
 }

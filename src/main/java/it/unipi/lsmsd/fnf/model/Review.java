@@ -67,10 +67,11 @@ public class Review<T extends MediaContent> {
     public String toString() {
         return "Review{" +
                 "id=" + id +
+                ", date=" + date +
                 ", comment='" + comment + '\'' +
-                ", rating='" + rating + '\'' +
-                ", manga_anime='" + mediaContent + '\'' +
-                ", user='" + user + '\'' +
+                ", rating=" + rating +
+                ", mediaContent=" + mediaContent +
+                ", user=" + user +
                 '}';
     }
 }

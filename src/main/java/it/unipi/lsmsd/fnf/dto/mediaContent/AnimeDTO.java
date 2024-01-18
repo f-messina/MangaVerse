@@ -8,7 +8,7 @@ public class AnimeDTO extends MediaContentDTO{
     public AnimeDTO() {
     }
 
-    public AnimeDTO(ObjectId id, String title, String imageUrl, float averageRating, int year) {
+    public AnimeDTO(ObjectId id, String title, String imageUrl, float averageRating, Integer year) {
         super(id, title, imageUrl, averageRating);
         this.year = year;
     }
@@ -20,7 +20,7 @@ public class AnimeDTO extends MediaContentDTO{
     public AnimeDTO(ObjectId id, String title, String imageUrl) {
         super(id, title, imageUrl);
     }
-    private int year;
+    private Integer year;
 
 
 
