@@ -48,6 +48,7 @@ nav .nav-items a {
     color: black;
 }
 
+
 .section-home {
     height: calc(100vh - 50px);
     display: flex;
@@ -77,6 +78,12 @@ nav .nav-items a {
     font-weight: 300;
     text-decoration: none;
     color: black;
+}
+
+.manga a:hover,
+.anime a:hover{
+    font-size: 2.4em;
+    font-weight: 400;
 }
 
 .section-home .down-arrow {

@@ -24,8 +24,8 @@
             crossorigin="anonymous"
             referrerpolicy="no-referrer"
     />
-    <link rel="stylesheet" href="css/index.css" />
-    <title>Document</title>
+    <link rel="stylesheet" href="css/index.css"/>
+    <title>MangaVerse</title>
 </head>
 <body>
 <nav>
