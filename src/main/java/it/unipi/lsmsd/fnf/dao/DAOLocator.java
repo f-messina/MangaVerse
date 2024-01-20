@@ -2,23 +2,25 @@ package it.unipi.lsmsd.fnf.dao;
 
 import it.unipi.lsmsd.fnf.dao.enums.DataRepositoryEnum;
 import it.unipi.lsmsd.fnf.dao.mongo.*;
+import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
+import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
 
 public class DAOLocator {
-    public static AnimeDAO getAnimeDAO(DataRepositoryEnum dataRepositoryEnum){
+    public static MediaContentDAO<Anime> getAnimeDAO(DataRepositoryEnum dataRepositoryEnum){
         if (DataRepositoryEnum.MONGODB.equals(dataRepositoryEnum)){
             return new AnimeDAOImpl();
         }
         throw new UnsupportedOperationException("Data repository not supported: " + dataRepositoryEnum);
     }
-    public static MangaDAO getMangaDAO(DataRepositoryEnum dataRepositoryEnum){
+    public static MediaContentDAO<Manga> getMangaDAO(DataRepositoryEnum dataRepositoryEnum){
         if (DataRepositoryEnum.MONGODB.equals(dataRepositoryEnum)){
             return new MangaDAOImpl();
         }
         throw new UnsupportedOperationException("Data repository not supported: " + dataRepositoryEnum);
     }
-    public static ListDAO getListDAO(DataRepositoryEnum dataRepositoryEnum){
+    public static PersonalListDAO getPersonalListDAO(DataRepositoryEnum dataRepositoryEnum){
         if (DataRepositoryEnum.MONGODB.equals(dataRepositoryEnum)){
-            return new ListDAOImpl();
+            return new PersonalListDAOImpl();
         }
         throw new UnsupportedOperationException("Data repository not supported: " + dataRepositoryEnum);
     }

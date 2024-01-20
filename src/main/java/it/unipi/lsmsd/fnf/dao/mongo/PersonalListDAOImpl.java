@@ -2,10 +2,8 @@ package it.unipi.lsmsd.fnf.dao.mongo;
 
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.model.Filters;
-import com.mongodb.client.model.Projections;
-import com.mongodb.client.model.Updates;
-import it.unipi.lsmsd.fnf.dao.ListDAO;
+import com.mongodb.client.model.UpdateOptions;
+import it.unipi.lsmsd.fnf.dao.PersonalListDAO;
 import it.unipi.lsmsd.fnf.dao.base.BaseMongoDBDAO;
 import it.unipi.lsmsd.fnf.dao.enums.SearchCriteriaEnum;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
@@ -13,6 +11,8 @@ import it.unipi.lsmsd.fnf.dto.PersonalListDTO;
 import it.unipi.lsmsd.fnf.dto.RegisteredUserDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
+import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
+import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.utils.ConverterUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -23,7 +23,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class ListDAOImpl extends BaseMongoDBDAO implements ListDAO {
+import static com.mongodb.client.model.Filters.*;
+import static com.mongodb.client.model.Projections.exclude;
+import static com.mongodb.client.model.Updates.*;
+
+public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListDAO {
 
     @Override
     public void insert(PersonalListDTO list) throws DAOException {
@@ -39,12 +43,20 @@ public class ListDAOImpl extends BaseMongoDBDAO implements ListDAO {
     }
 
     @Override
-    public void changeName(ObjectId id, String name) throws DAOException {
+    public void update(PersonalListDTO list) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
 
-            Bson filter = Filters.eq("id", id);
-            Bson update = Updates.set("name", name);
+            Bson filter = eq("id", list.getId());
+            Bson update = combine();
+            if (list.getName() != null) {
+                Bson nameUpdate = set("name", list.getName());
+                update = combine(update, nameUpdate);
+            }
+            if (list.getUser() != null) {
+                Bson userUpdate = set("user", userDTOToDocument(list.getUser()));
+                update = combine(update, userUpdate);
+            }
 
             listsCollection.updateOne(filter, update);
         } catch (Exception e) {
@@ -53,58 +65,74 @@ public class ListDAOImpl extends BaseMongoDBDAO implements ListDAO {
     }
 
     @Override
-    public void addAnime(ObjectId listId, AnimeDTO anime) throws DAOException {
+    public void addToList(ObjectId listId, MediaContentDTO item) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
 
-            Bson filter = Filters.eq("_id", listId);
-            Bson update = Updates.addToSet("anime_list", animeDTOToDocument(anime));
+            Bson filter = eq("_id", listId);
+            Bson update = combine();
+            if (item instanceof AnimeDTO) {
+                update = addToSet("anime_list", animeDTOToDocument((AnimeDTO) item));
+            } else if (item instanceof MangaDTO) {
+                update = addToSet("manga_list", mangaDTOToDocument((MangaDTO) item));
+            }
 
             listsCollection.updateOne(filter, update);
         } catch (Exception e) {
-            throw new DAOException("Error inserting anime", e);
+            throw new DAOException("Error inserting item", e);
         }
     }
 
     @Override
-    public void addManga(ObjectId listId, MangaDTO manga) throws DAOException {
+    public void removeFromList(ObjectId listId, ObjectId itemId, MediaContentType type) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
 
-            Bson filter = Filters.eq("_id", listId);
-            Bson update = Updates.addToSet("manga_list", mangaDTOToDocument(manga));
+            String listType = type.toString().toLowerCase() + "_list";
+            Bson filter = eq("_id", listId);
+            Bson update = pull(listType, new Document("id", itemId));
 
             listsCollection.updateOne(filter, update);
         } catch (Exception e) {
-            throw new DAOException("Error inserting manga", e);
+            throw new DAOException("Error removing item", e);
         }
     }
 
     @Override
-    public void removeAnime(ObjectId listId, ObjectId animeId) throws DAOException {
+    public void updateItem(MediaContentDTO item) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
 
-            Bson filter = Filters.eq("_id", listId);
-            Bson update = Updates.pull("anime_list", new Document("id", animeId));
+            String listType = (item instanceof AnimeDTO)? "anime_list" : "manga_list";
+            Bson filter = elemMatch(listType, eq("id", item.getId()));
+            Bson update = combine();
+            if (item.getTitle() != null) {
+                Bson titleUpdate = set(listType + ".$[elem].title", item.getTitle());
+                update = combine(update, titleUpdate);
+            }
+            if (item.getImageUrl() != null) {
+                Bson pictureUpdate = set(listType + ".$[elem].picture", item.getImageUrl());
+                update = combine(update, pictureUpdate);
+            }
+            UpdateOptions options = new UpdateOptions().arrayFilters(List.of(eq("elem.id", item.getId())));
 
-            listsCollection.updateOne(filter, update);
+            listsCollection.updateMany(filter, update, options);
         } catch (Exception e) {
-            throw new DAOException("Error removing anime", e);
+            throw new DAOException("Error updating item", e);
         }
     }
 
     @Override
-    public void removeManga(ObjectId listId, ObjectId mangaId) throws DAOException {
+    public void removeItem(ObjectId itemId) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
 
-            Bson filter = Filters.eq("_id", listId);
-            Bson update = Updates.pull("manga_list", new Document("id", mangaId));
+            Bson filter = or(elemMatch("anime_list" , eq("id", itemId)),elemMatch("manga_list", eq("id", itemId)));
+            Bson update = combine(pull("anime_list", new Document("id", itemId)), pull("manga_list", new Document("id", itemId)));
 
-            listsCollection.updateOne(filter, update);
+            listsCollection.updateMany(filter, update);
         } catch (Exception e) {
-            throw new DAOException("Error removing manga", e);
+            throw new DAOException("Error removing item", e);
         }
     }
 
@@ -113,7 +141,7 @@ public class ListDAOImpl extends BaseMongoDBDAO implements ListDAO {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
 
-            Bson filter = Filters.eq("_id", id);
+            Bson filter = eq("_id", id);
 
             listsCollection.deleteOne(filter);
         } catch (Exception e) {
@@ -126,7 +154,7 @@ public class ListDAOImpl extends BaseMongoDBDAO implements ListDAO {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
 
-            Bson filter = Filters.eq("user.id", userId);
+            Bson filter = eq("user.id", userId);
 
             listsCollection.deleteMany(filter);
         } catch (Exception e) {
@@ -139,8 +167,8 @@ public class ListDAOImpl extends BaseMongoDBDAO implements ListDAO {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
 
-            Bson filter = Filters.eq("user.id", userId);
-            Bson projection = Projections.exclude("user");
+            Bson filter = eq("user.id", userId);
+            Bson projection = exclude("user");
 
             List<PersonalListDTO> personalLists = new ArrayList<>();
             listsCollection.find(filter).projection(projection).forEach(document -> personalLists.add(documentToPersonalListDTO(document)));
@@ -170,8 +198,8 @@ public class ListDAOImpl extends BaseMongoDBDAO implements ListDAO {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
 
-            Bson filter = Filters.eq("_id", id);
-            Bson projection = Projections.exclude("user");
+            Bson filter = eq("_id", id);
+            Bson projection = exclude("user");
 
             Document listDoc = listsCollection.find(filter).projection(projection).first();
 
@@ -206,7 +234,8 @@ public class ListDAOImpl extends BaseMongoDBDAO implements ListDAO {
         RegisteredUserDTO user = new RegisteredUserDTO(
                 userDoc.getObjectId("id"),
                 userDoc.getString("location"),
-                ConverterUtils.convertDateToLocalDate(userDoc.getDate("birthday"))
+                ConverterUtils.convertDateToLocalDate(userDoc.getDate("birthday")),
+                userDoc.getInteger("age")
         );
 
         List<AnimeDTO> animeList = Optional.ofNullable(document.getList("anime_list", Document.class))
