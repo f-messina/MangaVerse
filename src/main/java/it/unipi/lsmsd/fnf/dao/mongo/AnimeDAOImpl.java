@@ -1,6 +1,6 @@
 package it.unipi.lsmsd.fnf.dao.mongo;
 
-import it.unipi.lsmsd.fnf.dao.AnimeDAO;
+import it.unipi.lsmsd.fnf.dao.MediaContentDAO;
 import it.unipi.lsmsd.fnf.dao.base.BaseMongoDBDAO;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
@@ -18,7 +18,7 @@ import org.bson.types.ObjectId;
 import java.util.*;
 
 
-public class AnimeDAOImpl extends BaseMongoDBDAO implements AnimeDAO {
+public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anime> {
 
     @Override
     public void insert(Anime anime) throws DAOException {
@@ -44,6 +44,19 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements AnimeDAO {
             animeCollection.updateOne(filter, update);
         } catch (Exception e) {
             throw new DAOException("Error while updating anime", e);
+        }
+    }
+
+    @Override
+    public void delete(ObjectId animeId) throws DAOException {
+        try (MongoClient mongoClient = getConnection()) {
+            MongoCollection<Document> animeCollection = mongoClient.getDatabase("mangaVerse").getCollection("anime");
+
+            Bson filter = Filters.eq("_id", animeId);
+
+            animeCollection.deleteOne(filter);
+        } catch (Exception e) {
+            throw new DAOException("Error while removing anime", e);
         }
     }
 
@@ -100,19 +113,6 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements AnimeDAO {
             return result;
         } catch (Exception e) {
             throw new DAOException("Error while searching anime", e);
-        }
-    }
-
-    @Override
-    public void remove(ObjectId animeId) throws DAOException {
-        try (MongoClient mongoClient = getConnection()) {
-            MongoCollection<Document> animeCollection = mongoClient.getDatabase("mangaVerse").getCollection("anime");
-
-            Bson filter = Filters.eq("_id", animeId);
-
-            animeCollection.deleteOne(filter);
-        } catch (Exception e) {
-            throw new DAOException("Error while removing anime", e);
         }
     }
 

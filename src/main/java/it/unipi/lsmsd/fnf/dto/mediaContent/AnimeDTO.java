@@ -9,12 +9,12 @@ public class AnimeDTO extends MediaContentDTO{
     public AnimeDTO() {
     }
 
-    public AnimeDTO(ObjectId id, String title, String imageUrl, float averageRating, Integer year) {
+    public AnimeDTO(ObjectId id, String title, String imageUrl, Double averageRating, Integer year) {
         super(id, title, imageUrl, averageRating);
         this.year = year;
     }
 
-    public AnimeDTO(ObjectId id, String title, String imageUrl, float averageRating) {
+    public AnimeDTO(ObjectId id, String title, String imageUrl, Double averageRating) {
         super(id, title, imageUrl, averageRating);
     }
 

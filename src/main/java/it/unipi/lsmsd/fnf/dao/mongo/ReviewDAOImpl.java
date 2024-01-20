@@ -67,6 +67,21 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
         }
     }
 
+    public void deleteByMedia(ObjectId mediaId) throws DAOException {
+        try (MongoClient mongoClient = getConnection()) {
+            MongoCollection<Document> reviewCollection = mongoClient.getDatabase("mangaVerse").getCollection("review");
+
+            Bson filter = Filters.or(
+                    Filters.eq("anime.id", mediaId),
+                    Filters.eq("manga.id", mediaId)
+            );
+
+            reviewCollection.deleteMany(filter);
+        } catch (Exception e) {
+            throw new DAOException("Error while deleting review", e);
+        }
+    }
+
     @Override
     public List<ReviewDTO> findByUser(ObjectId userId) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {

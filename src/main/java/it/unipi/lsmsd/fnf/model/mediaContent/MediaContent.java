@@ -8,7 +8,7 @@ public abstract class MediaContent {
     private String title;
     private String imageUrl;
     private String type;
-    private double averageRating;
+    private Double averageRating;
     private String synopsis;
     private Status status;
 
@@ -28,7 +28,7 @@ public abstract class MediaContent {
         return type;
     }
 
-    public double getAverageRating() {
+    public Double getAverageRating() {
         return averageRating;
     }
 
@@ -56,7 +56,7 @@ public abstract class MediaContent {
         this.type = type;
     }
 
-    public void setAverageRating(double averageRating) {
+    public void setAverageRating(Double averageRating) {
         this.averageRating = averageRating;
     }
 

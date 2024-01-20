@@ -10,67 +10,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6440fbba-1ec4-43f5-8314-d4abadeae161" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/webapp/css/index.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/webapp/css/main-registered-user.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/webapp/css/userProfilePage.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/webapp/images/logo with initial-8.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/webapp/images/logo with name-8.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/webapp/images/user icon - Kopya - Kopya.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/webapp/js/index.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/webapp/js/index2.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/webapp/main--registered-user.jsp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/webapp/userProfilePage.jsp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/Discussion.docx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dao/AnimeDAO.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dao/DAOLocator.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dao/ListDAO.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dao/MangaDAO.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dao/ReviewDAO.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dao/UserDAO.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dao/base/BaseMongoDBDAO.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dao/base/BaseNeo4JDAO.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dao/enums/DataRepositoryEnum.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dao/enums/SearchCriteriaEnum.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dao/exception/DAOException.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dao/mongo/AnimeDAOImpl.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dao/mongo/ListDAOImpl.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dao/mongo/MangaDAOImpl.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dao/mongo/ReviewDAOImpl.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dao/mongo/UserDAOImpl.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dto/PageDTO.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dto/PersonalListDTO.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dto/RegisteredUserDTO.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dto/ReviewDTO.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dto/UserRegistrationDTO.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dto/mediaContent/AnimeDTO.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dto/mediaContent/MangaDTO.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dto/mediaContent/MediaContentDTO.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dto/statistics/DashboardDTO.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/model/PersonalList.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/model/Review.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/model/enums/MediaContentType.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/model/enums/Status.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/model/enums/UserType.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/model/mediaContent/Anime.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/model/mediaContent/Manga.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/model/mediaContent/MangaAuthor.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/model/mediaContent/MediaContent.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/model/registeredUser/Manager.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/model/registeredUser/RegisteredUser.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/model/registeredUser/User.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/utils/ConverterUtils.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/web.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/css/index.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/css/main-registered-user.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/css/userProfilePage.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/images/logo with initial-8.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/images/logo with name-8.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/images/user icon - Kopya - Kopya.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/index.jsp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/js/index.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/js/index2.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/main--registered-user.jsp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/userProfilePage.jsp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/MediaContentDAO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/MediaContentService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/exception/BusinessException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/impl/MediaContentServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/mapper/DtoToModelMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/mapper/ModelToDtoMapper.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
@@ -81,10 +26,10 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/AnimeDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/AnimeDAO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/AnimeDAO.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/DAOLocator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/DAOLocator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/ListDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/ListDAO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/MangaDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/MangaDAO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/ListDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/PersonalListDAO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/MangaDAO.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/ReviewDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/ReviewDAO.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/UserDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/UserDAO.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/base/BaseMongoDBDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/base/BaseMongoDBDAO.java" afterDir="false" />
@@ -92,7 +37,7 @@
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/enums/DataRepositoryEnum.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/enums/DataRepositoryEnum.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/enums/SearchCriteriaEnum.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/enums/SearchCriteriaEnum.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/mongo/AnimeDAOImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/mongo/AnimeDAOImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/mongo/ListDAOImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/mongo/ListDAOImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/mongo/ListDAOImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/mongo/PersonalListDAOImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/mongo/MangaDAOImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/mongo/MangaDAOImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/mongo/ReviewDAOImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/mongo/ReviewDAOImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/mongo/UserDAOImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/mongo/UserDAOImpl.java" afterDir="false" />
@@ -120,35 +65,36 @@
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/model/registeredUser/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/model/registeredUser/User.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/utils/ConverterUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/utils/ConverterUtils.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/webapp/WEB-INF/web.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/WEB-INF/web.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/webapp/css/index.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/css/index.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/webapp/css/main-registered-user.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/css/main-registered-user.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/webapp/css/userProfilePage.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/css/userProfilePage.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/webapp/index.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/index.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/webapp/js/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/js/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/webapp/main--registered-user.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/main--registered-user.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/webapp/userProfilePage.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/userProfilePage.jsp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/META-INF/MANIFEST.MF" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/META-INF/MANIFEST.MF" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dao/AnimeDAO.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dao/AnimeDAO.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dao/ReviewDAO.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dao/ReviewDAO.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dao/UserDAO.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dao/UserDAO.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dao/base/BaseMongoDBDAO.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dao/base/BaseMongoDBDAO.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dao/mongo/AnimeDAOImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dao/mongo/AnimeDAOImpl.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dao/mongo/MangaDAOImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dao/mongo/MangaDAOImpl.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dao/mongo/ReviewDAOImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dao/mongo/ReviewDAOImpl.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dao/mongo/UserDAOImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dao/mongo/UserDAOImpl.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dto/mediaContent/AnimeDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dto/mediaContent/AnimeDTO.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/model/Review.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/model/Review.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/model/enums/Status.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/model/enums/Status.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/model/mediaContent/Anime.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/model/mediaContent/Anime.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/model/mediaContent/Manga.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/model/mediaContent/Manga.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/web.xml" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/web.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/css/index.css" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/css/index.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/css/main-registered-user.css" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/css/main-registered-user.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/css/userProfilePage.css" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/css/userProfilePage.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/index.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/index.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/js/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/js/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/main--registered-user.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/main--registered-user.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/userProfilePage.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/userProfilePage.jsp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/MangaVerse/WEB-INF/web.xml" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaVerse/WEB-INF/web.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dao/AnimeDAO.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dao/AnimeDAO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dao/ListDAO.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dao/ListDAO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dao/MangaDAO.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dao/MangaDAO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dao/ReviewDAO.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dao/ReviewDAO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dao/UserDAO.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dao/UserDAO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dao/base/BaseMongoDBDAO.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dao/base/BaseMongoDBDAO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dao/mongo/AnimeDAOImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dao/mongo/AnimeDAOImpl.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dao/mongo/ListDAOImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dao/mongo/ListDAOImpl.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dao/mongo/MangaDAOImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dao/mongo/MangaDAOImpl.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dao/mongo/ReviewDAOImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dao/mongo/ReviewDAOImpl.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dao/mongo/UserDAOImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dao/mongo/UserDAOImpl.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dto/RegisteredUserDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dto/RegisteredUserDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dto/ReviewDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dto/ReviewDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dto/UserRegistrationDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dto/UserRegistrationDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dto/mediaContent/AnimeDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dto/mediaContent/AnimeDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dto/mediaContent/MangaDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dto/mediaContent/MangaDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/model/Review.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/model/Review.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/model/enums/MediaContentType.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/model/enums/MediaContentType.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/model/enums/Status.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/model/enums/Status.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/model/enums/UserType.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/model/enums/UserType.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/model/mediaContent/Anime.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/model/mediaContent/Anime.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/model/mediaContent/Manga.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/model/mediaContent/Manga.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/model/registeredUser/Manager.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/model/registeredUser/Manager.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/model/registeredUser/RegisteredUser.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/model/registeredUser/RegisteredUser.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/model/registeredUser/User.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/model/registeredUser/User.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/utils/ConverterUtils.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/utils/ConverterUtils.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/maven-archiver/pom.properties" beforeDir="false" afterPath="$PROJECT_DIR$/target/maven-archiver/pom.properties" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" afterDir="false" />
     </list>
@@ -161,11 +107,12 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Enum" />
-        <option value="Class" />
         <option value="TypeScript File" />
         <option value="Jsp File" />
         <option value="CSS File" />
         <option value="JavaScript File" />
+        <option value="Interface" />
+        <option value="Class" />
       </list>
     </option>
   </component>
@@ -208,10 +155,10 @@
     "Tomcat Server.Tomcat 10.1.16.executor": "Run",
     "WebServerToolWindowFactoryState": "false",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "Merging flavio",
+    "git-widget-placeholder": "flavio",
     "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/lenovo/IdeaProjects/DSMT/Lab3_All",
+    "last_opened_file_path": "C:/Users/messi/Documents/GitHub/MangaUniverse/src/main/java/it/unipi/lsmsd/fnf/service",
     "list.type.of.created.stylesheet": "CSS",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -230,6 +177,9 @@
     <option name="notificationShown" value="true" />
   </component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\messi\Documents\GitHub\MangaUniverse\src\main\java\it\unipi\lsmsd\fnf\service" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\lenovo\Documents\GitHub\MangaUniverse\src\main\webapp\images" />
       <recent name="C:\Users\messi\Documents\GitHub\MangaUniverse\src\main\webapp\WEB-INF" />
@@ -466,6 +416,7 @@
       <workItem from="1705668095034" duration="1605000" />
       <workItem from="1705669726394" duration="431000" />
       <workItem from="1705670201698" duration="7351000" />
+      <workItem from="1705760255853" duration="18290000" />
     </task>
     <servers />
   </component>

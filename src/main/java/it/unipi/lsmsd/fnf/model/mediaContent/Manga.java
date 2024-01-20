@@ -15,8 +15,8 @@ public class Manga extends MediaContent {
     private String titleJapanese;
     private String startDate;
     private String endDate;
-    private int volumes;
-    private int chapters;
+    private Integer volumes;
+    private Integer chapters;
     private List<Review> reviews;
 
     public List<String> getGenres() {
@@ -58,8 +58,8 @@ public class Manga extends MediaContent {
     public String getEndDate() {
         return endDate;
     }
-    public int getVolumes() { return volumes; }
-    public int getChapters() { return chapters; }
+    public Integer getVolumes() { return volumes; }
+    public Integer getChapters() { return chapters; }
 
     public List<Review> getReviews() {
         return reviews;
@@ -105,9 +105,9 @@ public class Manga extends MediaContent {
         this.endDate = endDate;
     }
 
-    public void setVolumes(int volumes) { this.volumes = volumes;  }
+    public void setVolumes(Integer volumes) { this.volumes = volumes;  }
 
-    public void setChapters(int chapters) { this.chapters = chapters; }
+    public void setChapters(Integer chapters) { this.chapters = chapters; }
 
     public void setReviews(List<Review> reviews) {
         this.reviews = reviews;

@@ -9,6 +9,7 @@ import java.util.List;
 public interface ReviewDAO {
     void insert(ReviewDTO review) throws DAOException;
     void delete(ObjectId id) throws DAOException;
+    void deleteByMedia(ObjectId mediaId) throws DAOException;
     void update(ReviewDTO review) throws DAOException;
     List<ReviewDTO> findByUser(ObjectId userId) throws DAOException;
     List<ReviewDTO> findByMedia(ObjectId mediaId) throws DAOException;

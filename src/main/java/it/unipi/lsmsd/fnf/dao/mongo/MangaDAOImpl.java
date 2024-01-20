@@ -3,7 +3,7 @@ package it.unipi.lsmsd.fnf.dao.mongo;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Projections;
 import com.mongodb.client.model.Sorts;
-import it.unipi.lsmsd.fnf.dao.MangaDAO;
+import it.unipi.lsmsd.fnf.dao.MediaContentDAO;
 import it.unipi.lsmsd.fnf.dao.base.BaseMongoDBDAO;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
@@ -21,7 +21,7 @@ import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import java.util.*;
 
-public class MangaDAOImpl extends BaseMongoDBDAO implements MangaDAO {
+public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Manga> {
 
     @Override
     public void insert(Manga manga) throws DAOException {
@@ -107,7 +107,7 @@ public class MangaDAOImpl extends BaseMongoDBDAO implements MangaDAO {
     }
 
     @Override
-    public void remove(ObjectId mangaId) throws DAOException {
+    public void delete(ObjectId mangaId) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> mangaCollection = mongoClient.getDatabase("mangaVerse").getCollection("manga");
 
