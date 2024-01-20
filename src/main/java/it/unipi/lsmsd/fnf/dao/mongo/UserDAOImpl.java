@@ -3,14 +3,18 @@ package it.unipi.lsmsd.fnf.dao.mongo;
 import it.unipi.lsmsd.fnf.dao.UserDAO;
 import it.unipi.lsmsd.fnf.dao.base.BaseMongoDBDAO;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
+import it.unipi.lsmsd.fnf.dto.RegisteredUserDTO;
 import it.unipi.lsmsd.fnf.model.registeredUser.Manager;
 import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import it.unipi.lsmsd.fnf.utils.ConverterUtils;
 
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Projections;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;
+import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -21,17 +25,30 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
   
     @Override
     public void insert(User user) throws DAOException {
-
-
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
-            // Set the current date for joinedDate
-            user.setJoinedDate(LocalDate.now());
 
-            users.insertOne(RegisteredUserToDocument(user));
+            user.setJoinedDate(LocalDate.now());
+            Document userDoc = RegisteredUserToDocument(user);
+
+            users.insertOne(userDoc);
         }
         catch (Exception e){
             throw new DAOException("Error adding new user", e);
+        }
+    }
+
+    @Override
+    public void update(RegisteredUser user) throws DAOException {
+        try (MongoClient mongoClient = getConnection()) {
+            MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
+
+            Bson filter = Filters.eq("_id", user.getId());
+            Bson update = new Document("$set", RegisteredUserToDocument(user));
+
+            users.updateOne(filter, update);
+        } catch (Exception e){
+            throw new DAOException("Error updating user information for user with id: "+ user.getId(), e);
         }
     }
 
@@ -40,7 +57,8 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
 
-            Document filter = new Document("_id", id);
+            Bson filter = Filters.eq("_id", id);
+
             users.deleteOne(filter);
         }
         catch (Exception e){
@@ -53,17 +71,12 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
 
-            // Create a filter to find the user by username
-            Document filter = new Document("_id", id);
+            Bson filter = Filters.eq("_id", id);
+            Bson projection = Projections.exclude("is_manager");
 
-            // Find the document in the collection
-            Document userDocument = users.find(filter).first();
+            Document userDocument = users.find(filter).projection(projection).first();
 
-            if (userDocument != null) {
-                return documentToRegisteredUser(userDocument);
-            } else {
-                throw new DAOException("User not found with the username: " + id);
-            }
+            return (userDocument != null)? documentToRegisteredUser(userDocument) : null;
         }
         catch (Exception e){
             throw new DAOException("Error searching user by username: "+ id, e);
@@ -75,119 +88,96 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
 
-            // Create a filter to find the user by username
-            Document filter = new Document("username", username);
+            Bson filter = Filters.eq("username", username);
+            Bson projection = Projections.exclude("is_manager");
 
-            // Find the document in the collection
-            Document userDocument = users.find(filter).first();
+            Document userDocument = users.find(filter).projection(projection).first();
 
-            if (userDocument != null) {
-                return documentToRegisteredUser(userDocument);
-            } else {
-                throw new DAOException("User not found with the username: " + username);
-            }
+            return (userDocument != null)? documentToRegisteredUser(userDocument) : null;
         }
         catch (Exception e){
             throw new DAOException("Error searching user by username: "+ username, e);
         }
     }
 
-    public List<RegisteredUser> findAll() throws DAOException {
+    public List<RegisteredUserDTO> findAll() throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
 
-            List<RegisteredUser> result = new ArrayList<>();
-            users.find().forEach(document -> {
-                RegisteredUser user = documentToRegisteredUser(document);
+            Bson filter = Filters.eq("is_manager", false);
+            Bson projection = Projections.include("username", "profilePicUrl");
+
+            List<RegisteredUserDTO> result = new ArrayList<>();
+            users.find(filter).projection(projection).forEach(document -> {
+                RegisteredUserDTO user = documentToRegisteredUserDTO(document);
                 result.add(user);
             });
+
             return result;
         }
         catch (Exception e){
             throw new DAOException("Error searching all the users", e);
         }
     }
-    @Override
-    public void update(RegisteredUser user) throws DAOException {
-        try (MongoClient mongoClient = getConnection()) {
-            MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
 
-            Document filter = new Document("_id", user.getId());
-            users.updateOne(filter,new Document("$set", RegisteredUserToDocument(user)));
-        } catch (Exception e){
-            throw new DAOException("Error updating user information for user with id: "+ user.getId(), e);
-        }
+    private RegisteredUserDTO documentToRegisteredUserDTO(Document doc) {
+        RegisteredUserDTO user = new RegisteredUserDTO();
+        user.setId(doc.getObjectId("_id"));
+        user.setUsername(doc.getString("username"));
+        user.setProfilePicUrl(doc.getString("profilePicUrl"));
+        return user;
     }
 
     private RegisteredUser documentToRegisteredUser(Document doc) {
         RegisteredUser user;
+
         if (doc.getBoolean("is_manager")) {
-            user = new Manager();
-            ((Manager) user).setHiredDate(ConverterUtils.convertDateToLocalDate(doc.getDate("hired_on")));
-            ((Manager) user).setTitle(doc.getString("title"));
+            Manager manager = new Manager();
+            manager.setHiredDate(ConverterUtils.convertDateToLocalDate(doc.getDate("hired_on")));
+            manager.setTitle(doc.getString("title"));
+            user = manager;
         } else {
-            user = new User();
-            if (doc.getDate("birthday") != null) {
-                ((User) user).setBirthday(ConverterUtils.convertDateToLocalDate(doc.getDate("birthday")));
-            }
-            if (doc.getString("description") != null) {
-                ((User) user).setDescription(doc.getString("description"));
-            }
-            if (doc.getString("gender") != null) {
-                ((User) user).setGender(doc.getString("gender"));
-            }
-            if (doc.getString("location") != null) {
-                ((User) user).setLocation(doc.getString("location"));
-            }
+            User regularUser = new User();
+            regularUser.setBirthday(ConverterUtils.convertDateToLocalDate(doc.getDate("birthday")));
+            regularUser.setDescription(doc.getString("description"));
+            regularUser.setGender(doc.getString("gender"));
+            regularUser.setLocation(doc.getString("location"));
+            user = regularUser;
         }
+
         user.setId(doc.getObjectId("_id"));
         user.setUsername(doc.getString("username"));
         user.setPassword(doc.getString("password"));
         user.setEmail(doc.getString("email"));
         user.setJoinedDate(ConverterUtils.convertDateToLocalDate(doc.getDate("joined_on")));
-        if (doc.getString("fullname") != null) {
-            user.setFullname(doc.getString("fullname"));
-        }
-        if (doc.getString("profilePicUrl") != null) {
-            user.setprofilePicUrl(doc.getString("profilePicUrl"));
-        }
+        user.setFullname(doc.getString("fullname"));
+        user.setProfilePicUrl(doc.getString("profilePicUrl"));
 
         return user;
     }
 
     private Document RegisteredUserToDocument(RegisteredUser user) {
-        Document doc = new Document()
-                .append("username", user.getUsername())
-                .append("password", user.getPassword())
-                .append("email", user.getEmail());
+        Document doc = new Document();
+        appendIfNotNull(doc, "username", user.getUsername());
+        appendIfNotNull(doc, "password", user.getPassword());
+        appendIfNotNull(doc, "email", user.getEmail());
+
         if (user.getJoinedDate() != null) {
-            doc.append("joined_on", ConverterUtils.convertLocalDateToDate(user.getJoinedDate()));
+            appendIfNotNull(doc, "joined_on", ConverterUtils.convertLocalDateToDate(user.getJoinedDate()));
         }
-        if (user.getFullname() != null) {
-            doc.append("fullname", user.getFullname());
-        }
-        if (user.getprofilePicUrl() != null) {
-            doc.append("profilePicUrl", user.getprofilePicUrl());
+        appendIfNotNull(doc, "fullname", user.getFullname());
+        appendIfNotNull(doc, "profilePicUrl", user.getProfilePicUrl());
+
+        if (user instanceof Manager manager) {
+            appendIfNotNull(doc, "title", manager.getTitle());
+            appendIfNotNull(doc, "hired_on", ConverterUtils.convertLocalDateToDate(manager.getHiredDate()));
+        } else if (user instanceof User regularUser) {
+            appendIfNotNull(doc, "birthday", ConverterUtils.convertLocalDateToDate(regularUser.getBirthday()));
+            appendIfNotNull(doc, "description", regularUser.getDescription());
+            appendIfNotNull(doc, "gender", regularUser.getGender());
+            appendIfNotNull(doc, "location", regularUser.getLocation());
         }
 
-        // Check if the user is a Manager
-        if (user instanceof Manager manager) {
-            doc.append("title", manager.getTitle())
-                    .append("hired_on", ConverterUtils.convertLocalDateToDate(manager.getHiredDate()));
-        } else if (user instanceof User regularUser) { // Check if the user is a User
-            if (regularUser.getBirthday() != null) {
-                doc.append("birthday", ConverterUtils.convertLocalDateToDate(regularUser.getBirthday()));
-            }
-            if (regularUser.getDescription() != null) {
-                doc.append("description", regularUser.getDescription());
-            }
-            if (regularUser.getGender() != null) {
-                doc.append("gender", regularUser.getGender());
-            }
-            if (regularUser.getLocation() != null) {
-                doc.append("location", regularUser.getLocation());
-            }
-        }
         return doc;
     }
 }

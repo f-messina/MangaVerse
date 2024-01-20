@@ -1,28 +1,33 @@
 package it.unipi.lsmsd.fnf.dao.mongo;
 
-import it.unipi.lsmsd.fnf.dao.AnimeDAO;
+import it.unipi.lsmsd.fnf.dao.MediaContentDAO;
 import it.unipi.lsmsd.fnf.dao.base.BaseMongoDBDAO;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
+import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.model.Review;
 import it.unipi.lsmsd.fnf.model.enums.Status;
 import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import it.unipi.lsmsd.fnf.utils.ConverterUtils;
 
+import com.mongodb.client.model.*;
 import com.mongodb.client.*;
 import org.bson.Document;
+import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
-public class AnimeDAOImpl extends BaseMongoDBDAO implements AnimeDAO {
+
+public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anime> {
 
     @Override
     public void insert(Anime anime) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> animeCollection = mongoClient.getDatabase("mangaVerse").getCollection("anime");
 
-            animeCollection.insertOne(animeToDocument(anime));
+            Document animeDoc = animeToDocument(anime);
+
+            animeCollection.insertOne(animeDoc);
         } catch (Exception e) {
             throw new DAOException("Error while inserting anime", e);
         }
@@ -33,10 +38,25 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements AnimeDAO {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> animeCollection = mongoClient.getDatabase("mangaVerse").getCollection("anime");
 
-            Document filter = new Document("_id", anime.getId());
-            animeCollection.updateOne(filter, new Document("$set", animeToDocument(anime)));
+            Bson filter = Filters.eq("_id", anime.getId());
+            Bson update = new Document("$set", animeToDocument(anime));
+
+            animeCollection.updateOne(filter, update);
         } catch (Exception e) {
             throw new DAOException("Error while updating anime", e);
+        }
+    }
+
+    @Override
+    public void delete(ObjectId animeId) throws DAOException {
+        try (MongoClient mongoClient = getConnection()) {
+            MongoCollection<Document> animeCollection = mongoClient.getDatabase("mangaVerse").getCollection("anime");
+
+            Bson filter = Filters.eq("_id", animeId);
+
+            animeCollection.deleteOne(filter);
+        } catch (Exception e) {
+            throw new DAOException("Error while removing anime", e);
         }
     }
 
@@ -45,126 +65,97 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements AnimeDAO {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> animeCollection = mongoClient.getDatabase("mangaVerse").getCollection("anime");
 
-            Document query = new Document("_id", id);
-            Anime result = new Anime();
-            Document animeDoc = animeCollection.find(query).first();
-            if (animeDoc != null) {
-                result = documentToAnime(animeDoc);
-            }
-            return result;
+            Bson filter = Filters.eq("_id", id);
+
+            Document result = animeCollection.find(filter).first();
+
+            return (result != null)? documentToAnime(result) : null;
         } catch (Exception e) {
-            throw new DAOException("Error while finding anime", e);
+            throw new DAOException("Error while searching anime", e);
         }
     }
 
     @Override
-    public Anime searchByTitle(String title) throws DAOException {
+    public List<AnimeDTO> search(String title) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> animeCollection = mongoClient.getDatabase("mangaVerse").getCollection("anime");
 
-            Document query = new Document("title", title);
-            Anime result = new Anime();
+            Bson filter = Filters.text(title);
+            Bson sort = Sorts.metaTextScore("score");
+            Bson projection = Projections.include("title", "picture", "average_score", "anime_season.year");
 
-            Document animeDoc = animeCollection.find(query).first();
-            if (animeDoc != null) {
-                result = documentToAnime(animeDoc);
-            }
-            return result;
-        } catch (Exception e) {
-            throw new DAOException("Error while searching anime by title", e);
-        }
-    }
-
-    @Override
-    public List<Anime> searchByYear(int year) throws DAOException {
-        try (MongoClient mongoClient = getConnection()) {
-            MongoCollection<Document> animeCollection = mongoClient.getDatabase("mangaVerse").getCollection("anime");
-
-            Document query = new Document("year", year);
-            List<Anime> result = new ArrayList<>();
-            animeCollection.find(query).forEach(document -> {
-                Anime anime = documentToAnime(document);
+            List<AnimeDTO> result = new ArrayList<>();
+            animeCollection.find(filter).sort(sort).projection(projection).forEach(document -> {
+                AnimeDTO anime = documentToAnimeDTO(document);
                 result.add(anime);
             });
+
             return result;
         } catch (Exception e) {
-            throw new DAOException("Error while searching anime by year", e);
+            throw new DAOException("Error while searching anime", e);
         }
     }
 
-    @Override
-    public List<Anime> searchByTags(List<String> tags) throws DAOException {
+    public List<AnimeDTO> search(Map<String, Object> filters, Map<String, Integer> orderBy) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> animeCollection = mongoClient.getDatabase("mangaVerse").getCollection("anime");
 
-            Document query = new Document("tags", new Document("$in", tags));
-            List<Anime> result = new ArrayList<>();
-            animeCollection.find(query).forEach(document -> {
-                Anime anime = documentToAnime(document);
+            Bson filter = buildFilter(filters);
+            Bson sort = buildSort(orderBy);
+            Bson projection = Projections.include("title", "picture", "average_score", "anime_season.year");
+
+            List<AnimeDTO> result = new ArrayList<>();
+            animeCollection.find(filter).sort(sort).projection(projection).forEach(document -> {
+                AnimeDTO anime = documentToAnimeDTO(document);
                 result.add(anime);
             });
+
             return result;
         } catch (Exception e) {
-            throw new DAOException("Error while searching anime by tags", e);
-        }
-    }
-
-    @Override
-    public void remove(String animeId) throws DAOException {
-        try (MongoClient mongoClient = getConnection()) {
-            MongoCollection<Document> animeCollection = mongoClient.getDatabase("mangaVerse").getCollection("anime");
-
-            Document query = new Document("_id", new ObjectId(animeId));
-            animeCollection.deleteOne(query);
-        } catch (Exception e) {
-            throw new DAOException("Error while removing anime", e);
+            throw new DAOException("Error while searching anime", e);
         }
     }
 
     private Document animeToDocument(Anime anime) {
-        Document doc = new Document("title", anime.getTitle())
-                .append("episodeCount", anime.getEpisodeCount())
-                .append("status", anime.getStatus())
-                .append("image", anime.getImageUrl());
-        if (anime.getType() != null) {
-            doc.append("type", anime.getType());
+        Document doc = new Document();
+        appendIfNotNull(doc, "title", anime.getTitle());
+        appendIfNotNull(doc, "episodes", anime.getEpisodeCount());
+        appendIfNotNull(doc, "status", anime.getStatus());
+        appendIfNotNull(doc, "picture", anime.getImageUrl());
+        appendIfNotNull(doc, "average_score", anime.getAverageRating());
+        appendIfNotNull(doc, "type", anime.getType());
+        appendIfNotNull(doc, "producers", anime.getProducers());
+        appendIfNotNull(doc, "studios", anime.getStudios());
+        appendIfNotNull(doc, "synopsis", anime.getSynopsis());
+        appendIfNotNull(doc, "tags", anime.getTags());
+        appendIfNotNull(doc, "relations", anime.getRelatedAnime());
+
+        if (anime.getSeason() != null || anime.getYear() != null) {
+            Document seasonDocument = new Document();
+            appendIfNotNull(seasonDocument, "season", anime.getSeason());
+            appendIfNotNull(seasonDocument, "year", anime.getYear());
+            doc.append("anime_season", seasonDocument);
         }
-        if (anime.getSeason() != null) {
-            doc.append("anime_season.season", anime.getSeason());
-        }
-        if (anime.getYear() != 0) {
-            doc.append("anime_season.year", anime.getYear());
-        }
-        if (anime.getProducers() != null) {
-            doc.append("producers", anime.getProducers());
-        }
-        if (anime.getStudios() != null) {
-            doc.append("studios", anime.getStudios());
-        }
-        if (anime.getSynopsis() != null) {
-            doc.append("synopsis", anime.getSynopsis());
-        }
-        if (anime.getTags() != null) {
-            doc.append("tags", anime.getTags());
-        }
-        if (anime.getRelatedAnime() != null) {
-            doc.append("relations", anime.getRelatedAnime());
-        }
-        if (anime.getReviews() != null) {
-            List<Document> reviewsDocuments = new ArrayList<>();
-            for (Review<Anime> review : anime.getReviews()) {
-                Document reviewDocument = new Document()
-                        .append("id", review.getId())
-                        .append("user", new Document()
-                                .append("id", review.getUser().getId())
-                                .append("username", review.getUser().getUsername())
-                                .append("picture", review.getUser().getprofilePicUrl()))
-                        .append("comment", review.getComment())
-                        .append("date", ConverterUtils.convertLocalDateToDate(review.getDate()));
-                reviewsDocuments.add(reviewDocument);
-            }
-            doc.append("reviews", reviewsDocuments);
-        }
+
+        List<Document> reviewsDocuments = Optional.ofNullable(anime.getReviews())
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(review -> {
+                    Document reviewDocument = new Document();
+                    appendIfNotNull(reviewDocument, "id", review.getId());
+                    appendIfNotNull(reviewDocument, "comment", review.getComment());
+                    appendIfNotNull(reviewDocument, "date", ConverterUtils.convertLocalDateToDate(review.getDate()));
+                    Document userDocument = new Document();
+                    appendIfNotNull(userDocument, "id", review.getUser().getId());
+                    appendIfNotNull(userDocument, "username", review.getUser().getUsername());
+                    appendIfNotNull(userDocument, "picture", review.getUser().getProfilePicUrl());
+                    appendIfNotNull(reviewDocument, "user", userDocument);
+                    return reviewDocument;
+                })
+                .toList();
+
+        appendIfNotNull(doc, "latest_reviews", reviewsDocuments);
+
         return doc;
     }
 
@@ -172,53 +163,53 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements AnimeDAO {
         Anime anime = new Anime();
         anime.setId(document.getObjectId("_id"));
         anime.setTitle(document.getString("title"));
-        anime.setEpisodeCount(document.getInteger("episodeCount"));
+        anime.setEpisodeCount(document.getInteger("episodes"));
         anime.setStatus(Status.valueOf(document.getString("status")));
-        anime.setImageUrl(document.getString("image"));
+        anime.setImageUrl(document.getString("picture"));
+        anime.setAverageRating(document.getDouble("average_score"));
+        anime.setType(document.getString("type"));
+        anime.setRelatedAnime(document.getList("relations", String.class));
+        anime.setTags(document.getList("tags", String.class));
+        anime.setProducers(document.getString("producers"));
+        anime.setStudios(document.getString("studios"));
+        anime.setSynopsis(document.getString("synopsis"));
 
-        List<Document> reviewsDocuments = document.getList("reviews",Document.class);
-        List<Review<Anime>> reviewList = new ArrayList<>();
-        if(reviewsDocuments != null) {
-            for(Document reviewDocument : reviewsDocuments) {
-                Review<Anime> review = new Review<>();
-                User reviewer = new User();
-                Document userDocument = reviewDocument.get("user", Document.class);
-                reviewer.setId(userDocument.getObjectId("_id"));
-                reviewer.setUsername(userDocument.getString("username"));
-                reviewer.setprofilePicUrl(userDocument.getString("picture"));
-                review.setUser(reviewer);
-                review.setId(reviewDocument.getObjectId("_id"));
-                review.setComment(reviewDocument.getString("comment"));
-                review.setDate(ConverterUtils.convertDateToLocalDate(reviewDocument.getDate("date")));
-                reviewList.add(review);
-            }
-        }
+        Optional.ofNullable(document.get("anime_season", Document.class))
+                .ifPresent(seasonDocument -> {
+                    anime.setSeason(seasonDocument.getString("season"));
+                    anime.setYear(seasonDocument.getInteger("year"));
+                });
+
+        List<Review> reviewList = Optional.ofNullable(document.getList("latest_reviews", Document.class))
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(reviewDocument -> {
+                    Review review = new Review();
+                    User reviewer = new User();
+                    Document userDocument = reviewDocument.get("user", Document.class);
+                    reviewer.setId(userDocument.getObjectId("id"));
+                    reviewer.setUsername(userDocument.getString("username"));
+                    reviewer.setProfilePicUrl(userDocument.getString("picture"));
+                    review.setUser(reviewer);
+                    review.setId(reviewDocument.getObjectId("id"));
+                    review.setComment(reviewDocument.getString("comment"));
+                    review.setDate(ConverterUtils.convertDateToLocalDate(reviewDocument.getDate("date")));
+                    return review;
+                })
+                .toList();
         anime.setReviews(reviewList);
-        anime.setAverageRating(document.getDouble("averageRating"));
 
-        if (document.getString("type") != null) {
-            anime.setType(document.getString("type"));
-        }
-        if (document.getString("season") != null) {
-            anime.setSeason(document.getString("anime_season.season"));
-        }
-        if (document.getString("relations") != null) {
-            anime.setRelatedAnime(document.getList("relations", String.class));
-        }
-        if (document.getString("tags") != null) {
-            anime.setTags(document.getList("tags", String.class));
-        }
-        if (document.getString("anime_season.year") != null) {
-            anime.setYear(document.getInteger("year"));
-        }
-        if (document.getString("producers") != null) {
-            anime.setProducers(document.getString("producers"));
-        }
-        if (document.getString("studios") != null) {
-            anime.setStudios(document.getString("studios"));
-        }
-        if (document.getString("synopsis") != null) {
-            anime.setSynopsis(document.getString("synopsis"));
+        return anime;
+    }
+
+    private AnimeDTO documentToAnimeDTO(Document doc) {
+        AnimeDTO anime = new AnimeDTO();
+        anime.setId(doc.getObjectId("_id"));
+        anime.setTitle(doc.getString("title"));
+        anime.setImageUrl(doc.getString("picture"));
+        anime.setAverageRating(doc.getDouble("average_score"));
+        if ((doc.get("anime_season", Document.class) != null)) {
+            anime.setYear(doc.get("anime_season", Document.class).getInteger("year"));
         }
 
         return anime;

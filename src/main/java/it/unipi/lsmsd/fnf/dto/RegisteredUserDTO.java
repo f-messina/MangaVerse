@@ -1,8 +1,7 @@
 package it.unipi.lsmsd.fnf.dto;
-import org.bson.types.ObjectId;
 
+import org.bson.types.ObjectId;
 import java.time.LocalDate;
-import java.util.Date;
 
 public class RegisteredUserDTO {
 
@@ -11,7 +10,7 @@ public class RegisteredUserDTO {
     private String profilePicUrl;
     private String location;
     private LocalDate birthday;
-    private int age;
+    private Integer age;
 
     public RegisteredUserDTO() {
     }
@@ -22,11 +21,11 @@ public class RegisteredUserDTO {
         this.profilePicUrl = profilePicUrl;
     }
 
-    public RegisteredUserDTO(ObjectId id, String location, LocalDate birthday) {
+    public RegisteredUserDTO(ObjectId id, String location, LocalDate birthday, Integer age) {
         this.id = id;
         this.location = location;
         this.birthday = birthday;
-        age = calculateAge();
+        this.age = age;
     }
 
     public ObjectId getId() {
@@ -69,16 +68,20 @@ public class RegisteredUserDTO {
         this.birthday = birthday;
     }
 
-    public int getAge() {
-        if (age == 0 && birthday != null) {
-            age = calculateAge();
+    public Integer getAge() {
+        if (age != null && birthday != null) {
+            age = calculateAge(birthday);
         }
         return age;
     }
 
-    public int calculateAge() {
+    public void setAge(Integer age) {
+        this.age = age;
+    }
+
+    public Integer calculateAge(LocalDate birthday) {
         LocalDate now = LocalDate.now();
-        int age = now.getYear() - birthday.getYear();
+        Integer age = now.getYear() - birthday.getYear();
         if (now.getMonthValue() < birthday.getMonthValue() ||
                 (now.getMonthValue() == birthday.getMonthValue() && now.getDayOfMonth() < birthday.getDayOfMonth())) {
             age--;

@@ -1,9 +1,6 @@
 package it.unipi.lsmsd.fnf.model.registeredUser;
 
-import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
-
 import java.time.LocalDate;
-import java.util.Date;
 
 public class Manager extends RegisteredUser {
     private LocalDate hiredDate;
