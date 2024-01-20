@@ -1,8 +1,7 @@
 package it.unipi.lsmsd.fnf.dto;
-import org.bson.types.ObjectId;
 
+import org.bson.types.ObjectId;
 import java.time.LocalDate;
-import java.util.Date;
 
 public class RegisteredUserDTO {
 

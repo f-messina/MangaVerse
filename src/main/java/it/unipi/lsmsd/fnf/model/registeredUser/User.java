@@ -1,10 +1,8 @@
 package it.unipi.lsmsd.fnf.model.registeredUser;
 
 import it.unipi.lsmsd.fnf.model.PersonalList;
-import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
 
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 
 public class User extends RegisteredUser {

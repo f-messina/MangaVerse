@@ -4,11 +4,12 @@ import org.bson.types.ObjectId;
 
 
 public class AnimeDTO extends MediaContentDTO{
+    private Integer year;
 
     public AnimeDTO() {
     }
 
-    public AnimeDTO(ObjectId id, String title, String imageUrl, float averageRating, int year) {
+    public AnimeDTO(ObjectId id, String title, String imageUrl, float averageRating, Integer year) {
         super(id, title, imageUrl, averageRating);
         this.year = year;
     }
@@ -20,20 +21,14 @@ public class AnimeDTO extends MediaContentDTO{
     public AnimeDTO(ObjectId id, String title, String imageUrl) {
         super(id, title, imageUrl);
     }
-    private int year;
 
-
-
-    public int getYear() {
+    public Integer getYear() {
         return year;
     }
 
-    public void setYear(int year) {
+    public void setYear(Integer year) {
         this.year = year;
     }
-
-
-
 
     @Override
     public String toString() {
