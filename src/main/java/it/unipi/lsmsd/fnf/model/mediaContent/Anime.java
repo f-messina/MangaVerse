@@ -10,7 +10,7 @@ public class Anime extends MediaContent {
     private Integer episodeCount;
     private List<String> tags;
     private List<String> relatedAnime;
-    private List<Review<Anime>> reviews;
+    private List<Review> reviews;
     private String producers;
     private String studios;
 
@@ -34,7 +34,7 @@ public class Anime extends MediaContent {
         return relatedAnime;
     }
 
-    public List<Review<Anime>> getReviews() {
+    public List<Review> getReviews() {
         return reviews;
     }
 
@@ -66,7 +66,7 @@ public class Anime extends MediaContent {
         this.relatedAnime = relatedAnime;
     }
 
-    public void setReviews(List<Review<Anime>> reviews) {
+    public void setReviews(List<Review> reviews) {
         this.reviews = reviews;
     }
 
@@ -78,11 +78,11 @@ public class Anime extends MediaContent {
         this.studios = studios;
     }
 
-    public void addReview(Review<Anime> review) {
+    public void addReview(Review review) {
         this.reviews.add(review);
     }
 
-    public void removeReview(Review<Anime> review) {
+    public void removeReview(Review review) {
         this.reviews.remove(review);
     }
 

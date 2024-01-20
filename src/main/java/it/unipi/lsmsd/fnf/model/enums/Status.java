@@ -7,7 +7,8 @@ public enum Status {
     ON_HIATUS(4),
     UPCOMING(5),
     UNKNOWN(6);
-    int code;
+    private final int code;
+
     Status(int code){
         this.code=code;
     }

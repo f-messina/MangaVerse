@@ -5,18 +5,10 @@ import com.mongodb.MongoClientSettings;
 import com.mongodb.client.*;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Sorts;
-import com.mongodb.client.result.DeleteResult;
-import com.mongodb.client.result.InsertManyResult;
-import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
 import org.bson.conversions.Bson;
-import org.bson.json.JsonWriterSettings;
-import org.bson.types.ObjectId;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
+import java.util.*;
 
 public abstract class BaseMongoDBDAO {
     private static final String PROTOCOL = "mongodb://";
@@ -49,38 +41,22 @@ public abstract class BaseMongoDBDAO {
     }
 
     protected List<Bson> buildFilterInternal(Map<String, Object> filterMap) {
-        List<Bson> filters = new ArrayList<>();
+        return filterMap.entrySet().stream()
+                .map(entry -> {
+                    String key = entry.getKey();
+                    if (!key.startsWith("$")) {
+                        return buildFieldFilter(key, entry.getValue());
+                    }
 
-        for (Map.Entry<String, Object> entry : filterMap.entrySet()) {
-            String key = entry.getKey();
-
-            // Handle regular field filters
-            if (!(key.startsWith("$"))) {
-                filters.add(buildFieldFilter(key, entry.getValue()));
-                continue;
-            }
-
-            switch (key) {
-                case "$nor" -> {
-                    List<Bson> norFilters = getFiltersList(entry.getValue());
-                    filters.add(Filters.nor(norFilters));
-                }
-                case "$and" -> {
-                    List<Bson> andFilters = getFiltersList(entry.getValue());
-                    filters.add(Filters.and(andFilters));
-                }
-                case "$or" -> {
-                    List<Bson> orFilters = getFiltersList(entry.getValue());
-                    filters.add(Filters.or(orFilters));
-                }
-                case "$not" -> {
-                    Bson notFilter = buildFilterInternal((Map<String, Object>) entry.getValue()).getFirst();
-                    filters.add(Filters.not(notFilter));
-                }
-            }
-        }
-
-        return filters;
+                    return switch (key) {
+                        case "$nor" -> Filters.nor(getFiltersList(entry.getValue()));
+                        case "$and" -> Filters.and(getFiltersList(entry.getValue()));
+                        case "$or" -> Filters.or(getFiltersList(entry.getValue()));
+                        case "$not" -> Filters.not(buildFilterInternal((Map<String, Object>) entry.getValue()).get(0));
+                        default -> throw new IllegalArgumentException("Unsupported filter key: " + key);
+                    };
+                })
+                .toList();
     }
 
     protected Bson buildFieldFilter(String fieldName, Object value) {
@@ -88,24 +64,33 @@ public abstract class BaseMongoDBDAO {
     }
 
     protected List<Bson> getFiltersList(Object filters) {
-        List<Bson> filtersList = new ArrayList<>();
-        for (Object filter : (List<?>) filters) {
-            filtersList.add(buildFilterInternal((Map<String, Object>) filter).getFirst());
+        if (filters instanceof List<?>) {
+            return ((List<?>) filters).stream()
+                    .filter(filter -> filter instanceof Map)
+                    .flatMap(filter -> buildFilterInternal((Map<String, Object>) filter).stream())
+                    .toList();
         }
-        return filtersList;
+
+        return Collections.emptyList();
     }
 
-    protected List<Bson> buildSort(Map<String, Integer> orderBy) {
+    protected Bson buildSort(Map<String, Integer> orderBy) {
         List<Bson> sortList = new ArrayList<>();
-        if (orderBy != null && !orderBy.isEmpty()) {
-            for (Map.Entry<String, Integer> entry : orderBy.entrySet()) {
-                if (entry.getValue() == 1) {
-                    sortList.add(Sorts.ascending(entry.getKey()));
-                } else if (entry.getValue() == -1) {
-                    sortList.add(Sorts.descending(entry.getKey()));
-                }
-            }
+        Optional.ofNullable(orderBy)
+                .ifPresent(map ->
+                        sortList.addAll(map.entrySet().stream()
+                                .map(entry -> entry.getValue() == 1 ? Sorts.ascending(entry.getKey()) : Sorts.descending(entry.getKey()))
+                                .toList()
+                        )
+                );
+
+        return Sorts.orderBy(sortList);
+    }
+
+    protected void appendIfNotNull(Document doc, String key, Object value) {
+        if (value == null || (value instanceof String && ((String) value).isEmpty()) || (value instanceof List && ((List<?>) value).isEmpty())) {
+            return;
         }
-        return sortList;
+        doc.append(key, value);
     }
 }

@@ -9,21 +9,20 @@ import org.bson.types.ObjectId;
 
 import java.util.List;
 
-public interface ListDAO {
-    public List<PersonalListDTO> findByUserId(ObjectId userId) throws DAOException;
-    public List<PersonalListDTO> findAll() throws DAOException;
-    public PersonalListDTO find(ObjectId id) throws DAOException;
-    public void insert(PersonalListDTO list) throws DAOException;
-    public void insert(List<PersonalListDTO> lists) throws DAOException;
-    public void update(PersonalListDTO list) throws DAOException;
-    public void delete(ObjectId id) throws DAOException;
-    public void deleteByUser(ObjectId userId) throws DAOException;
-    public void insertAnime(ObjectId listId, AnimeDTO anime) throws DAOException;
-    public void insertManga(ObjectId listId, MangaDTO manga) throws DAOException;
-    public void removeAnime(ObjectId listId, ObjectId animeId) throws DAOException;
-    public void removeManga(ObjectId listId, ObjectId mangaId) throws DAOException;
-    public List<AnimeDTO> findPopularAnime(SearchCriteriaEnum criteria) throws DAOException;
-    public List<AnimeDTO> findPopularAnime(SearchCriteriaEnum criteria, String value) throws DAOException;
-    public List<MangaDTO> findPopularManga(SearchCriteriaEnum criteria) throws DAOException;
-    public List<MangaDTO> findPopularManga(SearchCriteriaEnum criteria, String value) throws DAOException;
+ public interface ListDAO {
+     List<PersonalListDTO> findByUserId(ObjectId userId) throws DAOException;
+     List<PersonalListDTO> findAll() throws DAOException;
+     PersonalListDTO find(ObjectId id) throws DAOException;
+     void insert(PersonalListDTO list) throws DAOException;
+     void changeName(ObjectId ID, String name) throws DAOException;
+     void delete(ObjectId id) throws DAOException;
+     void deleteByUser(ObjectId userId) throws DAOException;
+     void addAnime(ObjectId listId, AnimeDTO anime) throws DAOException;
+     void addManga(ObjectId listId, MangaDTO manga) throws DAOException;
+     void removeAnime(ObjectId listId, ObjectId animeId) throws DAOException;
+     void removeManga(ObjectId listId, ObjectId mangaId) throws DAOException;
+     List<AnimeDTO> findPopularAnime(SearchCriteriaEnum criteria) throws DAOException;
+     List<AnimeDTO> findPopularAnime(SearchCriteriaEnum criteria, String value) throws DAOException;
+     List<MangaDTO> findPopularManga(SearchCriteriaEnum criteria) throws DAOException;
+     List<MangaDTO> findPopularManga(SearchCriteriaEnum criteria, String value) throws DAOException;
 }
