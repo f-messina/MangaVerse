@@ -40,7 +40,7 @@
         <a href="#" class="manga">Manga</a>
         <a href="#">Profile</a>
         <a href="#" class="search"><i class="fa-solid fa-magnifying-glass"></i></a>
-        <a href="#" class="small-pic"><img src="images/user%20icon.png"> <i class="fa-solid fa-chevron-down" style="color: #000000"> </i></a>
+        <a href="#" class="small-pic"><img src="images/user%20icon%20-%20Kopya%20-%20Kopya.png"> <i class="fa-solid fa-chevron-down" style="color: #000000"> </i></a>
     </div>
 </nav>
 
@@ -77,13 +77,224 @@
     </div>
 </section>
 
-<section>
-  
+
+<div class="suggestions">
+
+    <div class="suggestions-div" >
+        <p class="suggestion-title">Manga Suggestions</p>
+        <swiper-container class="mySwiper" pagination="true" pagination-clickable="true" space-between="30"
+                          slides-per-view="4">
+            <swiper-slide>
+                <div class="slider-item">
+                    <div class="slider-icons">
+                        <a href="#"><i class="fa-solid fa-plus"></i></a>
+                        <a href="#"><i class="fa-regular fa-heart"></i></a>
+                    </div>
+                    <div class="slider-img"><img src="https://cdn.myanimelist.net/images/manga/1/157897l.jpg"></div>
+                    <a href="#"><p>Berserk</p></a>
+                </div>
+            </swiper-slide>
+            <swiper-slide>
+                <div class="slider-item">
+                    <div class="slider-icons">
+                        <a href="#"><i class="fa-solid fa-plus"></i></a>
+                        <a href="#"><i class="fa-regular fa-heart"></i></a>
+                    </div>
+                    <div class="slider-img"><img src="https://cdn.myanimelist.net/images/manga/2/253146l.jpg"></div>
+                    <a href="#"><p>One Piece</p></a>
+                </div>
+            </swiper-slide>
+            <swiper-slide>
+                <div class="slider-item">
+                    <div class="slider-icons">
+                        <a href="#"><i class="fa-solid fa-plus"></i></a>
+                        <a href="#"><i class="fa-regular fa-heart"></i></a>
+                    </div>
+                    <div class="slider-img"><img src="https://cdn.myanimelist.net/images/manga/1/259070l.jpg"></div>
+                    <a href="#"><p>Vagabond</p></a>
+                </div>
+            </swiper-slide>
+            <swiper-slide>
+                <div class="slider-item">
+                    <div class="slider-icons">
+                        <a href="#"><i class="fa-solid fa-plus"></i></a>
+                        <a href="#"><i class="fa-regular fa-heart"></i></a>
+                    </div>
+                    <div class="slider-img"><img src="https://cdn.myanimelist.net/images/manga/3/179882l.jpg"></div>
+                    <a href="#"><p>JoJo no Kimyou na Bouken Part 7: Steel Ball Run</p></a>
+                </div>
+            </swiper-slide>
+            <swiper-slide>
+                <div class="slider-item">
+                    <div class="slider-icons">
+                        <a href="#"><i class="fa-solid fa-plus"></i></a>
+                        <a href="#"><i class="fa-regular fa-heart"></i></a>
+                    </div>
+                    <div class="slider-img"><img src="https://cdn.myanimelist.net/images/manga/3/266834l.jpg"></div>
+                    <a href="#"><p>Oyasumi Punpun</p></a>
+                </div>
+            </swiper-slide>
+            <swiper-slide>
+                <div class="slider-item">
+                    <div class="slider-icons">
+                        <a href="#"><i class="fa-solid fa-plus"></i></a>
+                        <a href="#"><i class="fa-regular fa-heart"></i></a>
+                    </div>
+                    <div class="slider-img"><img src="https://cdn.myanimelist.net/images/manga/3/243675l.jpg"></div>
+                    <a href="#"><p>Fullmetal Alchemist</p></a>
+                </div>
+            </swiper-slide>
+
+        </swiper-container>
+    </div>
+
+
+
+    <div class="suggestions-div">
+        <p class="suggestion-title">Anime Suggestions</p>
+        <swiper-container class="mySwiper" pagination="true" pagination-clickable="true" space-between="30"
+                          slides-per-view="4">
+            <swiper-slide>
+                <div class="slider-item">
+                    <div class="slider-icons">
+                        <a href="#"><i class="fa-solid fa-plus"></i></a>
+                        <a href="#"><i class="fa-regular fa-heart"></i></a>
+                    </div>
+                    <div class="slider-img"><img src="https://cdn.myanimelist.net/images/anime/1948/136272.jpg"></div>
+                    <a href="#"><p>Ai wo Taberu</p></a>
+                </div>
+            </swiper-slide>
+            <swiper-slide>
+                <div class="slider-item">
+                    <div class="slider-icons">
+                        <a href="#"><i class="fa-solid fa-plus"></i></a>
+                        <a href="#"><i class="fa-regular fa-heart"></i></a>
+                    </div>
+                    <div class="slider-img"><img src="https://cdn.myanimelist.net/images/manga/2/253146l.jpg"></div>
+                    <a href="#"><p>!NVADE SHOW!</p></a>
+                </div>
+            </swiper-slide>
+            <swiper-slide>
+                <div class="slider-item">
+                    <div class="slider-icons">
+                        <a href="#"><i class="fa-solid fa-plus"></i></a>
+                        <a href="#"><i class="fa-regular fa-heart"></i></a>
+                    </div>
+                    <div class="slider-img"><img src="https://cdn.myanimelist.net/images/anime/1671/127574.jpg"></div>
+                    <a href="#"><p>Bungaku Shoujo" Kyou no Oyatsu: Hatsukoi</p></a>
+                </div>
+            </swiper-slide>
+            <swiper-slide>
+                <div class="slider-item">
+                    <div class="slider-icons">
+                        <a href="#"><i class="fa-solid fa-plus"></i></a>
+                        <a href="#"><i class="fa-regular fa-heart"></i></a>
+                    </div>
+                    <div class="slider-img"><img src="https://cdn.myanimelist.net/images/anime/6/26770.jpg"></div>
+                    <a href="#"><p>Bungaku Shoujo" Memoire</p></a>
+                </div>
+            </swiper-slide>
+            <swiper-slide>
+                <div class="slider-item">
+                    <div class="slider-icons">
+                        <a href="#"><i class="fa-solid fa-plus"></i></a>
+                        <a href="#"><i class="fa-regular fa-heart"></i></a>
+                    </div>
+                    <div class="slider-img"><img src="https://cdn.myanimelist.net/images/anime/8/81162.jpg"></div>
+                    <a href="#"><p>Bungaku Shoujo" Movie</p></a>
+                </div>
+            </swiper-slide>
+            <swiper-slide>
+                <div class="slider-item">
+                    <div class="slider-icons">
+                        <a href="#"><i class="fa-solid fa-plus"></i></a>
+                        <a href="#"><i class="fa-regular fa-heart"></i></a>
+                    </div>
+                    <div class="slider-img"><img src="https://cdn.myanimelist.net/images/anime/1168/93236.jpg"></div>
+                    <a href="#"><p>Calpis" Hakkou Monogatari</p></a>
+                </div>
+            </swiper-slide>
+
+        </swiper-container>
+    </div>
+
+
+</div>
+
+
+<section class="friend-activity">
+    <p class="activity-title">Friends Activity</p>
+    <div class="one-line">
+        <div class="activity-label">
+            <img src="https://cdn.myanimelist.net/images/manga/2/253146l.jpg">
+            <div class="texts">
+                <div class="texts-who">
+                    <div class="user-name">
+                        <img src="images/user%20icon%20-%20Kopya%20-%20Kopya.png">
+                        <p>Crystal</p>
+                    </div>
+                    <p class="time">2 hours ago</p>
+                </div>
+                <p class="activity-info">Made comment on One Piece </p>
+            </div>
+        </div>
+
+        <div class="activity-label">
+            <img src="https://cdn.myanimelist.net/images/manga/2/253146l.jpg">
+            <div class="texts">
+                <div class="texts-who">
+                    <div class="user-name">
+                        <img src="images/user%20icon%20-%20Kopya%20-%20Kopya.png">
+                        <p>Crystal</p>
+                    </div>
+                    <p class="time">2 hours ago</p>
+                </div>
+                <p class="activity-info">Made comment on One Piece </p>
+            </div>
+        </div>
+
+
+    </div>
+
+
+
+    <div class="one-line">
+        <div class="activity-label">
+            <img src="https://cdn.myanimelist.net/images/manga/2/253146l.jpg">
+            <div class="texts">
+                <div class="texts-who">
+                    <div class="user-name">
+                        <img src="images/user%20icon%20-%20Kopya%20-%20Kopya.png">
+                        <p>Crystal</p>
+                    </div>
+                    <p class="time">2 hours ago</p>
+                </div>
+                <p class="activity-info">Made comment on One Piece </p>
+            </div>
+        </div>
+
+        <div class="activity-label">
+            <img src="https://cdn.myanimelist.net/images/manga/2/253146l.jpg">
+            <div class="texts">
+                <div class="texts-who">
+                    <div class="user-name">
+                        <img src="images/user%20icon%20-%20Kopya%20-%20Kopya.png">
+                        <p>Crystal</p>
+                    </div>
+                    <p class="time">2 hours ago</p>
+                </div>
+                <p class="activity-info">Made comment on One Piece </p>
+            </div>
+        </div>
+
+
+    </div>
+
 
 </section>
 
-<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-<script src="js/index2.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-element-bundle.min.js"></script><script src="js/index2.js"></script>
 </body>
 
 </html>
