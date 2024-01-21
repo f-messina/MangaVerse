@@ -12,7 +12,7 @@ import org.bson.types.ObjectId;
 import java.util.List;
 
  public interface PersonalListDAO {
-     List<PersonalListDTO> findByUserId(ObjectId userId) throws DAOException;
+     List<PersonalListDTO> findByUser(ObjectId userId) throws DAOException;
      List<PersonalListDTO> findAll() throws DAOException;
      PersonalListDTO find(ObjectId id) throws DAOException;
      void insert(PersonalListDTO list) throws DAOException;
