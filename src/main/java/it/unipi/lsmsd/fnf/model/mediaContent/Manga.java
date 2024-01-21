@@ -2,7 +2,6 @@ package it.unipi.lsmsd.fnf.model.mediaContent;
 
 import it.unipi.lsmsd.fnf.model.Review;
 
-import java.util.Date;
 import java.util.List;
 
 public class Manga extends MediaContent {
@@ -16,9 +15,9 @@ public class Manga extends MediaContent {
     private String titleJapanese;
     private String startDate;
     private String endDate;
-    private int volumes;
-    private int chapters;
-    private List<Review<Manga>> reviews;
+    private Integer volumes;
+    private Integer chapters;
+    private List<Review> reviews;
 
     public List<String> getGenres() {
         return genres;
@@ -59,10 +58,10 @@ public class Manga extends MediaContent {
     public String getEndDate() {
         return endDate;
     }
-    public int getVolumes() { return volumes; }
-    public int getChapters() { return chapters; }
+    public Integer getVolumes() { return volumes; }
+    public Integer getChapters() { return chapters; }
 
-    public List<Review<Manga>> getReviews() {
+    public List<Review> getReviews() {
         return reviews;
     }
 
@@ -106,19 +105,19 @@ public class Manga extends MediaContent {
         this.endDate = endDate;
     }
 
-    public void setVolumes(int volumes) { this.volumes = volumes;  }
+    public void setVolumes(Integer volumes) { this.volumes = volumes;  }
 
-    public void setChapters(int chapters) { this.chapters = chapters; }
+    public void setChapters(Integer chapters) { this.chapters = chapters; }
 
-    public void setReviews(List<Review<Manga>> reviews) {
+    public void setReviews(List<Review> reviews) {
         this.reviews = reviews;
     }
 
-    public void addReview(Review<Manga> review) {
+    public void addReview(Review review) {
         this.reviews.add(review);
     }
 
-    public void removeReview(Review<Manga> review) {
+    public void removeReview(Review review) {
         this.reviews.remove(review);
     }
 

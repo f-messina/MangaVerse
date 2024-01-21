@@ -1,11 +1,14 @@
 package it.unipi.lsmsd.fnf.model.mediaContent;
 
 public class MangaAuthor {
-    private int id;
+    private Integer id;
     private String name;
     private String role;
 
-    public MangaAuthor(int id, String name, String role) {
+    public MangaAuthor() {
+    }
+
+    public MangaAuthor(Integer id, String name, String role) {
         this.id = id;
         this.name = name;
         this.role = role;
@@ -23,7 +26,7 @@ public class MangaAuthor {
         return role;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

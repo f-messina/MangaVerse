@@ -18,4 +18,5 @@ public class ConverterUtils {
     public static Date convertLocalDateToDate(LocalDate localDate) {
         return Date.from(localDate.atStartOfDay(systemDefault()).toInstant());
     }
+
 }

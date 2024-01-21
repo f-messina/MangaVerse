@@ -13,6 +13,9 @@ public class PersonalListDTO {
     private List<MangaDTO> manga;
     private List<AnimeDTO> anime;
 
+    public PersonalListDTO() {
+    }
+
     public PersonalListDTO(ObjectId id, String name, RegisteredUserDTO user, List<MangaDTO> manga, List<AnimeDTO> anime) {
         this.id = id;
         this.name = name;

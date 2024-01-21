@@ -1,7 +1,6 @@
 package it.unipi.lsmsd.fnf.dto;
 
 import java.time.LocalDate;
-import java.util.Date;
 
 public class UserRegistrationDTO {
     private String username;

@@ -33,7 +33,7 @@ public abstract class RegisteredUser {
         return fullname;
     }
 
-    public String getprofilePicUrl() {
+    public String getProfilePicUrl() {
         return profilePicUrl;
     }
 
@@ -61,7 +61,7 @@ public abstract class RegisteredUser {
         this.fullname = fullname;
     }
 
-    public void setprofilePicUrl(String profilePicUrl) {
+    public void setProfilePicUrl(String profilePicUrl) {
         this.profilePicUrl = profilePicUrl;
     }
 
