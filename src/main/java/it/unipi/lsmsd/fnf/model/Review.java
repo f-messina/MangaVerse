@@ -5,14 +5,13 @@ import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import org.bson.types.ObjectId;
 
 import java.time.LocalDate;
-import java.util.Date;
 
-public class Review<T extends MediaContent> {
+public class Review {
     private ObjectId id;
     private LocalDate date;
     private String comment;
-    private int rating;
-    private T mediaContent;
+    private Integer rating;
+    private MediaContent mediaContent;
     private User user;
 
     public ObjectId getId() {
@@ -27,11 +26,11 @@ public class Review<T extends MediaContent> {
         return comment;
     }
 
-    public int getRating() {
+    public Integer getRating() {
         return rating;
     }
 
-    public T getMediaContent() {
+    public MediaContent getMediaContent() {
         return mediaContent;
     }
 
@@ -51,11 +50,11 @@ public class Review<T extends MediaContent> {
         this.comment = comment;
     }
 
-    public void setRating(int rating) {
+    public void setRating(Integer rating) {
         this.rating = rating;
     }
 
-    public void setMediaContent(T mediaContent) {
+    public void setMediaContent(MediaContent mediaContent) {
         this.mediaContent = mediaContent;
     }
 
@@ -67,10 +66,11 @@ public class Review<T extends MediaContent> {
     public String toString() {
         return "Review{" +
                 "id=" + id +
+                ", date=" + date +
                 ", comment='" + comment + '\'' +
-                ", rating='" + rating + '\'' +
-                ", manga_anime='" + mediaContent + '\'' +
-                ", user='" + user + '\'' +
+                ", rating=" + rating +
+                ", mediaContent=" + mediaContent +
+                ", user=" + user +
                 '}';
     }
 }

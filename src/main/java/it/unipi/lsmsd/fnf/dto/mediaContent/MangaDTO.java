@@ -1,32 +1,27 @@
 package it.unipi.lsmsd.fnf.dto.mediaContent;
 
-import it.unipi.lsmsd.fnf.model.Review;
-import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
-import it.unipi.lsmsd.fnf.model.mediaContent.MangaAuthor;
 import org.bson.types.ObjectId;
 
-import java.util.Date;
-import java.util.List;
-
 public class MangaDTO extends MediaContentDTO{
+    private String startDate;
+    private String endDate;
 
+    public MangaDTO() {
+    }
 
-    public MangaDTO(ObjectId id, String title, String imageUrl, float averageRating, String startDate, String endDate) {
+    public MangaDTO(ObjectId id, String title, String imageUrl, Double averageRating, String startDate, String endDate) {
         super(id, title, imageUrl, averageRating);
         this.startDate = startDate;
         this.endDate = endDate;
     }
 
-    public MangaDTO(ObjectId id, String title, String imageUrl, float averageRating) {
+    public MangaDTO(ObjectId id, String title, String imageUrl, Double averageRating) {
         super(id, title, imageUrl, averageRating);
     }
 
     public MangaDTO(ObjectId id, String title, String imageUrl) {
         super(id, title, imageUrl);
     }
-
-    private String startDate;
-    private String endDate;
 
     public String getStartDate() {
         return startDate;
