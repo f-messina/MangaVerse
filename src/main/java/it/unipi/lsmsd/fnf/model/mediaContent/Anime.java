@@ -2,15 +2,16 @@ package it.unipi.lsmsd.fnf.model.mediaContent;
 
 import it.unipi.lsmsd.fnf.model.Review;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Anime extends MediaContent {
     private Integer year;
     private String season;
     private Integer episodeCount;
-    private List<String> tags;
-    private List<String> relatedAnime;
-    private List<Review> reviews;
+    private List<String> tags = new ArrayList<>();
+    private List<String> relatedAnime = new ArrayList<>();
+    private List<Review> reviews = new ArrayList<>();
     private String producers;
     private String studios;
 

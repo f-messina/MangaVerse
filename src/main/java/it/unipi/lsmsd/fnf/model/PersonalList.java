@@ -5,14 +5,15 @@ import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import org.bson.types.ObjectId;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class PersonalList {
     private ObjectId id;
     private String name;
     private User user;
-    private List<Manga> manga;
-    private List<Anime> anime;
+    private List<Manga> manga = new ArrayList<>();
+    private List<Anime> anime = new ArrayList<>();
 
     public ObjectId getId() {
         return id;
