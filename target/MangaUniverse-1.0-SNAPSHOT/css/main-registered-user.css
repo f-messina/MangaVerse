@@ -18,9 +18,11 @@ nav {
     align-items: center;
     justify-content: space-between;
     gap: 20px;
-    padding: 50px 40px;
+    padding-top: 50px;
+    padding-left: 80px;
+    padding-bottom: 50px;
     width: 100%;
-    height: 60px;
+    height: 100px;
     background-color: white;
     z-index: 999;
 }
@@ -32,6 +34,14 @@ nav h1{
     display: flex;
     justify-content: center;
     align-items: center;
+    padding-left: 0;
+    padding-right: 0;
+}
+.small-pic img{
+    width: 15%;
+}
+.small-pic i{
+    font-size: 30px;
 }
 
 nav img {
@@ -55,6 +65,7 @@ nav .nav-items a {
 
 .main-page-unreg{
     padding-top: 50px;
+
 }
 .filtering{
     padding-left: 80px;
@@ -104,8 +115,138 @@ nav .nav-items a {
 
 
 
+.suggestion-title{
+    padding-top: 80px;
+    padding-left: 80px;
+    font-size: 30px;
+
+}
+
+swiper-container {
+    width: 100%;
+    height: 100%;
+    padding-left: 80px;
+    padding-right: 80px;
+    vertical-align: top;
+    padding-top: 30px;
+}
+
+swiper-slide {
+    text-align: center;
+    font-size: 18px;
+    background: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: start;
+    vertical-align: top;
+}
+
+swiper-slide img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.slider-item{
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.slider-item a p{
+    font-size: 20px;
+    color: black;
+    margin-bottom: -120px;
+}
+.slider-item a{
+    text-decoration: none;
+}
+.slider-icons{
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+.slider-icons a i{
+    font-size: 30px;
+    color: black;
+}
+.slider-img{
+    width: 150px;
+    height: 250px;
+}
+.slider-img img{
+    width: 100%;
+    height: 100%;
+}
+
+.suggestions-div{
+    width: 45%;
+}
+.suggestions{
+    display: flex;
+    justify-content: space-between;
+}
 
 
+.friend-activity{
+    padding-right: 80px;
+    padding-left: 80px;
 
-
-
+}
+.activity-title{
+    font-size: 30px;
+    padding-top: 180px;
+    padding-bottom: 20px;
+}
+.activity-label{
+    width: 700px;
+    height: 200px;
+    box-shadow: 5px 5px 23px -7px rgba(0,0,0,0.84);
+    -webkit-box-shadow: 5px 5px 23px -7px rgba(0,0,0,0.84);
+    -moz-box-shadow: 5px 5px 23px -7px rgba(0,0,0,0.84);
+    border-radius: 7px;
+    background-color: transparent;
+    display: flex;
+}
+.activity-label img{
+    height: 100%;
+}
+.user-name{
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    align-items: center;
+}
+.user-name p{
+    font-size: 25px;
+}
+.texts{
+    padding-left: 25px;
+    display: flex;
+    flex-direction: column;
+    align-items:flex-start;
+    height: 100%;
+    align-content: center;
+}
+.texts-who{
+    width: 100%;
+    height: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.time{
+    text-align: right;
+    padding-left: 30px;
+}
+.texts-who .user-name img{
+    height: 60px;
+}
+.activity-info{
+    font-size: 18px;
+    padding-top: 30px;
+}
+.one-line{
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 25px;
+}
