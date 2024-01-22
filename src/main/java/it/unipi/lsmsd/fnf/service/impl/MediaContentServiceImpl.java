@@ -2,6 +2,7 @@ package it.unipi.lsmsd.fnf.service.impl;
 
 import it.unipi.lsmsd.fnf.dao.*;
 import it.unipi.lsmsd.fnf.dao.enums.DataRepositoryEnum;
+import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
@@ -12,8 +13,10 @@ import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 import it.unipi.lsmsd.fnf.service.mapper.ModelToDtoMapper;
 import org.bson.types.ObjectId;
 
-import java.util.List;
 import java.util.Map;
+
+import static it.unipi.lsmsd.fnf.dao.DAOLocator.*;
+import static java.util.Collections.singletonMap;
 
 public class MediaContentServiceImpl implements MediaContentService {
     private static final MediaContentDAO<Anime> animeDAO ;
@@ -22,10 +25,10 @@ public class MediaContentServiceImpl implements MediaContentService {
     private static final ReviewDAO reviewDAO;
 
     static {
-        animeDAO = DAOLocator.getAnimeDAO(DataRepositoryEnum.MONGODB);
-        mangaDAO = DAOLocator.getMangaDAO(DataRepositoryEnum.MONGODB);
-        personalListDAO = DAOLocator.getPersonalListDAO(DataRepositoryEnum.MONGODB);
-        reviewDAO = DAOLocator.getReviewDAO(DataRepositoryEnum.MONGODB);
+        animeDAO = getAnimeDAO(DataRepositoryEnum.MONGODB);
+        mangaDAO = getMangaDAO(DataRepositoryEnum.MONGODB);
+        personalListDAO = getPersonalListDAO(DataRepositoryEnum.MONGODB);
+        reviewDAO = getReviewDAO(DataRepositoryEnum.MONGODB);
     }
 
     @Override
@@ -78,7 +81,7 @@ public class MediaContentServiceImpl implements MediaContentService {
     }
 
     @Override
-    public MediaContent getMediaContent(String id, MediaContentType type) throws BusinessException {
+    public MediaContent getMediaContentById(String id, MediaContentType type) throws BusinessException {
         try {
             if (MediaContentType.ANIME.equals(type)) {
                 return animeDAO.find(new ObjectId(id));
@@ -93,20 +96,27 @@ public class MediaContentServiceImpl implements MediaContentService {
     }
 
     @Override
-    public List<? extends MediaContentDTO> searchMediaContent(Map<String, Object> filters, Map<String, Integer> orderBy, MediaContentType type) throws BusinessException {
+    public PageDTO<? extends MediaContentDTO> searchByFilter(Map<String, Object> filters, Map<String, Integer> orderBy, int page, MediaContentType type) throws BusinessException {
         try {
             if (MediaContentType.ANIME.equals(type)) {
-                if (filters.containsKey("title") && filters.get("title") != null) {
-                    return animeDAO.search((String) filters.get("title"));
-                } else {
-                    return animeDAO.search(filters, orderBy);
-                }
+                return animeDAO.search(filters, orderBy, page);
             } else if (MediaContentType.MANGA.equals(type)) {
-                if (filters.containsKey("title") && filters.get("title") != null) {
-                    return mangaDAO.search((String) filters.get("title"));
-                } else {
-                    return mangaDAO.search(filters, orderBy);
-                }
+                return mangaDAO.search(filters, orderBy, page);
+            } else {
+                throw new BusinessException("Invalid media content type");
+            }
+        } catch (Exception e) {
+            throw new BusinessException(e);
+        }
+    }
+
+    @Override
+    public PageDTO<? extends MediaContentDTO> searchByTitle(String title, int page, MediaContentType type) throws BusinessException {
+        try {
+            if (MediaContentType.ANIME.equals(type)) {
+                return animeDAO.search(singletonMap("title", title), singletonMap("score", null), page);
+            } else if (MediaContentType.MANGA.equals(type)) {
+                return mangaDAO.search(singletonMap("title", title), singletonMap("score", null), page);
             } else {
                 throw new BusinessException("Invalid media content type");
             }

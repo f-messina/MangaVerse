@@ -1,8 +1,6 @@
 package it.unipi.lsmsd.fnf.dao.mongo;
 
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.model.UpdateOptions;
+
 import it.unipi.lsmsd.fnf.dao.PersonalListDAO;
 import it.unipi.lsmsd.fnf.dao.base.BaseMongoDBDAO;
 import it.unipi.lsmsd.fnf.dao.enums.SearchCriteriaEnum;
@@ -14,10 +12,13 @@ import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.utils.ConverterUtils;
+
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.UpdateOptions;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -163,7 +164,7 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
     }
 
     @Override
-    public List<PersonalListDTO> findByUserId(ObjectId userId) throws DAOException {
+    public List<PersonalListDTO> findByUser(ObjectId userId) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
 

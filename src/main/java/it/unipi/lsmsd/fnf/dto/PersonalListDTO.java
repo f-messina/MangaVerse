@@ -4,14 +4,15 @@ import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
 import org.bson.types.ObjectId;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class PersonalListDTO {
     private ObjectId id;
     private String name;
     private RegisteredUserDTO user;
-    private List<MangaDTO> manga;
-    private List<AnimeDTO> anime;
+    private List<MangaDTO> manga = new ArrayList<>();
+    private List<AnimeDTO> anime = new ArrayList<>();
 
     public PersonalListDTO() {
     }

@@ -15,12 +15,14 @@ import com.mongodb.client.MongoCollection;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
-import com.mongodb.client.model.Filters;
-import com.mongodb.client.model.Projections;
-import com.mongodb.client.model.Updates;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.mongodb.client.model.Filters.*;
+import static com.mongodb.client.model.Projections.exclude;
+import static com.mongodb.client.model.Updates.combine;
+import static com.mongodb.client.model.Updates.set;
 
 public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
     @Override
@@ -39,13 +41,13 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> reviewCollection = mongoClient.getDatabase("mangaVerse").getCollection("review");
 
-            Bson filter = Filters.eq("_id", review.getId());
-            Bson updatedKeys = Updates.combine(Updates.set("date", ConverterUtils.convertLocalDateToDate(LocalDate.now())));
+            Bson filter = eq("_id", review.getId());
+            Bson updatedKeys = combine(set("date", ConverterUtils.convertLocalDateToDate(LocalDate.now())));
             if (review.getComment() != null) {
-                updatedKeys = Updates.combine(updatedKeys, Updates.set("comment", review.getComment()));
+                updatedKeys = combine(updatedKeys, set("comment", review.getComment()));
             }
             if (review.getRating() != null) {
-                updatedKeys = Updates.combine(updatedKeys, Updates.set("rating", review.getRating()));
+                updatedKeys = combine(updatedKeys, set("rating", review.getRating()));
             }
 
             reviewCollection.updateOne(filter, updatedKeys);
@@ -59,7 +61,7 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> reviewCollection = mongoClient.getDatabase("mangaVerse").getCollection("review");
 
-            Bson filter = Filters.eq("_id", id);
+            Bson filter = eq("_id", id);
 
             reviewCollection.deleteOne(filter);
         } catch (Exception e) {
@@ -71,9 +73,9 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> reviewCollection = mongoClient.getDatabase("mangaVerse").getCollection("review");
 
-            Bson filter = Filters.or(
-                    Filters.eq("anime.id", mediaId),
-                    Filters.eq("manga.id", mediaId)
+            Bson filter = or(
+                    eq("anime.id", mediaId),
+                    eq("manga.id", mediaId)
             );
 
             reviewCollection.deleteMany(filter);
@@ -87,8 +89,8 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> reviewCollection = mongoClient.getDatabase("mangaVerse").getCollection("review");
 
-            Bson filter = Filters.eq("user.id", userId);
-            Bson projection = Projections.exclude("user");
+            Bson filter = eq("user.id", userId);
+            Bson projection = exclude("user");
 
             List<ReviewDTO> result = new ArrayList<>();
             reviewCollection.find(filter).projection(projection).forEach(document -> {
@@ -107,11 +109,11 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> reviewCollection = mongoClient.getDatabase("mangaVerse").getCollection("review");
 
-            Bson filter = Filters.or(
-                    Filters.eq("anime.id", mediaId),
-                    Filters.eq("manga.id", mediaId)
+            Bson filter = or(
+                    eq("anime.id", mediaId),
+                    eq("manga.id", mediaId)
             );
-            Bson projection = Projections.exclude("anime", "manga");
+            Bson projection = exclude("anime", "manga");
 
             List<ReviewDTO> result = new ArrayList<>();
             reviewCollection.find(filter).projection(projection).forEach(document -> {
@@ -130,14 +132,14 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> reviewCollection = mongoClient.getDatabase("mangaVerse").getCollection("review");
 
-            Bson filter = Filters.and(
-                    Filters.eq("user.id", userId),
-                    Filters.or(
-                            Filters.eq("anime.id", mediaId),
-                            Filters.eq("manga.id", mediaId)
+            Bson filter = and(
+                    eq("user.id", userId),
+                    or(
+                            eq("anime.id", mediaId),
+                            eq("manga.id", mediaId)
                     )
             );
-            Bson projection = Projections.exclude("user", "anime", "manga");
+            Bson projection = exclude("user", "anime", "manga");
 
             List<ReviewDTO> result = new ArrayList<>();
             reviewCollection.find(filter).projection(projection).forEach(document -> {

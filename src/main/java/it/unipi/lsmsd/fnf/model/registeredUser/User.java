@@ -1,16 +1,24 @@
 package it.unipi.lsmsd.fnf.model.registeredUser;
 
 import it.unipi.lsmsd.fnf.model.PersonalList;
+import it.unipi.lsmsd.fnf.model.Review;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 public class User extends RegisteredUser {
+    private String username;
     private LocalDate birthday;
     private String description;
     private String gender;
     private String location;
-    private List<PersonalList> lists;
+    private List<PersonalList> lists = new ArrayList<>();
+    private List<Review> reviews = new ArrayList<>();
+
+    public String getUsername() {
+        return username;
+    }
 
     public LocalDate getBirthday() {
         return birthday;
@@ -30,6 +38,14 @@ public class User extends RegisteredUser {
 
     public List<PersonalList> getLists() {
         return lists;
+    }
+
+    public List<Review> getReviews() {
+        return reviews;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public void setBirthday(LocalDate birthday) {
@@ -52,6 +68,10 @@ public class User extends RegisteredUser {
         this.lists = lists;
     }
 
+    public void setReviews(List<Review> reviews) {
+        this.reviews = reviews;
+    }
+
     public void addList(PersonalList list) {
         this.lists.add(list);
     }
@@ -60,10 +80,19 @@ public class User extends RegisteredUser {
         this.lists.remove(list);
     }
 
+    public void addReview(Review review) {
+        this.reviews.add(review);
+    }
+
+    public void removeReview(Review review) {
+        this.reviews.remove(review);
+    }
+
     @Override
     public String toString() {
         return "User{" +
                 super.toString() +
+                ", username='" + username + '\'' +
                 ", birthday='" + birthday + '\'' +
                 ", description='" + description + '\'' +
                 ", gender='" + gender + '\'' +
