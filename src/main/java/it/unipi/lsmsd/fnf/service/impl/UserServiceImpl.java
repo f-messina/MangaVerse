@@ -39,7 +39,9 @@ public class UserServiceImpl implements UserService {
                 throw new BusinessException("Password cannot be empty");
             if (userRegistrationDTO.getEmail() == null || userRegistrationDTO.getEmail().isEmpty())
                 throw new BusinessException("Email cannot be empty");
-            return userDAO.register(userRegistrationDTOToUser(userRegistrationDTO));
+            User user = userRegistrationDTOToUser(userRegistrationDTO);
+            user.setId(userDAO.register(user));
+            return user;
         } catch (Exception e) {
             throw new BusinessException(e);
         }

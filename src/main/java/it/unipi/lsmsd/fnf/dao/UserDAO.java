@@ -9,7 +9,7 @@ import org.bson.types.ObjectId;
 import java.util.List;
 
 public interface UserDAO {
-    User register(User user) throws DAOException;
+    ObjectId register(User user) throws DAOException;
     void remove(ObjectId id) throws DAOException;
     RegisteredUser authenticate(String email, String password) throws DAOException;
     RegisteredUser find(ObjectId id) throws DAOException;

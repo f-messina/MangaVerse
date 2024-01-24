@@ -10,12 +10,14 @@ public class ConverterUtils {
 
     // Convert Date to LocalDate
     public static LocalDate convertDateToLocalDate(Date date) {
+        if (date == null) return null;
         Instant instant = date.toInstant();
         return instant.atZone(systemDefault()).toLocalDate();
     }
 
     // Convert LocalDate to Date
     public static Date convertLocalDateToDate(LocalDate localDate) {
+        if (localDate == null) return null;
         return Date.from(localDate.atStartOfDay(systemDefault()).toInstant());
     }
 

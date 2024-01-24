@@ -30,36 +30,36 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public void deleteReview(String id) throws BusinessException {
-        try{
+        try {
             reviewDAO.delete(new ObjectId(id));
-        }catch (Exception e){
+        } catch (Exception e){
             throw new BusinessException(e);
         }
     }
 
     @Override
     public void deleteByMedia(String mediaId) throws BusinessException {
-        try{
+        try {
             reviewDAO.deleteByMedia(new ObjectId(mediaId));
-        }catch (Exception e){
+        } catch (Exception e){
             throw new BusinessException(e);
         }
     }
 
     @Override
     public void update(ReviewDTO review) throws BusinessException {
-        try{
+        try {
             reviewDAO.update(review);
-        }catch (Exception e){
+        } catch (Exception e){
             throw new BusinessException(e);
         }
     }
 
     @Override
     public List<ReviewDTO> findByUser(String userId) throws BusinessException {
-        try{
+        try {
          return reviewDAO.findByUser(new ObjectId(userId));
-        }catch (Exception e){
+        } catch (Exception e){
             throw new BusinessException(e);
         }
     }

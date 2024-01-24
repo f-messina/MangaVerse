@@ -31,7 +31,7 @@ import static com.mongodb.client.model.Updates.setOnInsert;
 public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Manga> {
 
     @Override
-    public void insert(Manga manga) throws DAOException {
+    public ObjectId insert(Manga manga) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> mangaCollection = mongoClient.getDatabase("mangaVerse").getCollection("manga");
 
@@ -41,6 +41,8 @@ public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Mang
             UpdateResult result = mangaCollection.updateOne(filter, update, new UpdateOptions().upsert(true));
             if (result.getUpsertedId() == null) {
                 throw new DAOException("Manga already exists");
+            } else {
+                return result.getUpsertedId().asObjectId().getValue();
             }
         } catch (Exception e) {
             throw new DAOException("Error while inserting manga", e);

@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface MediaContentDAO<T extends MediaContent> {
-    void insert(T mediaContent) throws DAOException;
+    ObjectId insert(T mediaContent) throws DAOException;
     void update(T mediaContent) throws DAOException;
     T find(ObjectId id) throws DAOException;
     void delete(ObjectId id) throws DAOException;
