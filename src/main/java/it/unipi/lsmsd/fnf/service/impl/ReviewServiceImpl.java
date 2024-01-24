@@ -72,13 +72,4 @@ public class ReviewServiceImpl implements ReviewService {
             throw new BusinessException(e);
         }
     }
-
-    @Override
-    public List<ReviewDTO> findByUserAndMedia(String userId, String mediaId) throws BusinessException {
-        try{
-            return reviewDAO.findByUserAndMedia(new ObjectId(userId),new ObjectId(mediaId));
-        }catch (Exception e){
-            throw new BusinessException(e);
-        }
-    }
 }
