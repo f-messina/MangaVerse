@@ -44,37 +44,543 @@
     </div>
 </nav>
 
+
+
 <section class="main-page-unreg">
-    <div class="filtering">
+
+    <div class="filtering" >
         <div class="search-title-div">
             <p class="search-title">Search Manga </p>
-            <a href="#" class="arama"><i class="fa-solid fa-magnifying-glass"></i></a>
         </div>
 
         <div class="manga-filter">
             <input type="text" placeholder="Name">
-            <input type="text" placeholder="Genre">
-            <input type="text" placeholder="Author">
-            <input type="text" placeholder="Type">
-            <input type="text" placeholder="Year of Publication">
-            <input type="text" placeholder="Publishing Status">
-        </div>
-    </div>
-
-    <div class="filtering">
-        <div class="search-title-div">
-            <p class="search-title">Search Anime </p>
             <a href="#" class="arama"><i class="fa-solid fa-magnifying-glass"></i></a>
         </div>
+        <button onclick="myFunction()" class="more-filtering">See Detailed Filtering</button>
+        <div id="myDIV">
+            <div class="manga-filter">
+                <input type="text" placeholder="Author">
+            </div>
 
-        <div class="anime-filter">
-            <input type="text" placeholder="Name">
-            <input type="text" placeholder="Type">
-            <input type="text" placeholder="Tags">
-            <input type="text" placeholder="Year of Publication">
-            <input type="text" placeholder="Publishing Status">
+            <div class="genre-filtering">
+                <p class="genre-title">Genre</p>
+                <div class="two-genres">
+                    <div>
+                        <div class="genre">
+                            <label class="container">
+                                <input type="checkbox" name="checkbox" class="green-checkbox">
+                                <span class="checkmark green" ></span>
+                            </label>
+                            <label class="container">
+                                <input type="checkbox" name="checkbox" class="red-checkbox">
+                                <span class="checkmark red"></span>
+                            </label>
+                            <p>Girls Love</p>
+                        </div>
+                        <div class="genre">
+                            <label class="container">
+                                <input type="checkbox" name="checkbox"  class="green-checkbox">
+                                <span class="checkmark green" ></span>
+                            </label>
+                            <label class="container">
+                                <input type="checkbox" name="checkbox" class="red-checkbox">
+                                <span class="checkmark red"></span>
+                            </label>
+                            <p>Sci-Fi</p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="genre">
+                            <label class="container">
+                                <input type="checkbox" name="checkbox"  class="green-checkbox">
+                                <span class="checkmark green" ></span>
+                            </label>
+                            <label class="container">
+                                <input type="checkbox" name="checkbox" class="red-checkbox">
+                                <span class="checkmark red"></span>
+                            </label>
+                            <p>Supernatural</p>
+                        </div>
+                        <div class="genre">
+                            <label class="container">
+                                <input type="checkbox" name="checkbox"  class="green-checkbox">
+                                <span class="checkmark green" ></span>
+                            </label>
+                            <label class="container">
+                                <input type="checkbox" name="checkbox" class="red-checkbox">
+                                <span class="checkmark red"></span>
+                            </label>
+                            <p>Comedy</p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="genre">
+                            <label class="container">
+                                <input type="checkbox" name="checkbox" class="green-checkbox">
+                                <span class="checkmark green" ></span>
+                            </label>
+                            <label class="container">
+                                <input type="checkbox" name="checkbox" class="red-checkbox">
+                                <span class="checkmark red"></span>
+                            </label>
+                            <p>Award Winning</p>
+                        </div>
+                        <div class="genre">
+                            <label class="container">
+                                <input type="checkbox" name="checkbox"  class="green-checkbox">
+                                <span class="checkmark green" ></span>
+                            </label>
+                            <label class="container">
+                                <input type="checkbox" name="checkbox" class="red-checkbox">
+                                <span class="checkmark red"></span>
+                            </label>
+                            <p>Mystery</p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="genre">
+                            <label class="container">
+                                <input type="checkbox" name="checkbox"  class="green-checkbox">
+                                <span class="checkmark green" ></span>
+                            </label>
+                            <label class="container">
+                                <input type="checkbox" name="checkbox" class="red-checkbox">
+                                <span class="checkmark red"></span>
+                            </label>
+                            <p>Romance</p>
+                        </div>
+                        <div class="genre">
+                            <label class="container">
+                                <input type="checkbox" name="checkbox"  class="green-checkbox">
+                                <span class="checkmark green" ></span>
+                            </label>
+                            <label class="container">
+                                <input type="checkbox" name="checkbox"  class="red-checkbox">
+                                <span class="checkmark red"></span>
+                            </label>
+                            <p>Horror</p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="genre">
+                            <label class="container">
+                                <input type="checkbox" name="checkbox"  class="green-checkbox">
+                                <span class="checkmark green" ></span>
+                            </label>
+                            <label class="container">
+                                <input type="checkbox" name="checkbox" class="red-checkbox">
+                                <span class="checkmark red"></span>
+                            </label>
+                            <p>Suspense</p>
+                        </div>
+                        <div class="genre">
+                            <label class="container">
+                                <input type="checkbox" name="checkbox"  class="green-checkbox">
+                                <span class="checkmark green" ></span>
+                            </label>
+                            <label class="container">
+                                <input type="checkbox" name="checkbox" class="red-checkbox">
+                                <span class="checkmark red"></span>
+                            </label>
+                            <p>Fantasy</p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="genre">
+                            <label class="container">
+                                <input type="checkbox" name="checkbox"  class="green-checkbox">
+                                <span class="checkmark green" ></span>
+                            </label>
+                            <label class="container">
+                                <input type="checkbox" name="checkbox" class="red-checkbox">
+                                <span class="checkmark red"></span>
+                            </label>
+                            <p>Gourmet</p>
+                        </div>
+                        <div class="genre">
+                            <label class="container">
+                                <input type="checkbox" name="checkbox"  class="green-checkbox">
+                                <span class="checkmark green" ></span>
+                            </label>
+                            <label class="container">
+                                <input type="checkbox" name="checkbox" class="red-checkbox">
+                                <span class="checkmark red"></span>
+                            </label>
+                            <p>Erotica</p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="genre">
+                            <label class="container">
+                                <input type="checkbox" name="checkbox"  class="green-checkbox">
+                                <span class="checkmark green" ></span>
+                            </label>
+                            <label class="container">
+                                <input type="checkbox" name="checkbox" class="red-checkbox">
+                                <span class="checkmark red"></span>
+                            </label>
+                            <p>Avant Garde</p>
+                        </div>
+                        <div class="genre">
+                            <label class="container">
+                                <input type="checkbox" name="checkbox"  class="green-checkbox">
+                                <span class="checkmark green" ></span>
+                            </label>
+                            <label class="container">
+                                <input type="checkbox" name="checkbox" class="red-checkbox">
+                                <span class="checkmark red"></span>
+                            </label>
+                            <p>Slice of Life</p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="genre">
+                            <label class="container">
+                                <input type="checkbox" name="checkbox"  class="green-checkbox">
+                                <span class="checkmark green" ></span>
+                            </label>
+                            <label class="container">
+                                <input type="checkbox" name="checkbox" class="red-checkbox">
+                                <span class="checkmark red"></span>
+                            </label>
+                            <p>Action</p>
+                        </div>
+                        <div class="genre">
+                            <label class="container">
+                                <input type="checkbox" name="checkbox" class="green-checkbox">
+                                <span class="checkmark green" ></span>
+                            </label>
+                            <label class="container">
+                                <input type="checkbox" name="checkbox" class="red-checkbox">
+                                <span class="checkmark red"></span>
+                            </label>
+                            <p>Boys Love</p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="genre">
+                            <label class="container">
+                                <input type="checkbox" name="checkbox"  class="green-checkbox">
+                                <span class="checkmark green" ></span>
+                            </label>
+                            <label class="container">
+                                <input type="checkbox" name="checkbox" class="red-checkbox">
+                                <span class="checkmark red"></span>
+                            </label>
+                            <p>Adventure</p>
+                        </div>
+                        <div class="genre">
+                            <label class="container">
+                                <input type="checkbox" name="checkbox"  class="green-checkbox">
+                                <span class="checkmark green" ></span>
+                            </label>
+                            <label class="container">
+                                <input type="checkbox" name="checkbox" class="red-checkbox">
+                                <span class="checkmark red"></span>
+                            </label>
+                            <p>Drama</p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="genre">
+                            <label class="container">
+                                <input type="checkbox" name="checkbox"  class="green-checkbox">
+                                <span class="checkmark green" ></span>
+                            </label>
+                            <label class="container">
+                                <input type="checkbox" name="checkbox" class="red-checkbox">
+                                <span class="checkmark red"></span>
+                            </label>
+                            <p>Ecchi</p>
+                        </div>
+                        <div class="genre">
+                            <label class="container">
+                                <input type="checkbox" name="checkbox"  class="green-checkbox">
+                                <span class="checkmark green" ></span>
+                            </label>
+                            <label class="container">
+                                <input type="checkbox" name="checkbox" class="red-checkbox">
+                                <span class="checkmark red"></span>
+                            </label>
+                            <p>Sports</p>
+                        </div>
+                    </div>
+
+                </div>
+                <hr>
+                <div class="filter-type">
+                    <label class="radio-container">
+                        <input type="radio" name="option" value="option1">
+                        <span class="checkmark"></span>
+                        Show all the manga with all the selected genres
+                    </label>
+
+                    <label class="radio-container">
+                        <input type="radio" name="option" value="option2">
+                        <span class="checkmark"></span>
+                        Show all the manga with at least one selected genre
+                    </label>
+                </div>
+
+            </div>
+
+
+            <div class="genre-filtering">
+                <p class="genre-title">Type</p>
+                <div class="two-genres">
+                    <div class="genre">
+                        <label class="container">
+                            <input type="checkbox" name="checkbox" class="genre-checkbox">
+                            <span class="checkmark empty" ></span>
+                        </label>
+                        <p>Manga</p>
+                    </div>
+                    <div class="genre">
+                        <label class="container">
+                            <input type="checkbox" name="checkbox" class="genre-checkbox" >
+                            <span class="checkmark empty" ></span>
+                        </label>
+                        <p>Manhwa</p>
+                    </div>
+                    <div class="genre">
+                        <label class="container">
+                            <input type="checkbox" name="checkbox" class="genre-checkbox">
+                            <span class="checkmark empty" ></span>
+                        </label>
+                        <p>Light Novel</p>
+                    </div>
+                    <div class="genre">
+                        <label class="container">
+                            <input type="checkbox" name="checkbox" class="genre-checkbox" >
+                            <span class="checkmark empty" ></span>
+                        </label>
+                        <p>Novel</p>
+                    </div>
+                    <div class="genre">
+                        <label class="container">
+                            <input type="checkbox" name="checkbox" class="genre-checkbox">
+                            <span class="checkmark empty" ></span>
+                        </label>
+                        <p>Doujinshi</p>
+                    </div>
+                    <div class="genre">
+                        <label class="container">
+                            <input type="checkbox" name="checkbox" class="genre-checkbox">
+                            <span class="checkmark empty" ></span>
+                        </label>
+                        <p>Manhua</p>
+                    </div>
+                    <div class="genre">
+                        <label class="container">
+                            <input type="checkbox" name="checkbox" class="genre-checkbox">
+                            <span class="checkmark empty"  ></span>
+                        </label>
+                        <p>One Shot</p>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="genre-filtering">
+                <p class="genre-title">Publishing Status</p>
+                <div class="two-genres">
+                    <div class="genre">
+                        <label class="container">
+                            <input type="checkbox" name="checkbox" class="genre-checkbox">
+                            <span class="checkmark empty" ></span>
+                        </label>
+                        <p>Currently Publishing</p>
+                    </div>
+                    <div class="genre">
+                        <label class="container">
+                            <input type="checkbox" name="checkbox" class="genre-checkbox" >
+                            <span class="checkmark empty" ></span>
+                        </label>
+                        <p>Discontiuned</p>
+                    </div>
+                    <div class="genre">
+                        <label class="container">
+                            <input type="checkbox" name="checkbox" class="genre-checkbox">
+                            <span class="checkmark empty" ></span>
+                        </label>
+                        <p>Finished</p>
+                    </div>
+                    <div class="genre">
+                        <label class="container">
+                            <input type="checkbox" name="checkbox" class="genre-checkbox" >
+                            <span class="checkmark empty" ></span>
+                        </label>
+                        <p>On Hiatus</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="genre-filtering">
+                <p class="genre-title">Year of Publication</p>
+                <div class="year-filtering">
+                    <label for="startYear"></label>
+                    <input type="number" id="startYear" placeholder="Enter start year">
+
+                    <label for="endYear"></label>
+                    <input type="number" id="endYear" placeholder="Enter end year">
+                </div>
+            </div>
         </div>
+
     </div>
+
+
+    <div class="filtering" >
+        <div class="search-title-div">
+            <p class="search-title">Search Anime </p>
+        </div>
+
+        <div class="manga-filter">
+            <input type="text" placeholder="Name">
+            <a href="#" class="arama"><i class="fa-solid fa-magnifying-glass"></i></a>
+        </div>
+        <button onclick="myFunction2()" class="more-filtering">See Detailed Filtering</button>
+        <div id="myDIV2">
+
+            <div class="genre-filtering">
+                <p class="genre-title">Type</p>
+                <div class="two-genres">
+                    <div class="genre">
+                        <label class="container">
+                            <input type="checkbox" name="checkbox" class="genre-checkbox">
+                            <span class="checkmark empty" ></span>
+                        </label>
+                        <p>Movie</p>
+                    </div>
+                    <div class="genre">
+                        <label class="container">
+                            <input type="checkbox" name="checkbox" class="genre-checkbox" >
+                            <span class="checkmark empty" ></span>
+                        </label>
+                        <p>Ona</p>
+                    </div>
+                    <div class="genre">
+                        <label class="container">
+                            <input type="checkbox" name="checkbox" class="genre-checkbox">
+                            <span class="checkmark empty" ></span>
+                        </label>
+                        <p>TV</p>
+                    </div>
+                    <div class="genre">
+                        <label class="container">
+                            <input type="checkbox" name="checkbox" class="genre-checkbox" >
+                            <span class="checkmark empty" ></span>
+                        </label>
+                        <p>Ova</p>
+                    </div>
+                    <div class="genre">
+                        <label class="container">
+                            <input type="checkbox" name="checkbox" class="genre-checkbox">
+                            <span class="checkmark empty" ></span>
+                        </label>
+                        <p>Special</p>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="genre-filtering">
+                <p class="genre-title">Publishing Status</p>
+                <div class="two-genres">
+                    <div class="genre">
+                        <label class="container">
+                            <input type="checkbox" name="checkbox" class="genre-checkbox">
+                            <span class="checkmark empty" ></span>
+                        </label>
+                        <p>Upcoming</p>
+                    </div>
+                    <div class="genre">
+                        <label class="container">
+                            <input type="checkbox" name="checkbox" class="genre-checkbox" >
+                            <span class="checkmark empty" ></span>
+                        </label>
+                        <p>Finished</p>
+                    </div>
+                    <div class="genre">
+                        <label class="container">
+                            <input type="checkbox" name="checkbox" class="genre-checkbox">
+                            <span class="checkmark empty" ></span>
+                        </label>
+                        <p>Unknown</p>
+                    </div>
+                    <div class="genre">
+                        <label class="container">
+                            <input type="checkbox" name="checkbox" class="genre-checkbox" >
+                            <span class="checkmark empty" ></span>
+                        </label>
+                        <p>Ongoing</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="genre-filtering">
+                <p class="genre-title">Season</p>
+                <div class="two-genres">
+                    <div class="genre">
+                        <label class="container">
+                            <input type="checkbox" name="checkbox" class="genre-checkbox">
+                            <span class="checkmark empty" ></span>
+                        </label>
+                        <p>Summer</p>
+                    </div>
+                    <div class="genre">
+                        <label class="container">
+                            <input type="checkbox" name="checkbox" class="genre-checkbox" >
+                            <span class="checkmark empty" ></span>
+                        </label>
+                        <p>Fall</p>
+                    </div>
+                    <div class="genre">
+                        <label class="container">
+                            <input type="checkbox" name="checkbox" class="genre-checkbox">
+                            <span class="checkmark empty" ></span>
+                        </label>
+                        <p>Winter</p>
+                    </div>
+                    <div class="genre">
+                        <label class="container">
+                            <input type="checkbox" name="checkbox" class="genre-checkbox" >
+                            <span class="checkmark empty" ></span>
+                        </label>
+                        <p>Spring</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="genre-filtering">
+                <p class="genre-title">Year of Publication</p>
+                <div class="year-filtering">
+                    <label for="startYear"></label>
+                    <input type="number" id="startYear" placeholder="Enter start year">
+
+                    <label for="endYear"></label>
+                    <input type="number" id="endYear" placeholder="Enter end year">
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+
+
+
+    
 </section>
 
 
@@ -147,6 +653,11 @@
 
         </swiper-container>
     </div>
+
+
+
+
+
 
 
 
@@ -295,6 +806,84 @@
 
 
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-element-bundle.min.js"></script><script src="js/index2.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Get all genre containers
+        var genreContainers = document.querySelectorAll('.genre');
+
+        // Add click event listeners to each genre container
+        genreContainers.forEach(function (container) {
+            var greenCheckbox = container.querySelector('.green-checkbox');
+            var redCheckbox = container.querySelector('.red-checkbox');
+
+            // Add event listener to green checkbox
+            greenCheckbox.addEventListener('change', function () {
+                if (greenCheckbox.checked) {
+                    // If green checkbox is checked, uncheck red checkbox
+                    redCheckbox.checked = false;
+                }
+            });
+
+            // Add event listener to red checkbox
+            redCheckbox.addEventListener('change', function () {
+                if (redCheckbox.checked) {
+                    // If red checkbox is checked, uncheck green checkbox
+                    greenCheckbox.checked = false;
+                }
+            });
+        });
+    });
+</script>
+
+<script>
+    const startYearInput = document.getElementById('startYear');
+    const endYearInput = document.getElementById('endYear');
+    const yearList = document.getElementById('yearList');
+    const yearItems = document.querySelectorAll('.year-item');
+
+    function filterByYear() {
+        const startYear = parseInt(startYearInput.value);
+        const endYear = parseInt(endYearInput.value);
+
+        yearItems.forEach(item => {
+            const itemYear = parseInt(item.getAttribute('data-year'));
+            if (isNaN(startYear) || isNaN(endYear) || (itemYear >= startYear && itemYear <= endYear)) {
+                item.style.display = 'block';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    }
+
+    startYearInput.addEventListener('input', filterByYear);
+    endYearInput.addEventListener('input', filterByYear);
+
+    // Initial filtering
+    filterByYear();
+</script>
+
+<script>
+    function myFunction() {
+        var x = document.getElementById("myDIV");
+        if (x.style.display === "none") {
+            x.style.display = "block";
+        } else {
+            x.style.display = "none";
+        }
+    }
+</script>
+
+
+<script>
+    function myFunction2() {
+        var x = document.getElementById("myDIV2");
+        if (x.style.display === "none") {
+            x.style.display = "block";
+        } else {
+            x.style.display = "none";
+        }
+    }
+</script>
 </body>
 
 </html>

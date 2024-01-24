@@ -60,36 +60,7 @@
 </section>
 
 <section id="list" class="main-page-unreg" >
-    <div class="filtering">
-        <div class="search-title-div">
-            <p class="search-title">Search Manga </p>
-            <a href="#" class="arama"><i class="fa-solid fa-magnifying-glass"></i></a>
-        </div>
 
-        <div class="manga-filter">
-            <input type="text" placeholder="Name">
-            <input type="text" placeholder="Genre">
-            <input type="text" placeholder="Author">
-            <input type="text" placeholder="Type">
-            <input type="text" placeholder="Year of Publication">
-            <input type="text" placeholder="Publishing Status">
-        </div>
-    </div>
-
-    <div class="filtering">
-        <div class="search-title-div">
-            <p class="search-title">Search Anime </p>
-            <a href="#" class="arama"><i class="fa-solid fa-magnifying-glass"></i></a>
-        </div>
-
-        <div class="anime-filter">
-            <input type="text" placeholder="Name">
-            <input type="text" placeholder="Type">
-            <input type="text" placeholder="Tags">
-            <input type="text" placeholder="Year of Publication">
-            <input type="text" placeholder="Publishing Status">
-        </div>
-    </div>
 
     <div class="examples">
         <div class="example-title">
@@ -139,6 +110,7 @@
                 </div>
             </div>
         </div>
+        <a href="#" class="show-all">Show All Manga</a>
 
 
 
@@ -191,7 +163,9 @@
                 </div>
             </div>
         </div>
+        <a href="#" class="show-all">Show All Anime</a>
     </div>
+
 
 
 

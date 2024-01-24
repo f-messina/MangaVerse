@@ -2,6 +2,7 @@ package it.unipi.lsmsd.fnf.dao;
 
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
+import it.unipi.lsmsd.fnf.dto.ReviewDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.mediaContent.MediaContent;
 import org.bson.types.ObjectId;
@@ -15,4 +16,5 @@ public interface MediaContentDAO<T extends MediaContent> {
     T find(ObjectId id) throws DAOException;
     void delete(ObjectId id) throws DAOException;
     PageDTO<? extends MediaContentDTO> search(Map<String, Object> filters, Map<String, Integer> orderBy, int page) throws DAOException;
+    void updateLatestReview (ReviewDTO reviewDTO) throws DAOException;
 }

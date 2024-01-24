@@ -6,6 +6,7 @@ import it.unipi.lsmsd.fnf.dao.MediaContentDAO;
 import it.unipi.lsmsd.fnf.dao.base.BaseMongoDBDAO;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
+import it.unipi.lsmsd.fnf.dto.ReviewDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
 import it.unipi.lsmsd.fnf.model.Review;
 import it.unipi.lsmsd.fnf.model.enums.Status;
@@ -128,6 +129,11 @@ public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Mang
         } catch (Exception e) {
             throw new DAOException("Error while searching manga", e);
         }
+    }
+
+    @Override
+    public void updateLatestReview(ReviewDTO reviewDTO) throws DAOException {
+        // do it later
     }
 
 

@@ -5,6 +5,7 @@ import it.unipi.lsmsd.fnf.dao.MediaContentDAO;
 import it.unipi.lsmsd.fnf.dao.base.BaseMongoDBDAO;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
+import it.unipi.lsmsd.fnf.dto.ReviewDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.model.Review;
 import it.unipi.lsmsd.fnf.model.enums.Status;
@@ -139,6 +140,15 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
         } catch (Exception e) {
             throw new DAOException("Error while searching anime", e);
         }
+    }
+
+    @Override
+    public void updateLatestReview(ReviewDTO reviewDTO) throws DAOException {
+        //do it later
+        // if the review id is already inside just change the review, if it doesnt exist it measn it is new so oush the new one and pull the oldest one
+        //check if checking the date or the id is better according to the performance
+        // sonra  bu methodu reviewservice de insert kısmında kullan ki yeni review eklendiğinde latest review da değişmiş olsun
+        //mangaya da koy aynısından
     }
 
 

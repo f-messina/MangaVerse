@@ -10,106 +10,48 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6440fbba-1ec4-43f5-8314-d4abadeae161" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/tests/AnimeDAOTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/tests/MangaDAOTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/tests/PersonalListDAOTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/tests/UserDAOTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/jarRepositories.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/jarRepositories.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/uiDesigner.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/DAOLocator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/DAOLocator.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/MediaContentDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/MediaContentDAO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/PersonalListDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/PersonalListDAO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/ReviewDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/ReviewDAO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/UserDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/UserDAO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/base/BaseMongoDBDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/base/BaseMongoDBDAO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/base/BaseNeo4JDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/base/BaseNeo4JDAO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/enums/DataRepositoryEnum.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/enums/DataRepositoryEnum.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/enums/SearchCriteriaEnum.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/enums/SearchCriteriaEnum.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/mongo/AnimeDAOImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/mongo/AnimeDAOImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/mongo/MangaDAOImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/mongo/MangaDAOImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/mongo/PersonalListDAOImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/mongo/PersonalListDAOImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/mongo/ReviewDAOImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/mongo/ReviewDAOImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/mongo/UserDAOImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/mongo/UserDAOImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/mongo/test.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dto/PageDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dto/PageDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dto/PersonalListDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dto/PersonalListDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dto/RegisteredUserDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dto/RegisteredUserDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dto/ReviewDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dto/ReviewDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dto/UserRegistrationDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dto/UserRegistrationDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dto/mediaContent/AnimeDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dto/mediaContent/AnimeDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dto/mediaContent/MangaDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dto/mediaContent/MangaDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dto/mediaContent/MediaContentDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dto/mediaContent/MediaContentDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dto/statistics/DashboardDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dto/statistics/DashboardDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/model/PersonalList.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/model/PersonalList.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/model/Review.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/model/Review.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/model/enums/MediaContentType.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/model/enums/MediaContentType.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/model/enums/Status.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/model/enums/Status.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/model/enums/UserType.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/model/enums/UserType.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/model/mediaContent/Anime.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/model/mediaContent/Anime.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/model/mediaContent/Manga.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/model/mediaContent/Manga.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/model/mediaContent/MangaAuthor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/model/mediaContent/MangaAuthor.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/model/mediaContent/MediaContent.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/model/mediaContent/MediaContent.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/model/registeredUser/Manager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/model/registeredUser/Manager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/model/registeredUser/RegisteredUser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/model/registeredUser/RegisteredUser.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/model/registeredUser/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/model/registeredUser/User.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/MediaContentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/MediaContentService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/ReviewService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/ReviewService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/UserService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/impl/MediaContentServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/impl/MediaContentServiceImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/impl/ReviewServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/impl/ReviewServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/impl/UserServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/impl/UserServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/mapper/DtoToModelMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/mapper/DtoToModelMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/mapper/ModelToDtoMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/mapper/ModelToDtoMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/utils/Constants.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/utils/Constants.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/utils/ConverterUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/utils/ConverterUtils.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/webapp/WEB-INF/web.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/WEB-INF/web.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/webapp/css/index.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/css/index.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/webapp/css/main-registered-user.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/css/main-registered-user.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/webapp/css/userProfilePage.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/css/userProfilePage.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/webapp/index.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/index.jsp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/webapp/js/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/js/index.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/webapp/main--registered-user.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/main--registered-user.jsp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/webapp/userProfilePage.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/userProfilePage.jsp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/META-INF/MANIFEST.MF" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/META-INF/MANIFEST.MF" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/web.xml" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/web.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dao/MediaContentDAO.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dao/MediaContentDAO.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dao/PersonalListDAO.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dao/PersonalListDAO.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dao/UserDAO.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dao/UserDAO.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dao/base/BaseMongoDBDAO.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dao/base/BaseMongoDBDAO.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dao/base/BaseNeo4JDAO.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dao/base/BaseNeo4JDAO.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dao/mongo/AnimeDAOImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dao/mongo/AnimeDAOImpl.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dao/mongo/MangaDAOImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dao/mongo/MangaDAOImpl.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dao/mongo/PersonalListDAOImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dao/mongo/PersonalListDAOImpl.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dao/mongo/ReviewDAOImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dao/mongo/ReviewDAOImpl.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dao/mongo/UserDAOImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dao/mongo/UserDAOImpl.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dto/PageDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dto/PageDTO.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dto/PersonalListDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dto/PersonalListDTO.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dto/RegisteredUserDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/dto/RegisteredUserDTO.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/model/PersonalList.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/model/PersonalList.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/model/mediaContent/Anime.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/model/mediaContent/Anime.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/model/registeredUser/RegisteredUser.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/model/registeredUser/RegisteredUser.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/model/registeredUser/User.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/model/registeredUser/User.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/service/MediaContentService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/service/MediaContentService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/service/impl/MediaContentServiceImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/service/impl/MediaContentServiceImpl.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/service/mapper/DtoToModelMapper.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/service/mapper/DtoToModelMapper.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/service/mapper/ModelToDtoMapper.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/service/mapper/ModelToDtoMapper.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/utils/ConverterUtils.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/WEB-INF/classes/it/unipi/lsmsd/fnf/utils/ConverterUtils.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/css/index.css" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/css/index.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/css/main-registered-user.css" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/css/main-registered-user.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/css/userProfilePage.css" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/css/userProfilePage.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/index.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/index.jsp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/js/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/js/index.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/main--registered-user.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/main--registered-user.jsp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/userProfilePage.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/userProfilePage.jsp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/MangaVerse/WEB-INF/web.xml" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaVerse/WEB-INF/web.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dao/MediaContentDAO.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dao/MediaContentDAO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dao/PersonalListDAO.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dao/PersonalListDAO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dao/UserDAO.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dao/UserDAO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dao/base/BaseMongoDBDAO.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dao/base/BaseMongoDBDAO.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dao/base/BaseNeo4JDAO.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dao/base/BaseNeo4JDAO.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dao/mongo/AnimeDAOImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dao/mongo/AnimeDAOImpl.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dao/mongo/MangaDAOImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dao/mongo/MangaDAOImpl.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dao/mongo/PersonalListDAOImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dao/mongo/PersonalListDAOImpl.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dao/mongo/ReviewDAOImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dao/mongo/ReviewDAOImpl.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dao/mongo/UserDAOImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dao/mongo/UserDAOImpl.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dao/mongo/test.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dto/PageDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dto/PageDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dto/PersonalListDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dto/PersonalListDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/model/PersonalList.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/model/PersonalList.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/model/mediaContent/Anime.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/model/mediaContent/Anime.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/model/registeredUser/RegisteredUser.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/model/registeredUser/RegisteredUser.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/model/registeredUser/User.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/model/registeredUser/User.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/service/MediaContentService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/service/MediaContentService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/service/impl/MediaContentServiceImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/service/impl/MediaContentServiceImpl.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/service/mapper/DtoToModelMapper.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/service/mapper/DtoToModelMapper.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/utils/ConverterUtils.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/utils/ConverterUtils.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/maven-archiver/pom.properties" beforeDir="false" afterPath="$PROJECT_DIR$/target/maven-archiver/pom.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dao/tests/PersonalListDAOTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dao/tests/PersonalListDAOTest.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/service/impl/ReviewServiceImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/service/impl/ReviewServiceImpl.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/service/mapper/ModelToDtoMapper.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/service/mapper/ModelToDtoMapper.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -161,35 +103,35 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Application.AnimeDAOTest.executor": "Run",
-    "Application.MangaDAOTest.executor": "Run",
-    "Application.PersonalListDAOTest.executor": "Run",
-    "Application.UserDAOTest.executor": "Run",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "Tomcat Server.Tomcat 10.1.16.executor": "Run",
-    "WebServerToolWindowFactoryState": "false",
-    "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "main",
-    "ignore.virus.scanning.warn.message": "true",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/messi/Documents/GitHub/MangaUniverse/src/main/java/it/unipi/lsmsd/fnf/service",
-    "list.type.of.created.stylesheet": "CSS",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Artifacts",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
-    "ts.external.directory.path": "C:\\Program Files\\JetBrains\\IntelliJ IDEA 2023.3.2\\plugins\\javascript-impl\\jsLanguageServicesImpl\\external",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.AnimeDAOTest.executor&quot;: &quot;Run&quot;,
+    &quot;Application.MangaDAOTest.executor&quot;: &quot;Run&quot;,
+    &quot;Application.PersonalListDAOTest.executor&quot;: &quot;Run&quot;,
+    &quot;Application.UserDAOTest.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;Tomcat Server.Tomcat 10.1.16.executor&quot;: &quot;Run&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;feyzan&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/messi/Documents/GitHub/MangaUniverse/src/main/java/it/unipi/lsmsd/fnf/service&quot;,
+    &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Artifacts&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2023.3.2\\plugins\\javascript-impl\\jsLanguageServicesImpl\\external&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="ReactorSettings">
     <option name="notificationShown" value="true" />
   </component>
@@ -206,7 +148,27 @@
       <recent name="it.unipi.lsmsd.fnf.model" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.PersonalListDAOTest">
+  <component name="RunManager" selected="Tomcat Server.Tomcat 10.1.16">
+    <configuration default="true" type="tests" factoryName="Doctests">
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="CLASS_NAME" value="" />
+      <option name="METHOD_NAME" value="" />
+      <option name="FOLDER_NAME" value="" />
+      <option name="TEST_TYPE" value="TEST_SCRIPT" />
+      <option name="PATTERN" value="" />
+      <option name="USE_PATTERN" value="false" />
+      <method v="2" />
+    </configuration>
     <configuration name="AnimeDAOTest" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="it.unipi.lsmsd.fnf.dao.tests.AnimeDAOTest" />
       <module name="MangaUniverse" />
@@ -424,26 +386,6 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration default="true" type="tests" factoryName="Doctests">
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="" />
-      <option name="CLASS_NAME" value="" />
-      <option name="METHOD_NAME" value="" />
-      <option name="FOLDER_NAME" value="" />
-      <option name="TEST_TYPE" value="TEST_SCRIPT" />
-      <option name="PATTERN" value="" />
-      <option name="USE_PATTERN" value="false" />
-      <method v="2" />
-    </configuration>
     <recent_temporary>
       <list>
         <item itemvalue="Application.PersonalListDAOTest" />
@@ -456,7 +398,7 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="jdk-21.0.2-openjdk-21.0.2-f644763e9732-c0c073db" />
+        <option value="jdk-21.0.1-openjdk-21.0.1-249ae16d76d6-a618e4d4" />
       </set>
     </attachedChunks>
   </component>
@@ -489,6 +431,8 @@
       <workItem from="1705839002311" duration="17305000" />
       <workItem from="1705944742309" duration="8011000" />
       <workItem from="1706017558586" duration="5391000" />
+      <workItem from="1706105681821" duration="13015000" />
+      <workItem from="1706126944057" duration="3676000" />
     </task>
     <servers />
   </component>
