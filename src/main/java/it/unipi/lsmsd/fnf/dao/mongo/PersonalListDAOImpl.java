@@ -1,8 +1,9 @@
 package it.unipi.lsmsd.fnf.dao.mongo;
 
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.model.UpdateOptions;
+
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.result.InsertOneResult;
+import com.mongodb.client.result.UpdateResult;
 import it.unipi.lsmsd.fnf.dao.PersonalListDAO;
 import it.unipi.lsmsd.fnf.dao.base.BaseMongoDBDAO;
 import it.unipi.lsmsd.fnf.dao.enums.SearchCriteriaEnum;
@@ -14,10 +15,13 @@ import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.utils.ConverterUtils;
+
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.UpdateOptions;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -30,13 +34,18 @@ import static com.mongodb.client.model.Updates.*;
 public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListDAO {
 
     @Override
-    public void insert(PersonalListDTO list) throws DAOException {
+    public ObjectId insert(PersonalListDTO list) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
 
             Document listDoc = PersonalListDTOTODocument(list);
 
-            listsCollection.insertOne(listDoc);
+            InsertOneResult result = listsCollection.insertOne(listDoc);
+            if (result.getInsertedId() == null) {
+                throw new DAOException("Error inserting list");
+            } else {
+                return result.getInsertedId().asObjectId().getValue();
+            }
         } catch (Exception e) {
             throw new DAOException("Error inserting list", e);
         }
@@ -47,7 +56,7 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
 
-            Bson filter = eq("id", list.getId());
+            Bson filter = eq("_id", list.getId());
             Bson update = combine();
             if (list.getName() != null) {
                 Bson nameUpdate = set("name", list.getName());
@@ -163,7 +172,7 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
     }
 
     @Override
-    public List<PersonalListDTO> findByUserId(ObjectId userId) throws DAOException {
+    public List<PersonalListDTO> findByUser(ObjectId userId) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
 
@@ -231,12 +240,14 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
 
     private PersonalListDTO documentToPersonalListDTO(Document document) {
         Document userDoc = document.get("user", Document.class);
-        RegisteredUserDTO user = new RegisteredUserDTO(
-                userDoc.getObjectId("id"),
-                userDoc.getString("location"),
-                ConverterUtils.convertDateToLocalDate(userDoc.getDate("birthday")),
-                userDoc.getInteger("age")
-        );
+        RegisteredUserDTO user = null;
+        if (userDoc != null) {
+            user = new RegisteredUserDTO(
+                    userDoc.getObjectId("id"),
+                    userDoc.getString("location"),
+                    ConverterUtils.convertDateToLocalDate(userDoc.getDate("birthday"))
+            );
+        }
 
         List<AnimeDTO> animeList = Optional.ofNullable(document.getList("anime_list", Document.class))
                 .orElse(new ArrayList<>())

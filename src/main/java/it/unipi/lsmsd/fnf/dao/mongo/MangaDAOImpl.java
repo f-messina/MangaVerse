@@ -1,36 +1,49 @@
 package it.unipi.lsmsd.fnf.dao.mongo;
 
-import com.mongodb.client.model.Filters;
-import com.mongodb.client.model.Projections;
-import com.mongodb.client.model.Sorts;
+import com.mongodb.client.model.UpdateOptions;
+import com.mongodb.client.result.UpdateResult;
 import it.unipi.lsmsd.fnf.dao.MediaContentDAO;
 import it.unipi.lsmsd.fnf.dao.base.BaseMongoDBDAO;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
+import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
 import it.unipi.lsmsd.fnf.model.Review;
 import it.unipi.lsmsd.fnf.model.enums.Status;
 import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoCollection;
 import it.unipi.lsmsd.fnf.model.mediaContent.MangaAuthor;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
+import it.unipi.lsmsd.fnf.utils.Constants;
 import it.unipi.lsmsd.fnf.utils.ConverterUtils;
 
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Facet;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import java.util.*;
 
+import static com.mongodb.client.model.Aggregates.*;
+import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Projections.include;
+import static com.mongodb.client.model.Updates.setOnInsert;
+
 public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Manga> {
 
     @Override
-    public void insert(Manga manga) throws DAOException {
+    public ObjectId insert(Manga manga) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> mangaCollection = mongoClient.getDatabase("mangaVerse").getCollection("manga");
 
-            Document mangaDoc = mangaToDocument(manga);
+            Bson filter = eq("title", manga.getTitle());
+            Bson update = setOnInsert(mangaToDocument(manga));
 
-            mangaCollection.insertOne(mangaDoc);
+            UpdateResult result = mangaCollection.updateOne(filter, update, new UpdateOptions().upsert(true));
+            if (result.getUpsertedId() == null) {
+                throw new DAOException("Manga already exists");
+            } else {
+                return result.getUpsertedId().asObjectId().getValue();
+            }
         } catch (Exception e) {
             throw new DAOException("Error while inserting manga", e);
         }
@@ -41,7 +54,7 @@ public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Mang
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> mangaCollection = mongoClient.getDatabase("mangaVerse").getCollection("manga");
 
-            Bson filter = Filters.eq("_id", manga.getId());
+            Bson filter = eq("_id", manga.getId());
             Bson update = new Document("$set", mangaToDocument(manga));
 
             mangaCollection.updateOne(filter, update);
@@ -55,7 +68,7 @@ public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Mang
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> mangaCollection = mongoClient.getDatabase("mangaVerse").getCollection("manga");
 
-            Bson filter = Filters.eq("_id", id);
+            Bson filter = eq("_id", id);
 
             Document result = mangaCollection.find(filter).first();
 
@@ -65,53 +78,65 @@ public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Mang
         }
     }
 
-    @Override
-    public List<MangaDTO> search(String title) throws DAOException {
-        try (MongoClient mongoClient = getConnection()) {
-            MongoCollection<Document> mangaCollection = mongoClient.getDatabase("mangaVerse").getCollection("manga");
-
-            Bson filter = Filters.text(title);
-            Bson sort = Sorts.metaTextScore("score");
-            Bson projection = Projections.include("title", "picture", "average_score", "start_date", "end_date");
-
-            List<MangaDTO> result = new ArrayList<>();
-            mangaCollection.find(filter).sort(sort).projection(projection).forEach(document -> {
-                MangaDTO manga = documentToMangaDTO(document);
-                result.add(manga);
-            });
-
-            return result;
-        } catch (Exception e) {
-            throw new DAOException("Error while searching manga", e);
-        }
-    }
-
-    public List<MangaDTO> search(Map<String, Object> filters, Map<String, Integer> orderBy) throws DAOException {
+    public PageDTO<MangaDTO> search(Map<String, Object> filters, Map<String, Integer> orderBy, int page) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> mangaCollection = mongoClient.getDatabase("mangaVerse").getCollection("manga");
 
             Bson filter = buildFilter(filters);
             Bson sort = buildSort(orderBy);
-            Bson projection = Projections.include("title", "picture", "average_score", "start_date", "end_date");
+            Bson projection = include("title", "picture", "average_score", "start_date", "end_date");
 
-            List<MangaDTO> result = new ArrayList<>();
-            mangaCollection.find(filter).sort(sort).projection(projection).forEach(document -> {
-                MangaDTO manga = documentToMangaDTO(document);
-                result.add(manga);
-            });
+            int pageOffset = (page - 1) * Constants.PAGE_SIZE;
 
-            return result;
+            List<Bson> pipeline = Arrays.asList(
+                    match(filter),
+                    facet(
+                            List.of(
+                                    new Facet(Constants.PAGINATION_FACET,
+                                            List.of(
+                                                    sort(sort),
+                                                    skip(pageOffset),
+                                                    limit(Constants.PAGE_SIZE),
+                                                    project(projection)
+                                            )
+                                    ),
+                                    new Facet(Constants.COUNT_FACET,
+                                            List.of(
+                                                    count("total")
+                                            )
+                                    )
+                            )
+                    )
+            );
+
+            Document result = mangaCollection.aggregate(pipeline).first();
+
+            List<MangaDTO> mangaList = Optional.ofNullable(result)
+                    .map(doc -> doc.getList(Constants.PAGINATION_FACET, Document.class))
+                    .orElseThrow(() -> new DAOException("Error while searching manga"))
+                    .stream()
+                    .map(this::documentToMangaDTO)
+                    .toList();
+
+            int totalCount = Optional.of(result)
+                    .map(doc -> doc.getList(Constants.COUNT_FACET, Document.class).getFirst())
+                    .filter(doc -> !doc.isEmpty())
+                    .map(doc -> doc.getInteger("total"))
+                    .orElse(0);
+
+            return new PageDTO<>(mangaList, totalCount);
         } catch (Exception e) {
             throw new DAOException("Error while searching manga", e);
         }
     }
+
 
     @Override
     public void delete(ObjectId mangaId) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> mangaCollection = mongoClient.getDatabase("mangaVerse").getCollection("manga");
 
-            Bson filter = Filters.eq("_id", mangaId);
+            Bson filter = eq("_id", mangaId);
 
             mangaCollection.deleteOne(filter);
         } catch (Exception e) {

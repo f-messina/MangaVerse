@@ -1,13 +1,16 @@
 package it.unipi.lsmsd.fnf.dao.mongo;
 
+import com.mongodb.client.result.UpdateResult;
 import it.unipi.lsmsd.fnf.dao.MediaContentDAO;
 import it.unipi.lsmsd.fnf.dao.base.BaseMongoDBDAO;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
+import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.model.Review;
 import it.unipi.lsmsd.fnf.model.enums.Status;
 import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
+import it.unipi.lsmsd.fnf.utils.Constants;
 import it.unipi.lsmsd.fnf.utils.ConverterUtils;
 
 import com.mongodb.client.model.*;
@@ -17,17 +20,27 @@ import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import java.util.*;
 
+import static com.mongodb.client.model.Aggregates.*;
+import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Updates.setOnInsert;
+
 
 public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anime> {
 
     @Override
-    public void insert(Anime anime) throws DAOException {
+    public ObjectId insert(Anime anime) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> animeCollection = mongoClient.getDatabase("mangaVerse").getCollection("anime");
 
-            Document animeDoc = animeToDocument(anime);
+            Bson filter = eq("title", anime.getTitle());
+            Bson update = setOnInsert(animeToDocument(anime));
 
-            animeCollection.insertOne(animeDoc);
+            UpdateResult result = animeCollection.updateOne(filter, update, new UpdateOptions().upsert(true));
+            if (result.getUpsertedId() == null) {
+                throw new DAOException("Anime already exists");
+            } else {
+                return result.getUpsertedId().asObjectId().getValue();
+            }
         } catch (Exception e) {
             throw new DAOException("Error while inserting anime", e);
         }
@@ -76,27 +89,7 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
     }
 
     @Override
-    public List<AnimeDTO> search(String title) throws DAOException {
-        try (MongoClient mongoClient = getConnection()) {
-            MongoCollection<Document> animeCollection = mongoClient.getDatabase("mangaVerse").getCollection("anime");
-
-            Bson filter = Filters.text(title);
-            Bson sort = Sorts.metaTextScore("score");
-            Bson projection = Projections.include("title", "picture", "average_score", "anime_season.year");
-
-            List<AnimeDTO> result = new ArrayList<>();
-            animeCollection.find(filter).sort(sort).projection(projection).forEach(document -> {
-                AnimeDTO anime = documentToAnimeDTO(document);
-                result.add(anime);
-            });
-
-            return result;
-        } catch (Exception e) {
-            throw new DAOException("Error while searching anime", e);
-        }
-    }
-
-    public List<AnimeDTO> search(Map<String, Object> filters, Map<String, Integer> orderBy) throws DAOException {
+    public PageDTO<AnimeDTO> search(Map<String, Object> filters, Map<String, Integer> orderBy, int page) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> animeCollection = mongoClient.getDatabase("mangaVerse").getCollection("anime");
 
@@ -104,17 +97,50 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
             Bson sort = buildSort(orderBy);
             Bson projection = Projections.include("title", "picture", "average_score", "anime_season.year");
 
-            List<AnimeDTO> result = new ArrayList<>();
-            animeCollection.find(filter).sort(sort).projection(projection).forEach(document -> {
-                AnimeDTO anime = documentToAnimeDTO(document);
-                result.add(anime);
-            });
+            int pageOffset = (page - 1) * Constants.PAGE_SIZE;
 
-            return result;
+            List<Bson> pipeline = Arrays.asList(
+                    match(filter),
+                    facet(
+                            List.of(
+                                    new Facet(Constants.PAGINATION_FACET,
+                                            List.of(
+                                                    sort(sort),
+                                                    skip(pageOffset),
+                                                    limit(Constants.PAGE_SIZE),
+                                                    project(projection)
+                                            )
+                                    ),
+                                    new Facet(Constants.COUNT_FACET,
+                                            List.of(
+                                                    count("total")
+                                            )
+                                    )
+                            )
+                    )
+            );
+
+            Document result = animeCollection.aggregate(pipeline).first();
+
+            List<AnimeDTO> animeList = Optional.ofNullable(result)
+                    .map(doc -> doc.getList(Constants.PAGINATION_FACET, Document.class))
+                    .orElseThrow(() -> new DAOException("Error while searching anime"))
+                    .stream()
+                    .map(this::documentToAnimeDTO)
+                    .toList();
+
+            int totalCount = Optional.of(result)
+                    .map(doc -> doc.getList(Constants.COUNT_FACET, Document.class).getFirst())
+                    .filter(doc -> !doc.isEmpty())
+                    .map(doc -> doc.getInteger("total"))
+                    .orElse(0);
+
+            return new PageDTO<>(animeList, totalCount);
         } catch (Exception e) {
             throw new DAOException("Error while searching anime", e);
         }
     }
+
 
     private Document animeToDocument(Anime anime) {
         Document doc = new Document();

@@ -9,10 +9,11 @@ import org.bson.types.ObjectId;
 import java.util.List;
 
 public interface UserDAO {
-    void insert(User user) throws DAOException;
+    ObjectId register(User user) throws DAOException;
     void remove(ObjectId id) throws DAOException;
+    RegisteredUser authenticate(String email, String password) throws DAOException;
     RegisteredUser find(ObjectId id) throws DAOException;
-    RegisteredUser find(String username) throws DAOException;
+    List<RegisteredUserDTO> find(String username) throws DAOException;
     List<RegisteredUserDTO> findAll() throws DAOException;
     void update(RegisteredUser user) throws DAOException;
 }

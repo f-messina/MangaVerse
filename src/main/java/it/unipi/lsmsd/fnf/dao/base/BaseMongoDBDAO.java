@@ -3,12 +3,13 @@ package it.unipi.lsmsd.fnf.dao.base;
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.*;
-import com.mongodb.client.model.Filters;
-import com.mongodb.client.model.Sorts;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
 import java.util.*;
+
+import static com.mongodb.client.model.Filters.*;
+import static com.mongodb.client.model.Sorts.*;
 
 public abstract class BaseMongoDBDAO {
     private static final String PROTOCOL = "mongodb://";
@@ -34,10 +35,12 @@ public abstract class BaseMongoDBDAO {
 
     protected Bson buildFilter(Map<String, Object> filterMap) {
         if (filterMap == null || filterMap.isEmpty()) {
-            return Filters.empty();
+            return empty();
+        } else if (filterMap.containsKey("title")) {
+            return text((String) filterMap.get("title"));
         }
         List<Bson> filter = buildFilterInternal(filterMap);
-        return Filters.and(filter);
+        return and(filter);
     }
 
     protected List<Bson> buildFilterInternal(Map<String, Object> filterMap) {
@@ -49,10 +52,10 @@ public abstract class BaseMongoDBDAO {
                     }
 
                     return switch (key) {
-                        case "$nor" -> Filters.nor(getFiltersList(entry.getValue()));
-                        case "$and" -> Filters.and(getFiltersList(entry.getValue()));
-                        case "$or" -> Filters.or(getFiltersList(entry.getValue()));
-                        case "$not" -> Filters.not(buildFilterInternal((Map<String, Object>) entry.getValue()).get(0));
+                        case "$nor" -> nor(getFiltersList(entry.getValue()));
+                        case "$and" -> and(getFiltersList(entry.getValue()));
+                        case "$or" -> or(getFiltersList(entry.getValue()));
+                        case "$not" -> not(buildFilterInternal((Map<String, Object>) entry.getValue()).getFirst());
                         default -> throw new IllegalArgumentException("Unsupported filter key: " + key);
                     };
                 })
@@ -60,7 +63,7 @@ public abstract class BaseMongoDBDAO {
     }
 
     protected Bson buildFieldFilter(String fieldName, Object value) {
-        return Filters.eq(fieldName, value);
+        return eq(fieldName, value);
     }
 
     protected List<Bson> getFiltersList(Object filters) {
@@ -75,16 +78,20 @@ public abstract class BaseMongoDBDAO {
     }
 
     protected Bson buildSort(Map<String, Integer> orderBy) {
+        if (orderBy != null && orderBy.containsKey("score")) {
+            return metaTextScore("score");
+        }
+
         List<Bson> sortList = new ArrayList<>();
         Optional.ofNullable(orderBy)
                 .ifPresent(map ->
                         sortList.addAll(map.entrySet().stream()
-                                .map(entry -> entry.getValue() == 1 ? Sorts.ascending(entry.getKey()) : Sorts.descending(entry.getKey()))
+                                .map(entry -> entry.getValue() == 1 ? ascending(entry.getKey()) : descending(entry.getKey()))
                                 .toList()
                         )
                 );
 
-        return Sorts.orderBy(sortList);
+        return orderBy(sortList);
     }
 
     protected void appendIfNotNull(Document doc, String key, Object value) {

@@ -5,13 +5,9 @@ import it.unipi.lsmsd.fnf.dao.enums.DataRepositoryEnum;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dto.PersonalListDTO;
 import it.unipi.lsmsd.fnf.dto.RegisteredUserDTO;
-import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
-import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.PersonalList;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
-import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
-import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
 import it.unipi.lsmsd.fnf.model.mediaContent.MediaContent;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import it.unipi.lsmsd.fnf.service.PersonalListService;
@@ -23,7 +19,6 @@ import org.bson.types.ObjectId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 
 public class PersonalListServiceImpl implements PersonalListService {
@@ -57,15 +52,13 @@ public class PersonalListServiceImpl implements PersonalListService {
         Objects.requireNonNull(user, "The user can't be null");
         try {
             ObjectId objectId = new ObjectId(id);
-            List<PersonalListDTO> listDTOs = personalListDAO.findByUserId(objectId);
+            List<PersonalListDTO> listDTOs = personalListDAO.findByUser(objectId);
             for (PersonalListDTO listDTO : listDTOs) {
                 listDTO.setName(name);
                 RegisteredUserDTO userDTO = ModelToDtoMapper.convertToRegisteredUserDTO(user);
                 listDTO.setUser(userDTO);
                 personalListDAO.update(listDTO);
             }
-
-
         } catch (DAOException e) {
             throw new BusinessException(e);
         }
@@ -136,9 +129,8 @@ public class PersonalListServiceImpl implements PersonalListService {
     public List<PersonalList> findListsByUser(String userId) throws BusinessException {
         try {
             ObjectId userObjectId = new ObjectId(userId);
-            List<PersonalListDTO> listDTOs = personalListDAO.findByUserId(userObjectId);
-            List<PersonalList> lists = listDTOs.stream().map(DtoToModelMapper::convertFromDTO).collect(Collectors.toList());
-            return lists;
+            List<PersonalListDTO> listDTOs = personalListDAO.findByUser(userObjectId);
+            return listDTOs.stream().map(DtoToModelMapper::personalListDTOtoPersonalList).toList();
         } catch (DAOException e) {
             throw new BusinessException(e);
         }
