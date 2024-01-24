@@ -15,7 +15,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     private static final ReviewDAO reviewDAO;
 
-    static{
+    static {
         reviewDAO = getReviewDAO(DataRepositoryEnum.MONGODB);
     }
 
