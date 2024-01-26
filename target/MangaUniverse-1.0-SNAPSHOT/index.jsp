@@ -34,8 +34,8 @@
         <a href="#" class="search"><i class="fa-solid fa-magnifying-glass"></i></a>
         <a href="#" class="anime">Anime</a>
         <a href="#" class="manga">Manga</a>
-        <a href="#">Sign Up</a>
-        <a href="#">Log In</a>
+        <a href="signUp-logIn.jsp">Sign Up</a>
+        <a href="signUp-logIn.jsp">Log In</a>
     </div>
 </nav>
 

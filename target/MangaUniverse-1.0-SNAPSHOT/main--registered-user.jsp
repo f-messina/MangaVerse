@@ -406,7 +406,7 @@
                             <input type="checkbox" name="checkbox" class="genre-checkbox" >
                             <span class="checkmark empty" ></span>
                         </label>
-                        <p>Discontiuned</p>
+                        <p>Discontinued</p>
                     </div>
                     <div class="genre">
                         <label class="container">
@@ -435,7 +435,12 @@
                     <input type="number" id="endYear" placeholder="Enter end year">
                 </div>
             </div>
+
+            <div class="detailed-search-button">
+                <a href="#" class="arama"><i class="fa-solid fa-magnifying-glass"></i></a>
+            </div>
         </div>
+
 
     </div>
 
@@ -528,49 +533,39 @@
                 </div>
             </div>
 
-            <div class="genre-filtering">
-                <p class="genre-title">Season</p>
-                <div class="two-genres">
-                    <div class="genre">
-                        <label class="container">
-                            <input type="checkbox" name="checkbox" class="genre-checkbox">
-                            <span class="checkmark empty" ></span>
-                        </label>
-                        <p>Summer</p>
-                    </div>
-                    <div class="genre">
-                        <label class="container">
-                            <input type="checkbox" name="checkbox" class="genre-checkbox" >
-                            <span class="checkmark empty" ></span>
-                        </label>
-                        <p>Fall</p>
-                    </div>
-                    <div class="genre">
-                        <label class="container">
-                            <input type="checkbox" name="checkbox" class="genre-checkbox">
-                            <span class="checkmark empty" ></span>
-                        </label>
-                        <p>Winter</p>
-                    </div>
-                    <div class="genre">
-                        <label class="container">
-                            <input type="checkbox" name="checkbox" class="genre-checkbox" >
-                            <span class="checkmark empty" ></span>
-                        </label>
-                        <p>Spring</p>
-                    </div>
-                </div>
-            </div>
 
             <div class="genre-filtering">
                 <p class="genre-title">Year of Publication</p>
                 <div class="year-filtering">
+                    <div class="custom-select" style="width:200px;">
+                        <select>
+                            <option value="0">Start Season</option>
+                            <option value="1">Summer</option>
+                            <option value="2">Fall</option>
+                            <option value="2">Winter</option>
+                            <option value="2">Spring</option>
+                        </select>
+                    </div>
+
                     <label for="startYear"></label>
                     <input type="number" id="startYear" placeholder="Enter start year">
+
+                    <div class="custom-select" style="width:200px;">
+                        <select>
+                            <option value="0">End Season</option>
+                            <option value="1">Summer</option>
+                            <option value="2">Fall</option>
+                            <option value="2">Winter</option>
+                            <option value="2">Spring</option>
+                        </select>
+                    </div>
 
                     <label for="endYear"></label>
                     <input type="number" id="endYear" placeholder="Enter end year">
                 </div>
+            </div>
+            <div class="detailed-search-button">
+                <a href="#" class="arama"><i class="fa-solid fa-magnifying-glass"></i></a>
             </div>
         </div>
 
@@ -580,7 +575,7 @@
 
 
 
-    
+
 </section>
 
 
@@ -883,6 +878,87 @@
             x.style.display = "none";
         }
     }
+</script>
+
+<script>
+    var x, i, j, l, ll, selElmnt, a, b, c;
+    /*look for any elements with the class "custom-select":*/
+    x = document.getElementsByClassName("custom-select");
+    l = x.length;
+    for (i = 0; i < l; i++) {
+        selElmnt = x[i].getElementsByTagName("select")[0];
+        ll = selElmnt.length;
+        /*for each element, create a new DIV that will act as the selected item:*/
+        a = document.createElement("DIV");
+        a.setAttribute("class", "select-selected");
+        a.innerHTML = selElmnt.options[selElmnt.selectedIndex].innerHTML;
+        x[i].appendChild(a);
+        /*for each element, create a new DIV that will contain the option list:*/
+        b = document.createElement("DIV");
+        b.setAttribute("class", "select-items select-hide");
+        for (j = 1; j < ll; j++) {
+            /*for each option in the original select element,
+            create a new DIV that will act as an option item:*/
+            c = document.createElement("DIV");
+            c.innerHTML = selElmnt.options[j].innerHTML;
+            c.addEventListener("click", function(e) {
+                /*when an item is clicked, update the original select box,
+                and the selected item:*/
+                var y, i, k, s, h, sl, yl;
+                s = this.parentNode.parentNode.getElementsByTagName("select")[0];
+                sl = s.length;
+                h = this.parentNode.previousSibling;
+                for (i = 0; i < sl; i++) {
+                    if (s.options[i].innerHTML == this.innerHTML) {
+                        s.selectedIndex = i;
+                        h.innerHTML = this.innerHTML;
+                        y = this.parentNode.getElementsByClassName("same-as-selected");
+                        yl = y.length;
+                        for (k = 0; k < yl; k++) {
+                            y[k].removeAttribute("class");
+                        }
+                        this.setAttribute("class", "same-as-selected");
+                        break;
+                    }
+                }
+                h.click();
+            });
+            b.appendChild(c);
+        }
+        x[i].appendChild(b);
+        a.addEventListener("click", function(e) {
+            /*when the select box is clicked, close any other select boxes,
+            and open/close the current select box:*/
+            e.stopPropagation();
+            closeAllSelect(this);
+            this.nextSibling.classList.toggle("select-hide");
+            this.classList.toggle("select-arrow-active");
+        });
+    }
+    function closeAllSelect(elmnt) {
+        /*a function that will close all select boxes in the document,
+        except the current select box:*/
+        var x, y, i, xl, yl, arrNo = [];
+        x = document.getElementsByClassName("select-items");
+        y = document.getElementsByClassName("select-selected");
+        xl = x.length;
+        yl = y.length;
+        for (i = 0; i < yl; i++) {
+            if (elmnt == y[i]) {
+                arrNo.push(i)
+            } else {
+                y[i].classList.remove("select-arrow-active");
+            }
+        }
+        for (i = 0; i < xl; i++) {
+            if (arrNo.indexOf(i)) {
+                x[i].classList.add("select-hide");
+            }
+        }
+    }
+    /*if the user clicks anywhere outside the select box,
+    then close all select boxes:*/
+    document.addEventListener("click", closeAllSelect);
 </script>
 </body>
 
