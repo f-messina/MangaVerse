@@ -10,12 +10,14 @@ import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
 import it.unipi.lsmsd.fnf.model.mediaContent.MediaContent;
 import it.unipi.lsmsd.fnf.service.MediaContentService;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
-import it.unipi.lsmsd.fnf.service.mapper.ModelToDtoMapper;
-import org.bson.types.ObjectId;
 
+
+import org.bson.types.ObjectId;
 import java.util.Map;
 
 import static it.unipi.lsmsd.fnf.dao.DAOLocator.*;
+import static it.unipi.lsmsd.fnf.service.mapper.ModelToDtoMapper.animeToAnimeDTO;
+import static it.unipi.lsmsd.fnf.service.mapper.ModelToDtoMapper.mangaToMangaDTO;
 import static java.util.Collections.singletonMap;
 
 public class MediaContentServiceImpl implements MediaContentService {
@@ -50,12 +52,12 @@ public class MediaContentServiceImpl implements MediaContentService {
             if (mediaContent instanceof Anime) {
                 animeDAO.update((Anime) mediaContent);
                 if (mediaContent.getTitle() != null || mediaContent.getImageUrl() != null) {
-                    personalListDAO.updateItem(ModelToDtoMapper.animeToAnimeDTO((Anime) mediaContent));
+                    personalListDAO.updateItem(animeToAnimeDTO((Anime) mediaContent));
                 }
             } else if (mediaContent instanceof Manga) {
                 mangaDAO.update((Manga) mediaContent);
                 if (mediaContent.getTitle() != null || mediaContent.getImageUrl() != null) {
-                    personalListDAO.updateItem(ModelToDtoMapper.mangaToMangaDTO((Manga) mediaContent));
+                    personalListDAO.updateItem(mangaToMangaDTO((Manga) mediaContent));
                 }
             }
         } catch (Exception e) {

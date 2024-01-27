@@ -1,5 +1,6 @@
 package it.unipi.lsmsd.fnf.dao.mongo;
 
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.result.UpdateResult;
 import it.unipi.lsmsd.fnf.dao.UserDAO;
@@ -29,7 +30,7 @@ import static com.mongodb.client.model.Updates.setOnInsert;
 public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
   
     @Override
-    public User register(User user) throws DAOException {
+    public ObjectId register(User user) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
 
@@ -43,9 +44,9 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
             UpdateResult result = users.updateOne(filter, update, new UpdateOptions().upsert(true));
             if (result.getUpsertedId() == null) {
                 throw new DAOException("Username or email already in use");
+            } else {
+                return result.getUpsertedId().asObjectId().getValue();
             }
-            user.setId(result.getUpsertedId().asObjectId().getValue());
-            return user;
         }
         catch (Exception e){
             throw new DAOException("Error adding new user", e);
@@ -60,7 +61,10 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
             Bson filter = eq("_id", user.getId());
             Bson update = new Document("$set", RegisteredUserToDocument(user));
 
-            users.updateOne(filter, update);
+            UpdateResult results = users.updateOne(filter, update);
+            if (results.getModifiedCount() == 0) {
+                throw new DAOException("User not found");
+            }
         } catch (Exception e){
             throw new DAOException("Error updating user information for user with id: "+ user.getId(), e);
         }
@@ -115,11 +119,10 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
             Bson projection = exclude("is_manager", "password", "email");
 
             Document userDocument = users.find(filter).projection(projection).first();
-
             return (userDocument != null)? documentToRegisteredUser(userDocument) : null;
         }
         catch (Exception e){
-            throw new DAOException("Error searching user by username: "+ id, e);
+            throw new DAOException("Error searching user by id: "+ id, e);
         }
     }
 
@@ -130,10 +133,12 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
 
             Bson filter = text(username);
             Bson sort = metaTextScore("score");
-            Bson projection = include("username", "profilePicUrl");
+            Bson projection = include("username", "picture");
 
             List<RegisteredUserDTO> result = new ArrayList<>();
-            users.find(filter).sort(sort).projection(projection).forEach(document -> {
+            FindIterable<Document> results = users.find(filter).sort(sort).projection(projection);
+
+            results.forEach(document -> {
                 RegisteredUserDTO user = documentToRegisteredUserDTO(document);
                 result.add(user);
             });
@@ -149,8 +154,8 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
 
-            Bson filter = eq("is_manager", false);
-            Bson projection = include("username", "profilePicUrl");
+            Bson filter = eq("is_manager", null);
+            Bson projection = include("username", "picture");
 
             List<RegisteredUserDTO> result = new ArrayList<>();
             users.find(filter).projection(projection).forEach(document -> {
@@ -169,14 +174,14 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
         RegisteredUserDTO user = new RegisteredUserDTO();
         user.setId(doc.getObjectId("_id"));
         user.setUsername(doc.getString("username"));
-        user.setProfilePicUrl(doc.getString("profilePicUrl"));
+        user.setProfilePicUrl(doc.getString("picture"));
         return user;
     }
 
     private RegisteredUser documentToRegisteredUser(Document doc) {
         RegisteredUser user;
 
-        if (doc.getBoolean("is_manager")) {
+        if (doc.getBoolean("is_manager") != null) {
             Manager manager = new Manager();
             manager.setHiredDate(ConverterUtils.convertDateToLocalDate(doc.getDate("hired_on")));
             manager.setTitle(doc.getString("title"));
@@ -196,8 +201,7 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
         user.setEmail(doc.getString("email"));
         user.setJoinedDate(ConverterUtils.convertDateToLocalDate(doc.getDate("joined_on")));
         user.setFullname(doc.getString("fullname"));
-        user.setProfilePicUrl(doc.getString("profilePicUrl"));
-
+        user.setProfilePicUrl(doc.getString("picture"));
         return user;
     }
 
@@ -210,7 +214,7 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
             appendIfNotNull(doc, "joined_on", ConverterUtils.convertLocalDateToDate(user.getJoinedDate()));
         }
         appendIfNotNull(doc, "fullname", user.getFullname());
-        appendIfNotNull(doc, "profilePicUrl", user.getProfilePicUrl());
+        appendIfNotNull(doc, "picture", user.getProfilePicUrl());
 
         if (user instanceof Manager manager) {
             appendIfNotNull(doc, "title", manager.getTitle());

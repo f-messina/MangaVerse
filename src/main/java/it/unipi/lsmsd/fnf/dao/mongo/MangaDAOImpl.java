@@ -6,6 +6,7 @@ import it.unipi.lsmsd.fnf.dao.MediaContentDAO;
 import it.unipi.lsmsd.fnf.dao.base.BaseMongoDBDAO;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
+import it.unipi.lsmsd.fnf.dto.ReviewDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
 import it.unipi.lsmsd.fnf.model.Review;
 import it.unipi.lsmsd.fnf.model.enums.Status;
@@ -31,7 +32,7 @@ import static com.mongodb.client.model.Updates.setOnInsert;
 public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Manga> {
 
     @Override
-    public void insert(Manga manga) throws DAOException {
+    public ObjectId insert(Manga manga) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> mangaCollection = mongoClient.getDatabase("mangaVerse").getCollection("manga");
 
@@ -41,6 +42,8 @@ public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Mang
             UpdateResult result = mangaCollection.updateOne(filter, update, new UpdateOptions().upsert(true));
             if (result.getUpsertedId() == null) {
                 throw new DAOException("Manga already exists");
+            } else {
+                return result.getUpsertedId().asObjectId().getValue();
             }
         } catch (Exception e) {
             throw new DAOException("Error while inserting manga", e);
@@ -126,6 +129,11 @@ public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Mang
         } catch (Exception e) {
             throw new DAOException("Error while searching manga", e);
         }
+    }
+
+    @Override
+    public void updateLatestReview(ReviewDTO reviewDTO) throws DAOException {
+        // do it later
     }
 
 

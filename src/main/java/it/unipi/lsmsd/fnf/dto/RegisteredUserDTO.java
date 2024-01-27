@@ -21,6 +21,12 @@ public class RegisteredUserDTO {
         this.profilePicUrl = profilePicUrl;
     }
 
+    public RegisteredUserDTO(ObjectId id, String location, LocalDate birthday) {
+        this.id = id;
+        this.location = location;
+        this.birthday = birthday;
+    }
+
     public RegisteredUserDTO(ObjectId id, String location, LocalDate birthday, Integer age) {
         this.id = id;
         this.location = location;

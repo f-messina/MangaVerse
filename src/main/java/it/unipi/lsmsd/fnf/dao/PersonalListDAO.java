@@ -15,7 +15,7 @@ import java.util.List;
      List<PersonalListDTO> findByUser(ObjectId userId) throws DAOException;
      List<PersonalListDTO> findAll() throws DAOException;
      PersonalListDTO find(ObjectId id) throws DAOException;
-     void insert(PersonalListDTO list) throws DAOException;
+     ObjectId insert(PersonalListDTO list) throws DAOException;
      void update(PersonalListDTO list) throws DAOException;
      void delete(ObjectId id) throws DAOException;
      void deleteByUser(ObjectId userId) throws DAOException;
