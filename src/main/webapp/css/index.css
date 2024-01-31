@@ -111,6 +111,7 @@ nav .nav-items a {
 
 .main-page-unreg{
     padding-top: 50px;
+    padding-bottom: 80px;
 }
 .filtering{
     padding-left: 80px;
@@ -157,6 +158,15 @@ nav .nav-items a {
     font-size: 28px;
     color: black;
 }
+
+.show-all{
+    display: flex;
+    justify-content: right;
+    text-decoration: none;
+}
+
+
+
 
 .examples{
     padding-left: 80px;
