@@ -52,7 +52,7 @@
                             </div>
                             <div class="input_field">
                                 <span><i aria-hidden="true" class="fa fa-calendar"></i></span>
-                                <input type="date" name="birthdate" placeholder="Choose your birthday"  />
+                                <input type="date" name="birthday" placeholder="Choose your birthday"  />
                             </div>
 
                             <div class="input_field select_option">

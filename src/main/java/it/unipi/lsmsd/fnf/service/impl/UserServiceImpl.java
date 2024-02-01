@@ -48,9 +48,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public RegisteredUser login(String username, String password) throws BusinessException {
+    public RegisteredUser login(String email, String password) throws BusinessException {
+        if (email == null || email.isEmpty())
+            throw new BusinessException("Email cannot be empty");
+        if (password == null || password.isEmpty())
+            throw new BusinessException("Password cannot be empty");
         try {
-            RegisteredUser registeredUser = userDAO.authenticate(username, password);
+            RegisteredUser registeredUser = userDAO.authenticate(email, password);
             if (registeredUser instanceof User user) {
                 List<PersonalListDTO> personalLists = personalListDAO.findByUser(user.getId());
                 user.setLists(personalLists.stream().map(DtoToModelMapper::personalListDTOtoPersonalList).toList());
