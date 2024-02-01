@@ -30,7 +30,7 @@ public class ReviewServiceImpl implements ReviewService {
         try{
             reviewDAO.insert(review);
 
-        }catch (Exception e){
+        } catch (Exception e){
             throw new BusinessException(e);
         }
     }
@@ -75,15 +75,6 @@ public class ReviewServiceImpl implements ReviewService {
     public List<ReviewDTO> findByMedia(String mediaId) throws BusinessException {
         try{
             return reviewDAO.findByMedia(new ObjectId(mediaId));
-        }catch (Exception e){
-            throw new BusinessException(e);
-        }
-    }
-
-    @Override
-    public List<ReviewDTO> findByUserAndMedia(String userId, String mediaId) throws BusinessException {
-        try{
-            return reviewDAO.findByUserAndMedia(new ObjectId(userId),new ObjectId(mediaId));
         }catch (Exception e){
             throw new BusinessException(e);
         }

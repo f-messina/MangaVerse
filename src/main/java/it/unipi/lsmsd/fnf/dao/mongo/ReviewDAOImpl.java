@@ -1,5 +1,6 @@
 package it.unipi.lsmsd.fnf.dao.mongo;
 
+import com.mongodb.client.result.InsertOneResult;
 import it.unipi.lsmsd.fnf.dao.ReviewDAO;
 import it.unipi.lsmsd.fnf.dao.base.BaseMongoDBDAO;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
@@ -26,11 +27,12 @@ import static com.mongodb.client.model.Updates.set;
 
 public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
     @Override
-    public void insert(ReviewDTO review) throws DAOException {
+    public ObjectId insert(ReviewDTO review) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
-            MongoCollection<Document> reviewCollection = mongoClient.getDatabase("mangaVerse").getCollection("review");
+            MongoCollection<Document> reviewCollection = mongoClient.getDatabase("mangaVerse").getCollection("reviews");
 
-            reviewCollection.insertOne(reviewDTOToDocument(review));
+            InsertOneResult result = reviewCollection.insertOne(reviewDTOToDocument(review));
+            return result.getInsertedId().asObjectId().getValue();
         } catch (Exception e) {
             throw new DAOException("Error while inserting review", e);
         }
@@ -39,7 +41,7 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
     @Override
     public void update(ReviewDTO review) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
-            MongoCollection<Document> reviewCollection = mongoClient.getDatabase("mangaVerse").getCollection("review");
+            MongoCollection<Document> reviewCollection = mongoClient.getDatabase("mangaVerse").getCollection("reviews");
 
             Bson filter = eq("_id", review.getId());
             Bson updatedKeys = combine(set("date", ConverterUtils.convertLocalDateToDate(LocalDate.now())));
@@ -59,7 +61,7 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
     @Override
     public void delete(ObjectId id) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
-            MongoCollection<Document> reviewCollection = mongoClient.getDatabase("mangaVerse").getCollection("review");
+            MongoCollection<Document> reviewCollection = mongoClient.getDatabase("mangaVerse").getCollection("reviews");
 
             Bson filter = eq("_id", id);
 
@@ -71,7 +73,7 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
 
     public void deleteByMedia(ObjectId mediaId) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
-            MongoCollection<Document> reviewCollection = mongoClient.getDatabase("mangaVerse").getCollection("review");
+            MongoCollection<Document> reviewCollection = mongoClient.getDatabase("mangaVerse").getCollection("reviews");
 
             Bson filter = or(
                     eq("anime.id", mediaId),
@@ -87,7 +89,7 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
     @Override
     public List<ReviewDTO> findByUser(ObjectId userId) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
-            MongoCollection<Document> reviewCollection = mongoClient.getDatabase("mangaVerse").getCollection("review");
+            MongoCollection<Document> reviewCollection = mongoClient.getDatabase("mangaVerse").getCollection("reviews");
 
             Bson filter = eq("user.id", userId);
             Bson projection = exclude("user");
@@ -107,7 +109,7 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
     @Override
     public List<ReviewDTO> findByMedia(ObjectId mediaId) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
-            MongoCollection<Document> reviewCollection = mongoClient.getDatabase("mangaVerse").getCollection("review");
+            MongoCollection<Document> reviewCollection = mongoClient.getDatabase("mangaVerse").getCollection("reviews");
 
             Bson filter = or(
                     eq("anime.id", mediaId),
@@ -124,32 +126,6 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
             return result;
         } catch (Exception e) {
             throw new DAOException("Error while finding reviews by media", e);
-        }
-    }
-
-    @Override
-    public List<ReviewDTO> findByUserAndMedia(ObjectId userId, ObjectId mediaId) throws DAOException {
-        try (MongoClient mongoClient = getConnection()) {
-            MongoCollection<Document> reviewCollection = mongoClient.getDatabase("mangaVerse").getCollection("review");
-
-            Bson filter = and(
-                    eq("user.id", userId),
-                    or(
-                            eq("anime.id", mediaId),
-                            eq("manga.id", mediaId)
-                    )
-            );
-            Bson projection = exclude("user", "anime", "manga");
-
-            List<ReviewDTO> result = new ArrayList<>();
-            reviewCollection.find(filter).projection(projection).forEach(document -> {
-                ReviewDTO review = documentToReviewDTO(document);
-                result.add(review);
-            });
-
-            return result;
-        } catch (Exception e) {
-            throw new DAOException("Error while finding reviews by user and media", e);
         }
     }
 
