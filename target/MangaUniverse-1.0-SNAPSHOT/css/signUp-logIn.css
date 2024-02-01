@@ -294,6 +294,11 @@ body {
         border-top-color: black;
     }
 }
+
+select[name="gender"] option:first-child {
+    display: none;
+}
+
 .credit {
     position: relative;
     z-index: 1;

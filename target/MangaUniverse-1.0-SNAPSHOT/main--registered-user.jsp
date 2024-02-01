@@ -1,4 +1,6 @@
-<%--
+<%@ page import="it.unipi.lsmsd.fnf.model.registeredUser.User" %>
+<%@ page import="it.unipi.lsmsd.fnf.utils.SecurityUtils" %>
+<%@ page import="java.util.logging.Logger" %><%--
   Created by IntelliJ IDEA.
   User: lenovo
   Date: 18.01.2024
@@ -32,13 +34,14 @@
     <title>Main Page</title>
 </head>
 <body>
+
 <nav>
     <a href="#"><img src="images/logo%20with%20initial-8.png" alt="logo" /></a>
     <h1>Welcome Aokaado!</h1>
     <div class="nav-items">
         <a href="#" class="anime">Anime</a>
         <a href="#" class="manga">Manga</a>
-        <a href="#">Profile</a>
+        <a href="profile.jsp">Profile</a>
         <a href="#" class="search"><i class="fa-solid fa-magnifying-glass"></i></a>
         <a href="#" class="small-pic"><img src="images/user%20icon%20-%20Kopya%20-%20Kopya.png"> <i class="fa-solid fa-chevron-down" style="color: #000000"> </i></a>
     </div>
@@ -959,6 +962,8 @@
     /*if the user clicks anywhere outside the select box,
     then close all select boxes:*/
     document.addEventListener("click", closeAllSelect);
+
+
 </script>
 </body>
 

@@ -227,6 +227,7 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
             appendIfNotNull(doc, "location", regularUser.getLocation());
         }
 
+
         return doc;
     }
 }

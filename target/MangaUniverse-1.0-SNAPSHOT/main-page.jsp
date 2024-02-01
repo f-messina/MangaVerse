@@ -11,7 +11,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="preconnect" href="https://fonts.googleapis.com%22%3E/
+    <link rel="preconnect" href="https://fonts.googleapis.com%22%3E/" crossorigin />
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
     <link
             href="https://fonts.googleapis.com/css2?family=Fira+Sans+Condensed:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:wght@300;400&display=swap"
@@ -34,8 +34,8 @@
         <a href="#" class="search"><i class="fa-solid fa-magnifying-glass"></i></a>
         <a href="#" class="anime">Anime</a>
         <a href="#" class="manga">Manga</a>
-        <a href="signUp-logIn.jsp">Sign Up</a>
-        <a href="signUp-logIn.jsp">Log In</a>
+        <a href="auth.jsp">Sign Up</a>
+        <a href="auth.jsp">Log In</a>
     </div>
 </nav>
 
@@ -53,7 +53,7 @@
         </div>
     </div>
     <div class="down-arrow">
-        <a data-scroll="list" href="#list">
+        <a data-scroll="list" href="#end-page">
             <i class="fa-solid fa-chevron-down" style="color: #000000"> </i>
         </a>
     </div>
@@ -165,10 +165,7 @@
         </div>
         <a href="#" class="show-all">Show All Anime</a>
     </div>
-
-
-
-
+    <a id="end-page"></a>
 </section>
 
 <script src="js/index.js"></script>

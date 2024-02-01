@@ -67,4 +67,13 @@ public class UserServiceImpl implements UserService {
             throw new BusinessException(e);
         }
     }
+
+    @Override
+    public void updateUserInfo(User user) throws BusinessException {
+        try {
+            userDAO.update(user);
+        } catch (Exception e) {
+            throw new BusinessException(e);
+        }
+    }
 }
