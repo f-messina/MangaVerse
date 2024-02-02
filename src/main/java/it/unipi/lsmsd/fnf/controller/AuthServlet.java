@@ -15,6 +15,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import it.unipi.lsmsd.fnf.service.UserService;
@@ -38,33 +39,45 @@ public class AuthServlet extends HttpServlet {
     }
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
-        String targetJSP = "main-page.jsp";
+
+        String targetJSP = "tests/auth_test.jsp";
         switch (action) {
             case "signup" -> handleSignUp(request, response);
             case "login" -> handleLogin(request, response);
+            case "logout" -> handleLogout(request, response);
             case null, default -> request.getRequestDispatcher(targetJSP).forward(request, response);
         }
     }
 
     private void handleSignUp(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        User user = null;
-        String targetJSP = "main-page.jsp";
+        String targetJSP = "tests/auth_test.jsp";
 
         try {
-            UserRegistrationDTO userRegistrationDTO = ConverterUtils.fromRequestToUserRegDTO(request);
-            user = userService.registerUserAndLogin(userRegistrationDTO);
+            User user = userService.registerUserAndLogin(ConverterUtils.fromRequestToUserRegDTO(request));
+            HttpSession session = request.getSession(true);
+            session.setAttribute(Constants.AUTHENTICATED_USER_KEY, user);
         } catch (BusinessException e) {
             logger.error("BusinessException during signup operation.", e);
-            request.setAttribute("errorMessage", "Invalid input. Please check your data.");
-            targetJSP = "auth.jsp";
+            targetJSP = "tests/auth_test.jsp";
+
+            String errorMessage = e.getMessage();
+            switch (errorMessage) {
+                case "Email already in use" -> request.setAttribute("emailError", e.getMessage());
+                case "Username already in use" -> request.setAttribute("usernameError", e.getMessage());
+                case "Email and username already in use" -> {
+                    request.setAttribute("emailError", "Email already in use.");
+                    request.setAttribute("usernameError", "Username already in use.");
+                }
+                case "Username, password and email cannot be empty" ->
+                        request.setAttribute("errorMessage", e.getMessage());
+                case null, default -> {
+                    request.setAttribute("errorMessage", "Error during signup operation.");
+                    targetJSP = "error.jsp";
+                }
+            }
         } catch (Exception e) {
             logger.error("Error during signup operation.", e);
             targetJSP = "error.jsp";
-        }
-        if (user != null) {
-            HttpSession session = request.getSession(true);
-            session.setAttribute(Constants.AUTHENTICATED_USER_KEY, user);
-            targetJSP = "main--registered-user.jsp";
         }
 
         request.getRequestDispatcher(targetJSP).forward(request, response);
@@ -73,25 +86,28 @@ public class AuthServlet extends HttpServlet {
     private void handleLogin(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         String email = request.getParameter("email");
         String password = request.getParameter("password");
-        String targetJSP = "auth.jsp";
+        String targetJSP = "auth_test.jsp";
 
         try {
             RegisteredUser registeredUser = userService.login(email, password);
-            if (registeredUser != null) {
-                HttpSession session = request.getSession(true);
-                session.setAttribute(Constants.AUTHENTICATED_USER_KEY, registeredUser);
-                if (registeredUser instanceof User)
-                    targetJSP = "main--registered-user.jsp";
-                else if (registeredUser instanceof Manager)
-                    targetJSP = "main--manager.jsp";
-            } else {
-                request.setAttribute("errorMessage", "Invalid email or password.");
-            }
+            HttpSession session = request.getSession(true);
+            session.setAttribute(Constants.AUTHENTICATED_USER_KEY, registeredUser);
+            targetJSP = "tests/auth_test.jsp";
         } catch (BusinessException e) {
-            logger.error("BusinessException during login operation.",e);
-            request.setAttribute("errorMessage", "Invalid email or password.");
+            logger.error("BusinessException during login operation.", e);
+            targetJSP = "tests/auth_test.jsp";
+
+            String errorMessage = e.getMessage();
+            switch (errorMessage) {
+                case "Invalid email" -> request.setAttribute("emailLoginError", e.getMessage());
+                case "Wrong password" -> request.setAttribute("passwordLoginError", e.getMessage());
+                case null, default -> {
+                    request.setAttribute("errorMessage", "Error during login operation.");
+                    targetJSP = "error.jsp";
+                }
+            }
         } catch (Exception e) {
-            logger.error("Error during login operation.",e);
+            logger.error("Error during login operation.", e);
             targetJSP = "error.jsp";
         }
 
@@ -100,7 +116,7 @@ public class AuthServlet extends HttpServlet {
 
     private void handleLogout(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         User authenticatedUserDTO = SecurityUtils.getAuthenticatedUser(request);
-        String targetJSP = "main-page.jsp";
+        String targetJSP = request.getParameter("targetJSP") != null ? request.getParameter("targetJSP") : "tests/auth_test.jsp";
         if (authenticatedUserDTO != null) {
             request.getSession().removeAttribute(Constants.AUTHENTICATED_USER_KEY);
             request.getSession().invalidate();

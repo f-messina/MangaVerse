@@ -29,9 +29,8 @@
 </head>
 <body>
 <nav>
-    <a href="#"><img src="images/logo%20with%20initial-8.png" alt="logo" /></a>
+    <a href="#"><img src="images/logo-with-initial.png.png" alt="logo" /></a>
     <div class="nav-items">
-        <a href="#" class="search"><i class="fa-solid fa-magnifying-glass"></i></a>
         <a href="#" class="anime">Anime</a>
         <a href="#" class="manga">Manga</a>
         <a href="auth.jsp">Sign Up</a>
@@ -47,7 +46,7 @@
                 <div class="welcome-text">
                     <p>Welcome to</p>
                 </div>
-                <img src="images/logo%20with%20name-8.png" alt="middle" />
+                <img src="images/logo-with-name.png" alt="middle" />
             </div>
             <div class="manga"><a href="#">Manga</a></div>
         </div>

@@ -2,6 +2,7 @@ package it.unipi.lsmsd.fnf.model.registeredUser;
 
 import it.unipi.lsmsd.fnf.model.PersonalList;
 import it.unipi.lsmsd.fnf.model.Review;
+import it.unipi.lsmsd.fnf.model.enums.Gender;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -11,7 +12,7 @@ public class User extends RegisteredUser {
     private String username;
     private LocalDate birthday;
     private String description;
-    private String gender;
+    private Gender gender;
     private String location;
     private List<PersonalList> lists = new ArrayList<>();
     private List<Review> reviews = new ArrayList<>();
@@ -28,7 +29,7 @@ public class User extends RegisteredUser {
         return description;
     }
 
-    public String getGender() {
+    public Gender getGender() {
         return gender;
     }
 
@@ -56,7 +57,7 @@ public class User extends RegisteredUser {
         this.description = description;
     }
 
-    public void setGender(String gender) {
+    public void setGender(Gender gender) {
         this.gender = gender;
     }
 

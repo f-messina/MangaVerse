@@ -7,9 +7,11 @@ import it.unipi.lsmsd.fnf.dao.UserDAO;
 import it.unipi.lsmsd.fnf.dao.base.BaseMongoDBDAO;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dto.RegisteredUserDTO;
+import it.unipi.lsmsd.fnf.model.enums.Gender;
 import it.unipi.lsmsd.fnf.model.registeredUser.Manager;
 import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
+import it.unipi.lsmsd.fnf.service.impl.UserServiceImpl;
 import it.unipi.lsmsd.fnf.utils.ConverterUtils;
 
 import com.mongodb.client.MongoClient;
@@ -17,6 +19,9 @@ import com.mongodb.client.MongoCollection;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,27 +33,43 @@ import static com.mongodb.client.model.Sorts.metaTextScore;
 import static com.mongodb.client.model.Updates.setOnInsert;
 
 public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
-  
+
     @Override
     public ObjectId register(User user) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
 
             user.setJoinedDate(LocalDate.now());
+            user.setProfilePicUrl("images/user%20icon%20-%20Kopya%20-%20Kopya.png");
+
             Bson filter = or(
-                            eq("email", user.getEmail()),
-                            eq("username", user.getUsername())
+                    eq("email", user.getEmail()),
+                    eq("username", user.getUsername())
             );
             Bson update = setOnInsert(RegisteredUserToDocument(user));
 
             UpdateResult result = users.updateOne(filter, update, new UpdateOptions().upsert(true));
+
             if (result.getUpsertedId() == null) {
-                throw new DAOException("Username or email already in use");
+                // Check which field is causing the conflict
+                Document existingUser = users.find(filter).first();
+                if (existingUser != null) {
+                    if (existingUser.getString("email").equals(user.getEmail()) && existingUser.getString("username").equals(user.getUsername())) {
+                        throw new DAOException("Email and username already in use");
+                    } else if (existingUser.getString("email").equals(user.getEmail())) {
+                        throw new DAOException("Email already in use");
+                    } else {
+                        throw new DAOException("Username already in use");
+                    }
+                } else {
+                    throw new DAOException("Error adding new user");
+                }
             } else {
                 return result.getUpsertedId().asObjectId().getValue();
             }
-        }
-        catch (Exception e){
+        } catch (DAOException e) {
+            throw e;
+        } catch (Exception e) {
             throw new DAOException("Error adding new user", e);
         }
     }
@@ -63,7 +84,7 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
 
             UpdateResult results = users.updateOne(filter, update);
             if (results.getModifiedCount() == 0) {
-                throw new DAOException("User not found");
+                throw new DAOException("No user was updated");
             }
         } catch (Exception e){
             throw new DAOException("Error updating user information for user with id: "+ user.getId(), e);
@@ -104,6 +125,9 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
             } else {
                 throw new DAOException("User not found");
             }
+        }
+        catch (DAOException e){
+            throw e;
         }
         catch (Exception e){
             throw new DAOException("Error authenticating user", e);
@@ -191,7 +215,7 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
             regularUser.setUsername(doc.getString("username"));
             regularUser.setBirthday(ConverterUtils.convertDateToLocalDate(doc.getDate("birthday")));
             regularUser.setDescription(doc.getString("description"));
-            regularUser.setGender(doc.getString("gender"));
+            regularUser.setGender(Gender.fromString(doc.getString("gender")));
             regularUser.setLocation(doc.getString("location"));
             user = regularUser;
         }
@@ -223,7 +247,7 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
             appendIfNotNull(doc, "username", regularUser.getUsername());
             appendIfNotNull(doc, "birthday", ConverterUtils.convertLocalDateToDate(regularUser.getBirthday()));
             appendIfNotNull(doc, "description", regularUser.getDescription());
-            appendIfNotNull(doc, "gender", regularUser.getGender());
+            appendIfNotNull(doc, "gender", regularUser.getGender().toString());
             appendIfNotNull(doc, "location", regularUser.getLocation());
         }
 

@@ -41,7 +41,8 @@ public class DtoToModelMapper {
         PersonalList personalList = new PersonalList();
         personalList.setId(personalListDTO.getId());
         personalList.setName(personalListDTO.getName());
-        personalList.setUser(registeredUserDTOtoUser(personalListDTO.getUser()));
+        if (personalListDTO.getUser() != null)
+            personalList.setUser(registeredUserDTOtoUser(personalListDTO.getUser()));
         personalList.setManga(personalListDTO.getManga().stream().map(DtoToModelMapper::mangaDTOtoManga).toList());
         personalList.setAnime(personalListDTO.getAnime().stream().map(DtoToModelMapper::animeDTOtoAnime).toList());
         return personalList;
@@ -79,7 +80,8 @@ public class DtoToModelMapper {
         review.setRating(reviewDTO.getRating());
         review.setComment(reviewDTO.getComment());
         review.setMediaContent(mediaContentDTOtoMediaContent(reviewDTO.getMediaContent()));
-        review.setUser(registeredUserDTOtoUser(reviewDTO.getUser()));
+        if (reviewDTO.getUser() != null)
+            review.setUser(registeredUserDTOtoUser(reviewDTO.getUser()));
         return review;
     }
 }

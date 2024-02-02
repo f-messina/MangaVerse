@@ -3,6 +3,7 @@ package it.unipi.lsmsd.fnf.dao.tests;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dao.mongo.UserDAOImpl;
 import it.unipi.lsmsd.fnf.dto.RegisteredUserDTO;
+import it.unipi.lsmsd.fnf.model.enums.Gender;
 import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import org.bson.types.ObjectId;
@@ -139,7 +140,7 @@ public class UserDAOTest {
         user.setProfilePicUrl("profile.jpg");
         user.setBirthday(LocalDate.of(1990, 1, 1));
         user.setDescription("Sample description");
-        user.setGender("Male");
+        user.setGender(Gender.MALE);
         user.setLocation("Sample City");
 
         // Set other properties as needed

@@ -54,24 +54,31 @@ public class ProfileServlet extends HttpServlet {
     }
 
     private void handleUpdate(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+        /*
         String targetJSP = "profile.jsp";
         User user = null;
         try {
             user = new User();
-            user.setId(user.getId());
+            user.setId(authUser.getId());
             String username = request.getParameter("username");
             String description = request.getParameter("description");
-            String birthday = request.getParameter("birthday");
-            LocalDate date = LocalDate.parse(birthday);
+            String birthdayString = request.getParameter("birthday").replaceAll("\\s", "");
             String country = request.getParameter("country");
+            String gender = request.getParameter("gender");
             if (username.length() >= 3 && username.length() <= 16 && !username.equals(((User) authUser).getUsername()))
                 user.setUsername(username);
-            if (!description.equals(user.getDescription()))
+            if (!description.equals(((User) authUser).getDescription()))
                 user.setDescription(description);
-            if (birthday.matches( "^(19|20)\\d\\d-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$" ) && !date.equals(((User) authUser).getBirthday()))
-                user.setBirthday(date);
+            if (birthdayString.matches( "^(19|20)\\d\\d-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$" )) {
+                LocalDate date = LocalDate.parse(birthdayString);
+                if (!date.equals(((User) authUser).getBirthday())) {
+                    user.setBirthday(date);
+                }
+            }
             if (!country.equals(((User) authUser).getLocation()))
                 user.setLocation(country);
+            if (!gender.equals(((User) authUser).getGender()))
+                user.setGender(gender);
             userService.updateUserInfo(user);
         } catch (BusinessException e) {
             logger.error("BusinessException during update operation.", e);
@@ -82,20 +89,32 @@ public class ProfileServlet extends HttpServlet {
             targetJSP = "error.jsp";
         }
         if (user != null) {
-            User authUserUpdated = (User) authUser;
-            if (user.getUsername() != null)
-                authUserUpdated.setUsername(user.getUsername());
-            if (user.getDescription() != null)
-                authUserUpdated.setDescription(user.getDescription());
-            if (user.getBirthday() != null)
-                authUserUpdated.setBirthday(user.getBirthday());
-            if (user.getLocation() != null)
-                authUserUpdated.setLocation(user.getLocation());
+            User authUserUpdated = updateAuthUser(user);
             HttpSession session = request.getSession(true);
             session.setAttribute(Constants.AUTHENTICATED_USER_KEY, authUserUpdated);
+            logger.info(session.getAttribute(Constants.AUTHENTICATED_USER_KEY).toString());
             targetJSP = "profile.jsp";
         }
         request.getRequestDispatcher(targetJSP).forward(request, response);
+         */
+    }
+
+    private static User updateAuthUser(User user) {
+        User authUserUpdated = (User) authUser;
+        if (user.getUsername() != null)
+            authUserUpdated.setUsername(user.getUsername());
+        if (user.getDescription() != null)
+            authUserUpdated.setDescription(user.getDescription());
+        if (user.getBirthday() != null) {
+            authUserUpdated.setBirthday(user.getBirthday());
+        }
+        if (user.getLocation() != null) {
+            authUserUpdated.setLocation(user.getLocation());
+        }
+        if (user.getGender() != null) {
+            authUserUpdated.setGender(user.getGender());
+        }
+        return authUserUpdated;
     }
 
     private void handleLogout(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {

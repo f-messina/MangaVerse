@@ -16,6 +16,8 @@ import com.mongodb.client.MongoCollection;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
+import org.slf4j.Logger;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
