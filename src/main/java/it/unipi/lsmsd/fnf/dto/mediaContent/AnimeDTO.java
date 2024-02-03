@@ -1,29 +1,34 @@
 package it.unipi.lsmsd.fnf.dto.mediaContent;
 
-import it.unipi.lsmsd.fnf.model.Review;
-import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
+import org.bson.types.ObjectId;
 
-import java.util.List;
 
 public class AnimeDTO extends MediaContentDTO{
-    public AnimeDTO(String id, String title, String imageUrl, float averageRating, int year) {
+    private Integer year;
+
+    public AnimeDTO() {
+    }
+
+    public AnimeDTO(ObjectId id, String title, String imageUrl, Double averageRating, Integer year) {
         super(id, title, imageUrl, averageRating);
         this.year = year;
     }
-    private int year;
 
+    public AnimeDTO(ObjectId id, String title, String imageUrl, Double averageRating) {
+        super(id, title, imageUrl, averageRating);
+    }
 
+    public AnimeDTO(ObjectId id, String title, String imageUrl) {
+        super(id, title, imageUrl);
+    }
 
-    public int getYear() {
+    public Integer getYear() {
         return year;
     }
 
-    public void setYear(int year) {
+    public void setYear(Integer year) {
         this.year = year;
     }
-
-
-
 
     @Override
     public String toString() {

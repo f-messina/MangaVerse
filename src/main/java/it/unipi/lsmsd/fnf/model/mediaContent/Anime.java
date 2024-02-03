@@ -2,19 +2,20 @@ package it.unipi.lsmsd.fnf.model.mediaContent;
 
 import it.unipi.lsmsd.fnf.model.Review;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Anime extends MediaContent {
-    private int year;
+    private Integer year;
     private String season;
-    private String episodeCount;
-    private List<String> tags;
-    private List<String> relatedAnime;
-    private List<Review<Anime>> reviews;
+    private Integer episodeCount;
+    private List<String> tags = new ArrayList<>();
+    private List<String> relatedAnime = new ArrayList<>();
+    private List<Review> reviews = new ArrayList<>();
     private String producers;
     private String studios;
 
-    public int getYear() {
+    public Integer getYear() {
         return year;
     }
 
@@ -22,7 +23,7 @@ public class Anime extends MediaContent {
         return season;
     }
 
-    public String getEpisodeCount() {
+    public Integer getEpisodeCount() {
         return episodeCount;
     }
 
@@ -34,7 +35,7 @@ public class Anime extends MediaContent {
         return relatedAnime;
     }
 
-    public List<Review<Anime>> getReviews() {
+    public List<Review> getReviews() {
         return reviews;
     }
 
@@ -46,7 +47,7 @@ public class Anime extends MediaContent {
         return studios;
     }
 
-    public void setYear(int year) {
+    public void setYear(Integer year) {
         this.year = year;
     }
 
@@ -54,7 +55,7 @@ public class Anime extends MediaContent {
         this.season = season;
     }
 
-    public void setEpisodeCount(String episodeCount) {
+    public void setEpisodeCount(Integer episodeCount) {
         this.episodeCount = episodeCount;
     }
 
@@ -66,7 +67,7 @@ public class Anime extends MediaContent {
         this.relatedAnime = relatedAnime;
     }
 
-    public void setReviews(List<Review<Anime>> reviews) {
+    public void setReviews(List<Review> reviews) {
         this.reviews = reviews;
     }
 
@@ -78,18 +79,19 @@ public class Anime extends MediaContent {
         this.studios = studios;
     }
 
-    public void addReview(Review<Anime> review) {
+    public void addReview(Review review) {
         this.reviews.add(review);
     }
 
-    public void removeReview(Review<Anime> review) {
+    public void removeReview(Review review) {
         this.reviews.remove(review);
     }
 
     @Override
     public String toString() {
         return "Anime{" +
-                "year=" + year +
+                super.toString() +
+                ", year=" + year +
                 ", season='" + season + '\'' +
                 ", episodeCount='" + episodeCount + '\'' +
                 ", tags=" + tags +

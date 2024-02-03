@@ -1,22 +1,19 @@
 package it.unipi.lsmsd.fnf.model.registeredUser;
 
-import java.util.Date;
+import org.bson.types.ObjectId;
+
+import java.time.LocalDate;
 
 public abstract class RegisteredUser {
-    private String id;
-    private String username;
+    private ObjectId id;
     private String password;
     private String email;
     private String fullname;
     private String profilePicUrl;
-    private Date joinedDate;
+    private LocalDate joinedDate;
 
-    public String getId() {
+    public ObjectId getId() {
         return id;
-    }
-
-    public String getUsername() {
-        return username;
     }
 
     public String getPassword() {
@@ -31,20 +28,16 @@ public abstract class RegisteredUser {
         return fullname;
     }
 
-    public String getprofilePicUrl() {
+    public String getProfilePicUrl() {
         return profilePicUrl;
     }
 
-    public Date getJoinedDate() {
+    public LocalDate getJoinedDate() {
         return joinedDate;
     }
 
-    public void setId(String id) {
+    public void setId(ObjectId id) {
         this.id = id;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
     }
 
     public void setPassword(String password) {
@@ -59,11 +52,11 @@ public abstract class RegisteredUser {
         this.fullname = fullname;
     }
 
-    public void setprofilePicUrl(String profilePicUrl) {
+    public void setProfilePicUrl(String profilePicUrl) {
         this.profilePicUrl = profilePicUrl;
     }
 
-    public void setJoinedDate(Date joinedDate) {
+    public void setJoinedDate(LocalDate joinedDate) {
         this.joinedDate = joinedDate;
     }
 
@@ -71,7 +64,6 @@ public abstract class RegisteredUser {
     public String toString() {
         return "RegisteredUser{" +
                 "id='" + id + '\'' +
-                ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
                 ", fullname='" + fullname + '\'' +
                 ", email='" + email + '\'' +

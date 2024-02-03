@@ -1,27 +1,34 @@
 package it.unipi.lsmsd.fnf.dto.mediaContent;
 
+import org.bson.types.ObjectId;
+
 public abstract class MediaContentDTO {
-    private String id;
+    private ObjectId id;
     private String title;
     private String imageUrl;
-    private float averageRating;
+    private Double averageRating;
 
+    public MediaContentDTO() {
+    }
 
-    public MediaContentDTO(String id, String title, String imageUrl, float averageRating) {
+    public MediaContentDTO(ObjectId id, String title, String imageUrl, Double averageRating) {
         this.id = id;
         this.title = title;
         this.imageUrl = imageUrl;
         this.averageRating = averageRating;
     }
-    public MediaContentDTO(String id) {
+
+    public MediaContentDTO(ObjectId id, String title, String imageUrl) {
         this.id = id;
+        this.title = title;
+        this.imageUrl = imageUrl;
     }
 
-    public String getId() {
+    public ObjectId getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(ObjectId id) {
         this.id = id;
     }
 
@@ -41,17 +48,13 @@ public abstract class MediaContentDTO {
         this.imageUrl = imageUrl;
     }
 
-
-
-    public float getAverageRating() {
+    public Double getAverageRating() {
         return averageRating;
     }
 
-    public void setAverageRating(float averageRating) {
+    public void setAverageRating(Double averageRating) {
         this.averageRating = averageRating;
     }
-
-
 
     @Override
     public String toString() {

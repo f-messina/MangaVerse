@@ -1,27 +1,35 @@
 package it.unipi.lsmsd.fnf.model.registeredUser;
 
 import it.unipi.lsmsd.fnf.model.PersonalList;
-import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
+import it.unipi.lsmsd.fnf.model.Review;
+import it.unipi.lsmsd.fnf.model.enums.Gender;
 
-import java.util.Date;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 public class User extends RegisteredUser {
-    private Date birthdate;
+    private String username;
+    private LocalDate birthday;
     private String description;
-    private String gender;
+    private Gender gender;
     private String location;
-    private List<PersonalList> lists;
+    private List<PersonalList> lists = new ArrayList<>();
+    private List<Review> reviews = new ArrayList<>();
 
-    public Date getBirthdate() {
-        return birthdate;
+    public String getUsername() {
+        return username;
+    }
+
+    public LocalDate getBirthday() {
+        return birthday;
     }
 
     public String getDescription() {
         return description;
     }
 
-    public String getGender() {
+    public Gender getGender() {
         return gender;
     }
 
@@ -33,15 +41,23 @@ public class User extends RegisteredUser {
         return lists;
     }
 
-    public void setBirthdate(Date birthdate) {
-        this.birthdate = birthdate;
+    public List<Review> getReviews() {
+        return reviews;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setBirthday(LocalDate birthday) {
+        this.birthday = birthday;
     }
 
     public void setDescription(String description) {
         this.description = description;
     }
 
-    public void setGender(String gender) {
+    public void setGender(Gender gender) {
         this.gender = gender;
     }
 
@@ -53,6 +69,10 @@ public class User extends RegisteredUser {
         this.lists = lists;
     }
 
+    public void setReviews(List<Review> reviews) {
+        this.reviews = reviews;
+    }
+
     public void addList(PersonalList list) {
         this.lists.add(list);
     }
@@ -61,10 +81,20 @@ public class User extends RegisteredUser {
         this.lists.remove(list);
     }
 
+    public void addReview(Review review) {
+        this.reviews.add(review);
+    }
+
+    public void removeReview(Review review) {
+        this.reviews.remove(review);
+    }
+
     @Override
     public String toString() {
         return "User{" +
-                ", birthdate='" + birthdate + '\'' +
+                super.toString() +
+                ", username='" + username + '\'' +
+                ", birthday='" + birthday + '\'' +
                 ", description='" + description + '\'' +
                 ", gender='" + gender + '\'' +
                 ", location='" + location + '\'' +

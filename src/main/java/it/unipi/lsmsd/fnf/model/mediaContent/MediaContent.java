@@ -1,19 +1,18 @@
 package it.unipi.lsmsd.fnf.model.mediaContent;
 
 import it.unipi.lsmsd.fnf.model.enums.Status;
-
-import java.util.List;
+import org.bson.types.ObjectId;
 
 public abstract class MediaContent {
-    private String id;
+    private ObjectId id;
     private String title;
     private String imageUrl;
     private String type;
-    private String averageRating;
+    private Double averageRating;
     private String synopsis;
     private Status status;
 
-    public String getId() {
+    public ObjectId getId() {
         return id;
     }
 
@@ -29,7 +28,7 @@ public abstract class MediaContent {
         return type;
     }
 
-    public String getAverageRating() {
+    public Double getAverageRating() {
         return averageRating;
     }
 
@@ -41,7 +40,7 @@ public abstract class MediaContent {
         return status;
     }
 
-    public void setId(String id) {
+    public void setId(ObjectId id) {
         this.id = id;
     }
 
@@ -57,7 +56,7 @@ public abstract class MediaContent {
         this.type = type;
     }
 
-    public void setAverageRating(String averageRating) {
+    public void setAverageRating(Double averageRating) {
         this.averageRating = averageRating;
     }
 

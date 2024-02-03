@@ -2,22 +2,23 @@ package it.unipi.lsmsd.fnf.model;
 
 import it.unipi.lsmsd.fnf.model.mediaContent.MediaContent;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
+import org.bson.types.ObjectId;
 
-import java.util.Date;
+import java.time.LocalDate;
 
-public class Review<T extends MediaContent> {
-    private String id;
-    private Date date;
+public class Review {
+    private ObjectId id;
+    private LocalDate date;
     private String comment;
-    private int rating;
-    private T mediaContent;
+    private Integer rating;
+    private MediaContent mediaContent;
     private User user;
 
-    public String getId() {
+    public ObjectId getId() {
         return id;
     }
 
-    public Date getDate() {
+    public LocalDate getDate() {
         return date;
     }
 
@@ -25,11 +26,11 @@ public class Review<T extends MediaContent> {
         return comment;
     }
 
-    public int getRating() {
+    public Integer getRating() {
         return rating;
     }
 
-    public T getMediaContent() {
+    public MediaContent getMediaContent() {
         return mediaContent;
     }
 
@@ -37,11 +38,11 @@ public class Review<T extends MediaContent> {
         return user;
     }
 
-    public void setId(String id) {
+    public void setId(ObjectId id) {
         this.id = id;
     }
 
-    public void setDate(Date date) {
+    public void setDate(LocalDate date) {
         this.date = date;
     }
 
@@ -49,11 +50,11 @@ public class Review<T extends MediaContent> {
         this.comment = comment;
     }
 
-    public void setRating(int rating) {
+    public void setRating(Integer rating) {
         this.rating = rating;
     }
 
-    public void setMediaContent(T mediaContent) {
+    public void setMediaContent(MediaContent mediaContent) {
         this.mediaContent = mediaContent;
     }
 
@@ -65,10 +66,11 @@ public class Review<T extends MediaContent> {
     public String toString() {
         return "Review{" +
                 "id=" + id +
+                ", date=" + date +
                 ", comment='" + comment + '\'' +
-                ", rating='" + rating + '\'' +
-                ", manga_anime='" + mediaContent + '\'' +
-                ", user='" + user + '\'' +
+                ", rating=" + rating +
+                ", mediaContent=" + mediaContent +
+                ", user=" + user +
                 '}';
     }
 }

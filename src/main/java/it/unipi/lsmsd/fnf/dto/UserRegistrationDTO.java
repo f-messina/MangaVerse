@@ -1,15 +1,17 @@
 package it.unipi.lsmsd.fnf.dto;
 
-import java.util.Date;
+import it.unipi.lsmsd.fnf.model.enums.Gender;
+
+import java.time.LocalDate;
 
 public class UserRegistrationDTO {
     private String username;
     private String password;
     private String email;
     private String fullname;
-    private String gender;
+    private Gender gender;
     private String location;
-    private Date birthday;
+    private LocalDate birthday;
 
     public String getUsername() {
         return username;
@@ -43,11 +45,11 @@ public class UserRegistrationDTO {
         this.fullname = fullname;
     }
 
-    public String getGender() {
+    public Gender getGender() {
         return gender;
     }
 
-    public void setGender(String gender) {
+    public void setGender(Gender gender) {
         this.gender = gender;
     }
 
@@ -59,11 +61,11 @@ public class UserRegistrationDTO {
         this.location = location;
     }
 
-    public Date getBirthday() {
+    public LocalDate getBirthday() {
         return birthday;
     }
 
-    public void setBirthday(Date birthday) {
+    public void setBirthday(LocalDate birthday) {
         this.birthday = birthday;
     }
 

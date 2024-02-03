@@ -3,17 +3,19 @@ package it.unipi.lsmsd.fnf.model;
 import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
 import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
+import org.bson.types.ObjectId;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class PersonalList {
-    private String id;
+    private ObjectId id;
     private String name;
     private User user;
-    private List<Manga> manga;
-    private List<Anime> anime;
+    private List<Manga> manga = new ArrayList<>();
+    private List<Anime> anime = new ArrayList<>();
 
-    public String getId() {
+    public ObjectId getId() {
         return id;
     }
 
@@ -33,7 +35,7 @@ public class PersonalList {
         return anime;
     }
 
-    public void setId(String id) {
+    public void setId(ObjectId id) {
         this.id = id;
     }
 
