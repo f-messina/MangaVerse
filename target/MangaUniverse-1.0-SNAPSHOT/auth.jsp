@@ -71,7 +71,7 @@
                                     <option value="" disabled selected>Gender</option>
                                     <option value = "Female">Female</option>
                                     <option value = "Male">Male</option>
-                                    <option value = "Non-Binary">Non Binary</option>
+                                    <option value = "Not_Binary">Non Binary</option>
                                     <option value = "">Prefer not to answer</option>
                                 </select>
                                 <div class="select_arrow"></div>

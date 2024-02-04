@@ -48,14 +48,6 @@
 </nav>
 
 <section class="user-info">
-    <%
-        String username = authUser.getUsername();
-        String description = authUser.getDescription();
-        String gender = authUser.getGender();
-        String location = authUser.getLocation();
-        LocalDate birthday = authUser.getBirthday();
-        String picture = authUser.getProfilePicUrl();
-    %>
 
     <div class="profile" id="profile">
         <div class="profile-img">
@@ -73,54 +65,32 @@
 
     <div id="user-info" class="texts">
         <h1 class="info">Username:
-            <p id="username" class="editable" contenteditable="false"><%= authUser.getUsername()%></p>
+            <p id="username" class="editable" contenteditable="false">ciao</p>
             <span class="error" id="username-error" style="display: none"></span>
         </h1>
         <h1 class="info">Description:
-
-            <% if (description != null && !description.isEmpty()) { %>
-            <p id="description" class="editable" contenteditable="false"> <%= authUser.getDescription()%></p>
-            <% } else { %>
-            <p id="description" class="editable" contenteditable="false">No description</p>
-            <% } %>
+            <p id="description" class="editable" contenteditable="false">Ciao</p>
         </h1>
-        <h1 class="info">Email: <p id="email"><%= authUser.getEmail()%></p></h1>
+        <h1 class="info">Email: <p id="email">ciao@gmail.com</p></h1>
         <h1 class="info">Gender:
             <div>
-                <% if (gender.equals("Prefer not to say")) { %>
-                <p id="gender" class="editable" contenteditable="false"><%= authUser.getGender()%></p>
-                <% } else { %>
-                <p id="gender" class="editable" contenteditable="false"> </p>
-                <% } %>
+                <p id="gender" class="editable" contenteditable="false">Male</p>
                 <div class="dropdown-content" id="genderDropdown"></div>
 
             </div>
         </h1>
         <h1 class="info">Birthday:
-            <p id="birthday" class="editable"><span id="birthday-year"><%= birthday.getYear()%></span> - <span id="birthday-month"><%= String.format("%02d", birthday.getMonthValue())%></span> - <span id="birthday-day"><%= String.format("%02d", birthday.getDayOfMonth())%></span></p>
+            <p id="birthday" class="editable"><span id="birthday-year">2000</span> - <span id="birthday-month">11</span> - <span id="birthday-day">17</span></p>
             <span class="error" id="date-error" style="display: none">the date</span>
         </h1>
         <h1 class="info">Country:
             <div>
-                <p id="country" class="editable" contenteditable="false"><%= authUser.getLocation() %></p>
+                <p id="country" class="editable" contenteditable="false">Italy</p>
                 <div class="dropdown-content" id="countryDropdown"></div>
             </div>
             <span class="error" id="country-error" style="display: none">the date</span>
         </h1>
-        <h1 class="info">Joined On: <p id="joined-on"><%= authUser.getJoinedDate()%></p></h1>
-    </div>
-</section>
-
-<section class="lists-section">
-    <h1>My Lists</h1>
-    <div class="lists">
-        <div>
-            <div class="name">
-                <p>FRA SEI STUPENDO</p>
-            </div>
-            <div class="list-items">
-            </div>
-        </div>
+        <h1 class="info">Joined On: <p id="joined-on">2012 - 12 - 01</p></h1>
     </div>
 </section>
 

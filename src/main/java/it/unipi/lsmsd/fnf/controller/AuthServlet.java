@@ -51,7 +51,6 @@ public class AuthServlet extends HttpServlet {
 
     private void handleSignUp(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         String targetJSP = "tests/auth_test.jsp";
-
         try {
             User user = userService.registerUserAndLogin(ConverterUtils.fromRequestToUserRegDTO(request));
             HttpSession session = request.getSession(true);
@@ -79,7 +78,7 @@ public class AuthServlet extends HttpServlet {
             logger.error("Error during signup operation.", e);
             targetJSP = "error.jsp";
         }
-
+        logger.info(targetJSP);
         request.getRequestDispatcher(targetJSP).forward(request, response);
     }
 

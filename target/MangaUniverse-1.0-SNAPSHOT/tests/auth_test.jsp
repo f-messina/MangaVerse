@@ -1,5 +1,3 @@
-<%@ page import="java.util.logging.Logger" %>
-<%@ page import="it.unipi.lsmsd.fnf.model.registeredUser.User" %>
 <%@ page import="it.unipi.lsmsd.fnf.utils.Constants" %><%--
   Created by IntelliJ IDEA.
   User: messi
@@ -23,7 +21,7 @@
             <div class="signup-content">
                 <div class="signup-form">
                     <h2 class="form-title">Sign up</h2>
-                    <form action="auth" method="post" class="register-form" id="register-form">
+                    <form action="<%= request.getContextPath() %>/auth" method="post" class="register-form" id="register-form">
                         <input type="hidden" name="action" value="signup"/>
                         <div class="form-group">
                             <label for="username"><i class="zmdi zmdi-account material-icons-name"></i></label>
@@ -54,7 +52,7 @@
                             <select id="gender" name="gender">
                                 <option value="male">Male</option>
                                 <option value="female">Female</option>
-                                <option value="not_binary">Not Binary</option>
+                                <option value="non_binary">Not Binary</option>
                                 <option value="unknown">I prefer not to answer</option>
                             </select>
                         </div>
@@ -82,7 +80,7 @@
             <div class="signup-content">
                 <div class="signup-form">
                     <h2 class="form-title">Log in</h2>
-                    <form action="auth" method="post" class="login-form" id="login-form">
+                    <form action="<%= request.getContextPath() %>/auth" method="post" class="login-form" id="login-form">
                         <input type="hidden" name="action" value="login"/>
                         <div class="form-group">
                             <label for="email_login"><i class="zmdi zmdi-account material-icons-name"></i></label>

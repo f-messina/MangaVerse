@@ -3,8 +3,10 @@ package it.unipi.lsmsd.fnf.dao.base;
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.*;
+import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
+import org.apache.commons.collections.CollectionUtils;
 
 import java.util.*;
 
@@ -95,9 +97,10 @@ public abstract class BaseMongoDBDAO {
     }
 
     protected void appendIfNotNull(Document doc, String key, Object value) {
-        if (value == null || (value instanceof String && ((String) value).isEmpty()) || (value instanceof List && ((List<?>) value).isEmpty())) {
-            return;
+        if (value != null &&
+                (StringUtils.isNotBlank(value.toString()) ||
+                        (value instanceof List && CollectionUtils.isNotEmpty((List<?>) value)))) {
+            doc.append(key, value);
         }
-        doc.append(key, value);
     }
 }

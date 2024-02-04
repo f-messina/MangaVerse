@@ -3,11 +3,13 @@ package it.unipi.lsmsd.fnf.dao.mongo;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
+import it.unipi.lsmsd.fnf.model.enums.Gender;
 import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
 
 import java.time.LocalDate;
 import java.util.LinkedHashMap;
 
+import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import it.unipi.lsmsd.fnf.utils.ConverterUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -39,7 +41,6 @@ public class test {
             System.out.println(anime);
 
         }
-         */
         Bson updatedKeys = Updates.combine(Updates.set("date", ConverterUtils.convertLocalDateToDate(LocalDate.now())));
 
         String ciao = "ciao";
@@ -61,5 +62,10 @@ public class test {
 
         System.out.println(updatedKeys);
         System.out.println(upd2);
+         */
+        Gender gender = Gender.fromString(null);
+        User user = new User();
+        user.setGender(gender);
+        System.out.println(user.getGender().toString());
     }
 }

@@ -6,7 +6,7 @@
 
     <display-name>MangaVerse</display-name>
     <welcome-file-list>
-        <welcome-file>tests/profile_test.jsp</welcome-file>
+        <welcome-file>index.jsp</welcome-file>
     </welcome-file-list>
 
 </web-app>

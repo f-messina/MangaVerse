@@ -12,6 +12,7 @@ import it.unipi.lsmsd.fnf.model.registeredUser.Manager;
 import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import it.unipi.lsmsd.fnf.service.impl.UserServiceImpl;
+import it.unipi.lsmsd.fnf.utils.Constants;
 import it.unipi.lsmsd.fnf.utils.ConverterUtils;
 
 import com.mongodb.client.MongoClient;
@@ -80,8 +81,10 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
             MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
 
             Bson filter = eq("_id", user.getId());
-            Bson update = new Document("$set", RegisteredUserToDocument(user));
-
+            Bson update = new Document("$set", RegisteredUserToDocument(user))
+                    .append("$unset", UnsetDocument(user));
+            Logger logger = LoggerFactory.getLogger(UserDAOImpl.class);
+            logger.info(update.toString());
             UpdateResult results = users.updateOne(filter, update);
             if (results.getModifiedCount() == 0) {
                 throw new DAOException("No user was updated");
@@ -251,7 +254,21 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
             appendIfNotNull(doc, "location", regularUser.getLocation());
         }
 
+        return doc;
+    }
 
+    private Document UnsetDocument(RegisteredUser registeredUser) {
+        Document doc = new Document();
+        if (registeredUser instanceof User user) {
+            if (user.getBirthday() != null && user.getBirthday().equals(Constants.NULL_DATE))
+                doc.append("birthday", 1);
+            if (user.getLocation() != null && user.getLocation().equals(Constants.NULL_STRING))
+                doc.append("location", 1);
+            if (user.getDescription() != null && user.getDescription().equals(Constants.NULL_STRING))
+                doc.append("description", 1);
+            if (user.getBirthday() != null && user.getGender().toString().equals(Constants.NULL_STRING))
+                doc.append("gender", 1);
+        }
         return doc;
     }
 }

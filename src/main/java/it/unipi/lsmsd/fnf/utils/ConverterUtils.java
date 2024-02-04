@@ -3,6 +3,7 @@ package it.unipi.lsmsd.fnf.utils;
 import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
 import it.unipi.lsmsd.fnf.model.enums.Gender;
 import jakarta.servlet.http.HttpServletRequest;
+import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 
 import java.time.Instant;
@@ -31,11 +32,11 @@ public class ConverterUtils {
         userRegistrationDTO.setUsername(request.getParameter("username"));
         userRegistrationDTO.setPassword(request.getParameter("password"));
         userRegistrationDTO.setEmail(request.getParameter("email"));
-        if (request.getParameter("fullname") != null && !request.getParameter("fullname").isEmpty())
+        if (StringUtils.isNotBlank(request.getParameter("fullname")))
             userRegistrationDTO.setFullname(request.getParameter("fullname"));
-        if (request.getParameter("country") != null && !request.getParameter("country").isEmpty())
+        if (StringUtils.isNotBlank(request.getParameter("country")))
             userRegistrationDTO.setLocation(request.getParameter("country"));
-        if (request.getParameter("birthday") != null && !request.getParameter("birthday").isEmpty())
+        if (StringUtils.isNotBlank(request.getParameter("birthday")))
             userRegistrationDTO.setBirthday(LocalDate.parse(request.getParameter("birthday")));
         userRegistrationDTO.setGender(Gender.fromString(request.getParameter("gender")));
         return userRegistrationDTO;
