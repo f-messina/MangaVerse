@@ -1,0 +1,14 @@
+.dropdown-content {
+    position: absolute;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    width: 155px;
+    max-height: 150px;
+    overflow-y: auto;
+}
+.dropdown-content a {
+    display: block;
+    padding: 10px;
+    text-decoration: none;
+    color: #333;
+}

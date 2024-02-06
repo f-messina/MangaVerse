@@ -5,6 +5,7 @@
   Time: 15:56
   To change this template use File | Settings | File Templates.
 --%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html;charset=UTF-8" %>
 <html>
 <head>
@@ -70,7 +71,7 @@
                                     <option value="" disabled selected>Gender</option>
                                     <option value = "Female">Female</option>
                                     <option value = "Male">Male</option>
-                                    <option value = "Non-Binary">Non Binary</option>
+                                    <option value = "Not_Binary">Non Binary</option>
                                     <option value = "">Prefer not to answer</option>
                                 </select>
                                 <div class="select_arrow"></div>

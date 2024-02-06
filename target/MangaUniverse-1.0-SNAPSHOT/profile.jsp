@@ -1,14 +1,15 @@
 <%@ page import="it.unipi.lsmsd.fnf.model.registeredUser.User" %>
 <%@ page import="it.unipi.lsmsd.fnf.utils.SecurityUtils" %>
 <%@ page import="java.time.LocalDate" %>
-<%@ page import="java.util.logging.Logger" %><%--
+<%@ page import="it.unipi.lsmsd.fnf.model.PersonalList" %>
+<%--
   Created by IntelliJ IDEA.
   User: lenovo
   Date: 18.01.2024
   Time: 01:03
   To change this template use File | Settings | File Templates.
 --%>
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -34,28 +35,27 @@
 
 <%
     User authUser = SecurityUtils.getAuthenticatedUser(request);
-    Logger logger = Logger.getLogger("MainPage");
 %>
 <nav>
-    <a href="#"><img src="images/logo%20with%20initial-8.png" alt="logo" /></a>
+    <a href="#"><img src="images/logo-with-initial.png" alt="logo" /></a>
     <h1>Profile Page</h1>
     <div class="nav-items">
-        <a href="#" class="anime">Anime</a>
-        <a href="#" class="manga">Manga</a>
-        <a href="#">Profile</a>
-        <a href="#" class="search"><i class="fa-solid fa-magnifying-glass"></i></a>
-        <a href="#" class="small-pic"><img src="images/user%20icon.png"> <i class="fa-solid fa-chevron-down" style="color: #000000"> </i></a>
+        <a href="main--registered-user.jsp" class="anime">Anime</a>
+        <a href="main--registered-user.jsp" class="manga">Manga</a>
+        <a id="logout">Logout</a>
+        <a href="#" class="small-pic"><img alt="profile bar" src="images/account-icon.png"> <i class="fa-solid fa-chevron-down" style="color: #000000"> </i></a>
     </div>
 </nav>
 
 <section class="user-info">
+
     <div class="profile" id="profile">
         <div class="profile-img">
-            <img src="images/user%20icon%20-%20Kopya%20-%20Kopya.png">
+            <img alt="profile image" src="images/user-icon.png">
         </div>
         <button class="edit-prof" id="enable-edit" onclick="enableEdit()">Edit Profile</button>
         <span class="edit-prof" id="edit-prof-options" style="display: none">
-            <form class="edit-actions" method="post" action="${pageContext.request.contextPath}/profile" style="display: flex">
+            <form class="edit-actions" id="edit-prof-form" method="post" action="${pageContext.request.contextPath}/profile" style="display: flex">
                 <button class="edit-actions" id="confirm-button" onclick="handleConfirm()" name="action" value="update-info">Confirm</button>
                 <div class="vertical-line"></div>
                 <button class="edit-actions" id="cancel-button" onclick="handleCancel()">Cancel</button>
@@ -64,24 +64,23 @@
     </div>
 
     <div id="user-info" class="texts">
-        <h1 class="info">User Name:
-            <p id="username" class="editable" contenteditable="false"><%= authUser.getUsername()%></p>
+        <h1 class="info">Username:
+            <p id="username" class="editable" contenteditable="false">ciao</p>
             <span class="error" id="username-error" style="display: none"></span>
         </h1>
         <h1 class="info">Description:
-            <p id="description" class="editable" contenteditable="false"><%= authUser.getDescription()%></p>
+            <p id="description" class="editable" contenteditable="false">Ciao</p>
         </h1>
-        <h1 class="info">Email: <p id="email"><%= authUser.getEmail()%></p></h1>
+        <h1 class="info">Email: <p id="email">ciao@gmail.com</p></h1>
         <h1 class="info">Gender:
             <div>
-                <p id="gender" class="editable" contenteditable="false"><%= authUser.getGender()%></p>
+                <p id="gender" class="editable" contenteditable="false">Male</p>
                 <div class="dropdown-content" id="genderDropdown"></div>
+
             </div>
         </h1>
         <h1 class="info">Birthday:
-            <% LocalDate birthday = authUser.getBirthday(); %>
-            <p id="birthday" class="editable"><span id="birthday-year"><%= birthday.getYear()%></span> - <span id="birthday-month"><%= String.format("%02d", birthday.getMonthValue())%></span> - <span id="birthday-day"><%= String.format("%02d", birthday.getDayOfMonth())%></span></p>
-            <span name="birthday" style="display: none"></span>
+            <p id="birthday" class="editable"><span id="birthday-year">2000</span> - <span id="birthday-month">11</span> - <span id="birthday-day">17</span></p>
             <span class="error" id="date-error" style="display: none">the date</span>
         </h1>
         <h1 class="info">Country:
@@ -91,60 +90,7 @@
             </div>
             <span class="error" id="country-error" style="display: none">the date</span>
         </h1>
-        <h1 class="info">Joined On: <p id="joined-on"><%= authUser.getJoinedDate()%></p></h1>
-    </div>
-</section>
-
-<section class="lists-section">
-    <h1>My Lists</h1>
-    <div class="lists">
-        <div>
-            <div class="img-name">
-                <div><img src="https://cdn.myanimelist.net/images/anime/6/85893.jpg"></div>
-                <p>Sci-Fi anime with musical scene to suggest to my son</p>
-            </div>
-            <div class="list-items">
-                    <ol>
-                        <li>Item 1</li>
-                        <li>Item 2</li>
-                        <li>Item 3</li>
-                        <li>Item 4</li>
-                    </ol>
-            </div>
-        </div>
-
-        <div>
-            <div class="img-name">
-                <div><img src="https://cdn.myanimelist.net/images/anime/1108/105484.jpg"></div>
-                <p>Anime with mystery to collect</p>
-            </div>
-            <div class="list-items">
-                <ol>
-                    <li>Item 1</li>
-                    <li>Item 2</li>
-                    <li>Item 3</li>
-                    <li>Item 4</li>
-                    <li>Item 5</li>
-                </ol>
-            </div>
-        </div>
-
-        <div>
-            <div class="img-name">
-                <div><img src="https://cdn.myanimelist.net/images/anime/1718/124900.jpg"></div>
-                <p>Shoujo manga with heroic stories to read with my brother</p>
-            </div>
-            <div class="list-items">
-                <ol>
-                    <li>Item 1</li>
-                    <li>Item 2</li>
-                    <li>Item 3</li>
-                    <li>Item 4</li>
-                </ol>
-            </div>
-        </div>
-
-
+        <h1 class="info">Joined On: <p id="joined-on">2012 - 12 - 01</p></h1>
     </div>
 </section>
 

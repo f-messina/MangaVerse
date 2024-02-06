@@ -1,5 +1,6 @@
 initCountryDropdown();
 initGenderDropdown();
+initLogout();
 
 const observer = new MutationObserver(() => {
     displayErrors();
@@ -207,12 +208,10 @@ function handleConfirm() {
             input.type = 'hidden'; // Set the input type to hidden
             input.name = key;      // Set the input name to the key
             input.value = keyValues[key]; // Set the input value to the corresponding value
-            console.log(input);
             // Append the input element to the form
             form.appendChild(input);
         }
     }
-    console.log(form);
     cleanup();
 }
 
@@ -379,5 +378,27 @@ function initGenderDropdown() {
         if (!event.target.matches("#gender") && !event.target.matches('.dropdown-content a')) {
             dropdown.style.display = "none";
         }
+    });
+}
+
+function initLogout() {
+    const logoutButton = document.getElementById("logout");
+    logoutButton.addEventListener("click", function (event) {
+        event.preventDefault();
+        const logoutForm = document.createElement("form");
+        logoutForm.method = "POST";
+        logoutForm.action = "auth";
+        const action = document.createElement("input");
+        action.type = "hidden";
+        action.name = "action";
+        action.value = "logout";
+        logoutForm.appendChild(action);
+        const target = document.createElement("input");
+        target.type = "hidden";
+        target.name = "targetJSP";
+        target.value = "/main-page.jsp";
+        logoutForm.appendChild(target);
+        document.body.appendChild(logoutForm);
+        logoutForm.submit();
     });
 }
