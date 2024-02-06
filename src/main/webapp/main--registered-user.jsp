@@ -36,14 +36,13 @@
 <body>
 
 <nav>
-    <a href="#"><img src="images/logo%20with%20initial-8.png" alt="logo" /></a>
+    <a href="#"><img src="images/logo-with-initial.png" alt="logo" /></a>
     <h1>Welcome Aokaado!</h1>
     <div class="nav-items">
         <a href="#" class="anime">Anime</a>
         <a href="#" class="manga">Manga</a>
         <a href="profile.jsp">Profile</a>
-        <a href="#" class="search"><i class="fa-solid fa-magnifying-glass"></i></a>
-        <a href="#" class="small-pic"><img src="images/user%20icon%20-%20Kopya%20-%20Kopya.png"> <i class="fa-solid fa-chevron-down" style="color: #000000"> </i></a>
+        <a href="#" class="small-pic"><img src="images/user-icon.png"> <i class="fa-solid fa-chevron-down" style="color: #000000"> </i></a>
     </div>
 </nav>
 
