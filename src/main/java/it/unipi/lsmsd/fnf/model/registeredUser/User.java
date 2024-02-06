@@ -3,10 +3,12 @@ package it.unipi.lsmsd.fnf.model.registeredUser;
 import it.unipi.lsmsd.fnf.model.PersonalList;
 import it.unipi.lsmsd.fnf.model.Review;
 import it.unipi.lsmsd.fnf.model.enums.Gender;
+import org.bson.types.ObjectId;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class User extends RegisteredUser {
     private String username;
@@ -77,8 +79,8 @@ public class User extends RegisteredUser {
         this.lists.add(list);
     }
 
-    public void removeList(PersonalList list) {
-        this.lists.remove(list);
+    public void removeList(ObjectId listId) {
+        this.lists.removeIf(personalList -> personalList.getId().equals(listId));
     }
 
     public void addReview(Review review) {

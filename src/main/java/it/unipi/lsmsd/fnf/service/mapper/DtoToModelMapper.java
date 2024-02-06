@@ -14,6 +14,9 @@ import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
 import it.unipi.lsmsd.fnf.model.mediaContent.MediaContent;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 
+import java.util.ArrayList;
+import java.util.stream.Collectors;
+
 public class DtoToModelMapper {
     public static User userRegistrationDTOToUser(UserRegistrationDTO userRegistrationDTO) {
         User user = new User();
@@ -43,8 +46,12 @@ public class DtoToModelMapper {
         personalList.setName(personalListDTO.getName());
         if (personalListDTO.getUser() != null)
             personalList.setUser(registeredUserDTOtoUser(personalListDTO.getUser()));
-        personalList.setManga(personalListDTO.getManga().stream().map(DtoToModelMapper::mangaDTOtoManga).toList());
-        personalList.setAnime(personalListDTO.getAnime().stream().map(DtoToModelMapper::animeDTOtoAnime).toList());
+        personalList.setManga(personalListDTO.getManga().stream()
+                .map(DtoToModelMapper::mangaDTOtoManga)
+                .collect(Collectors.toCollection(ArrayList::new)));
+        personalList.setAnime(personalListDTO.getAnime().stream()
+                .map(DtoToModelMapper::animeDTOtoAnime)
+                .collect(Collectors.toCollection(ArrayList::new)));
         return personalList;
     }
 
@@ -77,6 +84,7 @@ public class DtoToModelMapper {
     public static Review reviewDTOtoReview(ReviewDTO reviewDTO) {
         Review review = new Review();
         review.setId(reviewDTO.getId());
+        review.setDate(reviewDTO.getDate());
         review.setRating(reviewDTO.getRating());
         review.setComment(reviewDTO.getComment());
         review.setMediaContent(mediaContentDTOtoMediaContent(reviewDTO.getMediaContent()));

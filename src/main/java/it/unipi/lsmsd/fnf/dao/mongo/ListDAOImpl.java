@@ -206,7 +206,7 @@ public class ListDAOImpl extends BaseMongoDBDAO implements ListDAO {
         RegisteredUserDTO user = new RegisteredUserDTO(
                 userDoc.getObjectId("id"),
                 userDoc.getString("location"),
-                ConverterUtils.convertDateToLocalDate(userDoc.getDate("birthday"))
+                ConverterUtils.dateToLocalDate(userDoc.getDate("birthday"))
         );
 
         List<AnimeDTO> animeList = Optional.ofNullable(document.getList("anime_list", Document.class))
@@ -247,7 +247,7 @@ public class ListDAOImpl extends BaseMongoDBDAO implements ListDAO {
     private Document userDTOToDocument(RegisteredUserDTO user) {
         Document doc = new Document("id", user.getId());
         appendIfNotNull(doc, "location", user.getLocation());
-        appendIfNotNull(doc, "birthday", ConverterUtils.convertLocalDateToDate(user.getBirthday()));
+        appendIfNotNull(doc, "birthday", ConverterUtils.localDateToDate(user.getBirthday()));
         return doc;
     }
 

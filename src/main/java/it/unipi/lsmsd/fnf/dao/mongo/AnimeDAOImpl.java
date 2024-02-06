@@ -180,7 +180,7 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
                     Document reviewDocument = new Document();
                     appendIfNotNull(reviewDocument, "id", review.getId());
                     appendIfNotNull(reviewDocument, "comment", review.getComment());
-                    appendIfNotNull(reviewDocument, "date", ConverterUtils.convertLocalDateToDate(review.getDate()));
+                    appendIfNotNull(reviewDocument, "date", ConverterUtils.localDateToDate(review.getDate()));
                     Document userDocument = new Document();
                     appendIfNotNull(userDocument, "id", review.getUser().getId());
                     appendIfNotNull(userDocument, "username", review.getUser().getUsername());
@@ -229,7 +229,7 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
                     review.setUser(reviewer);
                     review.setId(reviewDocument.getObjectId("id"));
                     review.setComment(reviewDocument.getString("comment"));
-                    review.setDate(ConverterUtils.convertDateToLocalDate(reviewDocument.getDate("date")));
+                    review.setDate(ConverterUtils.dateToLocalDate(reviewDocument.getDate("date")));
                     return review;
                 })
                 .toList();

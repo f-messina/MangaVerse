@@ -3,6 +3,9 @@ package it.unipi.lsmsd.fnf.dao.base;
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.*;
+import it.unipi.lsmsd.fnf.model.enums.Gender;
+import it.unipi.lsmsd.fnf.utils.Constants;
+import it.unipi.lsmsd.fnf.utils.ConverterUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -98,6 +101,8 @@ public abstract class BaseMongoDBDAO {
 
     protected void appendIfNotNull(Document doc, String key, Object value) {
         if (value != null &&
+                !(value instanceof String && (value.equals(Constants.NULL_STRING) || value.equals(Gender.UNKNOWN.name()))) &&
+                !(value instanceof Date && value.equals(ConverterUtils.localDateToDate(Constants.NULL_DATE))) &&
                 (StringUtils.isNotBlank(value.toString()) ||
                         (value instanceof List && CollectionUtils.isNotEmpty((List<?>) value)))) {
             doc.append(key, value);

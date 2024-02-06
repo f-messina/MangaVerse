@@ -192,7 +192,7 @@ public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Mang
                                             .append("username", review.getUser().getUsername())
                                             .append("picture", review.getUser().getProfilePicUrl()))
                                     .append("comment", review.getComment())
-                                    .append("date", ConverterUtils.convertLocalDateToDate(review.getDate())))
+                                    .append("date", ConverterUtils.localDateToDate(review.getDate())))
                             .toList();
                     appendIfNotNull(doc, "recent_reviews", reviewsDocuments);
                 });
@@ -247,7 +247,7 @@ public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Mang
                                 review.setUser(reviewer);
                                 review.setId(reviewDocument.getObjectId("id"));
                                 review.setComment(reviewDocument.getString("comment"));
-                                review.setDate(ConverterUtils.convertDateToLocalDate(reviewDocument.getDate("date")));
+                                review.setDate(ConverterUtils.dateToLocalDate(reviewDocument.getDate("date")));
                                 return review;
                             })
                             .toList();

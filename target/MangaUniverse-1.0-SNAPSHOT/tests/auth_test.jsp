@@ -10,8 +10,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <link rel="stylesheet" href="../css/auth_test.css">
-    <script src="../js/auth_test.js" defer></script>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/auth_test.css">
+    <script src="${pageContext.request.contextPath}/js/auth_test.js" defer></script>
 
     <title>AUTH PAGE</title>
 </head>
@@ -21,11 +21,11 @@
             <div class="signup-content">
                 <div class="signup-form">
                     <h2 class="form-title">Sign up</h2>
-                    <form action="<%= request.getContextPath() %>/auth" method="post" class="register-form" id="register-form">
+                    <form action="${pageContext.request.contextPath}/auth" method="post" class="register-form" id="register-form">
                         <input type="hidden" name="action" value="signup"/>
                         <div class="form-group">
                             <label for="username"><i class="zmdi zmdi-account material-icons-name"></i></label>
-                            <input type="text" name="username" id="username" placeholder="Username" required/>
+                            <input type="text" name="username" id="username" placeholder="Username" oninput="validateUsername()" required/>
                             <span id="username-error" style="color: red"><c:out value="${requestScope['usernameError']}" /></span>
                         </div>
                         <div class="form-group">
@@ -35,12 +35,12 @@
                         </div>
                         <div class="form-group">
                             <label for="password"><i class="zmdi zmdi-lock"></i></label>
-                            <input type="password" name="password" id="password" placeholder="Password" oninput="ValidateForm()" required/>
+                            <input type="password" name="password" id="password" placeholder="Password" oninput="validatePassword()" required/>
                             <span id="pwd-error" style="color: red"></span>
                         </div>
                         <div class="form-group">
                             <label for="re-pass"><i class="zmdi zmdi-lock-outline"></i></label>
-                            <input type="password" name="re-pass" id="re-pass" placeholder="Repeat your password" oninput="ValidateForm()" required/>
+                            <input type="password" name="re-pass" id="re-pass" placeholder="Repeat your password" oninput="validatePassword()" required/>
                             <span id="re_pwd-error" style="color: red"></span>
                         </div>
                         <div class="form-group">
@@ -62,8 +62,8 @@
                         </div>
                         <div class="form-group">
                             <label for="country"><i class="zmdi zmdi-lock-outline"></i></label>
-                            <input type="text" name="country" id="country" placeholder="Country (Optional)" oninput="ValidateForm()"/>
-                            <div class="dropdown-content" id="country-dropdown" onclick="ValidateForm()"></div>
+                            <input type="text" name="country" id="country" placeholder="Country (Optional)" oninput="validateCountry()"/>
+                            <div class="dropdown-content" id="country-dropdown" onclick="validateCountry()"></div>
                             <span id="country-error" style="color: red"></span>
                         </div>
                         <div class="form-group form-button">
@@ -80,7 +80,7 @@
             <div class="signup-content">
                 <div class="signup-form">
                     <h2 class="form-title">Log in</h2>
-                    <form action="<%= request.getContextPath() %>/auth" method="post" class="login-form" id="login-form">
+                    <form action="${pageContext.request.contextPath}/auth" method="post" class="login-form" id="login-form">
                         <input type="hidden" name="action" value="login"/>
                         <div class="form-group">
                             <label for="email_login"><i class="zmdi zmdi-account material-icons-name"></i></label>

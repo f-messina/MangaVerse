@@ -46,7 +46,7 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
             MongoCollection<Document> reviewCollection = mongoClient.getDatabase("mangaVerse").getCollection("reviews");
 
             Bson filter = eq("_id", review.getId());
-            Bson updatedKeys = combine(set("date", ConverterUtils.convertLocalDateToDate(LocalDate.now())));
+            Bson updatedKeys = combine(set("date", ConverterUtils.localDateToDate(LocalDate.now())));
             if (review.getComment() != null) {
                 updatedKeys = combine(updatedKeys, set("comment", review.getComment()));
             }
@@ -101,7 +101,6 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
                 ReviewDTO review = documentToReviewDTO(document);
                 result.add(review);
             });
-
             return result;
         } catch (Exception e) {
             throw new DAOException("Error while finding reviews by user", e);
@@ -137,7 +136,7 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
                         .append("id", review.getUser().getId())
                         .append("username", review.getUser().getUsername())
                         .append("picture", review.getUser().getProfilePicUrl()))
-                .append("date", ConverterUtils.convertLocalDateToDate(LocalDate.now()));
+                .append("date", ConverterUtils.localDateToDate(LocalDate.now()));
         if (review.getComment() != null) {
             reviewDocument.append("comment", review.getComment());
         }
@@ -161,7 +160,7 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
 
     private ReviewDTO documentToReviewDTO(Document reviewDoc) {
         ObjectId reviewId = reviewDoc.getObjectId("_id");
-        LocalDate date = ConverterUtils.convertDateToLocalDate(reviewDoc.getDate("date"));
+        LocalDate date = ConverterUtils.dateToLocalDate(reviewDoc.getDate("date"));
         String comment = reviewDoc.getString("comment");
         Integer rating = reviewDoc.getInteger("rating");
 

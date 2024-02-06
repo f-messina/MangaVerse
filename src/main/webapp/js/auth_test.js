@@ -94,70 +94,86 @@ function startsWithCaseInsensitive(str, prefix) {
     return str.toUpperCase().indexOf(prefix) === 0;
 }
 
-function ValidateForm() {
+function validateUsername() {
     const button = document.getElementById("signup");
+    button.disabled = false;
+
+    const username = document.getElementById("username").value;
+    const username_error = document.getElementById("username-error");
+    const regex = /^[a-zA-Z0-9_\-]+$/;
+
+    if (username.length < 4 || username.length > 15 || !regex.test(username)) {
+        username_error.innerText = "Username must be 4-15 characters long and contain only letters, numbers, hyphens, and underscores.";
+        button.disabled = true;
+    } else {
+        username_error.innerText = "";
+    }
+}
+
+function validateCountry() {
+    const button = document.getElementById("signup");
+    button.disabled = false;
+
     const country = document.getElementById("country").value;
     const country_error = document.getElementById("country-error");
 
+    if (country !== "" && !options.includes(country)) {
+        country_error.innerText = "Select a valid country from the dropdown or leave it empty.";
+        button.disabled = true;
+    } else {
+        country_error.innerText = "";
+    }
+}
+
+function validatePassword() {
+    const button = document.getElementById("signup");
     button.disabled = false;
-    validatePassword();
-    validateCountry();
 
-    function validateCountry() {
-        if (country !== "" && !options.includes(country)) {
-            country_error.innerText = "Select a valid country from the dropdown or leave it empty.";
-            button.disabled = true;
-        } else {
-            country_error.innerText = "";
-        }
+    const password = document.getElementById("password").value;
+    const re_pass = document.getElementById("re-pass").value;
+    const pwd_error = document.getElementById("pwd-error");
+    const re_pwd_error = document.getElementById("re_pwd-error");
+
+    const minLength = 8;
+    // Check for minimum length
+    if (password.length < minLength) {
+        pwd_error.innerText = `Password should be at least ${minLength} characters long.`;
+        button.disabled = true;
+        return;
     }
-
-    function validatePassword() {
-        const password = document.getElementById("password").value;
-        const re_pass = document.getElementById("re-pass").value;
-        const pwd_error = document.getElementById("pwd-error");
-        const re_pwd_error = document.getElementById("re_pwd-error");
-        const minLength = 8;
-        // Check for minimum length
-        if (password.length < minLength) {
-            pwd_error.innerText = `Password should be at least ${minLength} characters long.`;
-            button.disabled = true;
-            return;
-        }
-        // Check for at least one uppercase letter
-        if (!/[A-Z]/.test(password)) {
-            pwd_error.innerText = "Password should contain at least one uppercase letter.";
-            button.disabled = true;
-            return;
-        }
-        // Check for at least one lowercase letter
-        if (!/[a-z]/.test(password)) {
-            pwd_error.innerText = "Password should contain at least one lowercase letter.";
-            button.disabled = true;
-            return;
-        }
-        // Check for at least one digit
-        if (!/\d/.test(password)) {
-            pwd_error.innerText = "Password should contain at least one digit.";
-            button.disabled = true;
-            return;
-        }
-        // Check for at least one special character
-        if (!/[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]/.test(password)) {
-            pwd_error.innerText = "Password should contain at least one special character.";
-            button.disabled = true;
-            return;
-        }
-        // All checks passed, password is valid
-        pwd_error.innerText = "";
-
-        // Check if passwords match
-        if (password !== re_pass) {
-            re_pwd_error.innerText = "Passwords do not match.";
-            button.disabled = true;
-            return;
-        }
-        // All checks passed, passwords match
-        re_pwd_error.innerText = "";
+    // Check for at least one uppercase letter
+    if (!/[A-Z]/.test(password)) {
+        pwd_error.innerText = "Password should contain at least one uppercase letter.";
+        button.disabled = true;
+        return;
     }
+    // Check for at least one lowercase letter
+    if (!/[a-z]/.test(password)) {
+        pwd_error.innerText = "Password should contain at least one lowercase letter.";
+        button.disabled = true;
+        return;
+    }
+    // Check for at least one digit
+    if (!/\d/.test(password)) {
+        pwd_error.innerText = "Password should contain at least one digit.";
+        button.disabled = true;
+        return;
+    }
+    // Check for at least one special character
+    if (!/[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]/.test(password)) {
+        pwd_error.innerText = "Password should contain at least one special character.";
+        button.disabled = true;
+        return;
+    }
+    // All checks passed, password is valid
+    pwd_error.innerText = "";
+
+    // Check if passwords match
+    if (password !== re_pass) {
+        re_pwd_error.innerText = "Passwords do not match.";
+        button.disabled = true;
+        return;
+    }
+    // All checks passed, passwords match
+    re_pwd_error.innerText = "";
 }

@@ -11,7 +11,6 @@ import it.unipi.lsmsd.fnf.model.enums.Gender;
 import it.unipi.lsmsd.fnf.model.registeredUser.Manager;
 import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
-import it.unipi.lsmsd.fnf.service.impl.UserServiceImpl;
 import it.unipi.lsmsd.fnf.utils.Constants;
 import it.unipi.lsmsd.fnf.utils.ConverterUtils;
 
@@ -76,21 +75,29 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
     }
 
     @Override
-    public void update(RegisteredUser user) throws DAOException {
+    public void update(User user) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
 
+            // Check if the new username already exists in the collection
+            Bson usernameExistsFilter = eq("username", user.getUsername());
+            if (users.countDocuments(usernameExistsFilter) > 0) {
+                throw new DAOException("Username already exists in the collection");
+            }
+
+            // Update the document
             Bson filter = eq("_id", user.getId());
             Bson update = new Document("$set", RegisteredUserToDocument(user))
                     .append("$unset", UnsetDocument(user));
-            Logger logger = LoggerFactory.getLogger(UserDAOImpl.class);
-            logger.info(update.toString());
+
             UpdateResult results = users.updateOne(filter, update);
             if (results.getModifiedCount() == 0) {
                 throw new DAOException("No user was updated");
             }
-        } catch (Exception e){
-            throw new DAOException("Error updating user information for user with id: "+ user.getId(), e);
+        } catch (DAOException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new DAOException("Error updating user information for user with id: " + user.getId(), e);
         }
     }
 
@@ -117,10 +124,10 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
             Bson projection = exclude("is_manager");
 
             Document userDocument = users.find(filter).projection(projection).first();
-
             if (userDocument != null) {
                 RegisteredUser user = documentToRegisteredUser(userDocument);
                 if (user.getPassword().equals(password)) {
+                    user.setPassword(null);
                     return user;
                 } else {
                     throw new DAOException("Wrong password");
@@ -143,7 +150,7 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
             MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
 
             Bson filter = eq("_id", id);
-            Bson projection = exclude("is_manager", "password", "email");
+            Bson projection = exclude("is_manager", "password");
 
             Document userDocument = users.find(filter).projection(projection).first();
             return (userDocument != null)? documentToRegisteredUser(userDocument) : null;
@@ -210,13 +217,13 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
 
         if (doc.getBoolean("is_manager") != null) {
             Manager manager = new Manager();
-            manager.setHiredDate(ConverterUtils.convertDateToLocalDate(doc.getDate("hired_on")));
+            manager.setHiredDate(ConverterUtils.dateToLocalDate(doc.getDate("hired_on")));
             manager.setTitle(doc.getString("title"));
             user = manager;
         } else {
             User regularUser = new User();
             regularUser.setUsername(doc.getString("username"));
-            regularUser.setBirthday(ConverterUtils.convertDateToLocalDate(doc.getDate("birthday")));
+            regularUser.setBirthday(ConverterUtils.dateToLocalDate(doc.getDate("birthday")));
             regularUser.setDescription(doc.getString("description"));
             regularUser.setGender(Gender.fromString(doc.getString("gender")));
             regularUser.setLocation(doc.getString("location"));
@@ -226,7 +233,7 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
         user.setId(doc.getObjectId("_id"));
         user.setPassword(doc.getString("password"));
         user.setEmail(doc.getString("email"));
-        user.setJoinedDate(ConverterUtils.convertDateToLocalDate(doc.getDate("joined_on")));
+        user.setJoinedDate(ConverterUtils.dateToLocalDate(doc.getDate("joined_on")));
         user.setFullname(doc.getString("fullname"));
         user.setProfilePicUrl(doc.getString("picture"));
         return user;
@@ -238,37 +245,39 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
         appendIfNotNull(doc, "email", user.getEmail());
 
         if (user.getJoinedDate() != null) {
-            appendIfNotNull(doc, "joined_on", ConverterUtils.convertLocalDateToDate(user.getJoinedDate()));
+            appendIfNotNull(doc, "joined_on", ConverterUtils.localDateToDate(user.getJoinedDate()));
         }
         appendIfNotNull(doc, "fullname", user.getFullname());
         appendIfNotNull(doc, "picture", user.getProfilePicUrl());
 
         if (user instanceof Manager manager) {
             appendIfNotNull(doc, "title", manager.getTitle());
-            appendIfNotNull(doc, "hired_on", ConverterUtils.convertLocalDateToDate(manager.getHiredDate()));
+            appendIfNotNull(doc, "hired_on", ConverterUtils.localDateToDate(manager.getHiredDate()));
         } else if (user instanceof User regularUser) {
             appendIfNotNull(doc, "username", regularUser.getUsername());
-            appendIfNotNull(doc, "birthday", ConverterUtils.convertLocalDateToDate(regularUser.getBirthday()));
+            appendIfNotNull(doc, "birthday", ConverterUtils.localDateToDate(regularUser.getBirthday()));
             appendIfNotNull(doc, "description", regularUser.getDescription());
-            appendIfNotNull(doc, "gender", regularUser.getGender().toString());
+            appendIfNotNull(doc, "gender", regularUser.getGender() != null ? regularUser.getGender().name() : null);
+            Logger logger = LoggerFactory.getLogger(UserDAOImpl.class);
             appendIfNotNull(doc, "location", regularUser.getLocation());
         }
 
         return doc;
     }
 
-    private Document UnsetDocument(RegisteredUser registeredUser) {
+    private Document UnsetDocument(User registeredUser) {
         Document doc = new Document();
-        if (registeredUser instanceof User user) {
-            if (user.getBirthday() != null && user.getBirthday().equals(Constants.NULL_DATE))
-                doc.append("birthday", 1);
-            if (user.getLocation() != null && user.getLocation().equals(Constants.NULL_STRING))
-                doc.append("location", 1);
-            if (user.getDescription() != null && user.getDescription().equals(Constants.NULL_STRING))
-                doc.append("description", 1);
-            if (user.getBirthday() != null && user.getGender().toString().equals(Constants.NULL_STRING))
-                doc.append("gender", 1);
-        }
+        if (registeredUser.getFullname() != null && registeredUser.getFullname().equals(Constants.NULL_STRING))
+            doc.append("fullname", 1);
+        if (registeredUser.getBirthday() != null && registeredUser.getBirthday().equals(Constants.NULL_DATE))
+            doc.append("birthday", 1);
+        if (registeredUser.getLocation() != null && registeredUser.getLocation().equals(Constants.NULL_STRING))
+            doc.append("location", 1);
+        if (registeredUser.getDescription() != null && registeredUser.getDescription().equals(Constants.NULL_STRING))
+            doc.append("description", 1);
+        if (registeredUser.getGender() != null && registeredUser.getGender().equals(Gender.UNKNOWN))
+            doc.append("gender", 1);
+
         return doc;
     }
 }

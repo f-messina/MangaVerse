@@ -1,7 +1,6 @@
 package it.unipi.lsmsd.fnf.controller;
 
-import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
-import it.unipi.lsmsd.fnf.model.registeredUser.Manager;
+import it.unipi.lsmsd.fnf.model.PersonalList;
 import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import it.unipi.lsmsd.fnf.service.ServiceLocator;
@@ -15,7 +14,6 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import it.unipi.lsmsd.fnf.service.UserService;
@@ -50,11 +48,13 @@ public class AuthServlet extends HttpServlet {
     }
 
     private void handleSignUp(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        String targetJSP = "tests/auth_test.jsp";
+        String targetJSP;
         try {
             User user = userService.registerUserAndLogin(ConverterUtils.fromRequestToUserRegDTO(request));
             HttpSession session = request.getSession(true);
             session.setAttribute(Constants.AUTHENTICATED_USER_KEY, user);
+            response.sendRedirect("profile");
+            return;
         } catch (BusinessException e) {
             logger.error("BusinessException during signup operation.", e);
             targetJSP = "tests/auth_test.jsp";
@@ -85,13 +85,15 @@ public class AuthServlet extends HttpServlet {
     private void handleLogin(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         String email = request.getParameter("email");
         String password = request.getParameter("password");
-        String targetJSP = "auth_test.jsp";
+        String targetJSP;
 
         try {
             RegisteredUser registeredUser = userService.login(email, password);
             HttpSession session = request.getSession(true);
             session.setAttribute(Constants.AUTHENTICATED_USER_KEY, registeredUser);
-            targetJSP = "tests/auth_test.jsp";
+            // Redirect to avoid resubmission on page reload
+            response.sendRedirect("profile");
+            return;
         } catch (BusinessException e) {
             logger.error("BusinessException during login operation.", e);
             targetJSP = "tests/auth_test.jsp";
@@ -110,6 +112,7 @@ public class AuthServlet extends HttpServlet {
             targetJSP = "error.jsp";
         }
 
+        // Forward in case of error
         request.getRequestDispatcher(targetJSP).forward(request, response);
     }
 

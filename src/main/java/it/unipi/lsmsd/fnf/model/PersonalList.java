@@ -63,12 +63,12 @@ public class PersonalList {
         this.anime.add(anime);
     }
 
-    public void removeManga(Manga manga) {
-        this.manga.remove(manga);
+    public void removeManga(ObjectId mangaId) {
+        this.manga.removeIf(manga -> manga.getId().equals(mangaId));
     }
 
-    public void removeAnime(Anime anime) {
-        this.anime.remove(anime);
+    public void removeAnime(ObjectId animeId) {
+        this.anime.removeIf(anime -> anime.getId().equals(animeId));
     }
 
     @Override

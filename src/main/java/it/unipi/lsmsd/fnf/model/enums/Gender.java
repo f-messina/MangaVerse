@@ -13,29 +13,19 @@ public enum Gender {
         this.code=code;
     }
 
-    public static boolean isValidGender(String value) {
-        for (Gender gender : Gender.values()) {
-            if (gender.name().equalsIgnoreCase(value)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-
     public String toString() {
         String enumName = name().toLowerCase();
         if (enumName.equals("unknown")) {
-            return Constants.NULL_STRING;
+            return Constants.NULL_GENDER;
         } else if (enumName.equals("non_binary")) {
-            return "Non_Binary";
+            return "Non Binary";
         } else {
             return Character.toUpperCase(enumName.charAt(0)) + enumName.substring(1);
         }
     }
 
     public static Gender fromString(String value) {
-        if (StringUtils.isEmpty(value))
+        if (StringUtils.isBlank(value) || value.equals(Constants.NULL_GENDER))
             return UNKNOWN;
         for (Gender gender : Gender.values()) {
             if (gender.name().equalsIgnoreCase(value)) {

@@ -1,36 +1,31 @@
 package it.unipi.lsmsd.fnf.controller;
 
-import it.unipi.lsmsd.fnf.model.enums.Gender;
+import it.unipi.lsmsd.fnf.model.PersonalList;
+import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import it.unipi.lsmsd.fnf.service.PersonalListService;
 import it.unipi.lsmsd.fnf.service.ServiceLocator;
 import it.unipi.lsmsd.fnf.service.UserService;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 import it.unipi.lsmsd.fnf.utils.Constants;
-import it.unipi.lsmsd.fnf.utils.ConverterUtils;
 import it.unipi.lsmsd.fnf.utils.SecurityUtils;
+import it.unipi.lsmsd.fnf.utils.UserUtils;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
-import org.apache.commons.lang3.StringUtils;
+import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.time.LocalDate;
-import java.util.Date;
-import java.util.Objects;
-import java.util.function.Consumer;
 
 @WebServlet("/profile")
 public class ProfileServlet extends HttpServlet {
     private static final Logger logger = LoggerFactory.getLogger(ProfileServlet.class);
     private static final UserService userService = ServiceLocator.getUserService();
     private static final PersonalListService personalListService = ServiceLocator.getPersonalListService();
-    private static User authUser;
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -44,34 +39,43 @@ public class ProfileServlet extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
-        String targetJSP = "profile.jsp";
-        authUser = SecurityUtils.getAuthenticatedUser(request);
+        String targetJSP = "tests/profile_test.jsp";
+        User authUser = SecurityUtils.getAuthenticatedUser(request);
+
         if (authUser == null) {
-            targetJSP = "main-page.jsp";
+            response.sendRedirect("auth");
         } else switch (action) {
             case "update-info" -> handleUpdate(request, response);
             case "delete" -> handleDelete(request, response);
+            case "add-list" -> handleAddList(request, response);
+            case "delete-list" -> handleDeleteList(request, response);
             case "logout" -> handleLogout(request, response);
-            case "removeItem" -> handleRemoveItem(request, response);
-            case null, default -> {}
+            case "delete-item" -> handleDeleteItem(request, response);
+            case null, default -> request.getRequestDispatcher(targetJSP).forward(request, response);
         }
-        request.getRequestDispatcher(targetJSP).forward(request, response);
     }
 
     private void handleUpdate(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        String targetJSP = "profile.jsp";
+        String targetJSP;
         try {
-            User user = userFromInfo(request);
+            User user = UserUtils.updateUserFromRequest(request);
             userService.updateUserInfo(user);
+            UserUtils.updateUserSession(request);
 
-            User authUserUpdated = updateAuthUser(request);
-            request.getSession().setAttribute(Constants.AUTHENTICATED_USER_KEY, authUserUpdated);
+            // Redirect to a different URL after successful update
+            targetJSP = request.getContextPath() + "/profile?updateSuccess=true";
+            response.sendRedirect(targetJSP);
+            return;
         } catch (BusinessException e) {
-            handleUpdateError(request, "Invalid input. Please check your data.", e);
-            targetJSP = "profile.jsp";
+            if (e.getMessage().equals("Username already in use")) {
+                request.setAttribute("usernameError", e.getMessage());
+            } else {
+                handleUpdateError(request, "Invalid input. Please check your data.", e);
+            }
+            targetJSP = "tests/profile_test.jsp";
         } catch (Exception e) {
             handleUpdateError(request, "Error during update operation.", e);
-            targetJSP = "error.jsp";
+            targetJSP = "error-page.jsp";
         }
         request.getRequestDispatcher(targetJSP).forward(request, response);
     }
@@ -81,74 +85,16 @@ public class ProfileServlet extends HttpServlet {
         request.setAttribute("errorMessage", errorMessage);
     }
 
-    private static User userFromInfo(HttpServletRequest request) {
-        User user = new User();
-        user.setId(authUser.getId());
-
-        String username = request.getParameter("username");
-        String authUserUsername = (String) getAuthUserValue("username");
-        if (!Objects.equals(username, authUserUsername))
-            user.setUsername(username);
-
-        String description = request.getParameter("description");
-        String authUserDescription = (String) getAuthUserValue("description");
-        if (!Objects.equals(description, authUserDescription)) {
-            user.setDescription(StringUtils.isEmpty(description) ? description : Constants.NULL_STRING);
-        }
-
-        String country = request.getParameter("country");
-        String authUserCountry = (String) getAuthUserValue("country");
-        if (!Objects.equals(country, authUserCountry)) {
-            user.setLocation(StringUtils.isEmpty(country) ? country : Constants.NULL_STRING);
-        }
-
-        String birthdate = request.getParameter("birthdate");
-        LocalDate authUserBirthdate = (LocalDate) getAuthUserValue("birthdate");
-        if (!Objects.equals(LocalDate.parse(birthdate), authUserBirthdate)) {
-            user.setBirthday(StringUtils.isEmpty(birthdate) ? LocalDate.parse(birthdate) : Constants.NULL_DATE);
-        }
-
-        String fullname = request.getParameter("fullname");
-        String authUserFullname = (String) getAuthUserValue("fullname");
-        if (!Objects.equals(fullname, authUserFullname)) {
-            user.setFullname(StringUtils.isEmpty(fullname) ? fullname : Constants.NULL_STRING);
-        }
-
-        String gender = request.getParameter("gender");
-        Gender authUserGender = (Gender) getAuthUserValue("gender");
-        if (!Objects.equals(Gender.fromString(gender), authUserGender)) {
-            user.setGender(Gender.fromString(gender));
-        }
-
-        return user;
-    }
-
-    private static Object getAuthUserValue(String parameterName) {
-        return switch (parameterName) {
-            case "username" -> authUser.getUsername();
-            case "description" -> authUser.getDescription();
-            case "country" -> authUser.getLocation();
-            case "birthdate" -> authUser.getBirthday();
-            case "fullname" -> authUser.getFullname();
-            case "gender" -> authUser.getGender();
-            default -> null;
-        };
-    }
-
-    private static User updateAuthUser(HttpServletRequest request) {
-        User authUserUpdated = authUser;
-        updateFieldIfNotNull(request, "username", username -> authUserUpdated.setUsername((String) username));
-        updateFieldIfNotNull(request, "description", description -> authUserUpdated.setDescription((String) description));
-        updateFieldIfNotNull(request, "birthdate", date -> authUserUpdated.setBirthday(ConverterUtils.convertDateToLocalDate((Date) date)));
-        updateFieldIfNotNull(request, "country", country -> authUserUpdated.setLocation((String) country));
-        updateFieldIfNotNull(request, "gender", gender -> authUserUpdated.setGender(Gender.fromString((String) gender)));
-        return authUserUpdated;
-    }
-
-    private static void updateFieldIfNotNull(HttpServletRequest request, String parameterName, Consumer<Object> updateFunction) {
-        Object parameterValue = request.getAttribute(parameterName);
-        if (parameterValue != null) {
-            updateFunction.accept(parameterValue);
+    private void handleDeleteList(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+        String listId = request.getParameter("listIdToRemove");
+        try {
+            personalListService.deleteList(listId);
+            UserUtils.updateUserSession(request);
+            response.sendRedirect("profile");
+        } catch (BusinessException e) {
+            logger.error("Error during delete list operation.", e);
+            request.setAttribute("errorMessage", "Error during delete list operation.");
+            request.getRequestDispatcher("error-page.jsp").forward(request, response);
         }
     }
 
@@ -161,8 +107,53 @@ String targetJSP = "main-page.jsp";
         request.getRequestDispatcher(targetJSP).forward(request, response);
     }
 
-    private void handleRemoveItem(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        String targetJSP = "profile.jsp";
-        request.getRequestDispatcher(targetJSP).forward(request, response);
+    private void handleAddList(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+        try {
+            String listName = request.getParameter("listName");
+            User authUser = SecurityUtils.getAuthenticatedUser(request);
+
+            PersonalList list = new PersonalList();
+            list.setName(listName);
+            list.setUser(authUser);
+
+            ObjectId id = personalListService.insertList(list);
+            list.setId(id);
+            list.setUser(null); // Avoid storing the user in the list; it's already stored in the user's lists
+            authUser.addList(list);
+
+            request.getSession().setAttribute(Constants.AUTHENTICATED_USER_KEY, authUser);
+            response.sendRedirect("profile");
+        } catch (BusinessException e) {
+            logger.error("Error during add list operation.", e);
+            request.setAttribute("errorMessage", "Error during add list operation.");
+            request.getRequestDispatcher("error-page.jsp").forward(request, response);
+        }
+    }
+
+    private void handleDeleteItem(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+        String listId = request.getParameter("listId");
+        if (request.getParameter("mangaIdToRemove") != null) {
+            String mangaId = request.getParameter("mangaIdToRemove");
+            try {
+                personalListService.removeFromList(listId, mangaId, MediaContentType.MANGA);
+                UserUtils.updateUserSession(request);
+                response.sendRedirect("profile");
+            } catch (BusinessException e) {
+                logger.error("Error during delete manga operation.", e);
+                request.setAttribute("errorMessage", "Error during delete manga operation.");
+                request.getRequestDispatcher("error-page.jsp").forward(request, response);
+            }
+        } else {
+            String animeId = request.getParameter("animeIdToRemove");
+            try {
+                personalListService.removeFromList(listId, animeId, MediaContentType.ANIME);
+                UserUtils.updateUserSession(request);
+                response.sendRedirect("profile");
+            } catch (BusinessException e) {
+                logger.error("Error during delete anime operation.", e);
+                request.setAttribute("errorMessage", "Error during delete anime operation.");
+                request.getRequestDispatcher("error-page.jsp").forward(request, response);
+            }
+        }
     }
 }

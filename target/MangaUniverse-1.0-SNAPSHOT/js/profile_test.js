@@ -94,21 +94,34 @@ function startsWithCaseInsensitive(str, prefix) {
     return str.toUpperCase().indexOf(prefix) === 0;
 }
 
-function ValidateForm() {
-    const button = document.getElementById("signup");
-
+function validateCountry() {
+    const button = document.getElementById("confirm-button");
     button.disabled = false;
-    validateCountry();
 
-    function validateCountry() {
-        const country = document.getElementById("country").value;
-        const country_error = document.getElementById("country-error");
-        if (country !== "" && !options.includes(country)) {
-            country_error.innerText = "Select a valid country from the dropdown or leave it empty.";
-            button.disabled = true;
-        } else {
-            country_error.innerText = "";
-        }
+    const country = document.getElementById("country").value;
+    const country_error = document.getElementById("country-error");
+
+    if (country !== "" && !options.includes(country)) {
+        country_error.innerText = "Select a valid country from the dropdown or leave it empty.";
+        button.disabled = true;
+    } else {
+        country_error.innerText = "";
+    }
+}
+
+function validateUsername() {
+    const button = document.getElementById("confirm-button");
+    button.disabled = false;
+
+    const username = document.getElementById("username").value;
+    const username_error = document.getElementById("username-error");
+
+    const regex = /^[a-zA-Z0-9_\-]+$/;
+    if (username.length < 4 || username.length > 15 || !regex.test(username)) {
+        username_error.innerText = "Username must be 4-15 characters long and contain only letters, numbers, hyphens, and underscores.";
+        button.disabled = true;
+    } else {
+        username_error.innerText = "";
     }
 }
 
@@ -178,4 +191,5 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         }
     }
+
 });

@@ -15,5 +15,5 @@ public interface UserDAO {
     RegisteredUser find(ObjectId id) throws DAOException;
     List<RegisteredUserDTO> find(String username) throws DAOException;
     List<RegisteredUserDTO> findAll() throws DAOException;
-    void update(RegisteredUser user) throws DAOException;
+    void update(User user) throws DAOException;
 }

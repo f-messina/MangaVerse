@@ -5,8 +5,6 @@ import it.unipi.lsmsd.fnf.dao.ReviewDAO;
 import it.unipi.lsmsd.fnf.dao.UserDAO;
 import it.unipi.lsmsd.fnf.dao.enums.DataRepositoryEnum;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
-import it.unipi.lsmsd.fnf.dto.PersonalListDTO;
-import it.unipi.lsmsd.fnf.dto.ReviewDTO;
 import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
 import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
@@ -15,8 +13,11 @@ import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 import it.unipi.lsmsd.fnf.service.mapper.DtoToModelMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.List;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 import static it.unipi.lsmsd.fnf.dao.DAOLocator.*;
 import static it.unipi.lsmsd.fnf.service.mapper.DtoToModelMapper.userRegistrationDTOToUser;
@@ -75,11 +76,14 @@ public class UserServiceImpl implements UserService {
             RegisteredUser registeredUser = userDAO.authenticate(email, password);
             if (registeredUser instanceof User user) {
                 user.setLists(personalListDAO.findByUser(user.getId())
-                        .stream().map(DtoToModelMapper::personalListDTOtoPersonalList).toList());
+                        .stream()
+                        .map(DtoToModelMapper::personalListDTOtoPersonalList)
+                        .collect(Collectors.toCollection(ArrayList::new)));
                 user.setReviews(reviewDAO.findByUser(user.getId())
-                        .stream().map(DtoToModelMapper::reviewDTOtoReview).toList());
+                        .stream()
+                        .map(DtoToModelMapper::reviewDTOtoReview)
+                        .collect(Collectors.toCollection(ArrayList::new)));
             }
-
             return registeredUser;
 
         } catch (DAOException e) {
@@ -101,6 +105,12 @@ public class UserServiceImpl implements UserService {
     public void updateUserInfo(User user) throws BusinessException {
         try {
             userDAO.update(user);
+        } catch (DAOException e) {
+            if (e.getMessage().contains("already exists")) {
+                throw new BusinessException("Username already in use", e);
+            } else {
+                throw new BusinessException(e);
+            }
         } catch (Exception e) {
             throw new BusinessException(e);
         }
