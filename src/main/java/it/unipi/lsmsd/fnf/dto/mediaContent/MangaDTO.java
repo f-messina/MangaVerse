@@ -1,6 +1,12 @@
 package it.unipi.lsmsd.fnf.dto.mediaContent;
 
 import org.bson.types.ObjectId;
+import org.neo4j.driver.Record;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class MangaDTO extends MediaContentDTO{
     private String startDate;
@@ -22,6 +28,7 @@ public class MangaDTO extends MediaContentDTO{
     public MangaDTO(ObjectId id, String title, String imageUrl) {
         super(id, title, imageUrl);
     }
+
 
     public String getStartDate() {
         return startDate;

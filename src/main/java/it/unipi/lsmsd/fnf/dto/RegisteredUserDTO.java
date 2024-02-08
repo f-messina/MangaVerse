@@ -1,7 +1,14 @@
 package it.unipi.lsmsd.fnf.dto;
 
+import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import org.bson.types.ObjectId;
+import org.neo4j.driver.Record;
+
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class RegisteredUserDTO {
 
@@ -33,6 +40,7 @@ public class RegisteredUserDTO {
         this.birthday = birthday;
         this.age = age;
     }
+
 
     public ObjectId getId() {
         return id;
