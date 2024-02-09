@@ -1,3 +1,14 @@
+html {
+    scroll-behavior: smooth;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Fira Sans Condensed", sans-serif;
+}
+
 .dropdown-content {
     position: absolute;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -11,4 +22,50 @@
     padding: 10px;
     text-decoration: none;
     color: #333;
+}
+.options{
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    justify-content: center;
+    align-items: center;
+    margin-top: 50px;
+}
+.sign-up{
+    border: transparent;
+    box-shadow: 5px 5px 23px -7px rgba(0,0,0,0.84);
+    -webkit-box-shadow: 5px 5px 23px -7px rgba(0,0,0,0.84);
+    -moz-box-shadow: 5px 5px 23px -7px rgba(0,0,0,0.84);
+    border-radius: 7px;
+    padding: 20px;
+}
+.log-in{
+    border: transparent;
+    box-shadow: 5px 5px 23px -7px rgba(0,0,0,0.84);
+    -webkit-box-shadow: 5px 5px 23px -7px rgba(0,0,0,0.84);
+    -moz-box-shadow: 5px 5px 23px -7px rgba(0,0,0,0.84);
+    border-radius: 7px;
+    padding: 20px;
+    display: none;
+}
+.form-title{
+    padding-bottom: 15px;
+}
+.form-group{
+    padding-bottom: 15px;
+}
+.type-input{
+    padding: 6px;
+}
+.open-button{
+    background-color: transparent;
+    border-style: none;
+    text-decoration: underline;
+    cursor: pointer;
+}
+.btn{
+    background-color: transparent;
+    border-style: none;
+    text-decoration: underline;
+    cursor: pointer;
 }

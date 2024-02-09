@@ -16,6 +16,7 @@
     <title>AUTH PAGE</title>
 </head>
 <body>
+<div class="options">
     <section class="sign-up">
         <div class="container mt-5">
             <div class="signup-content">
@@ -25,31 +26,31 @@
                         <input type="hidden" name="action" value="signup"/>
                         <div class="form-group">
                             <label for="username"><i class="zmdi zmdi-account material-icons-name"></i></label>
-                            <input type="text" name="username" id="username" placeholder="Username" oninput="validateUsername()" required/>
+                            <input class="type-input" type="text" name="username" id="username" placeholder="Username" oninput="validateUsername()" required/>
                             <span id="username-error" style="color: red"><c:out value="${requestScope['usernameError']}" /></span>
                         </div>
                         <div class="form-group">
                             <label for="email"><i class="zmdi zmdi-email"></i></label>
-                            <input type="email" name="email" id="email" placeholder="Your Email" required/>
+                            <input class="type-input" type="email" name="email" id="email" placeholder="Your Email" required/>
                             <span id="email-error" style="color: red"><c:out value="${requestScope['emailError']}" /></span>
                         </div>
                         <div class="form-group">
                             <label for="password"><i class="zmdi zmdi-lock"></i></label>
-                            <input type="password" name="password" id="password" placeholder="Password" oninput="validatePassword()" required/>
+                            <input class="type-input" type="password" name="password" id="password" placeholder="Password" oninput="validatePassword()" required/>
                             <span id="pwd-error" style="color: red"></span>
                         </div>
                         <div class="form-group">
                             <label for="re-pass"><i class="zmdi zmdi-lock-outline"></i></label>
-                            <input type="password" name="re-pass" id="re-pass" placeholder="Repeat your password" oninput="validatePassword()" required/>
+                            <input class="type-input" type="password" name="re-pass" id="re-pass" placeholder="Repeat your password" oninput="validatePassword()" required/>
                             <span id="re_pwd-error" style="color: red"></span>
                         </div>
                         <div class="form-group">
                             <label for="fullname"><i class="zmdi zmdi-lock-outline"></i></label>
-                            <input type="text" name="fullname" id="fullname" placeholder="Full Name (Optional)"/>
+                            <input class="type-input" type="text" name="fullname" id="fullname" placeholder="Full Name (Optional)"/>
                         </div>
                         <div class="form-group">
                             <label for="gender"><i class="zmdi zmdi-lock-outline"></i></label>
-                            <select id="gender" name="gender">
+                            <select class="type-input" id="gender" name="gender">
                                 <option value="male">Male</option>
                                 <option value="female">Female</option>
                                 <option value="non_binary">Not Binary</option>
@@ -58,24 +59,25 @@
                         </div>
                         <div class="form-group">
                             <label for="birthdate"><i class="zmdi zmdi-lock-outline"></i></label>
-                            <input type="date" name="birthdate" id="birthdate" placeholder="Birthdate"/>
+                            <input class="type-input" type="date" name="birthdate" id="birthdate" placeholder="Birthdate"/>
                         </div>
                         <div class="form-group">
                             <label for="country"><i class="zmdi zmdi-lock-outline"></i></label>
-                            <input type="text" name="country" id="country" placeholder="Country (Optional)" oninput="validateCountry()"/>
+                            <input class="type-input" type="text" name="country" id="country" placeholder="Country (Optional)" oninput="validateCountry()"/>
                             <div class="dropdown-content" id="country-dropdown" onclick="validateCountry()"></div>
                             <span id="country-error" style="color: red"></span>
                         </div>
                         <div class="form-group form-button">
-                            <input type="submit" name="signup" id="signup" class="form-submit" value="Register"/>
+                            <input class="type-input" type="submit" name="signup" id="signup" class="form-submit" value="Register"/>
                         </div>
+                        <button class="open-button" onclick="openForm()">Already have an account. Log In</button>
                     </form>
                 </div>
             </div>
         </div>
     </section>
 
-    <section class="log-in">
+    <section class="log-in" id="myForm">
         <div class="container mt-5">
             <div class="signup-content">
                 <div class="signup-form">
@@ -84,25 +86,37 @@
                         <input type="hidden" name="action" value="login"/>
                         <div class="form-group">
                             <label for="email_login"><i class="zmdi zmdi-account material-icons-name"></i></label>
-                            <input type="email" name="email" id="email_login" placeholder="Email" required/>
+                            <input class="type-input" type="email" name="email" id="email_login" placeholder="Email" required/>
                             <span id="email-auth-error" style="color: red"><c:out value="${requestScope['emailLoginError']}" /> </span>
                         </div>
                         <div class="form-group">
                             <label for="password_login"><i class="zmdi zmdi-lock"></i></label>
-                            <input type="password" name="password" id="password_login" placeholder="Password" required/>
+                            <input class="type-input" type="password" name="password" id="password_login" placeholder="Password" required/>
                             <span id="password-auth-error" style="color: red"><c:out value="${requestScope['passwordLoginError']}" /> </span>
                         </div>
                         <div class="form-group">
-                            <input type="submit" name="login" id="login" class="form-submit" value="Log in"/>
+                            <input class="type-input" type="submit" name="login" id="login" class="form-submit" value="Log in"/>
                         </div>
+                        <button type="button" class="btn cancel" onclick="closeForm()">Close</button>
                     </form>
                 </div>
             </div>
         </div>
     </section>
+</div>
 
     <c:if test="${not empty sessionScope[Constants.AUTHENTICATED_USER_KEY]}">
         <h1>Welcome, ${sessionScope[Constants.AUTHENTICATED_USER_KEY].getUsername()}!</h1>
     </c:if>
+
+<script>
+    function openForm() {
+        document.getElementById("myForm").style.display = "block";
+    }
+
+    function closeForm() {
+        document.getElementById("myForm").style.display = "none";
+    }
+</script>
 </body>
 </html>
