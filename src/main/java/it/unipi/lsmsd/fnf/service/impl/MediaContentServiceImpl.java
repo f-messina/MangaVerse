@@ -305,7 +305,7 @@ public class MediaContentServiceImpl implements MediaContentService {
     }*/
 
     @Override
-    public List<AnimeDTO> getAnimeGenresTrendByYear(int year) throws BusinessException {
+    public List<List<String>> getAnimeGenresTrendByYear(int year) throws BusinessException {
         try {
             return neo4JDAO.getAnimeGenresTrendByYear(year);
         } catch (DAOException e) {
@@ -314,9 +314,9 @@ public class MediaContentServiceImpl implements MediaContentService {
     }
 
     @Override
-    public List<AnimeDTO> getMangaGenresTrendByYear(int year) throws BusinessException {
+    public List<List<String>> getMangaGenresTrendByYear(int year) throws BusinessException {
         try {
-            return neo4JDAO.getAnimeGenresTrendByYear(year);
+            return neo4JDAO.getMangaGenresTrendByYear(year);
         } catch (DAOException e) {
             throw new BusinessException("Error while retrieving the trend.", e);
         }
@@ -389,7 +389,7 @@ public class MediaContentServiceImpl implements MediaContentService {
     }*/
 
     @Override
-    public List<AnimeDTO> getAnimeGenresTrend() throws BusinessException {
+    public List<List<String>> getAnimeGenresTrend() throws BusinessException {
         try {
             return neo4JDAO.getAnimeGenresTrend();
         } catch (Exception e) {
@@ -398,7 +398,7 @@ public class MediaContentServiceImpl implements MediaContentService {
     }
 
     @Override
-    public List<MangaDTO> getMangaGenresTrend() throws BusinessException {
+    public List<List<String>> getMangaGenresTrend() throws BusinessException {
         try {
             return neo4JDAO.getMangaGenresTrend();
         } catch (Exception e) {

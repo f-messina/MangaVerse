@@ -7,7 +7,6 @@ import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.model.mediaContent.MediaContent;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
-import org.neo4j.driver.Record;
 
 import java.util.List;
 import java.util.Map;
@@ -54,9 +53,9 @@ public interface MediaContentService {
     //Show the trends of the genres for year
     //List<Record> getGenresTrendByYear(int year) throws BusinessException;
 
-    List<AnimeDTO> getAnimeGenresTrendByYear(int year) throws BusinessException;
+    List<List<String>> getAnimeGenresTrendByYear(int year) throws BusinessException;
 
-    List<AnimeDTO> getMangaGenresTrendByYear(int year) throws BusinessException;
+    List<List<String>> getMangaGenresTrendByYear(int year) throws BusinessException;
 
     //List<Record> getTrendByGenre() throws BusinessException;
 
@@ -74,7 +73,7 @@ public interface MediaContentService {
     //Show the trends of the genres in general
     //List<Record> getGenresTrend() throws BusinessException;
 
-    List<AnimeDTO> getAnimeGenresTrend() throws BusinessException;
+    List<List<String>> getAnimeGenresTrend() throws BusinessException;
 
-    List<MangaDTO> getMangaGenresTrend() throws BusinessException;
+    List<List<String>> getMangaGenresTrend() throws BusinessException;
 }

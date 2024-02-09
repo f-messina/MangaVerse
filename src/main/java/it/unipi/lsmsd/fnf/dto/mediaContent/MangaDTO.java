@@ -48,7 +48,7 @@ public class MangaDTO extends MediaContentDTO{
 
     @Override
     public String toString() {
-        return "MangaDTO{" +
+        return super.toString() + "MangaDTO{" +
                 ", startDate=" + startDate +
                 ", endDate=" + endDate +
                 '}';
