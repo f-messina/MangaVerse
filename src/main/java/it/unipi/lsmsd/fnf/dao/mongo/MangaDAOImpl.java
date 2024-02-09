@@ -22,6 +22,9 @@ import com.mongodb.client.model.Facet;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.*;
 
 import static com.mongodb.client.model.Aggregates.*;
@@ -79,14 +82,15 @@ public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Mang
         }
     }
 
-    public PageDTO<MangaDTO> search(Map<String, Object> filters, Map<String, Integer> orderBy, int page) throws DAOException {
+    public PageDTO<MangaDTO> search(List<Map<String, Object>> filters, Map<String, Integer> orderBy, int page) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> mangaCollection = mongoClient.getDatabase("mangaVerse").getCollection("manga");
-
+            Logger logger = LoggerFactory.getLogger(MangaDAOImpl.class);
+            logger.info("FilterMap: " + filters);
             Bson filter = buildFilter(filters);
+            logger.info("Filter: " + filter);
             Bson sort = buildSort(orderBy);
-            Bson projection = include("title", "picture", "average_score", "start_date", "end_date");
-
+            Bson projection = include("title", "picture", "average_rating", "start_date", "end_date");
             int pageOffset = (page - 1) * Constants.PAGE_SIZE;
 
             List<Bson> pipeline = Arrays.asList(
@@ -120,7 +124,9 @@ public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Mang
                     .toList();
 
             int totalCount = Optional.of(result)
-                    .map(doc -> doc.getList(Constants.COUNT_FACET, Document.class).getFirst())
+                    .map(doc -> doc.getList(Constants.COUNT_FACET, Document.class))
+                    .filter(list -> !list.isEmpty())
+                    .map(List::getFirst)
                     .filter(doc -> !doc.isEmpty())
                     .map(doc -> doc.getInteger("total"))
                     .orElse(0);
@@ -262,7 +268,11 @@ public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Mang
         manga.setId(doc.getObjectId("_id"));
         manga.setTitle(doc.getString("title"));
         manga.setImageUrl(doc.getString("picture"));
-        manga.setAverageRating(doc.getDouble("average_score"));
+        Object averageRatingObj = doc.get("average_rating");
+        manga.setAverageRating(
+                (averageRatingObj instanceof Integer) ? ((Integer) averageRatingObj).doubleValue() :
+                        (averageRatingObj instanceof Double) ? (Double) averageRatingObj : 0.0
+        );
         manga.setStartDate(doc.getString("start_date"));
         manga.setEndDate(doc.getString("end_date"));
 

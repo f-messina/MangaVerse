@@ -8,10 +8,16 @@ import java.util.List;
 public class PageDTO <T extends MediaContentDTO>{
     private List<T> entries;
     private int totalCount;
+    private int totalPages;
+
+    public PageDTO() {
+        entries = new ArrayList<>();
+    }
 
     public PageDTO(List<T> entries, int totalCount) {
         this.entries = entries;
         this.totalCount = totalCount;
+        this.totalPages = (int) Math.ceil((double) totalCount / entries.size());
     }
 
     public List<T> getEntries() {
@@ -20,6 +26,10 @@ public class PageDTO <T extends MediaContentDTO>{
 
     public int getTotalCount() {
         return totalCount;
+    }
+
+    public int getTotalPages() {
+        return totalPages;
     }
 
     public void add (T entry) {
@@ -34,10 +44,12 @@ public class PageDTO <T extends MediaContentDTO>{
         this.entries = entries;
     }
 
-
-
     public void setTotalCount(int totalCount) {
         this.totalCount = totalCount;
+    }
+
+    public void setTotalPages(int totalCount) {
+        this.totalPages = (int) Math.ceil((double) totalCount / entries.size());
     }
 
     @Override

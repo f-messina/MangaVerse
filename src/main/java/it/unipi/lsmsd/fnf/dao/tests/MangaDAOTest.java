@@ -8,6 +8,7 @@ import it.unipi.lsmsd.fnf.model.enums.Status;
 import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
 import org.bson.types.ObjectId;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -88,7 +89,7 @@ public class MangaDAOTest {
         try {
             System.out.println("Searching for manga...");
             // Provide appropriate search criteria and order by parameters
-            Map<String, Object> filters = new HashMap<>();
+            List<Map<String, Object>> filters = new ArrayList<>();
             Map<String, Integer> orderBy = singletonMap("average_rating", 1);
             int page = 1;
 

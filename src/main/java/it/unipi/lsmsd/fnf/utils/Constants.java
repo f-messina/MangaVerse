@@ -10,5 +10,7 @@ public class Constants {
     public static final String NULL_STRING = "null";
     public static final LocalDate NULL_DATE = LocalDate.of(1, 1, 1);
     public static final String NULL_GENDER = "Prefer not to say";
-
+    public static final String[] MANGA_GENRES = {"Supernatural", "Adventure", "Boys Love", "Comedy", "Girls Love",
+            "Mystery", "Horror", "Drama", "Gourmet", "Award Winning", "Fantasy", "Romance", "Avant Garde", "Action",
+            "Slice of Life", "Sports", "Sci-Fi", "Suspense", "Ecchi", "Erotica"};
 }

@@ -16,6 +16,7 @@ import it.unipi.lsmsd.fnf.utils.ConverterUtils;
 
 import com.mongodb.client.model.*;
 import com.mongodb.client.*;
+import org.apache.commons.collections.map.SingletonMap;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
@@ -90,7 +91,7 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
     }
 
     @Override
-    public PageDTO<AnimeDTO> search(Map<String, Object> filters, Map<String, Integer> orderBy, int page) throws DAOException {
+    public PageDTO<AnimeDTO> search(List<Map<String, Object>> filters, Map<String, Integer> orderBy, int page) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> animeCollection = mongoClient.getDatabase("mangaVerse").getCollection("anime");
 
@@ -243,7 +244,11 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
         anime.setId(doc.getObjectId("_id"));
         anime.setTitle(doc.getString("title"));
         anime.setImageUrl(doc.getString("picture"));
-        anime.setAverageRating(doc.getDouble("average_score"));
+        Object averageRatingObj = doc.get("average_score");
+        anime.setAverageRating(
+                (averageRatingObj instanceof Integer) ? ((Integer) averageRatingObj).doubleValue() :
+                        (averageRatingObj instanceof Double) ? (Double) averageRatingObj : 0.0
+        );
         if ((doc.get("anime_season", Document.class) != null)) {
             anime.setYear(doc.get("anime_season", Document.class).getInteger("year"));
         }

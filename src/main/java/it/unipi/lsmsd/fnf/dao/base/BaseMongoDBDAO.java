@@ -6,10 +6,13 @@ import com.mongodb.client.*;
 import it.unipi.lsmsd.fnf.model.enums.Gender;
 import it.unipi.lsmsd.fnf.utils.Constants;
 import it.unipi.lsmsd.fnf.utils.ConverterUtils;
+import org.apache.commons.collections.map.SingletonMap;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.apache.commons.collections.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -38,48 +41,49 @@ public abstract class BaseMongoDBDAO {
         }
     }
 
-    protected Bson buildFilter(Map<String, Object> filterMap) {
-        if (filterMap == null || filterMap.isEmpty()) {
+    protected Bson buildFilter(List<Map<String, Object>> filterList) {
+        if (filterList == null || filterList.isEmpty()) {
             return empty();
-        } else if (filterMap.containsKey("title")) {
-            return text((String) filterMap.get("title"));
+        } else if (filterList.getFirst().containsKey("title")) {
+            return text((String) filterList.getFirst().get("title"));
+        } else {
+            List<Bson> filter = buildFilterInternal(filterList);
+            return and(filter);
         }
-        List<Bson> filter = buildFilterInternal(filterMap);
-        return and(filter);
     }
 
-    protected List<Bson> buildFilterInternal(Map<String, Object> filterMap) {
-        return filterMap.entrySet().stream()
-                .map(entry -> {
+    protected List<Bson> buildFilterInternal(List<Map<String, Object>> filterList) {
+        return filterList.stream()
+                .map(filter -> {
+                    Map.Entry<String, Object> entry = filter.entrySet().iterator().next();
                     String key = entry.getKey();
-                    if (!key.startsWith("$")) {
-                        return buildFieldFilter(key, entry.getValue());
-                    }
+                    Object value = entry.getValue();
 
                     return switch (key) {
-                        case "$nor" -> nor(getFiltersList(entry.getValue()));
-                        case "$and" -> and(getFiltersList(entry.getValue()));
-                        case "$or" -> or(getFiltersList(entry.getValue()));
-                        case "$not" -> not(buildFilterInternal((Map<String, Object>) entry.getValue()).getFirst());
-                        default -> throw new IllegalArgumentException("Unsupported filter key: " + key);
+                        case "$and" -> and(buildFilterInternal((List<Map<String, Object>>) value));
+                        case "$or" -> or(buildFilterInternal((List<Map<String, Object>>) value));
+                        default -> buildFieldFilter(key, value);
                     };
                 })
                 .toList();
     }
 
     protected Bson buildFieldFilter(String fieldName, Object value) {
-        return eq(fieldName, value);
-    }
-
-    protected List<Bson> getFiltersList(Object filters) {
-        if (filters instanceof List<?>) {
-            return ((List<?>) filters).stream()
-                    .filter(filter -> filter instanceof Map)
-                    .flatMap(filter -> buildFilterInternal((Map<String, Object>) filter).stream())
-                    .toList();
-        }
-
-        return Collections.emptyList();
+        return switch (fieldName) {
+            case "$all" -> {
+                Map.Entry<String, Object> entry = ((Map<String, Object>) value).entrySet().iterator().next();
+                yield all(entry.getKey(), (List<?>) entry.getValue());
+            }
+            case "$in" ->  {
+                Map.Entry<String, Object> entry = ((Map<String, Object>) value).entrySet().iterator().next();
+                yield in(entry.getKey(), (List<?>) entry.getValue());
+            }
+            case "$nin" -> {
+                Map.Entry<String, Object> entry = ((Map<String, Object>) value).entrySet().iterator().next();
+                yield nin(entry.getKey(), (List<?>) entry.getValue());
+            }
+            default -> eq(fieldName, value);
+        };
     }
 
     protected Bson buildSort(Map<String, Integer> orderBy) {
