@@ -8,6 +8,7 @@ import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.model.Review;
+import it.unipi.lsmsd.fnf.model.enums.AnimeType;
 import it.unipi.lsmsd.fnf.model.enums.Status;
 import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
@@ -204,7 +205,7 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
         anime.setStatus(Status.valueOf(document.getString("status")));
         anime.setImageUrl(document.getString("picture"));
         anime.setAverageRating(document.getDouble("average_score"));
-        anime.setType(document.getString("type"));
+        anime.setType(AnimeType.fromString(document.getString("type")));
         anime.setRelatedAnime(document.getList("relations", String.class));
         anime.setTags(document.getList("tags", String.class));
         anime.setProducers(document.getString("producers"));

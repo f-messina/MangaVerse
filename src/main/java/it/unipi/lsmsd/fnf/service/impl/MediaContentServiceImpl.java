@@ -119,14 +119,8 @@ public class MediaContentServiceImpl implements MediaContentService {
     public PageDTO<? extends MediaContentDTO> searchByTitle(String title, int page, MediaContentType type) throws BusinessException {
         try {
             if (MediaContentType.ANIME.equals(type)) {
-                if (title == null || title.isEmpty()) {
-                    return animeDAO.search(null, Map.of("title", 1), page);
-                }
                 return animeDAO.search(List.of(Map.of("title", title)), Map.of("score", 1), page);
             } else if (MediaContentType.MANGA.equals(type)) {
-                if (title == null || title.isEmpty()) {
-                    return mangaDAO.search(null, Map.of("title", 1), page);
-                }
                 return mangaDAO.search(List.of(Map.of("title", title)), Map.of("score", 1), page);
             } else {
                 throw new BusinessException("Invalid media content type");

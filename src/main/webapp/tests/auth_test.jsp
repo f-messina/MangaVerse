@@ -68,10 +68,10 @@
                             <span id="country-error" style="color: red"></span>
                         </div>
                         <div class="form-group form-button">
-                            <input class="type-input" type="submit" name="signup" id="signup" class="form-submit" value="Register"/>
+                            <input class="type-input form-submit" type="submit" name="signup" id="signup" value="Register"/>
                         </div>
-                        <button class="open-button" onclick="openForm()">Already have an account. Log In</button>
                     </form>
+                    <button class="open-button" onclick="openForm()">Already have an account. Log In</button>
                 </div>
             </div>
         </div>
@@ -79,8 +79,8 @@
 
     <section class="log-in" id="myForm">
         <div class="container mt-5">
-            <div class="signup-content">
-                <div class="signup-form">
+            <div class="login-content">
+                <div class="login-form">
                     <h2 class="form-title">Log in</h2>
                     <form action="${pageContext.request.contextPath}/auth" method="post" class="login-form" id="login-form">
                         <input type="hidden" name="action" value="login"/>
@@ -95,7 +95,7 @@
                             <span id="password-auth-error" style="color: red"><c:out value="${requestScope['passwordLoginError']}" /> </span>
                         </div>
                         <div class="form-group">
-                            <input class="type-input" type="submit" name="login" id="login" class="form-submit" value="Log in"/>
+                            <input class="type-input form-submit" type="submit" name="login" id="login" value="Log in"/>
                         </div>
                         <button type="button" class="btn cancel" onclick="closeForm()">Close</button>
                     </form>

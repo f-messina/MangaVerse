@@ -9,6 +9,8 @@ import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
 import it.unipi.lsmsd.fnf.model.Review;
+import it.unipi.lsmsd.fnf.model.enums.MangaDemographics;
+import it.unipi.lsmsd.fnf.model.enums.MangaType;
 import it.unipi.lsmsd.fnf.model.enums.Status;
 import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
 import it.unipi.lsmsd.fnf.model.mediaContent.MangaAuthor;
@@ -26,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.mongodb.client.model.Aggregates.*;
 import static com.mongodb.client.model.Filters.eq;
@@ -85,10 +88,7 @@ public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Mang
     public PageDTO<MangaDTO> search(List<Map<String, Object>> filters, Map<String, Integer> orderBy, int page) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> mangaCollection = mongoClient.getDatabase("mangaVerse").getCollection("manga");
-            Logger logger = LoggerFactory.getLogger(MangaDAOImpl.class);
-            logger.info("FilterMap: " + filters);
             Bson filter = buildFilter(filters);
-            logger.info("Filter: " + filter);
             Bson sort = buildSort(orderBy);
             Bson projection = include("title", "picture", "average_rating", "start_date", "end_date");
             int pageOffset = (page - 1) * Constants.PAGE_SIZE;
@@ -161,11 +161,11 @@ public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Mang
 
         appendIfNotNull(doc, "title", manga.getTitle());
         appendIfNotNull(doc, "status", manga.getStatus());
-        appendIfNotNull(doc, "type", manga.getType());
+        appendIfNotNull(doc, "type", manga.getType().name());
         appendIfNotNull(doc, "picture", manga.getImageUrl());
         appendIfNotNull(doc, "genres", manga.getGenres());
-        appendIfNotNull(doc, "start_date", manga.getStartDate());
-        appendIfNotNull(doc, "end_date", manga.getEndDate());
+        appendIfNotNull(doc, "start_date", ConverterUtils.localDateToDate(manga.getStartDate()));
+        appendIfNotNull(doc, "end_date", ConverterUtils.localDateToDate(manga.getEndDate()));
         appendIfNotNull(doc, "demographics", manga.getDemographics());
         appendIfNotNull(doc, "serializations", manga.getSerializations());
         appendIfNotNull(doc, "synopsis", manga.getSynopsis());
@@ -210,18 +210,20 @@ public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Mang
         Manga manga = new Manga();
         manga.setId(document.getObjectId("_id"));
         manga.setTitle(document.getString("title"));
-        manga.setType(document.getString("type"));
+        manga.setType(MangaType.fromString(document.getString("type")));
         manga.setStatus(Status.valueOf(document.getString("status")));
         manga.setThemes(document.getList("themes", String.class));
         manga.setGenres(document.getList("genres", String.class));
         manga.setImageUrl(document.getString("picture"));
-        manga.setDemographics(document.getList("demographics", String.class));
-        manga.setSerializations(document.getList("serializations", String.class));
+        manga.setDemographics(document.getList("demographics", String.class).stream()
+                .map(MangaDemographics::fromString)
+                .collect(Collectors.toList()));
+        manga.setSerializations(document.getString("serializations"));
         manga.setBackground(document.getString("background"));
         manga.setTitleEnglish(document.getString("title_english"));
         manga.setTitleJapanese(document.getString("title_japanese"));
-        manga.setStartDate(document.getString("start_date"));
-        manga.setEndDate(document.getString("end_date"));
+        manga.setStartDate(ConverterUtils.dateToLocalDate(document.getDate("start_date")));
+        manga.setEndDate(ConverterUtils.dateToLocalDate(document.getDate("end_date")));
         manga.setVolumes(document.getInteger("volumes"));
         manga.setChapters(document.getInteger("chapters"));
         manga.setAverageRating(document.getDouble("average_rating"));
@@ -270,11 +272,11 @@ public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Mang
         manga.setImageUrl(doc.getString("picture"));
         Object averageRatingObj = doc.get("average_rating");
         manga.setAverageRating(
-                (averageRatingObj instanceof Integer) ? ((Integer) averageRatingObj).doubleValue() :
-                        (averageRatingObj instanceof Double) ? (Double) averageRatingObj : 0.0
+                (averageRatingObj instanceof Integer) ? Double.valueOf(((Integer) averageRatingObj)) :
+                        (averageRatingObj instanceof Double) ? (Double) averageRatingObj : null
         );
-        manga.setStartDate(doc.getString("start_date"));
-        manga.setEndDate(doc.getString("end_date"));
+        manga.setStartDate(ConverterUtils.dateToLocalDate(doc.getDate("start_date")));
+        manga.setEndDate(ConverterUtils.dateToLocalDate(doc.getDate("end_date")));
 
         return manga;
     }

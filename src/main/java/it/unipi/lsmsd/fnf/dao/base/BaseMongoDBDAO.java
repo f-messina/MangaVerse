@@ -82,6 +82,18 @@ public abstract class BaseMongoDBDAO {
                 Map.Entry<String, Object> entry = ((Map<String, Object>) value).entrySet().iterator().next();
                 yield nin(entry.getKey(), (List<?>) entry.getValue());
             }
+            case "$gte" -> {
+                Map.Entry<String, Object> entry = ((Map<String, Object>) value).entrySet().iterator().next();
+                yield gte(entry.getKey(), entry.getValue());
+            }
+            case "$lte" -> {
+                Map.Entry<String, Object> entry = ((Map<String, Object>) value).entrySet().iterator().next();
+                yield lte(entry.getKey(), entry.getValue());
+            }
+            case "$exists" -> {
+                Map.Entry<String, Object> entry = ((Map<String, Object>) value).entrySet().iterator().next();
+                yield exists(entry.getKey(), (Boolean) entry.getValue());
+            }
             default -> eq(fieldName, value);
         };
     }

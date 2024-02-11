@@ -7,7 +7,6 @@ public abstract class MediaContent {
     private ObjectId id;
     private String title;
     private String imageUrl;
-    private String type;
     private Double averageRating;
     private String synopsis;
     private Status status;
@@ -22,10 +21,6 @@ public abstract class MediaContent {
 
     public String getImageUrl() {
         return imageUrl;
-    }
-
-    public String getType() {
-        return type;
     }
 
     public Double getAverageRating() {
@@ -52,10 +47,6 @@ public abstract class MediaContent {
         this.imageUrl = imageUrl;
     }
 
-    public void setType(String type) {
-        this.type = type;
-    }
-
     public void setAverageRating(Double averageRating) {
         this.averageRating = averageRating;
     }
@@ -74,7 +65,6 @@ public abstract class MediaContent {
                 "id='" + id + '\'' +
                 ", title='" + title + '\'' +
                 ", imageUrl='" + imageUrl + '\'' +
-                ", type='" + type + '\'' +
                 ", averageRating='" + averageRating + '\'' +
                 ", synopsis='" + synopsis + '\'' +
                 ", status='" + status + '\'' +

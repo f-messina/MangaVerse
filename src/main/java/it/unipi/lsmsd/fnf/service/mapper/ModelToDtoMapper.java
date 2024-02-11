@@ -89,8 +89,7 @@ public class ModelToDtoMapper {
             throw new IllegalArgumentException(("The media content can't be null."));
         }
         MediaContentDTO dto = null;
-        if(content instanceof Anime) {
-            Anime anime = (Anime) content;
+        if(content instanceof Anime anime) {
             AnimeDTO animeDTO = new AnimeDTO();
             animeDTO.setYear(anime.getYear());
             animeDTO.setId(anime.getId());
@@ -99,8 +98,7 @@ public class ModelToDtoMapper {
             animeDTO.setAverageRating(anime.getAverageRating());
             dto = animeDTO;
 
-        } else if (content instanceof Manga) {
-            Manga manga = (Manga) content;
+        } else if (content instanceof Manga manga) {
             MangaDTO mangaDTO = new MangaDTO();
             mangaDTO.setStartDate(manga.getStartDate());
             mangaDTO.setId(manga.getId());

@@ -1,5 +1,7 @@
 package it.unipi.lsmsd.fnf.utils;
 
+import it.unipi.lsmsd.fnf.model.enums.Status;
+
 import java.time.LocalDate;
 
 public class Constants {
@@ -13,4 +15,8 @@ public class Constants {
     public static final String[] MANGA_GENRES = {"Supernatural", "Adventure", "Boys Love", "Comedy", "Girls Love",
             "Mystery", "Horror", "Drama", "Gourmet", "Award Winning", "Fantasy", "Romance", "Avant Garde", "Action",
             "Slice of Life", "Sports", "Sci-Fi", "Suspense", "Ecchi", "Erotica"};
+
+    public static final Status[] MANGA_STATUS = {Status.DISCONTINUED, Status.ON_HIATUS, Status.FINISHED, Status.ONGOING};
+
+
 }

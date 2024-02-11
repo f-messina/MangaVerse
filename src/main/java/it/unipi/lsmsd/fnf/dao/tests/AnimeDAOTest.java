@@ -4,6 +4,7 @@ import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dao.mongo.AnimeDAOImpl;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
+import it.unipi.lsmsd.fnf.model.enums.AnimeType;
 import it.unipi.lsmsd.fnf.model.enums.Status;
 import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
 import org.bson.types.ObjectId;
@@ -121,7 +122,7 @@ public class AnimeDAOTest {
         anime.setYear(2019);
         anime.setStatus(Status.valueOf("FINISHED"));
         anime.setSynopsis("Sample synopsis");
-        anime.setType("TV");
+        anime.setType(AnimeType.TV);
 
         // Set other properties as needed
         return anime;

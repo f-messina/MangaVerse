@@ -1,6 +1,7 @@
 package it.unipi.lsmsd.fnf.model.mediaContent;
 
 import it.unipi.lsmsd.fnf.model.Review;
+import it.unipi.lsmsd.fnf.model.enums.AnimeType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +15,7 @@ public class Anime extends MediaContent {
     private List<Review> reviews = new ArrayList<>();
     private String producers;
     private String studios;
+    private AnimeType type;
 
     public Integer getYear() {
         return year;
@@ -47,6 +49,10 @@ public class Anime extends MediaContent {
         return studios;
     }
 
+    public AnimeType getType() {
+        return type;
+    }
+
     public void setYear(Integer year) {
         this.year = year;
     }
@@ -77,6 +83,10 @@ public class Anime extends MediaContent {
 
     public void setStudios(String studios) {
         this.studios = studios;
+    }
+
+    public void setType(AnimeType type) {
+        this.type = type;
     }
 
     public void addReview(Review review) {
