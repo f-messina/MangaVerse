@@ -1,0 +1,24 @@
+<changelist name="Uncommitted_changes_before_Update_at_25_02_2024_17_47_[Changes]" date="1708879621096" recycled="false" toDelete="true">
+  <option name="PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_25_02_2024_17_47_[Changes]/shelved.patch" />
+  <option name="DESCRIPTION" value="Uncommitted changes before Update at 25/02/2024 17:47 [Changes]" />
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/it/unipi/lsmsd/fnf/dto/mediaContent/MediaContentDTO.class" />
+    <option name="AFTER_PATH" value="target/classes/it/unipi/lsmsd/fnf/dto/mediaContent/MediaContentDTO.class" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_25_02_2024_17_47_[Changes]/MediaContentDTO.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/it/unipi/lsmsd/fnf/dto/PageDTO.class" />
+    <option name="AFTER_PATH" value="target/classes/it/unipi/lsmsd/fnf/dto/PageDTO.class" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_25_02_2024_17_47_[Changes]/PageDTO.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/it/unipi/lsmsd/fnf/service/impl/MediaContentServiceImpl.class" />
+    <option name="AFTER_PATH" value="target/classes/it/unipi/lsmsd/fnf/service/impl/MediaContentServiceImpl.class" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_25_02_2024_17_47_[Changes]/MediaContentServiceImpl.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/it/unipi/lsmsd/fnf/service/MediaContentService.class" />
+    <option name="AFTER_PATH" value="target/classes/it/unipi/lsmsd/fnf/service/MediaContentService.class" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_25_02_2024_17_47_[Changes]/MediaContentService.class" />
+  </binary>
+</changelist>
