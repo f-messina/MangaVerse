@@ -18,49 +18,61 @@ import static org.junit.Assert.assertEquals;
 
 public class Neo4JDAOImplTest {
 
-    /*@Test
-    public void testLikeMediaContent() throws DAOException {
+    @Test
+    public void testLikeAnime() throws DAOException {
         Neo4JDAOImpl dao = new Neo4JDAOImpl();
-        dao.likeMediaContent("6577877be68376234760585f","65789bb52f5d29465d0abcff");
-    }*/
+        dao.likeAnime("6577877be68376234760585f","65789bb52f5d29465d0abd09");
+    }
 
-    /*@Test
+    @Test
+    public void testLikeManga() throws DAOException {
+        Neo4JDAOImpl dao = new Neo4JDAOImpl();
+        dao.likeManga("6577877be68376234760585f","657ac61bb34f5514b91ea235");
+    }
+
+    @Test
     public void testFollowUser() throws DAOException {
         Neo4JDAOImpl neo4JDAO = new Neo4JDAOImpl();
         neo4JDAO.followUser("6577877be68376234760585a", "6577877be683762347605859");
-    }*/
+    }
 
-    /*@Test
-    public void testUnlikeMediaContent() throws DAOException {
+    @Test
+    public void testUnlikeAnime() throws DAOException {
         Neo4JDAOImpl dao = new Neo4JDAOImpl();
-        dao.unlikeMediaContent("6577877be68376234760585f","65789bb52f5d29465d0abcff");
-    }*/
+        dao.unlikeAnime("6577877be68376234760585f","65789bb52f5d29465d0abd09");
+    }
 
-    /*@Test
+    @Test
+    public void testUnlikeManga() throws DAOException {
+        Neo4JDAOImpl dao = new Neo4JDAOImpl();
+        dao.unlikeManga("6577877be68376234760585f","657ac61bb34f5514b91ea233");
+    }
+
+    @Test
     public void testUnfollowUser() throws DAOException {
         Neo4JDAOImpl neo4JDAO = new Neo4JDAOImpl();
         neo4JDAO.unfollowUser("6577877be68376234760585a", "6577877be683762347605859");
-    }*/
+    }
 
-    /*@Test
-    public void testGetLikedMediaContents() throws DAOException {
-        Neo4JDAOImpl neo4JDAO = new Neo4JDAOImpl();
-        List<MediaContentDTO> records = neo4JDAO.getLikedMediaContents("6577877be68376234760585f");
-    }*/
 
-    /*@Test
+    @Test
     public void testGetLikedAnime() throws DAOException {
         Neo4JDAOImpl neo4JDAO = new Neo4JDAOImpl();
         List<AnimeDTO> anime = neo4JDAO.getLikedAnime("6577877be68376234760585f");
 
-        System.out.println(anime);
+        for (AnimeDTO animeDTO : anime) {
+            System.out.println("id: " + animeDTO.getId() + ", title: " + animeDTO.getTitle() + ", picture: " + animeDTO.getImageUrl());
+        }
     }
+
 
     @Test
     public void testGetLikedManga() throws DAOException{
         Neo4JDAOImpl neo4JDAO = new Neo4JDAOImpl();
         List<MangaDTO> manga = neo4JDAO.getLikedManga("6577877be68376234760585f");
-        System.out.println(manga);
+        for (MangaDTO mangaDTO : manga) {
+            System.out.println("id: " + mangaDTO.getId() + ", title: " + mangaDTO.getTitle() + ", picture: " + mangaDTO.getImageUrl());
+        }
     }
 
     @Test
@@ -76,17 +88,18 @@ public class Neo4JDAOImplTest {
     public void testGetFollowers() throws DAOException {
         Neo4JDAO neo4JDAO = new Neo4JDAOImpl();
         List<RegisteredUserDTO> followerUsers = neo4JDAO.getFollowers("6577877be68376234760585d");
-        System.out.println(followerUsers);
+        for(RegisteredUserDTO user : followerUsers)
+            System.out.println(user);
     }
 
     @Test
     public void testSuggestUsers() throws DAOException {
         Neo4JDAO neo4JDAO = new Neo4JDAOImpl();
         List<RegisteredUserDTO> followerUsers = neo4JDAO.suggestUsers("6577877be68376234760585d");
-        System.out.println(followerUsers);
+        for(RegisteredUserDTO user : followerUsers)
+            System.out.println(user);
 
     }
-
 
 
     @Test
@@ -94,84 +107,101 @@ public class Neo4JDAOImplTest {
         Neo4JDAOImpl neo4JDAO = new Neo4JDAOImpl();
         String userId = "6577877be6837623476063e4";
 
-        List<AnimeDTO> suggestedAnime = neo4JDAO.suggestAnime(userId);
+        List<AnimeDTO> anime = neo4JDAO.suggestAnime(userId);
 
-        System.out.println(suggestedAnime);
+        for (AnimeDTO animeDTO : anime) {
+            System.out.println("id: " + animeDTO.getId() + ", title: " + animeDTO.getTitle() + ", picture: " + animeDTO.getImageUrl());
+        }
     }
 
     @Test
     public void testSuggestManga() throws DAOException {
         Neo4JDAOImpl neo4JDAO = new Neo4JDAOImpl();
-        List<MangaDTO> manga = neo4JDAO.suggestManga("6577877be68376234760585f");
-        System.out.println(manga);
+        List<MangaDTO> manga = neo4JDAO.suggestManga("6577877be6837623476063e4");
+        for (MangaDTO mangaDTO : manga) {
+            System.out.println("id: " + mangaDTO.getId() + ", title: " + mangaDTO.getTitle() + ", picture: " + mangaDTO.getImageUrl());
+        }
     }
 
 
 
-    /*@Test
+    @Test
     public void testGetTrendAnimeByYear() throws DAOException {
         Neo4JDAOImpl neo4JDAO = new Neo4JDAOImpl();
         List<AnimeDTO> anime = neo4JDAO.getTrendAnimeByYear(2019);
-        System.out.println(anime);
+        for (AnimeDTO animeDTO : anime) {
+            System.out.println("id: " + animeDTO.getId() + ", title: " + animeDTO.getTitle() + ", picture: " + animeDTO.getImageUrl());
+        }
     }
 
     @Test
     public void testGetTrendMangaByYear() throws DAOException {
         Neo4JDAOImpl neo4JDAO = new Neo4JDAOImpl();
         List<MangaDTO> manga = neo4JDAO.getTrendMangaByYear(2019);
-        System.out.println(manga);
-    }*/
+        for (MangaDTO mangaDTO : manga) {
+            System.out.println("id: " + mangaDTO.getId() + ", title: " + mangaDTO.getTitle() + ", picture: " + mangaDTO.getImageUrl());
+        }
+    }
 
 
 
-    /*@Test
+    @Test
     public void testGetAnimeByGenre() throws DAOException {
         Neo4JDAOImpl neo4JDAO = new Neo4JDAOImpl();
         List<AnimeDTO> anime = neo4JDAO.getAnimeByGenre("comedy");
-        System.out.println(anime);
+        for (AnimeDTO animeDTO : anime) {
+            System.out.println("id: " + animeDTO.getId() + ", title: " + animeDTO.getTitle() + ", picture: " + animeDTO.getImageUrl());
+        }
     }
 
     @Test
     public void testGetMangaByGenre() throws DAOException {
         Neo4JDAOImpl neo4JDAO = new Neo4JDAOImpl();
         List<MangaDTO> manga = neo4JDAO.getMangaByGenre("Fantasy");
-        System.out.println(manga);
-    }*/
+        for (MangaDTO mangaDTO : manga) {
+            System.out.println("id: " + mangaDTO.getId() + ", title: " + mangaDTO.getTitle() + ", picture: " + mangaDTO.getImageUrl());
+        }
+    }
 
 
-
-    /*@Test
+    //check
+    @Test
     public void testGetAnimeGenresTrendByYear() throws DAOException {
         Neo4JDAOImpl neo4JDAO = new Neo4JDAOImpl();
-        List<List<String>> genre = neo4JDAO.getAnimeGenresTrendByYear(2019);
+        List<String> genre = neo4JDAO.getAnimeGenresTrendByYear(2019);
         System.out.println(genre);
     }
 
+    //check
     @Test
     public void testGetMangaGenresTrendByYear() throws DAOException {
         Neo4JDAOImpl neo4JDAO = new Neo4JDAOImpl();
-        List<List<String>> genre = neo4JDAO.getMangaGenresTrendByYear(2019);
+        List<String> genre = neo4JDAO.getMangaGenresTrendByYear(2019);
         System.out.println(genre);
-    }*/
+    }
 
 
-    /*
+
     @Test
     public void testGetAnimeTrendByGenre() throws DAOException {
         Neo4JDAOImpl neo4JDAO = new Neo4JDAOImpl();
 
-        List<AnimeDTO> suggestedAnime = neo4JDAO.getAnimeTrendByGenre();
+        List<AnimeDTO> anime = neo4JDAO.getAnimeTrendByGenre();
 
-        System.out.println(suggestedAnime);
+        for (AnimeDTO animeDTO : anime) {
+            System.out.println("id: " + animeDTO.getId() + ", title: " + animeDTO.getTitle() + ", picture: " + animeDTO.getImageUrl());
+        }
     }
 
     @Test
     public void testGetMangaTrendByGenre() throws DAOException{
         Neo4JDAOImpl neo4JDAO = new Neo4JDAOImpl();
 
-        List<MangaDTO> suggestedManga = neo4JDAO.getMangaTrendByGenre();
+        List<MangaDTO> manga = neo4JDAO.getMangaTrendByGenre();
 
-        System.out.println(suggestedManga);
+        for (MangaDTO mangaDTO : manga) {
+            System.out.println("id: " + mangaDTO.getId() + ", title: " + mangaDTO.getTitle() + ", picture: " + mangaDTO.getImageUrl());
+        }
     }
 
 
@@ -180,35 +210,40 @@ public class Neo4JDAOImplTest {
     public void testGetAnimeTrendByLikes() throws DAOException{
         Neo4JDAOImpl neo4JDAO = new Neo4JDAOImpl();
 
-        List<AnimeDTO> suggestedAnime = neo4JDAO.getAnimeTrendByLikes();
+        List<AnimeDTO> anime = neo4JDAO.getAnimeTrendByLikes();
 
-        System.out.println(suggestedAnime);
+        for (AnimeDTO animeDTO : anime) {
+            System.out.println("id: " + animeDTO.getId() + ", title: " + animeDTO.getTitle() + ", picture: " + animeDTO.getImageUrl());
+        }
     }
 
     @Test
     public void testGetMangaTrendByLikes() throws DAOException{
         Neo4JDAOImpl neo4JDAO = new Neo4JDAOImpl();
 
-        List<MangaDTO> suggestedManga = neo4JDAO.getMangaTrendByLikes();
+        List<MangaDTO> manga = neo4JDAO.getMangaTrendByLikes();
 
-        System.out.println(suggestedManga);
+        for (MangaDTO mangaDTO : manga) {
+            System.out.println("id: " + mangaDTO.getId() + ", title: " + mangaDTO.getTitle() + ", picture: " + mangaDTO.getImageUrl());
+        }
     }
 
 
-
+    //check
     @Test
     public void testGetAnimeGenresTrend() throws DAOException{
         Neo4JDAOImpl neo4JDAO = new Neo4JDAOImpl();
-        List<List<String>> genre = neo4JDAO.getAnimeGenresTrend();
+        List<String> genre = neo4JDAO.getAnimeGenresTrend();
         System.out.println(genre);
     }
 
+    //check
     @Test
     public void testGetMangaGenresTrend() throws DAOException{
         Neo4JDAOImpl neo4JDAO = new Neo4JDAOImpl();
-        List<List<String>> genre = neo4JDAO.getMangaGenresTrend();
+        List<String> genre = neo4JDAO.getMangaGenresTrend();
         System.out.println(genre);
-    }*/
+    }
 
 
 }

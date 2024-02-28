@@ -10,14 +10,18 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6440fbba-1ec4-43f5-8314-d4abadeae161" name="Changes" comment="Anime LIST WORKING">
+      <change afterPath="$PROJECT_DIR$/src/test/java/it/unipi/lsmsd/fnf/dao/mongo/AnimeDAOImplTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/java/it/unipi/lsmsd/fnf/dao/mongo/MangaDAOImplTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/java/it/unipi/lsmsd/fnf/dao/mongo/PersonalListDAOImplTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/java/it/unipi/lsmsd/fnf/dao/mongo/ReviewDAOImplTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/java/it/unipi/lsmsd/fnf/dao/mongo/UserDAOImplTest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/Neo4JDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/Neo4JDAO.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/neo4j/Neo4JDAOImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/neo4j/Neo4JDAOImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dto/mediaContent/MangaDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dto/mediaContent/MangaDTO.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/MediaContentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/MediaContentService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/impl/MediaContentServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/impl/MediaContentServiceImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/java/it/unipi/lsmsd/fnf/dao/neo4j/Neo4JDAOImplTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/it/unipi/lsmsd/fnf/dao/neo4j/Neo4JDAOImplTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dto/mediaContent/MangaDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/dto/mediaContent/MangaDTO.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/service/MediaContentService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/service/MediaContentService.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/service/impl/MediaContentServiceImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/service/impl/MediaContentServiceImpl.class" afterDir="false" />
     </list>
@@ -81,7 +85,9 @@
     "Application.UserDAOTest.executor": "Run",
     "JUnit.AnimeDAOImplTest.executor": "Debug",
     "JUnit.AnimeDAOImplTest.insert.executor": "Coverage",
+    "JUnit.AnimeDAOImplTest.testInsert.executor": "Run",
     "JUnit.Neo4JDAOImplTest.executor": "Run",
+    "JUnit.Neo4JDAOImplTest.testFollowUser.executor": "Run",
     "JUnit.Neo4JDAOImplTest.testGetAnimeByGenre.executor": "Run",
     "JUnit.Neo4JDAOImplTest.testGetAnimeGenresTrend.executor": "Run",
     "JUnit.Neo4JDAOImplTest.testGetAnimeGenresTrendByYear.executor": "Run",
@@ -98,11 +104,16 @@
     "JUnit.Neo4JDAOImplTest.testGetMangaTrendByLikes.executor": "Run",
     "JUnit.Neo4JDAOImplTest.testGetTrendAnimeByYear.executor": "Run",
     "JUnit.Neo4JDAOImplTest.testGetTrendMangaByYear.executor": "Run",
+    "JUnit.Neo4JDAOImplTest.testLikeAnime.executor": "Run",
+    "JUnit.Neo4JDAOImplTest.testLikeManga.executor": "Run",
     "JUnit.Neo4JDAOImplTest.testLikeMediaContent.executor": "Debug",
     "JUnit.Neo4JDAOImplTest.testSuggestAnime.executor": "Run",
     "JUnit.Neo4JDAOImplTest.testSuggestAnimeByGenre.executor": "Run",
     "JUnit.Neo4JDAOImplTest.testSuggestManga.executor": "Run",
     "JUnit.Neo4JDAOImplTest.testSuggestUsers.executor": "Run",
+    "JUnit.Neo4JDAOImplTest.testUnfollowUser.executor": "Run",
+    "JUnit.Neo4JDAOImplTest.testUnlikeAnime.executor": "Run",
+    "JUnit.Neo4JDAOImplTest.testUnlikeManga.executor": "Run",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "Tomcat Server.Tomcat 10.1.16.executor": "Run",
@@ -124,7 +135,7 @@
     "project.structure.last.edited": "Artifacts",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "configurable.group.build",
+    "settings.editor.selected.configurable": "reference.settings.project.maven.repository.indices",
     "ts.external.directory.path": "C:\\Program Files\\JetBrains\\IntelliJ IDEA 2023.3.2\\plugins\\javascript-impl\\jsLanguageServicesImpl\\external",
     "vue.rearranger.settings.migration": "true"
   }
@@ -149,11 +160,11 @@
       <recent name="it.unipi.lsmsd.fnf.model" />
     </key>
     <key name="CreateTestDialog.RecentsKey">
-      <recent name="it.unipi.lsmsd.fnf.dao.neo4j" />
       <recent name="it.unipi.lsmsd.fnf.dao.mongo" />
+      <recent name="it.unipi.lsmsd.fnf.dao.neo4j" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.Neo4JDAOImplTest.testSuggestAnimeByGenre">
+  <component name="RunManager" selected="JUnit.AnimeDAOImplTest.testInsert">
     <configuration default="true" type="#com.intellij.j2ee.web.tomcat.TomcatRunConfigurationFactory" factoryName="Local" ALTERNATIVE_JRE_ENABLED="false">
       <deployment />
       <server-settings>
@@ -251,23 +262,23 @@
       <option name="USE_PATTERN" value="false" />
       <method v="2" />
     </configuration>
-    <configuration name="Neo4JDAOImplTest.testGetAnimeTrendByGenre" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="AnimeDAOImplTest.testInsert" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="MangaUniverse" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="it.unipi.lsmsd.fnf.dao.neo4j.*" />
+          <option name="PATTERN" value="it.unipi.lsmsd.fnf.dao.mongo.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
-      <option name="PACKAGE_NAME" value="it.unipi.lsmsd.fnf.dao.neo4j" />
-      <option name="MAIN_CLASS_NAME" value="it.unipi.lsmsd.fnf.dao.neo4j.Neo4JDAOImplTest" />
-      <option name="METHOD_NAME" value="testGetAnimeTrendByGenre" />
+      <option name="PACKAGE_NAME" value="it.unipi.lsmsd.fnf.dao.mongo" />
+      <option name="MAIN_CLASS_NAME" value="it.unipi.lsmsd.fnf.dao.mongo.AnimeDAOImplTest" />
+      <option name="METHOD_NAME" value="testInsert" />
       <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Neo4JDAOImplTest.testGetAnimeTrendByLikes" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="Neo4JDAOImplTest.testGetAnimeGenresTrend" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="MangaUniverse" />
       <extension name="coverage">
         <pattern>
@@ -277,13 +288,13 @@
       </extension>
       <option name="PACKAGE_NAME" value="it.unipi.lsmsd.fnf.dao.neo4j" />
       <option name="MAIN_CLASS_NAME" value="it.unipi.lsmsd.fnf.dao.neo4j.Neo4JDAOImplTest" />
-      <option name="METHOD_NAME" value="testGetAnimeTrendByLikes" />
+      <option name="METHOD_NAME" value="testGetAnimeGenresTrend" />
       <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Neo4JDAOImplTest.testGetMangaTrendByGenre" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="Neo4JDAOImplTest.testGetAnimeGenresTrendByYear" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="MangaUniverse" />
       <extension name="coverage">
         <pattern>
@@ -293,13 +304,13 @@
       </extension>
       <option name="PACKAGE_NAME" value="it.unipi.lsmsd.fnf.dao.neo4j" />
       <option name="MAIN_CLASS_NAME" value="it.unipi.lsmsd.fnf.dao.neo4j.Neo4JDAOImplTest" />
-      <option name="METHOD_NAME" value="testGetMangaTrendByGenre" />
+      <option name="METHOD_NAME" value="testGetAnimeGenresTrendByYear" />
       <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Neo4JDAOImplTest.testGetMangaTrendByLikes" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="Neo4JDAOImplTest.testGetMangaGenresTrend" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="MangaUniverse" />
       <extension name="coverage">
         <pattern>
@@ -309,13 +320,13 @@
       </extension>
       <option name="PACKAGE_NAME" value="it.unipi.lsmsd.fnf.dao.neo4j" />
       <option name="MAIN_CLASS_NAME" value="it.unipi.lsmsd.fnf.dao.neo4j.Neo4JDAOImplTest" />
-      <option name="METHOD_NAME" value="testGetMangaTrendByLikes" />
+      <option name="METHOD_NAME" value="testGetMangaGenresTrend" />
       <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Neo4JDAOImplTest.testSuggestAnimeByGenre" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="Neo4JDAOImplTest.testGetMangaGenresTrendByYear" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="MangaUniverse" />
       <extension name="coverage">
         <pattern>
@@ -325,7 +336,7 @@
       </extension>
       <option name="PACKAGE_NAME" value="it.unipi.lsmsd.fnf.dao.neo4j" />
       <option name="MAIN_CLASS_NAME" value="it.unipi.lsmsd.fnf.dao.neo4j.Neo4JDAOImplTest" />
-      <option name="METHOD_NAME" value="testSuggestAnimeByGenre" />
+      <option name="METHOD_NAME" value="testGetMangaGenresTrendByYear" />
       <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -421,11 +432,11 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="JUnit.Neo4JDAOImplTest.testSuggestAnimeByGenre" />
-        <item itemvalue="JUnit.Neo4JDAOImplTest.testGetMangaTrendByLikes" />
-        <item itemvalue="JUnit.Neo4JDAOImplTest.testGetAnimeTrendByLikes" />
-        <item itemvalue="JUnit.Neo4JDAOImplTest.testGetMangaTrendByGenre" />
-        <item itemvalue="JUnit.Neo4JDAOImplTest.testGetAnimeTrendByGenre" />
+        <item itemvalue="JUnit.AnimeDAOImplTest.testInsert" />
+        <item itemvalue="JUnit.Neo4JDAOImplTest.testGetMangaGenresTrend" />
+        <item itemvalue="JUnit.Neo4JDAOImplTest.testGetAnimeGenresTrend" />
+        <item itemvalue="JUnit.Neo4JDAOImplTest.testGetMangaGenresTrendByYear" />
+        <item itemvalue="JUnit.Neo4JDAOImplTest.testGetAnimeGenresTrendByYear" />
       </list>
     </recent_temporary>
   </component>
@@ -494,17 +505,6 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Anime LIST WORKING" />
     <option name="LAST_COMMIT_MESSAGE" value="Anime LIST WORKING" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/mongo/AnimeDAOImpl.java</url>
-          <line>31</line>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/workspace_xml$AnimeDAOImplTest_insert.ic" NAME="AnimeDAOImplTest.insert Coverage Results" MODIFIED="1707238225663" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false">

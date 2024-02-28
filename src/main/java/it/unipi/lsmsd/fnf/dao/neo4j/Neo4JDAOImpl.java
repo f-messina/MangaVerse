@@ -9,7 +9,6 @@ import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
 import org.bson.types.ObjectId;
 import org.neo4j.driver.*;
 import org.neo4j.driver.Record;
-import org.neo4j.driver.types.Node;
 
 
 import java.util.ArrayList;
@@ -18,18 +17,30 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static org.neo4j.driver.Values.parameters;
-
 public class Neo4JDAOImpl extends BaseNeo4JDAO implements Neo4JDAO {
 
     //like a media content OK
     @Override
-    public void likeMediaContent(String userId, String mediaId) throws DAOException {
+    public void likeAnime(String userId, String animeId) throws DAOException {
         try (Session session = getSession()) {
-            String query = "MATCH (u:User {id: $userId}), (m:MediaContent {id: $mediaId}) " +
-                            "MERGE (u)-[r:LIKE]->(m) " +
+            String query = "MATCH (u:User {id: $userId}), (a:Anime {id: $animeId}) " +
+                            "MERGE (u)-[r:LIKE]->(a) " +
                             "SET r.date = datetime() ";
-            session.run(query, Map.of("userId", userId, "mediaId", mediaId));
+            session.run(query, Map.of("userId", userId, "animeId", animeId));
+
+        } catch (Exception e) {
+            throw new DAOException(e);
+        }
+
+    }
+
+    @Override
+    public void likeManga(String userId, String mangaId) throws DAOException {
+        try (Session session = getSession()) {
+            String query = "MATCH (u:User {id: $userId}), (m:Manga {id: $mangaId}) " +
+                    "MERGE (u)-[r:LIKE]->(m) " +
+                    "SET r.date = datetime() ";
+            session.run(query, Map.of("userId", userId, "mangaId", mangaId));
 
         } catch (Exception e) {
             throw new DAOException(e);
@@ -51,10 +62,20 @@ public class Neo4JDAOImpl extends BaseNeo4JDAO implements Neo4JDAO {
 
     // unlike a media content OK
     @Override
-    public void unlikeMediaContent(String userId, String mediaId) throws DAOException {
+    public void unlikeAnime(String userId, String animeId) throws DAOException {
         try (Session session = getSession()) {
-            String query = "MATCH (u:User {id: $userId})-[r:LIKE]->(m:MediaContent {id: $mediaId}) DELETE r";
-            session.run(query, Map.of("userId", userId, "mediaId", mediaId));
+            String query = "MATCH (u:User {id: $userId})-[r:LIKE]->(a:Anime {id: $animeId}) DELETE r";
+            session.run(query, Map.of("userId", userId, "animeId", animeId));
+        } catch (Exception e) {
+            throw new DAOException(e);
+        }
+    }
+
+    @Override
+    public void unlikeManga(String userId, String mangaId) throws DAOException {
+        try (Session session = getSession()) {
+            String query = "MATCH (u:User {id: $userId})-[r:LIKE]->(m:Manga {id: $mangaId}) DELETE r";
+            session.run(query, Map.of("userId", userId, "mangaId", mangaId));
         } catch (Exception e) {
             throw new DAOException(e);
         }
@@ -78,7 +99,7 @@ public class Neo4JDAOImpl extends BaseNeo4JDAO implements Neo4JDAO {
     @Override
     public List<AnimeDTO> getLikedAnime(String userId) throws DAOException {
         try (Session session = getSession()) {
-            String query = "MATCH (u:User {id: $userId})-[:LIKE]->(m:MediaContent {type: 'anime'}) RETURN m";
+            String query = "MATCH (u:User {id: $userId})-[:LIKE]->(a:Anime) RETURN a.id as id, a.title as title, a.picture as picture";
             List<Record> records = session.run(query, Map.of("userId", userId)).list();
             List<AnimeDTO> list = records.stream().map(this::recordToAnimeDTO).collect(Collectors.toList());
             return  list;
@@ -89,15 +110,24 @@ public class Neo4JDAOImpl extends BaseNeo4JDAO implements Neo4JDAO {
 
 
     private AnimeDTO recordToAnimeDTO(Record record) {
-        Map<String, Object> map = record.get(0).asMap();
-        return new AnimeDTO(new ObjectId(String.valueOf(map.get("id"))), (String)map.get("title"), (String)map.get("picture"));
+        Map<String, Object> map = record.asMap();
+        AnimeDTO animeDTO = new AnimeDTO();
+        animeDTO.setId(new ObjectId(String.valueOf(map.get("id"))));
+        animeDTO.setTitle((String)map.get("title"));
+        if (map.get("picture") != null) {
+            animeDTO.setImageUrl((String)map.get("picture"));
+        }
+
+        return animeDTO;
     }
+
+
 
     //OK
     @Override
     public List<MangaDTO> getLikedManga(String userId) throws DAOException {
         try (Session session = getSession()) {
-            String query = "MATCH (u:User {id: $userId})-[:LIKE]->(m:MediaContent {type: 'manga'}) RETURN m";
+            String query = "MATCH (u:User {id: $userId})-[:LIKE]->(m:Manga) RETURN m.id as id, m.title as title, m.picture as picture";
             List<Record> records = session.run(query, Map.of("userId", userId)).list();
             List<MangaDTO> list = records.stream().map(this::recordToMangaDTO).collect(Collectors.toList());
             return list;
@@ -107,8 +137,15 @@ public class Neo4JDAOImpl extends BaseNeo4JDAO implements Neo4JDAO {
     }
 
     private MangaDTO recordToMangaDTO(Record record) {
-        Map<String, Object> map = record.get(0).asMap();
-        return new MangaDTO(new ObjectId(String.valueOf(map.get("id"))), (String)map.get("title"), (String)map.get("picture"));
+        Map<String, Object> map = record.asMap();
+        MangaDTO mangaDTO = new MangaDTO();
+        mangaDTO.setId(new ObjectId(String.valueOf(map.get("id"))));
+        mangaDTO.setTitle((String)map.get("title"));
+        if (map.get("picture") != null) {
+            mangaDTO.setImageUrl((String)map.get("picture"));
+        }
+
+        return mangaDTO;
     }
 
 
@@ -116,7 +153,7 @@ public class Neo4JDAOImpl extends BaseNeo4JDAO implements Neo4JDAO {
     @Override
     public List<RegisteredUserDTO> getFollowing(String userId) throws DAOException {
         try (Session session = getSession()) {
-            String query = "MATCH (follower:User {id: $userId})-[:FOLLOWS]-(following:User) RETURN following";
+            String query = "MATCH (follower:User {id: $userId})-[:FOLLOWS]-(f:User) RETURN f.id as id, f.username as username, f.picture as picture";
             List<Record> records = session.run(query, Map.of("userId", userId)).list();
             List<RegisteredUserDTO> list = records.stream()
                     .map(this::recordToRegisteredUserDTO)
@@ -129,15 +166,19 @@ public class Neo4JDAOImpl extends BaseNeo4JDAO implements Neo4JDAO {
 
 
     private RegisteredUserDTO recordToRegisteredUserDTO(Record record) {
-        Map<String, Object> map = record.get(0).asMap();
-        return new RegisteredUserDTO(new ObjectId(String.valueOf(map.get("id"))), (String) map.get("username"), (String) map.get("picture"));
+        Map<String, Object> map = record.asMap();
+        RegisteredUserDTO registeredUserDTO = new RegisteredUserDTO();
+        registeredUserDTO.setId(new ObjectId(String.valueOf(map.get("id"))));
+        registeredUserDTO.setUsername((String) map.get("username"));
+        registeredUserDTO.setProfilePicUrl((String) map.get("picture"));
+        return registeredUserDTO;
     }
 
     //OK
     @Override
     public List<RegisteredUserDTO> getFollowers(String userId) throws DAOException {
         try (Session session = getSession()) {
-            String query = "MATCH (follower:User)-[:FOLLOWS]->(following:User {id: $userId}) RETURN follower";
+            String query = "MATCH (f:User)-[:FOLLOWS]->(following:User {id: $userId}) RETURN f.id as id, f.username as username, f.picture as picture";
             List<Record> records = session.run(query, Map.of("userId", userId)).list();
             List<RegisteredUserDTO> list = records.stream().map(this::recordToRegisteredUserDTO).collect(Collectors.toList());
             return list;
@@ -154,7 +195,7 @@ public class Neo4JDAOImpl extends BaseNeo4JDAO implements Neo4JDAO {
                     "WHERE NOT (:User{id: $userId})-[:FOLLOWS]->(suggested) " +
                     "WITH suggested, COUNT(DISTINCT following) AS commonFollowers " +
                     "WHERE commonFollowers > 5 " +
-                    "RETURN suggested " +
+                    "RETURN suggested.id as id, suggested.username as username, suggested.picture as picture " +
                     "LIMIT 5";
             List<Record> records = session.run(query, Map.of("userId", userId)).list();
             List<RegisteredUserDTO> list = records.stream().map(this::recordToRegisteredUserDTO).collect(Collectors.toList());
@@ -173,10 +214,9 @@ public class Neo4JDAOImpl extends BaseNeo4JDAO implements Neo4JDAO {
     @Override
     public List<AnimeDTO> suggestAnime(String userId) throws DAOException {
         try (Session session = getSession()) {
-            String query = "MATCH (u:User {id: $userId})-[:FOLLOWS]->(f:User)-[:LIKE]->(m:MediaContent {type: 'anime'}) " +
-                    "WITH m, count(f) AS num_likes " +
-                    "WHERE num_likes > 1 " +
-                    "RETURN m " +
+            String query = "MATCH (u:User {id: $userId})-[:FOLLOWS]->(f:User)-[:LIKE]->(a:Anime) " +
+                    "WITH a, COUNT(DISTINCT f) AS num_likes " +
+                    "RETURN a.id as id, a.title as title, a.picture as picture " +
                     "LIMIT 5";
             List<Record> records = session.run(query, Map.of("userId", userId)).list();
             List<AnimeDTO> list = records.stream().map(this::recordToAnimeDTO).collect(Collectors.toList());
@@ -191,10 +231,9 @@ public class Neo4JDAOImpl extends BaseNeo4JDAO implements Neo4JDAO {
     @Override
     public List<MangaDTO> suggestManga(String userId) throws DAOException {
         try (Session session = getSession()) {
-            String query = "MATCH (u:User {id: $userId})-[:FOLLOWS]->(f:User)-[:LIKE]->(m:MediaContent {type: 'manga'}) " +
-                    "WITH m, count(f) AS num_likes " +
-                    "WHERE num_likes > 1 " +
-                    "RETURN m " +
+            String query = "MATCH (u:User {id: $userId})-[:FOLLOWS]->(f:User)-[:LIKE]->(m:Manga) " +
+                    "WITH m, COUNT(DISTINCT f) AS num_likes  " +
+                    "RETURN m.id as id, m.title as title, m.picture as picture " +
                     "LIMIT 5";
             List<Record> records = session.run(query, Map.of("userId", userId)).list();
             List<MangaDTO> list = records.stream().map(this::recordToMangaDTO).collect(Collectors.toList());
@@ -205,6 +244,7 @@ public class Neo4JDAOImpl extends BaseNeo4JDAO implements Neo4JDAO {
 
     }
 
+
     //What are the most liked media contents for each year?
     //OK
     @Override
@@ -212,10 +252,10 @@ public class Neo4JDAOImpl extends BaseNeo4JDAO implements Neo4JDAO {
         try (Session session = getSession()) {
             String startDate = year + "-01-01";
             String endDate = year + "-12-31";
-            String query = "MATCH (m:MediaContent {type: 'anime'})<-[r:LIKE]-(u:User)\n" +
+            String query = "MATCH (a:Anime)<-[r:LIKE]-(u:User)\n" +
                     "WHERE r.date >= $startDate AND r.date < $endDate\n" +
-                    "WITH m, count(u) AS numLikes \n" +
-                    "RETURN m, numLikes \n" +
+                    "WITH a, count(u) AS numLikes \n" +
+                    "RETURN a.id as id, a.title as title, a.picture as picture, numLikes \n" +
                     "ORDER BY numLikes DESC\n" +
                     "LIMIT 5";
             List<Record> records = session.run(query, Map.of("startDate", startDate, "endDate", endDate)).list();
@@ -232,10 +272,10 @@ public class Neo4JDAOImpl extends BaseNeo4JDAO implements Neo4JDAO {
         try (Session session = getSession()) {
             String startDate = year + "-01-01";
             String endDate = year + "-12-31";
-            String query = "MATCH (m:MediaContent {type: 'manga'})<-[r:LIKE]-(u:User)\n" +
+            String query = "MATCH (m:Manga)<-[r:LIKE]-(u:User)\n" +
                     "WHERE r.date >= $startDate AND r.date < $endDate\n" +
                     "WITH m, count(u) AS numLikes \n" +
-                    "RETURN m, numLikes \n" +
+                    "RETURN m.id as id, m.title as title, m.picture as picture, numLikes \n" +
                     "ORDER BY numLikes DESC\n" +
                     "LIMIT 5";
             List<Record> records = session.run(query, Map.of("startDate", startDate, "endDate", endDate)).list();
@@ -251,8 +291,8 @@ public class Neo4JDAOImpl extends BaseNeo4JDAO implements Neo4JDAO {
     @Override
     public List<AnimeDTO> getAnimeByGenre(String genre) throws DAOException {
         try (Session session = getSession()) {
-            String query = "MATCH (m:MediaContent {type: 'anime'})-[:BELONGS_TO]->(g:Genre {name: $genre}) " +
-                            "RETURN m " +
+            String query = "MATCH (a:Anime)-[:BELONGS_TO]->(g:Genre {name: $genre}) " +
+                            "RETURN a.id as id, a.title as title, a.picture as picture " +
                             "LIMIT 10";
             List<Record> records =  session.run(query, Map.of("genre", genre)).list();
             List<AnimeDTO> list = records.stream().map(this::recordToAnimeDTO).collect(Collectors.toList());
@@ -266,8 +306,8 @@ public class Neo4JDAOImpl extends BaseNeo4JDAO implements Neo4JDAO {
     @Override
     public List<MangaDTO> getMangaByGenre(String genre) throws DAOException {
         try (Session session = getSession()) {
-            String query = "MATCH (m:MediaContent {type: 'manga'})-[:BELONGS_TO]->(g:Genre {name: $genre}) " +
-                            "RETURN m " +
+            String query = "MATCH (m:Manga)-[:BELONGS_TO]->(g:Genre {name: $genre}) " +
+                            "RETURN m.id as id, m.title as title, m.picture as picture " +
                             "LIMIT 10";
             List<Record> records =  session.run(query, Map.of("genre", genre)).list();
             List<MangaDTO> list = records.stream().map(this::recordToMangaDTO).collect(Collectors.toList());
@@ -284,57 +324,45 @@ public class Neo4JDAOImpl extends BaseNeo4JDAO implements Neo4JDAO {
 
     //OK
     @Override
-    public List<List<String>> getAnimeGenresTrendByYear(int year) throws DAOException {
+    public List<String> getAnimeGenresTrendByYear(int year) throws DAOException {
+        List<String> genreNames = new ArrayList<>();
         try (Session session = getSession()) {
             String startDate = year + "-01-01";
             String endDate = year + "-12-31";
-            String query = "MATCH (m:MediaContent {type: 'anime'})<-[r:LIKE]-(u:User)\n" +
+            String query = "MATCH (a:Anime)<-[r:LIKE]-(u:User)\n" +
                     "WHERE r.date >= $startDate AND r.date < $endDate\n" +
-                    "WITH m, count(u) AS numLikes\n" +
+                    "WITH a, count(u) AS numLikes\n" +
                     "ORDER BY numLikes DESC\n" +
-                    "MATCH (m)-[b:BELONGS_TO]->(g:Genre)\n" +
-                    "WITH collect(g.name) AS genreNames\n" +
-                    "RETURN genreNames[..10] AS genreNames\n";
+                    "MATCH (a)-[:BELONGS_TO]->(g:Genre)\n" +
+                    "RETURN collect(DISTINCT g.name) AS genreNames";
 
-            List<Record> records = session.run(query, Map.of("startDate", startDate, "endDate", endDate)).list();
+            Result result = session.run(query, Values.parameters("startDate", startDate, "endDate", endDate));
 
-            List<List<String>> genreNamesLists = records.stream()
-                    .map(this::recordToGenreNames)
-                    .collect(Collectors.toList());
+            while (result.hasNext()) {
+                Record record = result.next();
+                List<Object> genreList = record.get("genreNames").asList(Value::asString);
+                for (Object obj : genreList) {
+                    genreNames.add((String) obj);
+                }
+            }
 
-            return genreNamesLists;
-
-        } catch (Exception e) {
+            return genreNames;
+        }
+        catch (Exception e) {
             throw new DAOException(e);
         }
     }
 
 
-    private List<String> recordToGenreNames(Record record) {
-        List<String> genreNames = new ArrayList<>();
-        List<Object> genreNameObjects = record.get("genreNames").asList();
-
-        genreNameObjects.stream()
-                .filter(Objects::nonNull) // Filtra i valori NULL
-                .map(Object::toString)
-                .forEach(genreNames::add);
-
-        return genreNames;
-    }
-
-
-
-
-
-
 
     //OK
     @Override
-    public List<List<String>> getMangaGenresTrendByYear(int year) throws DAOException {
+    public List<String> getMangaGenresTrendByYear(int year) throws DAOException {
+        List<String> genreNames = new ArrayList<>();
         try (Session session = getSession()) {
             String startDate = year + "-01-01";
             String endDate = year + "-12-31";
-            String query = "MATCH (m:MediaContent {type: 'manga'})<-[r:LIKE]-(u:User)\n" +
+            String query = "MATCH (m:Manga)<-[r:LIKE]-(u:User)\n" +
                     "WHERE r.date >= $startDate AND r.date < $endDate\n" +
                     "WITH m, count(u) AS numLikes\n" +
                     "ORDER BY numLikes DESC\n" +
@@ -342,13 +370,17 @@ public class Neo4JDAOImpl extends BaseNeo4JDAO implements Neo4JDAO {
                     "WITH collect(g.name) AS genreNames\n" +
                     "RETURN genreNames[..10] AS genreNames\n";
 
-            List<Record> records = session.run(query, Map.of("startDate", startDate, "endDate", endDate)).list();
+            Result result = session.run(query, Values.parameters("startDate", startDate, "endDate", endDate));
 
-            List<List<String>> genreNamesLists = records.stream()
-                    .map(this::recordToGenreNames)
-                    .collect(Collectors.toList());
+            while (result.hasNext()) {
+                Record record = result.next();
+                List<Object> genreList = record.get("genreNames").asList(Value::asString);
+                for (Object obj : genreList) {
+                    genreNames.add((String) obj);
+                }
+            }
 
-            return genreNamesLists;
+            return genreNames;
         } catch (Exception e) {
             throw new DAOException(e);
         }
@@ -360,10 +392,10 @@ public class Neo4JDAOImpl extends BaseNeo4JDAO implements Neo4JDAO {
     @Override
     public List<AnimeDTO> getAnimeTrendByGenre() throws DAOException {
         try (Session session = getSession()) {
-            String query = "MATCH (m:MediaContent {type: 'anime'})-[:BELONGS_TO]->(g:Genre)\n" +
-                            "WITH m, COUNT(m) as numMediaContents \n" +
+            String query = "MATCH (a:Anime)-[:BELONGS_TO]->(g:Genre)\n" +
+                            "WITH a, COUNT(a) as numMediaContents \n" +
                             "ORDER BY numMediaContents DESC\n" +
-                            "RETURN m\n" +
+                            "RETURN a.id as id, a.title as title, a.picture as picture\n" +
                             "LIMIT 5";
             List<Record> records = session.run(query).list();
             List<AnimeDTO> list = records.stream().map(this::recordToAnimeDTO).collect(Collectors.toList());
@@ -377,10 +409,10 @@ public class Neo4JDAOImpl extends BaseNeo4JDAO implements Neo4JDAO {
     @Override
     public List<MangaDTO> getMangaTrendByGenre() throws DAOException {
         try (Session session = getSession()) {
-            String query = "MATCH (m:MediaContent {type: 'manga'})-[:BELONGS_TO]->(g:Genre)\n" +
+            String query = "MATCH (m:Manga)-[:BELONGS_TO]->(g:Genre)\n" +
                             "WITH m, COUNT(m) as numMediaContents \n" +
                             "ORDER BY numMediaContents DESC\n" +
-                            "RETURN m\n" +
+                            "RETURN m.id as id, m.title as title, m.picture as picture\n" +
                             "LIMIT 5";
             List<Record> records = session.run(query).list();
             List<MangaDTO> list = records.stream().map(this::recordToMangaDTO).collect(Collectors.toList());
@@ -396,10 +428,10 @@ public class Neo4JDAOImpl extends BaseNeo4JDAO implements Neo4JDAO {
     @Override
     public List<AnimeDTO> getAnimeTrendByLikes() throws DAOException {
         try (Session session = getSession()) {
-            String query = "MATCH (u:User)-[r:LIKE]->(m:MediaContent {type: 'anime'}) " +
-                            "WITH m, COUNT(r) as numLikes " +
+            String query = "MATCH (u:User)-[r:LIKE]->(a:Anime) " +
+                            "WITH a, COUNT(r) as numLikes " +
                             "ORDER BY numLikes DESC " +
-                            "RETURN m, numLikes " +
+                            "RETURN a.id as id, a.title as title, a.picture as picture, numLikes " +
                             "LIMIT 5";
             List<Record> records = session.run(query).list();
             List<AnimeDTO> list = records.stream().map(this::recordToAnimeDTO).collect(Collectors.toList());
@@ -414,10 +446,10 @@ public class Neo4JDAOImpl extends BaseNeo4JDAO implements Neo4JDAO {
     @Override
     public List<MangaDTO> getMangaTrendByLikes() throws DAOException {
         try (Session session = getSession()) {
-            String query = "MATCH (u:User)-[r:LIKE]->(m:MediaContent {type: 'manga'}) " +
+            String query = "MATCH (u:User)-[r:LIKE]->(m:Manga) " +
                             "WITH m, COUNT(r) as numLikes " +
                             "ORDER BY numLikes DESC " +
-                            "RETURN m, numLikes " +
+                            "RETURN m.id as id, m.title as title, m.picture as picture, numLikes " +
                             "LIMIT 5";
             List<Record> records = session.run(query).list();
             List<MangaDTO> list = records.stream().map(this::recordToMangaDTO).collect(Collectors.toList());
@@ -431,20 +463,26 @@ public class Neo4JDAOImpl extends BaseNeo4JDAO implements Neo4JDAO {
 
     //OK
     @Override
-    public List<List<String>> getAnimeGenresTrend() throws DAOException {
+    public List<String> getAnimeGenresTrend() throws DAOException {
+        List<String> genreNames = new ArrayList<>();
         try (Session session = getSession()) {
-            String query = "MATCH (m:MediaContent {type: 'anime'})<-[r:LIKE]-(u:User)\n" +
-                            "WITH m, count(u) AS numLikes\n" +
+            String query = "MATCH (a:Anime)<-[r:LIKE]-(u:User)\n" +
+                            "WITH a, count(u) AS numLikes\n" +
                             "ORDER BY numLikes DESC\n" +
-                            "MATCH (m)-[b:BELONGS_TO]->(g:Genre)\n" +
+                            "MATCH (a)-[b:BELONGS_TO]->(g:Genre)\n" +
                             "WITH collect(g.name) AS genreNames\n" +
                             "RETURN genreNames[..10] AS genreNames";
-            List<Record> records = session.run(query).list();
-            List<List<String>> genreNamesLists = records.stream()
-                    .map(this::recordToGenreNames)
-                    .collect(Collectors.toList());
+            Result result = session.run(query);
 
-            return genreNamesLists;
+            while (result.hasNext()) {
+                Record record = result.next();
+                List<Object> genreList = record.get("genreNames").asList(Value::asString);
+                for (Object obj : genreList) {
+                    genreNames.add((String) obj);
+                }
+            }
+
+            return genreNames;
         } catch (Exception e) {
             throw new DAOException(e);
         }
@@ -452,20 +490,26 @@ public class Neo4JDAOImpl extends BaseNeo4JDAO implements Neo4JDAO {
 
     //OK
     @Override
-    public List<List<String>> getMangaGenresTrend() throws DAOException {
+    public List<String> getMangaGenresTrend() throws DAOException {
+        List<String> genreNames = new ArrayList<>();
         try (Session session = getSession()) {
-            String query = "MATCH (m:MediaContent {type: 'manga'})<-[r:LIKE]-(u:User)\n" +
+            String query = "MATCH (m:Manga)<-[r:LIKE]-(u:User)\n" +
                             "WITH m, count(u) AS numLikes\n" +
                             "ORDER BY numLikes DESC\n" +
                             "MATCH (m)-[b:BELONGS_TO]->(g:Genre)\n" +
                             "WITH collect(g.name) AS genreNames\n" +
                             "RETURN genreNames[..10] AS genreNames";
-            List<Record> records = session.run(query).list();
-            List<List<String>> genreNamesLists = records.stream()
-                    .map(this::recordToGenreNames)
-                    .collect(Collectors.toList());
+            Result result = session.run(query);
 
-            return genreNamesLists;
+            while (result.hasNext()) {
+                Record record = result.next();
+                List<Object> genreList = record.get("genreNames").asList(Value::asString);
+                for (Object obj : genreList) {
+                    genreNames.add((String) obj);
+                }
+            }
+
+            return genreNames;
         } catch (Exception e) {
             throw new DAOException(e);
         }

@@ -18,7 +18,7 @@ public interface MediaContentService {
     MediaContent getMediaContentById(String id, MediaContentType type) throws BusinessException;
     PageDTO<? extends MediaContentDTO> searchByFilter(Map<String, Object> filters, Map<String, Integer> orderBy, int page, MediaContentType type) throws BusinessException;
     PageDTO<? extends MediaContentDTO> searchByTitle(String title, int page, MediaContentType type) throws BusinessException;
-    void likeMediaContent(String userId, String mediaId) throws BusinessException;
+   /* void likeMediaContent(String userId, String mediaId) throws BusinessException;
     void unlikeMediaContent(String userId, String mediaId) throws BusinessException;
     //List<MediaContentDTO> getLikedMediaContents(String userId) throws BusinessException;
 
@@ -75,5 +75,5 @@ public interface MediaContentService {
 
     List<List<String>> getAnimeGenresTrend() throws BusinessException;
 
-    List<List<String>> getMangaGenresTrend() throws BusinessException;
+    List<List<String>> getMangaGenresTrend() throws BusinessException;*/
 }
