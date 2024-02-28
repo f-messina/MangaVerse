@@ -4,10 +4,12 @@ import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dao.mongo.AnimeDAOImpl;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
+import it.unipi.lsmsd.fnf.model.enums.AnimeType;
 import it.unipi.lsmsd.fnf.model.enums.Status;
 import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
 import org.bson.types.ObjectId;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -88,7 +90,7 @@ public class AnimeDAOTest {
         try {
             System.out.println("Searching for anime...");
             // Provide appropriate search criteria and order by parameters
-            Map<String, Object> filters = new HashMap<>();
+            List<Map<String, Object>> filters = new ArrayList<>();
             Map<String, Integer> orderBy = singletonMap("average_score", 1);
             int page = 1;
 
@@ -120,7 +122,7 @@ public class AnimeDAOTest {
         anime.setYear(2019);
         anime.setStatus(Status.valueOf("FINISHED"));
         anime.setSynopsis("Sample synopsis");
-        anime.setType("TV");
+        anime.setType(AnimeType.TV);
 
         // Set other properties as needed
         return anime;

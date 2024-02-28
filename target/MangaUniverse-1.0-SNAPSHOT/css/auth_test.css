@@ -31,7 +31,7 @@ html {
     align-items: center;
     margin-top: 50px;
 }
-.sign-up{
+.signup-form {
     border: transparent;
     box-shadow: 5px 5px 23px -7px rgba(0,0,0,0.84);
     -webkit-box-shadow: 5px 5px 23px -7px rgba(0,0,0,0.84);

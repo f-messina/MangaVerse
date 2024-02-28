@@ -4,10 +4,14 @@ import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dao.mongo.MangaDAOImpl;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
+import it.unipi.lsmsd.fnf.model.enums.MangaDemographics;
+import it.unipi.lsmsd.fnf.model.enums.MangaType;
 import it.unipi.lsmsd.fnf.model.enums.Status;
 import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
 import org.bson.types.ObjectId;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -88,7 +92,7 @@ public class MangaDAOTest {
         try {
             System.out.println("Searching for manga...");
             // Provide appropriate search criteria and order by parameters
-            Map<String, Object> filters = new HashMap<>();
+            List<Map<String, Object>> filters = new ArrayList<>();
             Map<String, Integer> orderBy = singletonMap("average_rating", 1);
             int page = 1;
 
@@ -114,13 +118,13 @@ public class MangaDAOTest {
         manga.setImageUrl("sample.jpg");
         manga.setAverageRating(9.0);
         manga.setGenres(List.of("Action", "Adventure", "Fantasy"));
-        manga.setDemographics(List.of("Shounen"));
-        manga.setSerializations(List.of("Weekly Shonen Jump"));
-        manga.setStartDate("2020-01-01");
-        manga.setEndDate("2022-12-31");
+        manga.setDemographics(List.of(MangaDemographics.SHOUNEN, MangaDemographics.SEINEN));
+        manga.setSerializations("Weekly Shonen Jump");
+        manga.setStartDate(LocalDate.of(2020, 1,1));
+        manga.setEndDate(LocalDate.of(2022,12,31));
         manga.setStatus(Status.valueOf("ONGOING"));
         manga.setSynopsis("Sample synopsis");
-        manga.setType("Manga");
+        manga.setType(MangaType.MANGA);
         manga.setBackground("Sample background");
         manga.setTitleEnglish("Sample Manga (English)");
         manga.setTitleJapanese("サンプルマンガ");
