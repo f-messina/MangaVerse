@@ -33,8 +33,10 @@ public class AnimeDTO extends MediaContentDTO{
     @Override
     public String toString() {
         return "AnimeDTO{" +
-                "year=" + year +
-
+                "title=" + getTitle() +
+                ", imageUrl=" + getImageUrl() +
+                ", averageRating=" + getAverageRating() +
+                ", year=" + year +
                 '}';
     }
 }

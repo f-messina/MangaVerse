@@ -15,6 +15,6 @@ public interface MediaContentDAO<T extends MediaContent> {
     void update(T mediaContent) throws DAOException;
     T find(ObjectId id) throws DAOException;
     void delete(ObjectId id) throws DAOException;
-    PageDTO<? extends MediaContentDTO> search(Map<String, Object> filters, Map<String, Integer> orderBy, int page) throws DAOException;
+    PageDTO<? extends MediaContentDTO> search(List<Map<String, Object>> filters, Map<String, Integer> orderBy, int page) throws DAOException;
     void updateLatestReview (ReviewDTO reviewDTO) throws DAOException;
 }

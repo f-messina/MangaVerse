@@ -14,6 +14,6 @@ public interface MediaContentService {
     void updateMediaContent(MediaContent mediaContent) throws BusinessException;
     void removeMediaContent(String id, MediaContentType type) throws BusinessException;
     MediaContent getMediaContentById(String id, MediaContentType type) throws BusinessException;
-    PageDTO<? extends MediaContentDTO> searchByFilter(Map<String, Object> filters, Map<String, Integer> orderBy, int page, MediaContentType type) throws BusinessException;
+    PageDTO<? extends MediaContentDTO> searchByFilter(List<Map<String, Object>> filters, Map<String, Integer> orderBy, int page, MediaContentType type) throws BusinessException;
     PageDTO<? extends MediaContentDTO> searchByTitle(String title, int page, MediaContentType type) throws BusinessException;
 }

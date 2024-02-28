@@ -8,6 +8,7 @@ import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.model.Review;
+import it.unipi.lsmsd.fnf.model.enums.AnimeType;
 import it.unipi.lsmsd.fnf.model.enums.Status;
 import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
@@ -16,6 +17,7 @@ import it.unipi.lsmsd.fnf.utils.ConverterUtils;
 
 import com.mongodb.client.model.*;
 import com.mongodb.client.*;
+import org.apache.commons.collections.map.SingletonMap;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
@@ -90,7 +92,7 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
     }
 
     @Override
-    public PageDTO<AnimeDTO> search(Map<String, Object> filters, Map<String, Integer> orderBy, int page) throws DAOException {
+    public PageDTO<AnimeDTO> search(List<Map<String, Object>> filters, Map<String, Integer> orderBy, int page) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> animeCollection = mongoClient.getDatabase("mangaVerse").getCollection("anime");
 
@@ -203,7 +205,7 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
         anime.setStatus(Status.valueOf(document.getString("status")));
         anime.setImageUrl(document.getString("picture"));
         anime.setAverageRating(document.getDouble("average_score"));
-        anime.setType(document.getString("type"));
+        anime.setType(AnimeType.fromString(document.getString("type")));
         anime.setRelatedAnime(document.getList("relations", String.class));
         anime.setTags(document.getList("tags", String.class));
         anime.setProducers(document.getString("producers"));
@@ -243,7 +245,11 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
         anime.setId(doc.getObjectId("_id"));
         anime.setTitle(doc.getString("title"));
         anime.setImageUrl(doc.getString("picture"));
-        anime.setAverageRating(doc.getDouble("average_score"));
+        Object averageRatingObj = doc.get("average_score");
+        anime.setAverageRating(
+                (averageRatingObj instanceof Integer) ? ((Integer) averageRatingObj).doubleValue() :
+                        (averageRatingObj instanceof Double) ? (Double) averageRatingObj : 0.0
+        );
         if ((doc.get("anime_season", Document.class) != null)) {
             anime.setYear(doc.get("anime_season", Document.class).getInteger("year"));
         }
