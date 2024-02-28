@@ -12,108 +12,156 @@
 <head>
     <title>MAIN PAGE</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/range_input.css">
+    <link
+            href="https://fonts.googleapis.com/css2?family=Fira+Sans+Condensed:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:wght@300;400&display=swap"
+            rel="stylesheet"
+    />
+    <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+            integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"
+    />
+    <link rel="stylesheet" href="css/main-registered-user.css"/>
+    <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
+    />
     <script src="${pageContext.request.contextPath}/js/range_input.js" defer></script>
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 
 </head>
 <body>
-<button onclick="window.location.href='mainPage'">Home</button>
-<form id="searchForm" action="mainPage" method="post">
-    <input type="hidden" name="action" value="search">
-    <input type="hidden" name="type" value="manga">
-    <label for="search">Title:</label>
-    <input type="search" id="search" name="searchTerm" placeholder="Title">
-    <input type="submit" value="SEARCH">
-</form>
-<form id="filterForm" action="mainPage" method="post" style="width: 10rem">
-    <input type="hidden" name="action" value="search">
-    <input type="hidden" name="type" value="manga">
 
-    <%-- This are the radios for the genres --%>
-    <label>Genres:</label><br/>
-    <c:forEach items="${requestScope.mangaGenres}" var="genre">
-    <div>
-        <input type="radio" name="${genre}" style="color: green" onclick="toggleRadio(this)" value="select">
-        <input type="radio" name="${genre}" style="color: red" onclick="toggleRadio(this)" value="avoid">
-        <label>${genre}</label>
+<nav>
+    <a href="#"><img src="images/logo-with-initial.png" alt="logo" /></a>
+    <div class="nav-items">
+        <a href="#" class="anime">Anime</a>
+        <a href="#" class="manga">Manga</a>
+        <a href="profile.jsp">Profile</a>
+        <a href="#" class="small-pic"><img src="images/user-icon.png"> <i class="fa-solid fa-chevron-down" style="color: #000000"> </i></a>
     </div>
-    </c:forEach>
-    <div>
-        <label>Operator:</label>
-        <input type="radio" name="genreOperator" checked value="and">and
-        <input type="radio" name="genreOperator" value="or">or
-    </div>
+</nav>
 
-    <%-- This are the checkboxes for the types --%>
-    <div>
-        <label>Type:</label>
-        <c:forEach var="entry" items="${requestScope.mangaTypes}">
-        <div>
-            <input type="checkbox" id="${entry.name()}" name="mangaTypes" value="${entry.name()}">
-            <label for="${entry.name()}">${entry.toString()}</label>
+
+<button style="margin-top: 100px" onclick="window.location.href='mainPage'">Home</button>
+<div class="write-search">
+    <form id="searchForm" action="mainPage" method="post">
+        <input type="hidden" name="action" value="search">
+        <input type="hidden" name="type" value="manga">
+        <label for="search">Title:</label>
+        <input type="search" id="search" name="searchTerm" placeholder="Title">
+        <input type="submit" value="SEARCH">
+    </form>
+    <button onclick="myFunction()" class="more-filtering">See Detailed Filtering</button>
+</div>
+
+
+<div id="myDIV">
+    <form id="filterForm" action="mainPage" method="post">
+        <input type="hidden" name="action" value="search">
+        <input type="hidden" name="type" value="manga">
+
+        <div class="title-ope">
+            <%-- This are the radios for the genres --%>
+            <label class="filter-name">Genres:</label><br/>
+            <div style="background-color: #ecebeb; padding: 5px">
+                <label >Operator:</label>
+                <input type="radio" name="genreOperator" checked value="and">and
+                <input type="radio" name="genreOperator" value="or">or
+            </div>
         </div>
+
+
+        <div class="all">
+        <c:forEach items="${requestScope.mangaGenres}" var="genre">
+            <div class="one">
+                <input type="radio" name="${genre}" style="color: green" onclick="toggleRadio(this)" value="select">
+                <input type="radio" name="${genre}" style="color: red" onclick="toggleRadio(this)" value="avoid">
+                <label>${genre}</label>
+            </div>
         </c:forEach>
-    </div>
+        </div>
 
-    <%-- This are the checkboxes for the demographics --%>
-    <div>
-        <label>Demographics:</label>
-        <c:forEach var="entry" items="${requestScope.mangaDemographics}">
-        <c:if test="${entry.name() != 'UNKNOWN'}">
+
+
+        <label class="filter-name">Type:</label>
+        <%-- This are the checkboxes for the types --%>
+        <div class="all">
+
+            <c:forEach var="entry" items="${requestScope.mangaTypes}">
+                <div class="one">
+                    <input type="checkbox" id="${entry.name()}" name="mangaTypes" value="${entry.name()}">
+                    <label for="${entry.name()}">${entry.toString()}</label>
+                </div>
+            </c:forEach>
+        </div>
+
+        <%-- This are the checkboxes for the demographics --%>
+        <label class="filter-name">Demographics:</label>
+        <div class="all">
+            <c:forEach var="entry" items="${requestScope.mangaDemographics}">
+                <c:if test="${entry.name() != 'UNKNOWN'}">
+                    <div  class="one">
+                        <input type="checkbox" id="${entry.name()}" name="mangaDemographics" value="${entry.name()}">
+                        <label for="${entry.name()}">${entry.toString()}</label>
+                    </div>
+                </c:if>
+            </c:forEach>
+        </div>
+
+        <label class="filter-name">Publishing status:</label>
+        <%-- This are the checkboxes for the status --%>
+        <div class="all">
+            <c:forEach var="entry" items="${requestScope.mangaStatus}">
+                <div  class="one">
+                    <input type="checkbox" id="${entry.name()}" name="status" value="${entry.name()}">
+                    <label for="${entry.name()}">${entry.toString()}</label>
+                </div>
+            </c:forEach>
+        </div>
+
+        <%-- This are the range inputs for the min and max score --%>
         <div>
-            <input type="checkbox" id="${entry.name()}" name="mangaDemographics" value="${entry.name()}">
-            <label for="${entry.name()}">${entry.toString()}</label>
+            <label class="filter-name">Rating:</label>
+            <div class="range-slider container">
+                <span class="output outputOne"></span>
+                <span class="output outputTwo"></span>
+                <span class="full-range"></span>
+                <span class="incl-range"></span>
+                <input name="minScore" value="0" min="0" max="10" step="0.1" type="range">
+                <input name="maxScore" value="10" min="0" max="10" step="0.1" type="range">
+            </div>
         </div>
-        </c:if>
-        </c:forEach>
-    </div>
 
-    <%-- This are the checkboxes for the status --%>
-    <div>
-        <label>Publishing status:</label>
-        <c:forEach var="entry" items="${requestScope.mangaStatus}">
+        <%-- This are the range inputs for the min and max start date --%>
         <div>
-            <input type="checkbox" id="${entry.name()}" name="status" value="${entry.name()}">
-            <label for="${entry.name()}">${entry.toString()}</label>
+            <label  class="filter-name" for="startDate">Start Date:</label>
+            <input type="date" id="startDate" name="startDate">
+            <br/>
+            <label  class="filter-name" for="endDate">End Date:</label>
+            <input type="date" id="endDate" name="endDate">
         </div>
-        </c:forEach>
-    </div>
 
-    <%-- This are the range inputs for the min and max score --%>
-    <div>
-        <label>Rating:</label>
-        <div class="range-slider container">
-            <span class="output outputOne"></span>
-            <span class="output outputTwo"></span>
-            <span class="full-range"></span>
-            <span class="incl-range"></span>
-            <input name="minScore" value="0" min="0" max="10" step="0.1" type="range">
-            <input name="maxScore" value="10" min="0" max="10" step="0.1" type="range">
+        <div>
+            <label  class="filter-name" for="orderBy">Order By:</label>
+            <select name="orderBy" id="orderBy">
+                <option value="title 1">Title enc</option>
+                <option value="title -1">Title dec</option>
+                <option value="average_rating 1">Average Rating enc</option>
+                <option value="average_rating -1">Average Rating dec</option>
+                <option value="start_date 1">Start Date enc</option>
+                <option value="start_date -1">Start Date dec</option>
+            </select>
         </div>
-    </div>
+        <input type="submit" value="SEARCH">
+    </form>
 
-    <%-- This are the range inputs for the min and max start date --%>
-    <div>
-        <label for="startDate">Start Date:</label>
-        <input type="date" id="startDate" name="startDate">
-        <br/>
-        <label for="endDate">End Date:</label>
-        <input type="date" id="endDate" name="endDate">
-    </div>
+</div>
 
-    <div>
-        <label for="orderBy">Order By:</label>
-        <select name="orderBy" id="orderBy">
-            <option value="title 1">Title enc</option>
-            <option value="title -1">Title dec</option>
-            <option value="average_rating 1">Average Rating enc</option>
-            <option value="average_rating -1">Average Rating dec</option>
-            <option value="start_date 1">Start Date enc</option>
-            <option value="start_date -1">Start Date dec</option>
-        </select>
-    </div>
-    <input type="submit" value="SEARCH">
-</form>
+
+
 
 <section id="resultsSection"></section>
 <!-- page bar -->
@@ -242,7 +290,7 @@
     function isSearchFormEmpty(formId) {
         return formId === "searchForm" && $("#search").val().trim() === "";
     }
-    
+
     $(document).ready(function () {
         // Bind the searchForm submission to the performAsyncSearch function
         $("#searchForm").submit(function (event) {
@@ -256,6 +304,16 @@
             performAsyncSearch("filterForm", "resultsSection");
         });
     });
+</script>
+<script>
+    function myFunction() {
+        var x = document.getElementById("myDIV");
+        if (x.style.display === "none") {
+            x.style.display = "block";
+        } else {
+            x.style.display = "none";
+        }
+    }
 </script>
 </body>
 </html>

@@ -12,6 +12,7 @@ import it.unipi.lsmsd.fnf.model.mediaContent.MediaContent;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import it.unipi.lsmsd.fnf.service.PersonalListService;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
+import it.unipi.lsmsd.fnf.service.exception.BusinessExceptionType;
 import it.unipi.lsmsd.fnf.service.mapper.ModelToDtoMapper;
 import it.unipi.lsmsd.fnf.service.mapper.DtoToModelMapper;
 import org.bson.types.ObjectId;
@@ -36,13 +37,13 @@ public class PersonalListServiceImpl implements PersonalListService {
     @Override
     public ObjectId insertList(PersonalList list) throws BusinessException {
         if (list == null) {
-            throw new BusinessException(("The list can't be null."));
+            throw new BusinessException(BusinessExceptionType.EMPTY_LIST,"The list can't be null.");
         }
         try {
             PersonalListDTO dto = ModelToDtoMapper.convertToDTO(list);
             return personalListDAO.insert(dto);
         } catch(DAOException e) {
-            throw new BusinessException(e);
+            throw new BusinessException("Error while inserting list",e);
         }
     }
 
@@ -61,7 +62,7 @@ public class PersonalListServiceImpl implements PersonalListService {
                 personalListDAO.update(listDTO);
             }
         } catch (DAOException e) {
-            throw new BusinessException(e);
+            throw new BusinessException("Error while updating the list",e);
         }
     }
 
@@ -72,7 +73,7 @@ public class PersonalListServiceImpl implements PersonalListService {
             MediaContentDTO dto = ModelToDtoMapper.convertToDTO(content);
             personalListDAO.addToList(objectId, dto);
         } catch (DAOException e) {
-            throw new BusinessException(e);
+            throw new BusinessException("Error while adding to list",e);
         }
     }
 
@@ -83,7 +84,7 @@ public class PersonalListServiceImpl implements PersonalListService {
             ObjectId contentObjectId = new ObjectId(mediaContentId);
             personalListDAO.removeFromList(listObjectId, contentObjectId, type);
         } catch (DAOException e) {
-            throw new BusinessException(e);
+            throw new BusinessException("Error while removing from list",e);
         }
     }
 
@@ -93,7 +94,7 @@ public class PersonalListServiceImpl implements PersonalListService {
             MediaContentDTO dto = ModelToDtoMapper.convertToDTO(content);
             personalListDAO.updateItem(dto);
         } catch (DAOException e) {
-            throw new BusinessException(e);
+            throw new BusinessException("Error update item in the list",e);
         }
     }
 
@@ -103,7 +104,7 @@ public class PersonalListServiceImpl implements PersonalListService {
             ObjectId itemObjectId = new ObjectId(itemId);
             personalListDAO.removeItem(itemObjectId);
         } catch (DAOException e) {
-            throw new BusinessException(e);
+            throw new BusinessException("Error removing media content in List",e);
         }
     }
 
@@ -112,7 +113,7 @@ public class PersonalListServiceImpl implements PersonalListService {
         try {
             personalListDAO.delete(new ObjectId(id));
         } catch (DAOException e) {
-            throw new BusinessException(e);
+            throw new BusinessException("Error while deleting the list",e);
         }
     }
 
@@ -121,7 +122,7 @@ public class PersonalListServiceImpl implements PersonalListService {
         try {
             personalListDAO.deleteByUser(new ObjectId(userId));
         } catch (DAOException e) {
-            throw new BusinessException(e);
+            throw new BusinessException("Error deleting list by user",e);
         }
     }
 
@@ -134,7 +135,7 @@ public class PersonalListServiceImpl implements PersonalListService {
                     .map(DtoToModelMapper::personalListDTOtoPersonalList)
                     .collect(Collectors.toCollection(ArrayList::new));
         } catch (DAOException e) {
-            throw new BusinessException(e);
+            throw new BusinessException("Error finding list by user",e);
         }
     }
 
@@ -148,7 +149,7 @@ public class PersonalListServiceImpl implements PersonalListService {
             }
             return personalLists;
         } catch (DAOException e) {
-            throw new BusinessException(e);
+            throw new BusinessException("Error finding all the lists",e);
         }
     }
 
@@ -158,7 +159,7 @@ public class PersonalListServiceImpl implements PersonalListService {
             PersonalListDTO personalListDTO = personalListDAO.find(id);
             return ModelToDtoMapper.convertToPersonalList(personalListDTO);
         } catch (DAOException e) {
-            throw new BusinessException(e);
+            throw new BusinessException("Error finding the lists",e);
         }
     }
 

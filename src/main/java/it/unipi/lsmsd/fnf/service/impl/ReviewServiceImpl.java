@@ -31,7 +31,7 @@ public class ReviewServiceImpl implements ReviewService {
             reviewDAO.insert(review);
 
         } catch (Exception e){
-            throw new BusinessException(e);
+            throw new BusinessException("Error adding review",e);
         }
     }
 
@@ -40,7 +40,7 @@ public class ReviewServiceImpl implements ReviewService {
         try {
             reviewDAO.delete(new ObjectId(id));
         } catch (Exception e){
-            throw new BusinessException(e);
+            throw new BusinessException("Error deleting review",e);
         }
     }
 
@@ -49,7 +49,7 @@ public class ReviewServiceImpl implements ReviewService {
         try {
             reviewDAO.deleteByMedia(new ObjectId(mediaId));
         } catch (Exception e){
-            throw new BusinessException(e);
+            throw new BusinessException("Error deleting by media",e);
         }
     }
 
@@ -58,7 +58,7 @@ public class ReviewServiceImpl implements ReviewService {
         try {
             reviewDAO.update(review);
         } catch (Exception e){
-            throw new BusinessException(e);
+            throw new BusinessException("Error updating the review",e);
         }
     }
 
@@ -67,7 +67,7 @@ public class ReviewServiceImpl implements ReviewService {
         try {
          return reviewDAO.findByUser(new ObjectId(userId));
         } catch (Exception e){
-            throw new BusinessException(e);
+            throw new BusinessException("Eeror finging media by user",e);
         }
     }
 
@@ -76,7 +76,7 @@ public class ReviewServiceImpl implements ReviewService {
         try{
             return reviewDAO.findByMedia(new ObjectId(mediaId));
         }catch (Exception e){
-            throw new BusinessException(e);
+            throw new BusinessException("Error finding review by media",e);
         }
     }
 }

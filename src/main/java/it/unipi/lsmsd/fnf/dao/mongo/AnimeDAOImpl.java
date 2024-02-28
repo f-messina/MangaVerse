@@ -4,6 +4,7 @@ import com.mongodb.client.result.UpdateResult;
 import it.unipi.lsmsd.fnf.dao.MediaContentDAO;
 import it.unipi.lsmsd.fnf.dao.base.BaseMongoDBDAO;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
+import it.unipi.lsmsd.fnf.dao.exception.DAOExceptionType;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
@@ -40,7 +41,7 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
 
             UpdateResult result = animeCollection.updateOne(filter, update, new UpdateOptions().upsert(true));
             if (result.getUpsertedId() == null) {
-                throw new DAOException("Anime already exists");
+                throw new DAOException(DAOExceptionType.EXIST_ANIME,"The anime already exists");
             } else {
                 return result.getUpsertedId().asObjectId().getValue();
             }

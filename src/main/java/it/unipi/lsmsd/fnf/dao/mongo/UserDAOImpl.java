@@ -6,6 +6,7 @@ import com.mongodb.client.result.UpdateResult;
 import it.unipi.lsmsd.fnf.dao.UserDAO;
 import it.unipi.lsmsd.fnf.dao.base.BaseMongoDBDAO;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
+import it.unipi.lsmsd.fnf.dao.exception.DAOExceptionType;
 import it.unipi.lsmsd.fnf.dto.RegisteredUserDTO;
 import it.unipi.lsmsd.fnf.model.enums.Gender;
 import it.unipi.lsmsd.fnf.model.registeredUser.Manager;
@@ -55,11 +56,11 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
                 Document existingUser = users.find(filter).first();
                 if (existingUser != null) {
                     if (existingUser.getString("email").equals(user.getEmail()) && existingUser.getString("username").equals(user.getUsername())) {
-                        throw new DAOException("Email and username already in use");
+                        throw new DAOException(DAOExceptionType.TAKEN_EMAIL_USERNAME,"Email and username already in use");
                     } else if (existingUser.getString("email").equals(user.getEmail())) {
-                        throw new DAOException("Email already in use");
+                        throw new DAOException(DAOExceptionType.TAKEN_EMAIL,"Email already in use");
                     } else {
-                        throw new DAOException("Username already in use");
+                        throw new DAOException(DAOExceptionType.TAKEN_USERNAME,"Username already in use");
                     }
                 } else {
                     throw new DAOException("Error adding new user");
@@ -82,7 +83,7 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
             // Check if the new username already exists in the collection
             Bson usernameExistsFilter = eq("username", user.getUsername());
             if (users.countDocuments(usernameExistsFilter) > 0) {
-                throw new DAOException("Username already exists in the collection");
+                throw new DAOException(DAOExceptionType.TAKEN_USERNAME,"Username already exists in the collection");
             }
 
             // Update the document
@@ -130,10 +131,10 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
                     user.setPassword(null);
                     return user;
                 } else {
-                    throw new DAOException("Wrong password");
+                    throw new DAOException(DAOExceptionType.WRONG_PSW,"Wrong password");
                 }
             } else {
-                throw new DAOException("User not found");
+                throw new DAOException(DAOExceptionType.WRONG_EMAIL,"User not found");
             }
         }
         catch (DAOException e){

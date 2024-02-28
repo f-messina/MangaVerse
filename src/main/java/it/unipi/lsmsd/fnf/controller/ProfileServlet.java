@@ -7,6 +7,7 @@ import it.unipi.lsmsd.fnf.service.PersonalListService;
 import it.unipi.lsmsd.fnf.service.ServiceLocator;
 import it.unipi.lsmsd.fnf.service.UserService;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
+import it.unipi.lsmsd.fnf.service.exception.BusinessExceptionType;
 import it.unipi.lsmsd.fnf.utils.Constants;
 import it.unipi.lsmsd.fnf.utils.SecurityUtils;
 import it.unipi.lsmsd.fnf.utils.UserUtils;
@@ -67,8 +68,9 @@ public class ProfileServlet extends HttpServlet {
             response.sendRedirect(targetJSP);
             return;
         } catch (BusinessException e) {
-            if (e.getMessage().equals("Username already in use")) {
-                request.setAttribute("usernameError", e.getMessage());
+            BusinessExceptionType type = e.getType();
+            if (BusinessExceptionType.TAKEN_USERNAME.equals(type)) {
+                request.setAttribute("usernameError", "Username is already in use");
             } else {
                 handleUpdateError(request, "Invalid input. Please check your data.", e);
             }

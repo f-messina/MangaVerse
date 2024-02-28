@@ -8,6 +8,10 @@ html {
     box-sizing: border-box;
     font-family: "Fira Sans Condensed", sans-serif;
 }
+body{
+    margin-left: 80px;
+    margin-right: 80px;
+}
 
 
 nav {

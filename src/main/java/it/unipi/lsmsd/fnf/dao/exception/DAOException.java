@@ -3,10 +3,6 @@ package it.unipi.lsmsd.fnf.dao.exception;
 public class DAOException extends Exception{
     private final DAOExceptionType type;
 
-    public DAOException(Exception ex){
-        super(ex);
-        this.type = DAOExceptionType.GENERIC;
-    }
     public DAOException(String message){
         super(message);
         this.type = DAOExceptionType.GENERIC;
@@ -16,7 +12,7 @@ public class DAOException extends Exception{
         this.type = DAOExceptionType.GENERIC;
     }
 
-    /*
+
     public DAOException(DAOExceptionType type, String message){
         super(message);
         this.type = type;
@@ -25,6 +21,9 @@ public class DAOException extends Exception{
         super(message, ex);
         this.type = type;
     }
-    */
+
+    public DAOExceptionType getType() {
+        return type;
+    }
 }
 
