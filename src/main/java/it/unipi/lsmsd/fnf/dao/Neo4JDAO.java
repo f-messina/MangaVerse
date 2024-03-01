@@ -9,14 +9,24 @@ import java.util.List;
 
 public interface Neo4JDAO {
 
-    void likeMediaContent(String userId, String mediaId) throws DAOException;
 
+
+
+    //like a media content OK
+    void likeAnime(String userId, String animeId) throws DAOException;
+
+    void likeManga(String userId, String mangaId) throws DAOException;
 
     void followUser(String followerUserId, String followingUserId) throws DAOException;
 
 
-    void unlikeMediaContent(String userId, String mediaId) throws DAOException;
 
+
+
+    // unlike a media content OK
+    void unlikeAnime(String userId, String animeId) throws DAOException;
+
+    void unlikeManga(String userId, String mangaId) throws DAOException;
 
     void unfollowUser(String followerUserId, String followingUserId) throws DAOException;
 
@@ -51,9 +61,9 @@ public interface Neo4JDAO {
     List<MangaDTO> getMangaByGenre(String genre) throws DAOException;
 
 
-    List<List<String>> getAnimeGenresTrendByYear(int year) throws DAOException;
+    List<String> getAnimeGenresTrendByYear(int year) throws DAOException;
 
-    List<List<String>> getMangaGenresTrendByYear(int year) throws DAOException;
+    List<String> getMangaGenresTrendByYear(int year) throws DAOException;
 
 
     List<AnimeDTO> getAnimeTrendByGenre() throws DAOException;
@@ -66,7 +76,7 @@ public interface Neo4JDAO {
     List<MangaDTO> getMangaTrendByLikes() throws DAOException;
 
 
-    List<List<String>> getAnimeGenresTrend() throws DAOException;
+    List<String> getAnimeGenresTrend() throws DAOException;
 
-    List<List<String>> getMangaGenresTrend() throws DAOException;
+    List<String> getMangaGenresTrend() throws DAOException;
 }
