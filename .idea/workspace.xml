@@ -9,21 +9,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6440fbba-1ec4-43f5-8314-d4abadeae161" name="Changes" comment="Anime LIST WORKING">
-      <change afterPath="$PROJECT_DIR$/src/test/java/it/unipi/lsmsd/fnf/dao/mongo/AnimeDAOImplTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/java/it/unipi/lsmsd/fnf/dao/mongo/MangaDAOImplTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/java/it/unipi/lsmsd/fnf/dao/mongo/PersonalListDAOImplTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/java/it/unipi/lsmsd/fnf/dao/mongo/ReviewDAOImplTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/java/it/unipi/lsmsd/fnf/dao/mongo/UserDAOImplTest.java" afterDir="false" />
+    <list default="true" id="6440fbba-1ec4-43f5-8314-d4abadeae161" name="Changes" comment="neo4jDAO correct">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/Neo4JDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/Neo4JDAO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/neo4j/Neo4JDAOImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/neo4j/Neo4JDAOImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/MediaContentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/MediaContentService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/impl/MediaContentServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/impl/MediaContentServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/it/unipi/lsmsd/fnf/dao/neo4j/Neo4JDAOImplTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/it/unipi/lsmsd/fnf/dao/neo4j/Neo4JDAOImplTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/service/MediaContentService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/service/MediaContentService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/service/impl/MediaContentServiceImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/it/unipi/lsmsd/fnf/service/impl/MediaContentServiceImpl.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/mongo/PersonalListDAOImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/mongo/PersonalListDAOImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/mongo/ReviewDAOImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/mongo/ReviewDAOImpl.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -77,69 +66,69 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Application.AnimeDAOTest.executor": "Run",
-    "Application.MangaDAOTest.executor": "Run",
-    "Application.PersonalListDAOTest.executor": "Run",
-    "Application.UserDAOTest.executor": "Run",
-    "JUnit.AnimeDAOImplTest.executor": "Debug",
-    "JUnit.AnimeDAOImplTest.insert.executor": "Coverage",
-    "JUnit.AnimeDAOImplTest.testInsert.executor": "Run",
-    "JUnit.Neo4JDAOImplTest.executor": "Run",
-    "JUnit.Neo4JDAOImplTest.testFollowUser.executor": "Run",
-    "JUnit.Neo4JDAOImplTest.testGetAnimeByGenre.executor": "Run",
-    "JUnit.Neo4JDAOImplTest.testGetAnimeGenresTrend.executor": "Run",
-    "JUnit.Neo4JDAOImplTest.testGetAnimeGenresTrendByYear.executor": "Run",
-    "JUnit.Neo4JDAOImplTest.testGetAnimeTrendByGenre.executor": "Run",
-    "JUnit.Neo4JDAOImplTest.testGetAnimeTrendByLikes.executor": "Run",
-    "JUnit.Neo4JDAOImplTest.testGetFollowers.executor": "Run",
-    "JUnit.Neo4JDAOImplTest.testGetFollowing.executor": "Run",
-    "JUnit.Neo4JDAOImplTest.testGetLikedAnime.executor": "Run",
-    "JUnit.Neo4JDAOImplTest.testGetLikedManga.executor": "Run",
-    "JUnit.Neo4JDAOImplTest.testGetMangaByGenre.executor": "Run",
-    "JUnit.Neo4JDAOImplTest.testGetMangaGenresTrend.executor": "Run",
-    "JUnit.Neo4JDAOImplTest.testGetMangaGenresTrendByYear.executor": "Run",
-    "JUnit.Neo4JDAOImplTest.testGetMangaTrendByGenre.executor": "Run",
-    "JUnit.Neo4JDAOImplTest.testGetMangaTrendByLikes.executor": "Run",
-    "JUnit.Neo4JDAOImplTest.testGetTrendAnimeByYear.executor": "Run",
-    "JUnit.Neo4JDAOImplTest.testGetTrendMangaByYear.executor": "Run",
-    "JUnit.Neo4JDAOImplTest.testLikeAnime.executor": "Run",
-    "JUnit.Neo4JDAOImplTest.testLikeManga.executor": "Run",
-    "JUnit.Neo4JDAOImplTest.testLikeMediaContent.executor": "Debug",
-    "JUnit.Neo4JDAOImplTest.testSuggestAnime.executor": "Run",
-    "JUnit.Neo4JDAOImplTest.testSuggestAnimeByGenre.executor": "Run",
-    "JUnit.Neo4JDAOImplTest.testSuggestManga.executor": "Run",
-    "JUnit.Neo4JDAOImplTest.testSuggestUsers.executor": "Run",
-    "JUnit.Neo4JDAOImplTest.testUnfollowUser.executor": "Run",
-    "JUnit.Neo4JDAOImplTest.testUnlikeAnime.executor": "Run",
-    "JUnit.Neo4JDAOImplTest.testUnlikeManga.executor": "Run",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "Tomcat Server.Tomcat 10.1.16.executor": "Run",
-    "WebServerToolWindowFactoryState": "false",
-    "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary": "JUnit3",
-    "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit3": "junit.framework.TestCase",
-    "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5": "",
-    "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "noemi",
-    "ignore.virus.scanning.warn.message": "true",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/messi/Documents/GitHub/MangaUniverse/src/main/java/it/unipi/lsmsd/fnf/service",
-    "list.type.of.created.stylesheet": "CSS",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Artifacts",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "reference.settings.project.maven.repository.indices",
-    "ts.external.directory.path": "C:\\Program Files\\JetBrains\\IntelliJ IDEA 2023.3.2\\plugins\\javascript-impl\\jsLanguageServicesImpl\\external",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.AnimeDAOTest.executor&quot;: &quot;Run&quot;,
+    &quot;Application.MangaDAOTest.executor&quot;: &quot;Run&quot;,
+    &quot;Application.PersonalListDAOTest.executor&quot;: &quot;Run&quot;,
+    &quot;Application.UserDAOTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.AnimeDAOImplTest.executor&quot;: &quot;Debug&quot;,
+    &quot;JUnit.AnimeDAOImplTest.insert.executor&quot;: &quot;Coverage&quot;,
+    &quot;JUnit.AnimeDAOImplTest.testInsert.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.Neo4JDAOImplTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.Neo4JDAOImplTest.testFollowUser.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.Neo4JDAOImplTest.testGetAnimeByGenre.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.Neo4JDAOImplTest.testGetAnimeGenresTrend.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.Neo4JDAOImplTest.testGetAnimeGenresTrendByYear.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.Neo4JDAOImplTest.testGetAnimeTrendByGenre.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.Neo4JDAOImplTest.testGetAnimeTrendByLikes.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.Neo4JDAOImplTest.testGetFollowers.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.Neo4JDAOImplTest.testGetFollowing.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.Neo4JDAOImplTest.testGetLikedAnime.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.Neo4JDAOImplTest.testGetLikedManga.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.Neo4JDAOImplTest.testGetMangaByGenre.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.Neo4JDAOImplTest.testGetMangaGenresTrend.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.Neo4JDAOImplTest.testGetMangaGenresTrendByYear.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.Neo4JDAOImplTest.testGetMangaTrendByGenre.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.Neo4JDAOImplTest.testGetMangaTrendByLikes.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.Neo4JDAOImplTest.testGetTrendAnimeByYear.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.Neo4JDAOImplTest.testGetTrendMangaByYear.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.Neo4JDAOImplTest.testLikeAnime.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.Neo4JDAOImplTest.testLikeManga.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.Neo4JDAOImplTest.testLikeMediaContent.executor&quot;: &quot;Debug&quot;,
+    &quot;JUnit.Neo4JDAOImplTest.testSuggestAnime.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.Neo4JDAOImplTest.testSuggestAnimeByGenre.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.Neo4JDAOImplTest.testSuggestManga.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.Neo4JDAOImplTest.testSuggestUsers.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.Neo4JDAOImplTest.testUnfollowUser.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.Neo4JDAOImplTest.testUnlikeAnime.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.Neo4JDAOImplTest.testUnlikeManga.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;Tomcat Server.Tomcat 10.1.16.executor&quot;: &quot;Run&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary&quot;: &quot;JUnit3&quot;,
+    &quot;com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit3&quot;: &quot;junit.framework.TestCase&quot;,
+    &quot;com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5&quot;: &quot;&quot;,
+    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;noemi&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/messi/Documents/GitHub/MangaUniverse/src/main/java/it/unipi/lsmsd/fnf/service&quot;,
+    &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Artifacts&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settings.project.maven.repository.indices&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2023.3.2\\plugins\\javascript-impl\\jsLanguageServicesImpl\\external&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="ReactorSettings">
     <option name="notificationShown" value="true" />
   </component>
@@ -165,83 +154,6 @@
     </key>
   </component>
   <component name="RunManager" selected="JUnit.AnimeDAOImplTest.testInsert">
-    <configuration default="true" type="#com.intellij.j2ee.web.tomcat.TomcatRunConfigurationFactory" factoryName="Local" ALTERNATIVE_JRE_ENABLED="false">
-      <deployment />
-      <server-settings>
-        <option name="BASE_DIRECTORY_NAME" value="042d5f66-0981-43b9-8a70-05f2832d13ea" />
-      </server-settings>
-      <predefined_log_file enabled="true" id="Tomcat" />
-      <predefined_log_file enabled="true" id="Tomcat Catalina" />
-      <predefined_log_file id="Tomcat Manager" />
-      <predefined_log_file id="Tomcat Host Manager" />
-      <predefined_log_file id="Tomcat Localhost Access" />
-      <RunnerSettings RunnerId="Debug">
-        <option name="DEBUG_PORT" value="63655" />
-      </RunnerSettings>
-      <ConfigurationWrapper VM_VAR="JAVA_OPTS" RunnerId="Cover">
-        <option name="USE_ENV_VARIABLES" value="true" />
-        <STARTUP>
-          <option name="USE_DEFAULT" value="true" />
-          <option name="SCRIPT" value="" />
-          <option name="VM_PARAMETERS" value="" />
-          <option name="PROGRAM_PARAMETERS" value="" />
-        </STARTUP>
-        <SHUTDOWN>
-          <option name="USE_DEFAULT" value="true" />
-          <option name="SCRIPT" value="" />
-          <option name="VM_PARAMETERS" value="" />
-          <option name="PROGRAM_PARAMETERS" value="" />
-        </SHUTDOWN>
-      </ConfigurationWrapper>
-      <ConfigurationWrapper VM_VAR="JAVA_OPTS" RunnerId="Debug">
-        <option name="USE_ENV_VARIABLES" value="true" />
-        <STARTUP>
-          <option name="USE_DEFAULT" value="true" />
-          <option name="SCRIPT" value="" />
-          <option name="VM_PARAMETERS" value="" />
-          <option name="PROGRAM_PARAMETERS" value="" />
-        </STARTUP>
-        <SHUTDOWN>
-          <option name="USE_DEFAULT" value="true" />
-          <option name="SCRIPT" value="" />
-          <option name="VM_PARAMETERS" value="" />
-          <option name="PROGRAM_PARAMETERS" value="" />
-        </SHUTDOWN>
-      </ConfigurationWrapper>
-      <ConfigurationWrapper VM_VAR="JAVA_OPTS" RunnerId="Profile">
-        <option name="USE_ENV_VARIABLES" value="true" />
-        <STARTUP>
-          <option name="USE_DEFAULT" value="true" />
-          <option name="SCRIPT" value="" />
-          <option name="VM_PARAMETERS" value="" />
-          <option name="PROGRAM_PARAMETERS" value="" />
-        </STARTUP>
-        <SHUTDOWN>
-          <option name="USE_DEFAULT" value="true" />
-          <option name="SCRIPT" value="" />
-          <option name="VM_PARAMETERS" value="" />
-          <option name="PROGRAM_PARAMETERS" value="" />
-        </SHUTDOWN>
-      </ConfigurationWrapper>
-      <ConfigurationWrapper VM_VAR="JAVA_OPTS" RunnerId="Run">
-        <option name="USE_ENV_VARIABLES" value="true" />
-        <STARTUP>
-          <option name="USE_DEFAULT" value="true" />
-          <option name="SCRIPT" value="" />
-          <option name="VM_PARAMETERS" value="" />
-          <option name="PROGRAM_PARAMETERS" value="" />
-        </STARTUP>
-        <SHUTDOWN>
-          <option name="USE_DEFAULT" value="true" />
-          <option name="SCRIPT" value="" />
-          <option name="VM_PARAMETERS" value="" />
-          <option name="PROGRAM_PARAMETERS" value="" />
-        </SHUTDOWN>
-      </ConfigurationWrapper>
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
     <configuration default="true" type="tests" factoryName="Doctests">
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -430,6 +342,83 @@
         </option>
       </method>
     </configuration>
+    <configuration default="true" type="#com.intellij.j2ee.web.tomcat.TomcatRunConfigurationFactory" factoryName="Local" ALTERNATIVE_JRE_ENABLED="false">
+      <deployment />
+      <server-settings>
+        <option name="BASE_DIRECTORY_NAME" value="042d5f66-0981-43b9-8a70-05f2832d13ea" />
+      </server-settings>
+      <predefined_log_file enabled="true" id="Tomcat" />
+      <predefined_log_file enabled="true" id="Tomcat Catalina" />
+      <predefined_log_file id="Tomcat Manager" />
+      <predefined_log_file id="Tomcat Host Manager" />
+      <predefined_log_file id="Tomcat Localhost Access" />
+      <RunnerSettings RunnerId="Debug">
+        <option name="DEBUG_PORT" value="63655" />
+      </RunnerSettings>
+      <ConfigurationWrapper VM_VAR="JAVA_OPTS" RunnerId="Cover">
+        <option name="USE_ENV_VARIABLES" value="true" />
+        <STARTUP>
+          <option name="USE_DEFAULT" value="true" />
+          <option name="SCRIPT" value="" />
+          <option name="VM_PARAMETERS" value="" />
+          <option name="PROGRAM_PARAMETERS" value="" />
+        </STARTUP>
+        <SHUTDOWN>
+          <option name="USE_DEFAULT" value="true" />
+          <option name="SCRIPT" value="" />
+          <option name="VM_PARAMETERS" value="" />
+          <option name="PROGRAM_PARAMETERS" value="" />
+        </SHUTDOWN>
+      </ConfigurationWrapper>
+      <ConfigurationWrapper VM_VAR="JAVA_OPTS" RunnerId="Debug">
+        <option name="USE_ENV_VARIABLES" value="true" />
+        <STARTUP>
+          <option name="USE_DEFAULT" value="true" />
+          <option name="SCRIPT" value="" />
+          <option name="VM_PARAMETERS" value="" />
+          <option name="PROGRAM_PARAMETERS" value="" />
+        </STARTUP>
+        <SHUTDOWN>
+          <option name="USE_DEFAULT" value="true" />
+          <option name="SCRIPT" value="" />
+          <option name="VM_PARAMETERS" value="" />
+          <option name="PROGRAM_PARAMETERS" value="" />
+        </SHUTDOWN>
+      </ConfigurationWrapper>
+      <ConfigurationWrapper VM_VAR="JAVA_OPTS" RunnerId="Profile">
+        <option name="USE_ENV_VARIABLES" value="true" />
+        <STARTUP>
+          <option name="USE_DEFAULT" value="true" />
+          <option name="SCRIPT" value="" />
+          <option name="VM_PARAMETERS" value="" />
+          <option name="PROGRAM_PARAMETERS" value="" />
+        </STARTUP>
+        <SHUTDOWN>
+          <option name="USE_DEFAULT" value="true" />
+          <option name="SCRIPT" value="" />
+          <option name="VM_PARAMETERS" value="" />
+          <option name="PROGRAM_PARAMETERS" value="" />
+        </SHUTDOWN>
+      </ConfigurationWrapper>
+      <ConfigurationWrapper VM_VAR="JAVA_OPTS" RunnerId="Run">
+        <option name="USE_ENV_VARIABLES" value="true" />
+        <STARTUP>
+          <option name="USE_DEFAULT" value="true" />
+          <option name="SCRIPT" value="" />
+          <option name="VM_PARAMETERS" value="" />
+          <option name="PROGRAM_PARAMETERS" value="" />
+        </STARTUP>
+        <SHUTDOWN>
+          <option name="USE_DEFAULT" value="true" />
+          <option name="SCRIPT" value="" />
+          <option name="VM_PARAMETERS" value="" />
+          <option name="PROGRAM_PARAMETERS" value="" />
+        </SHUTDOWN>
+      </ConfigurationWrapper>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <recent_temporary>
       <list>
         <item itemvalue="JUnit.AnimeDAOImplTest.testInsert" />
@@ -476,6 +465,9 @@
       <workItem from="1705839002311" duration="17305000" />
       <workItem from="1705944742309" duration="8011000" />
       <workItem from="1706017558586" duration="5391000" />
+      <workItem from="1709200590403" duration="101000" />
+      <workItem from="1709291962979" duration="659000" />
+      <workItem from="1709307342273" duration="7738000" />
     </task>
     <task id="LOCAL-00001" summary="Anime LIST WORKING">
       <option name="closed" value="true" />
@@ -485,7 +477,15 @@
       <option name="project" value="LOCAL" />
       <updated>1707410200072</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="neo4jDAO correct">
+      <option name="closed" value="true" />
+      <created>1709156454994</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1709156454994</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -504,7 +504,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Anime LIST WORKING" />
-    <option name="LAST_COMMIT_MESSAGE" value="Anime LIST WORKING" />
+    <MESSAGE value="neo4jDAO correct" />
+    <option name="LAST_COMMIT_MESSAGE" value="neo4jDAO correct" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/workspace_xml$AnimeDAOImplTest_insert.ic" NAME="AnimeDAOImplTest.insert Coverage Results" MODIFIED="1707238225663" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false">
