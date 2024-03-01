@@ -2,6 +2,7 @@ package it.unipi.lsmsd.fnf.dao;
 
 import it.unipi.lsmsd.fnf.dao.enums.DataRepositoryEnum;
 import it.unipi.lsmsd.fnf.dao.mongo.*;
+import it.unipi.lsmsd.fnf.dao.neo4j.Neo4JDAOImpl;
 import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
 import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
 
@@ -33,6 +34,12 @@ public class DAOLocator {
     public static ReviewDAO getReviewDAO(DataRepositoryEnum dataRepositoryEnum){
         if (DataRepositoryEnum.MONGODB.equals(dataRepositoryEnum)){
             return new ReviewDAOImpl();
+        }
+        throw new UnsupportedOperationException("Data repository not supported: " + dataRepositoryEnum);
+    }
+    public static Neo4JDAO getNeo4JDAO(DataRepositoryEnum dataRepositoryEnum) {
+        if (DataRepositoryEnum.NEO4J.equals(dataRepositoryEnum)) {
+            return new Neo4JDAOImpl();
         }
         throw new UnsupportedOperationException("Data repository not supported: " + dataRepositoryEnum);
     }

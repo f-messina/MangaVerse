@@ -1,6 +1,12 @@
 package it.unipi.lsmsd.fnf.dto.mediaContent;
 
 import org.bson.types.ObjectId;
+import org.neo4j.driver.Record;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 public class AnimeDTO extends MediaContentDTO{
@@ -24,6 +30,8 @@ public class AnimeDTO extends MediaContentDTO{
         super(id, title, imageUrl);
     }
 
+
+
     public Integer getYear() {
         return year;
     }
@@ -42,7 +50,7 @@ public class AnimeDTO extends MediaContentDTO{
 
     @Override
     public String toString() {
-        return "AnimeDTO{" +
+        return super.toString() + ", AnimeDTO{" +
                 "title=" + getTitle() +
                 ", imageUrl=" + getImageUrl() +
                 ", averageRating=" + getAverageRating() +

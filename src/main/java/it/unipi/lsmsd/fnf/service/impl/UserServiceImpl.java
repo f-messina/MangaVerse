@@ -1,10 +1,13 @@
 package it.unipi.lsmsd.fnf.service.impl;
 
+import it.unipi.lsmsd.fnf.dao.DAOLocator;
 import it.unipi.lsmsd.fnf.dao.PersonalListDAO;
 import it.unipi.lsmsd.fnf.dao.ReviewDAO;
 import it.unipi.lsmsd.fnf.dao.UserDAO;
+import it.unipi.lsmsd.fnf.dao.Neo4JDAO;
 import it.unipi.lsmsd.fnf.dao.enums.DataRepositoryEnum;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
+import it.unipi.lsmsd.fnf.dto.RegisteredUserDTO;
 import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
 import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
@@ -12,11 +15,9 @@ import it.unipi.lsmsd.fnf.service.UserService;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 import it.unipi.lsmsd.fnf.service.mapper.DtoToModelMapper;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static it.unipi.lsmsd.fnf.dao.DAOLocator.*;
@@ -27,11 +28,13 @@ public class UserServiceImpl implements UserService {
     private static final UserDAO userDAO;
     private static final PersonalListDAO personalListDAO;
     private static final ReviewDAO reviewDAO;
+    private static final Neo4JDAO neo4JDAO;
 
     static {
         userDAO = getUserDAO(DataRepositoryEnum.MONGODB);
         personalListDAO = getPersonalListDAO(DataRepositoryEnum.MONGODB);
         reviewDAO = getReviewDAO(DataRepositoryEnum.MONGODB);
+        neo4JDAO = DAOLocator.getNeo4JDAO(DataRepositoryEnum.NEO4J);
     }
 
     @Override
@@ -113,6 +116,51 @@ public class UserServiceImpl implements UserService {
             }
         } catch (Exception e) {
             throw new BusinessException(e);
+        }
+
+
+    }
+    @Override
+    public void followUser(String followerUserId, String followingUserId) throws BusinessException {
+        try {
+            neo4JDAO.followUser(followerUserId, followingUserId);
+        } catch (DAOException e) {
+            throw new BusinessException("Error while following the user.", e);
+        }
+    }
+    @Override
+    public void unfollowUser(String followerUserId, String followingUserId) throws BusinessException {
+        try {
+            neo4JDAO.unfollowUser(followerUserId, followingUserId);
+        } catch (DAOException e) {
+            throw new BusinessException("Error while unfollowing the user.", e);
+        }
+    }
+
+    @Override
+    public List<RegisteredUserDTO> getFollowing(String userId) throws BusinessException {
+        try {
+            return neo4JDAO.getFollowing(userId);
+        } catch (DAOException e) {
+            throw new BusinessException("Error while retrieving the following list.");
+        }
+    }
+
+    @Override
+    public List<RegisteredUserDTO> getFollowers(String userId) throws BusinessException {
+        try {
+            return neo4JDAO.getFollowers(userId);
+        } catch (DAOException e) {
+            throw new BusinessException("Error while retrieving the follower list.");
+        }
+    }
+
+    @Override
+    public List<RegisteredUserDTO> suggestUsers(String userId) throws BusinessException {
+        try {
+            return neo4JDAO.suggestUsers(userId);
+        } catch (DAOException e) {
+            throw new BusinessException("Error while suggesting users.", e);
         }
     }
 }

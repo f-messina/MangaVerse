@@ -26,17 +26,17 @@ public class PersonalListServiceImpl implements PersonalListService {
 
     private static final PersonalListDAO personalListDAO;
 
-
-
-
     static {
-        personalListDAO = Objects.requireNonNull(DAOLocator.getPersonalListDAO(DataRepositoryEnum.MONGODB));
+        personalListDAO = DAOLocator.getPersonalListDAO(DataRepositoryEnum.MONGODB);
     }
 
     @Override
     public ObjectId insertList(PersonalList list) throws BusinessException {
-        if (list == null) {
-            throw new BusinessException(("The list can't be null."));
+        if (list.getName() == null) {
+            throw new BusinessException(("The list must have a name."));
+        }
+        if (list.getUser() == null) {
+            throw new BusinessException("The list must have a user.");
         }
         try {
             PersonalListDTO dto = ModelToDtoMapper.convertToDTO(list);
@@ -49,8 +49,10 @@ public class PersonalListServiceImpl implements PersonalListService {
     @Override
     public void updateList(String id, String name, User user) throws BusinessException {
         Objects.requireNonNull(id, "The id can't be null.");
-        Objects.requireNonNull(name, "The name can't be null.");
-        Objects.requireNonNull(user, "The user can't be null");
+
+        if (name == null && user == null) {
+            throw new BusinessException("At least the name or the user must be defined");
+        }
         try {
             ObjectId objectId = new ObjectId(id);
             List<PersonalListDTO> listDTOs = personalListDAO.findByUser(objectId);
