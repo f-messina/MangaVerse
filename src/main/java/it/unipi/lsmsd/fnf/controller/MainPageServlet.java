@@ -107,7 +107,8 @@ public class MainPageServlet extends HttpServlet {
             }
         } else {
             MediaContentType mediaContentType = type.equals("manga") ? MediaContentType.MANGA : MediaContentType.ANIME;
-            List<Map<String, Object>> filters = ConverterUtils.fromRequestToFilters(request);
+            List<Map<String, Object>> filters = type.equals("manga") ? ConverterUtils.fromRequestToMangaFilters(request): ConverterUtils.fromRequestToAnimeFilters(request);
+
             // Take order parameter and direction
             String[] orderArray = request.getParameter("orderBy").split(" ");
             Map<String, Integer> orderBy = Map.of(orderArray[0], Integer.parseInt(orderArray[1]));

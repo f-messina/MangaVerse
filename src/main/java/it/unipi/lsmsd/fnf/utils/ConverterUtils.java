@@ -43,11 +43,7 @@ public class ConverterUtils {
         return userRegistrationDTO;
     }
 
-    public static List<Map<String, Object>> fromRequestToFilters(HttpServletRequest request) {
-        return request.getParameter("type").equals("manga") ? fromRequestToMangaFilters(request) : fromRequestToAnimeFilters(request);
-    }
-
-    private static List<Map<String, Object>> fromRequestToMangaFilters(HttpServletRequest request) {
+    public static List<Map<String, Object>> fromRequestToMangaFilters(HttpServletRequest request) {
         return Stream.of(
                 buildGenreFilter(request, "select", request.getParameter("genreOperator").equals("and")? "$all": "$in"),
                 buildGenreFilter(request, "avoid", "$nin"),
@@ -61,7 +57,7 @@ public class ConverterUtils {
                 .toList();
     }
 
-    private static List<Map<String, Object>> fromRequestToAnimeFilters(HttpServletRequest request) {
+    public static List<Map<String, Object>> fromRequestToAnimeFilters(HttpServletRequest request) {
         return Stream.of(
                         buildGenreFilter(request, "select", request.getParameter("genreOperator").equals("and")? "$all": "$in"),
                         buildGenreFilter(request, "avoid", "$nin"),
@@ -107,17 +103,10 @@ public class ConverterUtils {
 
         List<Map<String,Object>> rangeList = new ArrayList<>();
         List<Map<String,Object>> rangeListWithNull = new ArrayList<>();
-        if (request.getParameter("type").equals("manga")) {
-            rangeList.add(Map.of("$gte", Map.of("average_rating", Double.parseDouble(min))));
-            rangeList.add(Map.of("$lte", Map.of("average_rating", Double.parseDouble(max))));
-            rangeListWithNull.add(Map.of("$and", rangeList));
-            rangeListWithNull.add(Map.of("$exists", Map.of("average_rating", false)));
-        } else {
-            rangeList.add(Map.of("$gte", Map.of("average_score", Double.parseDouble(min))));
-            rangeList.add(Map.of("$lte", Map.of("average_score", Double.parseDouble(max))));
-            rangeListWithNull.add(Map.of("$and", rangeList));
-            rangeListWithNull.add(Map.of("$exists", Map.of("average_score", false)));
-        }
+        rangeList.add(Map.of("$gte", Map.of("average_rating", Double.parseDouble(min))));
+        rangeList.add(Map.of("$lte", Map.of("average_rating", Double.parseDouble(max))));
+        rangeListWithNull.add(Map.of("$and", rangeList));
+        rangeListWithNull.add(Map.of("$exists", Map.of("average_rating", false)));
 
         return Map.of("$or", rangeListWithNull);
     }

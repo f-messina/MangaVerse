@@ -60,7 +60,6 @@ public class AnimeDAOImplTest extends TestCase {
         anime.setYear(2019);
         anime.setStatus(Status.FINISHED); // Usa l'enumerazione direttamente
         anime.setSynopsis("Sample synopsis");
-        anime.setType("TV");
         return anime;
     }
 

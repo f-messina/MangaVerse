@@ -98,7 +98,7 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
 
             Bson filter = buildFilter(filters);
             Bson sort = buildSort(orderBy);
-            Bson projection = Projections.include("title", "picture", "average_score", "anime_season");
+            Bson projection = Projections.include("title", "picture", "average_rating", "anime_season");
 
             int pageOffset = (page - 1) * Constants.PAGE_SIZE;
 
@@ -207,7 +207,7 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
         anime.setEpisodeCount(document.getInteger("episodes"));
         anime.setStatus(Status.valueOf(document.getString("status")));
         anime.setImageUrl(document.getString("picture"));
-        anime.setAverageRating(document.getDouble("average_score"));
+        anime.setAverageRating(document.getDouble("average_rating"));
         anime.setType(AnimeType.fromString(document.getString("type")));
         anime.setRelatedAnime(document.getList("relations", String.class));
         anime.setTags(document.getList("tags", String.class));
@@ -248,7 +248,7 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
         anime.setId(doc.getObjectId("_id"));
         anime.setTitle(doc.getString("title"));
         anime.setImageUrl(doc.getString("picture"));
-        Object averageRatingObj = doc.get("average_score");
+        Object averageRatingObj = doc.get("average_rating");
         anime.setAverageRating(
                 (averageRatingObj instanceof Integer) ? ((Integer) averageRatingObj).doubleValue() :
                         (averageRatingObj instanceof Double) ? (Double) averageRatingObj : 0.0
