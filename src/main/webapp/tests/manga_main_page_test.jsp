@@ -17,17 +17,14 @@
 
 </head>
 <body>
-<button onclick="window.location.href='mainPage'">Home</button>
-<form id="searchForm" action="mainPage" method="post">
+<form id="searchForm" action="${pageContext.request.contextPath}/mainPage/manga" method="post">
     <input type="hidden" name="action" value="search">
-    <input type="hidden" name="type" value="manga">
     <label for="search">Title:</label>
     <input type="search" id="search" name="searchTerm" placeholder="Title">
     <input type="submit" value="SEARCH">
 </form>
-<form id="filterForm" action="mainPage" method="post" style="width: 10rem">
+<form id="filterForm" action="${pageContext.request.contextPath}/mainPage/manga" method="post" style="width: 10rem">
     <input type="hidden" name="action" value="search">
-    <input type="hidden" name="type" value="manga">
 
     <%-- This are the radios for the genres --%>
     <label>Genres:</label><br/>
@@ -116,11 +113,11 @@
 </form>
 
 <section id="resultsSection"></section>
+
 <!-- page bar -->
 <div>
-    <form action="mainPage" method="post">
+    <form action="${pageContext.request.contextPath}/mainPage/manga" method="post">
         <input type="hidden" name="action" value="sortAndPaginate">
-        <input type="hidden" name="type" value="manga">
 
         <c:if test="${requestScope.page > 1}">
             <button type="submit" class="navigation-button" name="page" value="${requestScope.page - 1}">Previous Page</button>
@@ -149,6 +146,7 @@
         const form = $("#" + formId);
         const url = form.attr("action");
         const formData = form.serialize();
+        console.log(formData);
 
         $.post(url, formData, function (data) {
             const container = $("#" + containerId).empty();
@@ -178,7 +176,6 @@
             performAsyncOrderChange(formId, "mediaContentContainer", $("#orderResults").val())
         ).append(
             $("<input>").attr({ type: "hidden", name: "action", value: "sortAndPaginate" }),
-            $("<input>").attr({ type: "hidden", name: "type", value: "manga" }),
             $("<label>").attr("for", "orderResults").text("Order By:"),
             $("<select>").attr({ name: "orderBy", id: "orderResults" }).append(
                 options.map(option => $("<option>").attr("value", option.value).text(option.text).prop("selected", data.orderBy === option.value))
@@ -225,9 +222,7 @@
         const pageSelection = $("#pageSelection").empty();
         const form = $("<form>", { action: "mainPage", method: "post" }).appendTo(pageSelection);
 
-        $("<input>", { type: "hidden", name: "action", value: "sortAndPaginate" }).add(
-            $("<input>", { type: "hidden", name: "type", value: "manga" })
-        ).appendTo(form);
+        $("<input>", { type: "hidden", name: "action", value: "sortAndPaginate" }).appendTo(form);
 
         const createButton = (value, text) =>
             $("<button>", { type: "button", class: "navigation-button", name: "page", value })

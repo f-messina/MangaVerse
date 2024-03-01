@@ -1,8 +1,8 @@
 <%--
   Created by IntelliJ IDEA.
   User: messi
-  Date: 02/02/2024
-  Time: 12:31
+  Date: 28/02/2024
+  Time: 14:15
   To change this template use File | Settings | File Templates.
 --%>
 <%@ page contentType="text/html;charset=UTF-8" %>
@@ -14,26 +14,25 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/range_input.css">
     <script src="${pageContext.request.contextPath}/js/range_input.js" defer></script>
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-
 </head>
 <body>
-<form id="searchForm" action="${pageContext.request.contextPath}/mainPage/manga" method="post">
+<form id="searchForm" action="${pageContext.request.contextPath}/mainPage/anime" method="post">
     <input type="hidden" name="action" value="search">
     <label for="search">Title:</label>
     <input type="search" id="search" name="searchTerm" placeholder="Title">
     <input type="submit" value="SEARCH">
 </form>
-<form id="filterForm" action="${pageContext.request.contextPath}/mainPage/manga" method="post" style="width: 10rem">
+<form id="filterForm" action="${pageContext.request.contextPath}/mainPage/anime" method="post" style="width: 15rem">
     <input type="hidden" name="action" value="search">
 
-    <%-- This are the radios for the genres --%>
+    <%-- This are the radios for the tags --%>
     <label>Genres:</label><br/>
-    <c:forEach items="${requestScope.mangaGenres}" var="genre">
-    <div>
-        <input type="radio" name="${genre}" style="color: green" onclick="toggleRadio(this)" value="select">
-        <input type="radio" name="${genre}" style="color: red" onclick="toggleRadio(this)" value="avoid">
-        <label>${genre}</label>
-    </div>
+    <c:forEach items="${requestScope.animeTags}" var="tag">
+        <div>
+            <input type="radio" name="${tag}" style="color: green" onclick="toggleRadio(this)" value="select">
+            <input type="radio" name="${tag}" style="color: red" onclick="toggleRadio(this)" value="avoid">
+            <label>${tag}</label>
+        </div>
     </c:forEach>
     <div>
         <label>Operator:</label>
@@ -44,38 +43,26 @@
     <%-- This are the checkboxes for the types --%>
     <div>
         <label>Type:</label>
-        <c:forEach var="entry" items="${requestScope.mangaTypes}">
-        <div>
-            <input type="checkbox" id="${entry.name()}" name="mangaTypes" value="${entry.name()}">
-            <label for="${entry.name()}">${entry.toString()}</label>
-        </div>
-        </c:forEach>
-    </div>
-
-    <%-- This are the checkboxes for the demographics --%>
-    <div>
-        <label>Demographics:</label>
-        <c:forEach var="entry" items="${requestScope.mangaDemographics}">
-        <c:if test="${entry.name() != 'UNKNOWN'}">
-        <div>
-            <input type="checkbox" id="${entry.name()}" name="mangaDemographics" value="${entry.name()}">
-            <label for="${entry.name()}">${entry.toString()}</label>
-        </div>
-        </c:if>
+        <c:forEach var="entry" items="${requestScope.animeTypes}">
+            <c:if test="${entry.name() != 'UNKNOWN'}">
+                <div>
+                    <input type="checkbox" id="${entry.name()}" name="animeTypes" value="${entry.name()}">
+                    <label for="${entry.name()}">${entry.toString()}</label>
+                </div>
+            </c:if>
         </c:forEach>
     </div>
 
     <%-- This are the checkboxes for the status --%>
     <div>
         <label>Publishing status:</label>
-        <c:forEach var="entry" items="${requestScope.mangaStatus}">
-        <div>
-            <input type="checkbox" id="${entry.name()}" name="status" value="${entry.name()}">
-            <label for="${entry.name()}">${entry.toString()}</label>
-        </div>
+        <c:forEach var="entry" items="${requestScope.animeStatus}">
+            <div>
+                <input type="checkbox" id="${entry.name()}" name="status" value="${entry.name()}">
+                <label for="${entry.name()}">${entry.toString()}</label>
+            </div>
         </c:forEach>
     </div>
-
     <%-- This are the range inputs for the min and max score --%>
     <div>
         <label>Rating:</label>
@@ -89,13 +76,33 @@
         </div>
     </div>
 
-    <%-- This are the range inputs for the min and max start date --%>
     <div>
-        <label for="startDate">Start Date:</label>
-        <input type="date" id="startDate" name="startDate">
+        <label>
+            <input type="checkbox" id="yearRangeCheckbox"> Choose Year Range
+        </label>
+    </div>
+
+    <%-- This is the selection of an anime season --%>
+    <div id="singleYearDiv">
+        <label for="season">Season:</label>
+        <select name="season" id="season">
+            <option value="WINTER">Winter</option>
+            <option value="SPRING">Spring</option>
+            <option value="SUMMER">Summer</option>
+            <option value="FALL">Fall</option>
+        </select>
         <br/>
-        <label for="endDate">End Date:</label>
-        <input type="date" id="endDate" name="endDate">
+        <label for="year">Year:</label>
+        <input type="number" id="year" name="year" step="1">
+    </div>
+
+    <%-- This are the range inputs for the min and max start year --%>
+    <div id="yearRangeDiv" class="year-range">
+        <label for="minYear">Start Year:</label>
+        <input type="number" id="minYear" name="minYear" step="1" >
+        <br/>
+        <label for="maxYear">End Year:</label>
+        <input type="number" id="maxYear" name="maxYear" step="1">
     </div>
 
     <div>
@@ -105,10 +112,11 @@
             <option value="title -1">Title dec</option>
             <option value="average_rating 1">Average Rating enc</option>
             <option value="average_rating -1">Average Rating dec</option>
-            <option value="start_date 1">Start Date enc</option>
-            <option value="start_date -1">Start Date dec</option>
+            <option value="anime_season.year 1">Year enc</option>
+            <option value="anime_season.year -1">Year dec</option>
         </select>
     </div>
+
     <input type="submit" value="SEARCH">
 </form>
 
@@ -116,7 +124,7 @@
 
 <!-- page bar -->
 <div>
-    <form action="${pageContext.request.contextPath}/mainPage/manga" method="post">
+    <form action="${pageContext.request.contextPath}/mainPage/anime" method="post">
         <input type="hidden" name="action" value="sortAndPaginate">
 
         <c:if test="${requestScope.page > 1}">
@@ -142,12 +150,41 @@
         });
     }
 
+    function toggleYearRangeInputs(checked) {
+        const singleYearDiv = document.getElementById('singleYearDiv');
+        const yearRangeDiv = document.getElementById('yearRangeDiv');
+        const minYearInput = document.getElementById('minYear');
+        const maxYearInput = document.getElementById('maxYear');
+        const yearInput = document.getElementById('year');
+        const seasonInput = document.getElementById('season');
+
+        if (checked) {
+            singleYearDiv.style.display = 'none';
+            yearRangeDiv.style.display = 'block';
+            minYearInput.disabled = false;
+            maxYearInput.disabled = false;
+            yearInput.disabled = true;
+            seasonInput.disabled = true;
+        } else {
+            singleYearDiv.style.display = 'block';
+            yearRangeDiv.style.display = 'none';
+            minYearInput.disabled = true;
+            maxYearInput.disabled = true;
+            yearInput.disabled = false;
+            seasonInput.disabled = false;
+        }
+    }
+
+    const yearRangeCheckbox = document.getElementById('yearRangeCheckbox');
+    toggleYearRangeInputs(yearRangeCheckbox.checked);
+    yearRangeCheckbox.addEventListener('change', function () {
+        toggleYearRangeInputs(this.checked);
+    });
+
     function performAsyncSearch(formId, containerId) {
         const form = $("#" + formId);
         const url = form.attr("action");
         const formData = form.serialize();
-        console.log(formData);
-
         $.post(url, formData, function (data) {
             const container = $("#" + containerId).empty();
             container.append(
@@ -160,27 +197,6 @@
             updateMediaContent(data, "mediaContentContainer");
             updatePageBar(data, formId);
         }, "json").fail(() => console.error("Error occurred during the asynchronous request"));
-    }
-
-    function updateOrderSelection(data, formId) {
-        const options = [
-            { value: "title 1", text: "Title enc" },
-            { value: "title -1", text: "Title dec" },
-            { value: "average_rating 1", text: "Average Rating enc" },
-            { value: "average_rating -1", text: "Average Rating dec" },
-            { value: "start_date 1", text: "Start Date enc" },
-            { value: "start_date -1", text: "Start Date dec" }
-        ];
-        const orderContainer = $("#orderSelection").empty();
-        $("<form>").attr({ id: "orderForm", action: "mainPage", method: "post" }).on("change", () =>
-            performAsyncOrderChange(formId, "mediaContentContainer", $("#orderResults").val())
-        ).append(
-            $("<input>").attr({ type: "hidden", name: "action", value: "sortAndPaginate" }),
-            $("<label>").attr("for", "orderResults").text("Order By:"),
-            $("<select>").attr({ name: "orderBy", id: "orderResults" }).append(
-                options.map(option => $("<option>").attr("value", option.value).text(option.text).prop("selected", data.orderBy === option.value))
-            )
-        ).appendTo(formId === "filterForm" || isSearchFormEmpty(formId) ? orderContainer : "");
     }
 
     function performAsyncOrderChange(formId, containerId, selectedOrder) {
@@ -203,24 +219,45 @@
         }, "json").fail(() => console.error("Error occurred during the asynchronous request"));
     }
 
+    function updateOrderSelection(data, formId) {
+        const options = [
+            { value: "title 1", text: "Title enc" },
+            { value: "title -1", text: "Title dec" },
+            { value: "average_rating 1", text: "Average Rating enc" },
+            { value: "average_rating -1", text: "Average Rating dec" },
+            { value: "anime_season.year 1", text: "Year enc" },
+            { value: "anime_season.year -1", text: "Year dec" }
+        ];
+        const orderContainer = $("#orderSelection").empty();
+        $("<form>").attr({ id: "orderForm", action: "mainPage/anime", method: "post" }).on("change", () =>
+            performAsyncOrderChange(formId, "mediaContentContainer", $("#orderResults").val())
+        ).append(
+            $("<input>").attr({ type: "hidden", name: "action", value: "sortAndPaginate" }),
+            $("<label>").attr("for", "orderResults").text("Order By:"),
+            $("<select>").attr({ name: "orderBy", id: "orderResults" }).append(
+                options.map(option => $("<option>").attr("value", option.value).text(option.text).prop("selected", data.orderBy === option.value))
+            )
+        ).appendTo(formId === "filterForm" || isSearchFormEmpty(formId) ? orderContainer : "");
+    }
+
     function updateMediaContent(data, containerId) {
         const mediaContentPage = data.mediaContentList;
         const mediaContentContainer = $("#" + containerId).empty();
 
         mediaContentContainer.append(
-            mediaContentPage.entries.map(manga => $("<article>").append(
-                $("<h2>").text(manga.title),
-                $("<img>").attr({ src: manga.imageUrl, alt: "No image" }),
-                manga.averageRating !== null ? $("<p>").text("Score: " + manga.averageRating) : "",
-                manga.startDate !== null ? $("<p>").text("Start Date: " + manga.startDate) : "",
-                manga.endDate !== null ? $("<p>").text("End Date: " + manga.endDate) : ""
+            mediaContentPage.entries.map(anime => $("<article>").append(
+                $("<h2>").text(anime.title),
+                $("<img>").attr({ src: anime.imageUrl, alt: "No image" }),
+                anime.averageRating !== null ? $("<p>").text("Score: " + anime.averageRating) : "",
+                anime.season !== null ? $("<p>").text("Season: " + anime.season) : "",
+                anime.year !== null ? $("<p>").text("Year: " + anime.year) : ""
             ))
         );
     }
 
     function updatePageBar(data, formId) {
         const pageSelection = $("#pageSelection").empty();
-        const form = $("<form>", { action: "mainPage", method: "post" }).appendTo(pageSelection);
+        const form = $("<form>", { action: "mainPage/anime", method: "post" }).appendTo(pageSelection);
 
         $("<input>", { type: "hidden", name: "action", value: "sortAndPaginate" }).appendTo(form);
 

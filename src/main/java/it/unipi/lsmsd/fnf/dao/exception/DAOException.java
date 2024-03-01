@@ -16,15 +16,5 @@ public class DAOException extends Exception{
         this.type = DAOExceptionType.GENERIC;
     }
 
-    /*
-    public DAOException(DAOExceptionType type, String message){
-        super(message);
-        this.type = type;
-    }
-    public DAOException(DAOExceptionType type, String message, Exception ex){
-        super(message, ex);
-        this.type = type;
-    }
-    */
 }
 

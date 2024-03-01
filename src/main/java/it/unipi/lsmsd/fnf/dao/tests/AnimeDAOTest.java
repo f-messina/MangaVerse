@@ -118,7 +118,6 @@ public class AnimeDAOTest {
         anime.setEpisodeCount(12);
         anime.setProducers("StudioProduction I.G");
         anime.setTags(List.of("Action", "Adventure", "Comedy", "Drama", "Fantasy", "Magic", "Military", "Shounen"));
-        anime.setSeason("SUMMER");
         anime.setYear(2019);
         anime.setStatus(Status.valueOf("FINISHED"));
         anime.setSynopsis("Sample synopsis");

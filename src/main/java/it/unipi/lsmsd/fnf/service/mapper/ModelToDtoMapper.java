@@ -17,7 +17,7 @@ import java.util.List;
 
 public class ModelToDtoMapper {
     public static AnimeDTO animeToAnimeDTO(Anime anime) {
-        return new AnimeDTO(anime.getId(), anime.getTitle(), anime.getImageUrl(), anime.getAverageRating(), anime.getYear());
+        return new AnimeDTO(anime.getId(), anime.getTitle(), anime.getImageUrl(), anime.getAverageRating(), anime.getYear(), anime.getSeason());
     }
 
     public static MangaDTO mangaToMangaDTO(Manga manga) {

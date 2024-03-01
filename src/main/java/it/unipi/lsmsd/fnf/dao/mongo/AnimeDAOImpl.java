@@ -17,11 +17,11 @@ import it.unipi.lsmsd.fnf.utils.ConverterUtils;
 
 import com.mongodb.client.model.*;
 import com.mongodb.client.*;
-import org.apache.commons.collections.map.SingletonMap;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import java.util.*;
+import java.util.logging.Logger;
 
 import static com.mongodb.client.model.Aggregates.*;
 import static com.mongodb.client.model.Filters.eq;
@@ -98,7 +98,7 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
 
             Bson filter = buildFilter(filters);
             Bson sort = buildSort(orderBy);
-            Bson projection = Projections.include("title", "picture", "average_score", "anime_season.year");
+            Bson projection = Projections.include("title", "picture", "average_score", "anime_season");
 
             int pageOffset = (page - 1) * Constants.PAGE_SIZE;
 
@@ -122,7 +122,8 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
                             )
                     )
             );
-
+            Logger logger = Logger.getLogger("AnimeDAOImpl");
+            logger.info(pipeline.toString());
             Document result = animeCollection.aggregate(pipeline).first();
 
             List<AnimeDTO> animeList = Optional.ofNullable(result)
@@ -133,7 +134,9 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
                     .toList();
 
             int totalCount = Optional.of(result)
-                    .map(doc -> doc.getList(Constants.COUNT_FACET, Document.class).getFirst())
+                    .map(doc -> doc.getList(Constants.COUNT_FACET, Document.class))
+                    .filter(list -> !list.isEmpty())
+                    .map(List::getFirst)
                     .filter(doc -> !doc.isEmpty())
                     .map(doc -> doc.getInteger("total"))
                     .orElse(0);
@@ -252,6 +255,7 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
         );
         if ((doc.get("anime_season", Document.class) != null)) {
             anime.setYear(doc.get("anime_season", Document.class).getInteger("year"));
+            anime.setSeason(doc.get("anime_season", Document.class).getString("season"));
         }
 
         return anime;
