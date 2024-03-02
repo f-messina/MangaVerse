@@ -203,6 +203,7 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
 
     //MongoDB queries
     //Find the average rating a user has given to media contents given the userId
+    @Override
     public int averageRatingUser(ObjectId userId) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> reviewCollection = mongoClient.getDatabase("mangaVerse").getCollection("review");
@@ -229,6 +230,7 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
     }
 
     //Trend of the rating of a specific anime grouped by year
+    @Override
     public int ratingAnimeYear(int year, ObjectId animeId) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> reviewCollection = mongoClient.getDatabase("mangaVerse").getCollection("reviews");
@@ -255,7 +257,8 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
         }
     }
 
-    //Trend of the rating of the score of a specific anime grouped by month
+    //Trend of the rating of a specific anime grouped by month
+    @Override
     public int ratingAnimeMonth(int month, int year, ObjectId animeId) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> reviewCollection = mongoClient.getDatabase("mangaVerse").getCollection("reviews");
@@ -283,8 +286,9 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
         }
     }
 
-    //Trend of the rating of the score of a specific manga grouped by year
+    //Trend of the rating of a specific manga grouped by year
 
+    @Override
     public int ratingMangaYear(int year, ObjectId mangaId) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> reviewCollection = mongoClient.getDatabase("mangaVerse").getCollection("reviews");
@@ -313,7 +317,8 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
 
 
 
-    //Trend of the rating of the score of a specific manga grouped by month
+    //Trend of the rating of a specific manga grouped by month
+    @Override
     public int ratingMangaMonth(int month, int year, ObjectId mangaId) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> reviewCollection = mongoClient.getDatabase("mangaVerse").getCollection("reviews");
@@ -342,4 +347,62 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
         }
     }
 
+    //Average rating given by users of a certain age: select a year of birth and see what is the average rating in general
+    @Override
+    public int averageRatingByAge(int yearOfBirth) throws DAOException {
+        try (MongoClient mongoClient = getConnection()) {
+            MongoCollection<Document> reviewCollection = mongoClient.getDatabase("mangaVerse").getCollection("reviews");
+
+            List<Document> pipeline = new ArrayList<>();
+            pipeline.add(Document.parse("{$match: {\"user.birthday\": {$gte: ISODate(\"" + yearOfBirth + "-01-01T00:00:00.000Z\"),\n" +
+                    "        $lt: ISODate(\"" + (yearOfBirth + 1) + "-01-01T00:00:00.000Z\")      }    }  }\n"));
+            pipeline.add(Document.parse("  {    $group: {      _id: null,      totalRating: { $sum: \"$rating\" },      count: { $sum: 1 }    }  }"));
+            pipeline.add(Document.parse("  {    $project: {      _id: 0,      averageRating: { $divide: [\"$totalRating\", \"$count\"] }    }  }"));
+            // Execute the aggregation
+            List<Document> result = reviewCollection.aggregate(pipeline).into(new ArrayList<>());
+
+            // Convert the aggregation result to a list of AnimeDTO
+            for (Document document : result) {
+                double averageRating = document.getDouble("averageRating");
+                // Convert average rating to integer (rounded)
+                return (int) Math.round(averageRating);
+            }
+
+            // Return -1 if no aggregation result is found
+            return -1;
+
+        } catch (Exception e) {
+            throw new DAOException("Error while finding ratings by user", e);
+        }
+
+    }
+
+    //Average rating given by users of a certain location: select a location and see what is the average rating in general
+    @Override
+    public int averageRatingByLocation(String location) throws DAOException {
+        try (MongoClient mongoClient = getConnection()) {
+            MongoCollection<Document> reviewCollection = mongoClient.getDatabase("mangaVerse").getCollection("reviews");
+
+            List<Document> pipeline = new ArrayList<>();
+            pipeline.add(Document.parse("{$match: {\"user.location\": " + location + "    }  }"));
+            pipeline.add(Document.parse("  {$group: {_id: null, totalRating: { $sum: \"$rating\" }, count: { $sum: 1 }}}"));
+            pipeline.add(Document.parse("{$project: {_id: 0, averageRating: { $divide: [\"$totalRating\", \"$count\"] }}}"));
+            // Execute the aggregation
+            List<Document> result = reviewCollection.aggregate(pipeline).into(new ArrayList<>());
+
+            // Convert the aggregation result to a list of AnimeDTO
+            for (Document document : result) {
+                double averageRating = document.getDouble("averageRating");
+                // Convert average rating to integer (rounded)
+                return (int) Math.round(averageRating);
+            }
+
+            // Return -1 if no aggregation result is found
+            return -1;
+
+        } catch (Exception e) {
+            throw new DAOException("Error while finding ratings by user", e);
+        }
+
+    }
 }

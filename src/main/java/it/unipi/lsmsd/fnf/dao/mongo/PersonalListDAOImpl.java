@@ -1,9 +1,7 @@
 package it.unipi.lsmsd.fnf.dao.mongo;
 
 
-import com.mongodb.client.FindIterable;
 import com.mongodb.client.result.InsertOneResult;
-import com.mongodb.client.result.UpdateResult;
 import it.unipi.lsmsd.fnf.dao.PersonalListDAO;
 import it.unipi.lsmsd.fnf.dao.base.BaseMongoDBDAO;
 import it.unipi.lsmsd.fnf.dao.enums.SearchCriteriaEnum;
@@ -304,7 +302,8 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
 
     //MongoDB queries
     //Find tha anime most present in all of the lists
-    public List<AnimeDTO> popularAnime () throws DAOException {
+    @Override
+    public List<AnimeDTO> popularAnime() throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
 
@@ -341,6 +340,7 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
     }
 
     //Find tha anime most present in all of the lists
+    @Override
     public List<MangaDTO> popularManga () throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");

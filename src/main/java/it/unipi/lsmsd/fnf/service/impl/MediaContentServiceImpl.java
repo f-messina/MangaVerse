@@ -2,10 +2,7 @@ package it.unipi.lsmsd.fnf.service.impl;
 
 import it.unipi.lsmsd.fnf.dao.*;
 import it.unipi.lsmsd.fnf.dao.enums.DataRepositoryEnum;
-import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
-import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
-import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
@@ -13,7 +10,6 @@ import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
 import it.unipi.lsmsd.fnf.model.mediaContent.MediaContent;
 import it.unipi.lsmsd.fnf.service.MediaContentService;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
-import it.unipi.lsmsd.fnf.dao.Neo4JDAO;
 
 
 import org.bson.types.ObjectId;
@@ -31,14 +27,16 @@ public class MediaContentServiceImpl implements MediaContentService {
     private static final MediaContentDAO<Manga> mangaDAO;
     private static final PersonalListDAO personalListDAO;
     private static final ReviewDAO reviewDAO;
-    private static final Neo4JDAO neo4JDAO;
+    private static final MediaContentDAO<Anime> animeDAONeo4J;
+    private static final MediaContentDAO<Manga> mangaDAONeo4J;
 
     static {
         animeDAO = getAnimeDAO(DataRepositoryEnum.MONGODB);
         mangaDAO = getMangaDAO(DataRepositoryEnum.MONGODB);
         personalListDAO = getPersonalListDAO(DataRepositoryEnum.MONGODB);
         reviewDAO = getReviewDAO(DataRepositoryEnum.MONGODB);
-        neo4JDAO = DAOLocator.getNeo4JDAO(DataRepositoryEnum.NEO4J);
+        animeDAONeo4J = getAnimeDAO(DataRepositoryEnum.NEO4J);
+        mangaDAONeo4J = getMangaDAO(DataRepositoryEnum.NEO4J);
     }
 
     @Override
@@ -135,274 +133,201 @@ public class MediaContentServiceImpl implements MediaContentService {
         }
     }
 
-    /*@Override
-    public void likeMediaContent(String userId, String mediaId) throws BusinessException {
+    @Override
+    public void createMediaContentNode(String id, String title, String picture, MediaContentType type) throws BusinessException {
         try {
-            neo4JDAO.likeMediaContent(userId, mediaId);
+            if (MediaContentType.ANIME.equals(type))
+                animeDAONeo4J.createMediaContentNode(id, title, picture);
+            else if (MediaContentType.MANGA.equals(type))
+                mangaDAONeo4J.createMediaContentNode(id, title, picture);
 
-        } catch (DAOException e) {
+        } catch (Exception e) {
+            throw new BusinessException(e);
+        }
+    }
+
+    @Override
+    public void likeMediaContent(String userId, String mediaId, MediaContentType type) throws BusinessException {
+        try {
+            if (MediaContentType.ANIME.equals(type)) {
+                animeDAONeo4J.likeMediaContent(userId, mediaId);
+            } else if (MediaContentType.MANGA.equals(type)) {
+                mangaDAONeo4J.likeMediaContent(userId, mediaId);
+            } else {
+                throw new BusinessException("Invalid media content type");
+            }
+
+
+        } catch (Exception e) {
             throw new BusinessException("Error while liking the media content.", e);
         }
     }
 
 
     @Override
-    public void unlikeMediaContent(String userId, String mediaId) throws BusinessException {
+    public void unlikeMediaContent(String userId, String mediaId, MediaContentType type) throws BusinessException {
         try {
-            neo4JDAO.unlikeMediaContent(userId, mediaId);
-        } catch (DAOException e) {
+            if (MediaContentType.ANIME.equals(type)) {
+                animeDAONeo4J.unlikeMediaContent(userId, mediaId);
+            } else if (MediaContentType.MANGA.equals(type)) {
+                mangaDAONeo4J.unlikeMediaContent(userId, mediaId);
+            } else {
+                throw new BusinessException("Invalid media content type");
+            }
+
+        } catch (Exception e) {
             throw new BusinessException("Error while unliking media content.", e);
         }
     }
 
-    /*@Override
-    public List<MediaContentDTO> getLikedMediaContents(String userId) throws BusinessException {
+    @Override
+    public List<? extends MediaContentDTO> getLikedMediaContents(String userId, MediaContentType type) throws BusinessException {
         try {
-            return neo4JDAO.getLikedMediaContents(userId);
-        } catch (DAOException e) {
+            if (MediaContentType.ANIME.equals(type)) {
+                return animeDAONeo4J.getLikedMediaContent(userId);
+            } else if (MediaContentType.MANGA.equals(type)) {
+                return mangaDAONeo4J.getLikedMediaContent(userId);
+            } else {
+                throw new BusinessException("Invalid media content type");
+            }
+        } catch (Exception e) {
             throw new BusinessException("Error while retrieving liked media contents.", e);
         }
     }
 
     @Override
-    public List<AnimeDTO> getLikedAnime(String userId) throws BusinessException {
+    public List<? extends MediaContentDTO> getLikedAnime(String userId, MediaContentType type) throws BusinessException {
         try {
-            return neo4JDAO.getLikedAnime(userId);
-        } catch (DAOException e) {
+            if(MediaContentType.ANIME.equals(type))
+                return animeDAONeo4J.getLikedMediaContent(userId);
+            else if(MediaContentType.MANGA.equals(type))
+                return mangaDAONeo4J.getLikedMediaContent(userId);
+            else
+                throw new BusinessException("Invalid media content type");
+        } catch (Exception e) {
             throw new BusinessException("Error while retrieving liked anime.", e);
         }
     }
 
     @Override
-    public List<MangaDTO> getLikedManga(String userId) throws BusinessException {
+    public List<? extends MediaContentDTO> getLikedManga(String userId, MediaContentType type) throws BusinessException {
         try {
-            return neo4JDAO.getLikedManga(userId);
-        } catch (DAOException e) {
+            if(MediaContentType.ANIME.equals(type))
+                return animeDAONeo4J.getLikedMediaContent(userId);
+            else if(MediaContentType.MANGA.equals(type))
+                return mangaDAONeo4J.getLikedMediaContent(userId);
+            else
+                throw new BusinessException("Invalid media content type");
+
+        } catch (Exception e) {
             throw new BusinessException("Error while retrieving liked manga.", e);
         }
     }
 
-    /*@Override
-    public List<Record> suggestMediaContents(String userId) throws BusinessException {
-        try {
-            return neo4JDAO.suggestMediaContents(userId);
-        } catch (DAOException e) {
-            throw new BusinessException("Error while suggesting media contents.", e);
-        }
-    }
+
 
     @Override
-    public List<AnimeDTO> suggestAnime(String userId) throws BusinessException {
+    public List<? extends MediaContentDTO> suggestMediaContent(String userId, MediaContentType type) throws BusinessException {
         try {
-            return neo4JDAO.suggestAnime(userId);
-        } catch (DAOException e) {
+            if (MediaContentType.ANIME.equals(type)) {
+                return animeDAONeo4J.suggestMediaContent(userId);
+            } else if (MediaContentType.MANGA.equals(type)) {
+                return mangaDAONeo4J.suggestMediaContent(userId);
+            } else {
+                throw new BusinessException("Invalid media content type");
+            }
+        } catch (Exception e) {
             throw new BusinessException("Error while suggesting anime.", e);
         }
     }
 
+
     @Override
-    public List<MangaDTO> suggestManga(String userId) throws BusinessException {
+    public List<? extends MediaContentDTO> getTrendMediaContentByYear(int year, MediaContentType type) throws BusinessException {
         try {
-            return neo4JDAO.suggestManga(userId);
-        } catch (DAOException e) {
-            throw new BusinessException("Error while suggesting manga.", e);
-        }
-    }
-
-
-    /*@Override
-    public List<Record> getTrendByYear(int year) throws BusinessException {
-        try {
-            return neo4JDAO.getTrendByYear(year);
-        } catch (DAOException e) {
+            if (MediaContentType.ANIME.equals(type)) {
+                return animeDAONeo4J.getTrendMediaContentByYear(year);
+            } else if (MediaContentType.MANGA.equals(type)) {
+                return mangaDAONeo4J.getTrendMediaContentByYear(year);
+            } else {
+                throw new BusinessException("Invalid media content type");
+            }
+        } catch (Exception e) {
             throw new BusinessException("Error while retrieving the trend.", e);
-        }
-    }
-
-    @Override
-    public List<AnimeDTO> getTrendAnimeByYear(int year) throws BusinessException {
-        try {
-            return neo4JDAO.getTrendAnimeByYear(year);
-        } catch (DAOException e) {
-            throw new BusinessException("Error while retrieving the trend.", e);
-        }
-    }
-
-    @Override
-    public List<MangaDTO> getTrendMangaByYear(int year) throws BusinessException {
-        try {
-            return neo4JDAO.getTrendMangaByYear(year);
-        } catch (DAOException e) {
-            throw new BusinessException("Error while retrieving the trend.", e);
-        }
-    }
-
-    /*@Override
-    public List<Record> getMediaContentByGenre(String genre) throws BusinessException {
-        try {
-            return neo4JDAO.getMediaContentByGenre(genre);
-        } catch (DAOException e) {
-            throw new BusinessException("Error while getting media content by genre.", e);
-        }
-
-    }
-
-    @Override
-    public List<AnimeDTO> getAnimeByGenre(String genre) throws BusinessException {
-        try {
-            return neo4JDAO.getAnimeByGenre(genre);
-        } catch (DAOException e) {
-            throw new BusinessException("Error while getting anime by genre.", e);
-        }
-
-    }
-
-    @Override
-    public List<MangaDTO> getMangaByGenre(String genre) throws BusinessException {
-        try {
-            return neo4JDAO.getMangaByGenre(genre);
-        } catch (DAOException e) {
-            throw new BusinessException("Error while getting manga by genre.", e);
-        }
-
-    }
-
-    /*@Override
-    public List<Record> suggestMediaContentByGenre(String userId) throws BusinessException {
-        try {
-            return neo4JDAO.suggestMediaContentByGenre(userId);
-        } catch(DAOException e) {
-            throw new BusinessException("Error while suggesting media content by genre.", e);
-        }
-    }*/
-
-   /* @Override
-    public List<AnimeDTO> suggestAnimeByGenre(String userId) throws BusinessException {
-        try {
-            return neo4JDAO.suggestAnimeByGenre(userId);
-        } catch(DAOException e) {
-            throw new BusinessException("Error while suggesting anime by genre.", e);
-        }
-    }
-
-    @Override
-    public List<MangaDTO> suggestMangaByGenre(String userId) throws BusinessException {
-        try {
-            return neo4JDAO.suggestMangaByGenre(userId);
-        } catch(DAOException e) {
-            throw new BusinessException("Error while suggesting manga by genre.", e);
         }
     }
 
     //Show the trends of the genres for year
-    /*@Override
-    public List<Record> getGenresTrendByYear(int year) throws BusinessException {
-        try {
-            return neo4JDAO.getGenresTrendByYear(year);
-        } catch (DAOException e) {
-            throw new BusinessException("Error while retrieving the trend.", e);
-        }
-    }
+
 
     @Override
-    public List<List<String>> getAnimeGenresTrendByYear(int year) throws BusinessException {
+    public List<String> getMediaContentGenresTrendByYear(int year, MediaContentType type) throws BusinessException {
         try {
-            return neo4JDAO.getAnimeGenresTrendByYear(year);
-        } catch (DAOException e) {
+            if (MediaContentType.ANIME.equals(type)) {
+                return animeDAONeo4J.getMediaContentGenresTrendByYear(year);
+            } else if (MediaContentType.MANGA.equals(type)) {
+                return mangaDAONeo4J.getMediaContentGenresTrendByYear(year);
+            } else {
+                throw new BusinessException("Invalid media content type");
+            }
+        } catch (Exception e) {
             throw new BusinessException("Error while retrieving the trend.", e);
         }
     }
+
+
 
     @Override
-    public List<List<String>> getMangaGenresTrendByYear(int year) throws BusinessException {
+    public List<? extends MediaContentDTO> getMediaContentTrendByGenre(MediaContentType type) throws BusinessException {
         try {
-            return neo4JDAO.getMangaGenresTrendByYear(year);
-        } catch (DAOException e) {
-            throw new BusinessException("Error while retrieving the trend.", e);
-        }
-    }
-
-
-    /*@Override
-    public List<Record> getTrendByGenre() throws BusinessException {
-        try {
-            return neo4JDAO.getTrendByGenre();
+            if (MediaContentType.ANIME.equals(type)) {
+                return animeDAONeo4J.getMediaContentTrendByGenre();
+            } else if (MediaContentType.MANGA.equals(type)) {
+                return mangaDAONeo4J.getMediaContentTrendByGenre();
+            } else {
+                throw new BusinessException("Invalid media content type");
+            }
         } catch(Exception e) {
             throw new BusinessException("Error while retrieving the trend.", e);
         }
     }
 
-    @Override
-    public List<AnimeDTO> getAnimeTrendByGenre() throws BusinessException {
-        try {
-            return neo4JDAO.getAnimeTrendByGenre();
-        } catch(Exception e) {
-            throw new BusinessException("Error while retrieving the trend.", e);
-        }
-    }
 
-    @Override
-    public List<MangaDTO> getMangaTrendByGenre() throws BusinessException {
-        try {
-            return neo4JDAO.getMangaTrendByGenre();
-        } catch(Exception e) {
-            throw new BusinessException("Error while retrieving the trend.", e);
-        }
-    }
 
     //Show the trends of the likes in general
-    /*@Override
-    public List<Record> getTrendByLikes() throws BusinessException {
-        try {
-            return neo4JDAO.getTrendByLikes();
-        } catch(Exception e) {
-            throw new BusinessException("Error while retrieving the trend.", e);
-        }
-    }*/
 
- /*   @Override
-    public List<AnimeDTO> getAnimeTrendByLikes() throws BusinessException {
-        try {
-            return neo4JDAO.getAnimeTrendByLikes();
-        } catch(Exception e) {
-            throw new BusinessException("Error while retrieving the trend.", e);
-        }
-    }
 
     @Override
-    public List<MangaDTO> getMangaTrendByLikes() throws BusinessException {
+    public List<? extends MediaContentDTO> getMediaContentTrendByLikes(MediaContentType type) throws BusinessException {
         try {
-            return neo4JDAO.getMangaTrendByLikes();
+            if (MediaContentType.ANIME.equals(type)) {
+                return animeDAONeo4J.getMediaContentTrendByLikes();
+            } else if (MediaContentType.MANGA.equals(type)) {
+                return mangaDAONeo4J.getMediaContentTrendByLikes();
+            } else {
+                throw new BusinessException("Invalid media content type");
+            }
         } catch(Exception e) {
             throw new BusinessException("Error while retrieving the trend.", e);
         }
     }
 
     //Show the trends of the genres in general
-    /*@Override
-    public List<Record> getGenresTrend() throws BusinessException {
-        try {
-            return neo4JDAO.getGenresTrend();
-        } catch (Exception e) {
-            throw new BusinessException("Error while retrieving the trend.", e);
-        }
-    }*/
 
-   /* @Override
-    public List<List<String>> getAnimeGenresTrend() throws BusinessException {
+
+    @Override
+    public List<String> getMediaContentGenresTrend(MediaContentType type) throws BusinessException {
         try {
-            return neo4JDAO.getAnimeGenresTrend();
+            if (MediaContentType.ANIME.equals(type)) {
+                return animeDAONeo4J.getMediaContentGenresTrend();
+            } else if (MediaContentType.MANGA.equals(type)) {
+                return mangaDAONeo4J.getMediaContentGenresTrend();
+            } else {
+                throw new BusinessException("Invalid media content type");
+            }
         } catch (Exception e) {
             throw new BusinessException("Error while retrieving the trend.", e);
         }
     }
 
-    @Override
-    public List<List<String>> getMangaGenresTrend() throws BusinessException {
-        try {
-            return neo4JDAO.getMangaGenresTrend();
-        } catch (Exception e) {
-            throw new BusinessException("Error while retrieving the trend.", e);
-        }
-    }*/
 }
