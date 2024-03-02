@@ -59,7 +59,6 @@ public class Neo4JDAOImplTest {
     public void testGetLikedAnime() throws DAOException {
         Neo4JDAOImpl neo4JDAO = new Neo4JDAOImpl();
         List<AnimeDTO> anime = neo4JDAO.getLikedAnime("6577877be68376234760585f");
-
         for (AnimeDTO animeDTO : anime) {
             System.out.println("id: " + animeDTO.getId() + ", title: " + animeDTO.getTitle() + ", picture: " + animeDTO.getImageUrl());
         }
@@ -92,6 +91,7 @@ public class Neo4JDAOImplTest {
             System.out.println(user);
     }
 
+    /*
     @Test
     public void testSuggestUsers() throws DAOException {
         Neo4JDAO neo4JDAO = new Neo4JDAOImpl();
@@ -244,6 +244,5 @@ public class Neo4JDAOImplTest {
         List<String> genre = neo4JDAO.getMangaGenresTrend();
         System.out.println(genre);
     }
-
-
+*/
 }

@@ -9,13 +9,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PersonalList {
-    private ObjectId id;
+    private String id;
     private String name;
     private User user;
     private List<Manga> manga = new ArrayList<>();
     private List<Anime> anime = new ArrayList<>();
 
-    public ObjectId getId() {
+    public String getId() {
         return id;
     }
 
@@ -35,7 +35,7 @@ public class PersonalList {
         return anime;
     }
 
-    public void setId(ObjectId id) {
+    public void setId(String id) {
         this.id = id;
     }
 

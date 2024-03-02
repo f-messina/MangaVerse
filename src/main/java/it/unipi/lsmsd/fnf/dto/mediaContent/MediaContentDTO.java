@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class MediaContentDTO {
-    private ObjectId id;
+    private String id;
     private String title;
     private String imageUrl;
     private Double averageRating;
@@ -17,24 +17,24 @@ public abstract class MediaContentDTO {
     public MediaContentDTO() {
     }
 
-    public MediaContentDTO(ObjectId id, String title, String imageUrl, Double averageRating) {
+    public MediaContentDTO(String id, String title, String imageUrl, Double averageRating) {
         this.id = id;
         this.title = title;
         this.imageUrl = imageUrl;
         this.averageRating = averageRating;
     }
 
-    public MediaContentDTO(ObjectId id, String title, String imageUrl) {
+    public MediaContentDTO(String id, String title, String imageUrl) {
         this.id = id;
         this.title = title;
         this.imageUrl = imageUrl;
     }
 
-    public ObjectId getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(ObjectId id) {
+    public void setId(String id) {
         this.id = id;
     }
 

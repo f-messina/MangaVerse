@@ -35,7 +35,7 @@ import static com.mongodb.client.model.Updates.setOnInsert;
 public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
 
     @Override
-    public ObjectId register(User user) throws DAOException {
+    public String register(User user) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
 
@@ -65,7 +65,7 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
                     throw new DAOException("Error adding new user");
                 }
             } else {
-                return result.getUpsertedId().asObjectId().getValue();
+                return result.getUpsertedId().asObjectId().getValue().toString();
             }
         } catch (DAOException e) {
             throw e;
@@ -86,7 +86,7 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
             }
 
             // Update the document
-            Bson filter = eq("_id", user.getId());
+            Bson filter = eq("_id", new ObjectId(user.getId()));
             Bson update = new Document("$set", RegisteredUserToDocument(user))
                     .append("$unset", UnsetDocument(user));
 
@@ -102,11 +102,11 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
     }
 
     @Override
-    public void remove(ObjectId id) throws DAOException {
+    public void remove(String userId) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
 
-            Bson filter = eq("_id", id);
+            Bson filter = eq("_id", new ObjectId(userId));
 
             users.deleteOne(filter);
         }
@@ -145,23 +145,23 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
     }
 
     @Override
-    public RegisteredUser find(ObjectId id) throws DAOException {
+    public RegisteredUser find(String userId) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
 
-            Bson filter = eq("_id", id);
+            Bson filter = eq("_id", new ObjectId(userId));
             Bson projection = exclude("is_manager", "password");
 
             Document userDocument = users.find(filter).projection(projection).first();
             return (userDocument != null)? documentToRegisteredUser(userDocument) : null;
         }
         catch (Exception e){
-            throw new DAOException("Error searching user by id: "+ id, e);
+            throw new DAOException("Error searching user by id: "+ userId, e);
         }
     }
 
     @Override
-    public List<RegisteredUserDTO> find(String username) throws DAOException {
+    public List<RegisteredUserDTO> search(String username) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
 
@@ -206,7 +206,7 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
 
     private RegisteredUserDTO documentToRegisteredUserDTO(Document doc) {
         RegisteredUserDTO user = new RegisteredUserDTO();
-        user.setId(doc.getObjectId("_id"));
+        user.setId(doc.getObjectId("_id").toString());
         user.setUsername(doc.getString("username"));
         user.setProfilePicUrl(doc.getString("picture"));
         return user;
@@ -230,7 +230,7 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
             user = regularUser;
         }
 
-        user.setId(doc.getObjectId("_id"));
+        user.setId(doc.getObjectId("_id").toString());
         user.setPassword(doc.getString("password"));
         user.setEmail(doc.getString("email"));
         user.setJoinedDate(ConverterUtils.dateToLocalDate(doc.getDate("joined_on")));

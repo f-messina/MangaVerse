@@ -11,11 +11,14 @@ import it.unipi.lsmsd.fnf.model.enums.AnimeType;
 import it.unipi.lsmsd.fnf.model.enums.MangaDemographics;
 import it.unipi.lsmsd.fnf.model.enums.MangaType;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
+import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
 import it.unipi.lsmsd.fnf.service.MediaContentService;
 import it.unipi.lsmsd.fnf.service.ServiceLocator;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 import it.unipi.lsmsd.fnf.utils.Constants;
 import it.unipi.lsmsd.fnf.utils.ConverterUtils;
+import it.unipi.lsmsd.fnf.utils.SecurityUtils;
+import it.unipi.lsmsd.fnf.utils.UserUtils;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
@@ -41,14 +44,16 @@ public class MainPageServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
         String targetJSP;
+        request.setAttribute("isManga",  request.getServletPath().equals("/mainPage/manga"));
+        request.setAttribute("isAnime", request.getServletPath().equals("/mainPage/anime"));
 
-        if (request.getServletPath().equals("/mainPage/manga")) {
+        if ((boolean) request.getAttribute("isManga")) {
             request.setAttribute("mangaGenres", Constants.MANGA_GENRES);
             request.setAttribute("mangaTypes", MangaType.values());
             request.setAttribute("mangaDemographics", MangaDemographics.values());
             request.setAttribute("mangaStatus", Constants.MANGA_STATUS);
             targetJSP = "/tests/manga_main_page_test.jsp";
-        } else if(request.getServletPath().equals("/mainPage/anime")) {
+        } else if((boolean) request.getAttribute("isAnime")) {
             request.setAttribute("animeTags", Constants.ANIME_TAGS);
             request.setAttribute("animeTypes", AnimeType.values())  ;
             request.setAttribute("animeStatus", Constants.ANIME_STATUS);
@@ -62,15 +67,14 @@ public class MainPageServlet extends HttpServlet {
             case "search" -> handleSearch(request,response);
             case "sortAndPaginate" -> handleSortAndPaginate(request,response);
             case "suggestions" -> handleSuggestion(request,response);
+            case "toggleLike" -> handleToggleLike(request,response);
             case null, default -> request.getRequestDispatcher(targetJSP).forward(request,response);
         }
     }
 
     private void handleSearch(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String type = request.getServletPath().equals("/mainPage/manga") ? "manga" : "anime";
         int page = request.getParameter("page") != null ? Integer.parseInt(request.getParameter("page")) : 1;
-
-
+        boolean isManga = (boolean) request.getAttribute("isManga");
 
         // Create a JSON object to include information in the response
         ObjectMapper objectMapper = new ObjectMapper();
@@ -78,17 +82,18 @@ public class MainPageServlet extends HttpServlet {
         ObjectNode jsonResponse = objectMapper.createObjectNode();
 
         PageDTO<?> mediaContentList;
-        if (type.equals("manga")) {
+        if (isManga) {
             mediaContentList = new PageDTO<MangaDTO>();
         } else {
             mediaContentList = new PageDTO<AnimeDTO>();
         }
 
+        logger.info("Search request received");
         // Search by title
         String searchTerm = request.getParameter("searchTerm");
         if (searchTerm != null) {
             try {
-                MediaContentType mediaContentType = type.equals("manga") ? MediaContentType.MANGA : MediaContentType.ANIME;
+                MediaContentType mediaContentType = isManga ? MediaContentType.MANGA : MediaContentType.ANIME;
                 if (searchTerm.isEmpty()) {
                     Map<String, Integer> orderBy;
                     if (request.getParameter("orderBy") != null) {
@@ -106,8 +111,8 @@ public class MainPageServlet extends HttpServlet {
                 request.getRequestDispatcher("/error.jsp").forward(request, response);
             }
         } else {
-            MediaContentType mediaContentType = type.equals("manga") ? MediaContentType.MANGA : MediaContentType.ANIME;
-            List<Map<String, Object>> filters = type.equals("manga") ? ConverterUtils.fromRequestToMangaFilters(request): ConverterUtils.fromRequestToAnimeFilters(request);
+            MediaContentType mediaContentType = isManga ? MediaContentType.MANGA : MediaContentType.ANIME;
+            List<Map<String, Object>> filters = isManga ? ConverterUtils.fromRequestToMangaFilters(request): ConverterUtils.fromRequestToAnimeFilters(request);
 
             // Take order parameter and direction
             String[] orderArray = request.getParameter("orderBy").split(" ");
@@ -116,6 +121,7 @@ public class MainPageServlet extends HttpServlet {
             // Add the search parameters to the JSON response
             jsonResponse.put("orderBy", request.getParameter("orderBy"));
             try {
+                logger.info("Search by filter request received");
                 mediaContentList = mediaContentService.searchByFilter(filters, orderBy, page, mediaContentType);
             } catch (BusinessException e) {
                 logger.error("Error occurred during search", e);
@@ -143,6 +149,32 @@ public class MainPageServlet extends HttpServlet {
 
         request.setAttribute("page", page);
         request.getRequestDispatcher(targetJSP).forward(request, response);
+    }
+
+    private void handleToggleLike(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        boolean isManga = (boolean) request.getAttribute("isManga");
+        String userId = SecurityUtils.getAuthenticatedUser(request).getId();
+        String mediaId = request.getParameter("mediaId");
+        try {
+            MediaContentType contentType = isManga ? MediaContentType.MANGA : MediaContentType.ANIME;
+
+            if (UserUtils.isLiked(request)) {
+                mediaContentService.removeLike(userId, mediaId, contentType);
+            } else {
+                mediaContentService.addLike(userId, mediaId, contentType);
+            }
+
+            request.setAttribute("isLiked", !UserUtils.isLiked(request));
+            UserUtils.updateUserSession(request);
+        } catch (BusinessException e) {
+            logger.error("Error occurred during like operation", e);
+            request.getRequestDispatcher("/error.jsp").forward(request, response);
+        }
+
+        // Set the content type and write the JSON response
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write("{\"isLiked\": " + request.getAttribute("isLiked") + "}");
     }
 
     private void handleSuggestion(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{

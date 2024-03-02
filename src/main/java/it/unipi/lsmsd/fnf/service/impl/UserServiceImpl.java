@@ -1,6 +1,5 @@
 package it.unipi.lsmsd.fnf.service.impl;
 
-import it.unipi.lsmsd.fnf.dao.DAOLocator;
 import it.unipi.lsmsd.fnf.dao.PersonalListDAO;
 import it.unipi.lsmsd.fnf.dao.ReviewDAO;
 import it.unipi.lsmsd.fnf.dao.UserDAO;
@@ -9,6 +8,7 @@ import it.unipi.lsmsd.fnf.dao.enums.DataRepositoryEnum;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dto.RegisteredUserDTO;
 import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
+import it.unipi.lsmsd.fnf.model.mediaContent.MediaContent;
 import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import it.unipi.lsmsd.fnf.service.UserService;
@@ -34,7 +34,7 @@ public class UserServiceImpl implements UserService {
         userDAO = getUserDAO(DataRepositoryEnum.MONGODB);
         personalListDAO = getPersonalListDAO(DataRepositoryEnum.MONGODB);
         reviewDAO = getReviewDAO(DataRepositoryEnum.MONGODB);
-        neo4JDAO = DAOLocator.getNeo4JDAO(DataRepositoryEnum.NEO4J);
+        neo4JDAO = getNeo4JDAO(DataRepositoryEnum.NEO4J);
     }
 
     @Override
@@ -86,6 +86,10 @@ public class UserServiceImpl implements UserService {
                         .stream()
                         .map(DtoToModelMapper::reviewDTOtoReview)
                         .collect(Collectors.toCollection(ArrayList::new)));
+                List<MediaContent> likedManga = neo4JDAO.getLikedManga(user.getId()).stream().map(DtoToModelMapper::mangaDTOtoManga).collect(Collectors.toList());
+                List<MediaContent> likedAnime = neo4JDAO.getLikedAnime(user.getId()).stream().map(DtoToModelMapper::animeDTOtoAnime).collect(Collectors.toList());
+                user.setLikedMediaContent(likedManga);
+                user.getLikedMediaContent().addAll(likedAnime);
             }
             return registeredUser;
 
@@ -117,19 +121,19 @@ public class UserServiceImpl implements UserService {
         } catch (Exception e) {
             throw new BusinessException(e);
         }
-
-
     }
+
     @Override
-    public void followUser(String followerUserId, String followingUserId) throws BusinessException {
+    public void follow(String followerUserId, String followingUserId) throws BusinessException {
         try {
             neo4JDAO.followUser(followerUserId, followingUserId);
         } catch (DAOException e) {
             throw new BusinessException("Error while following the user.", e);
         }
     }
+
     @Override
-    public void unfollowUser(String followerUserId, String followingUserId) throws BusinessException {
+    public void unfollow(String followerUserId, String followingUserId) throws BusinessException {
         try {
             neo4JDAO.unfollowUser(followerUserId, followingUserId);
         } catch (DAOException e) {
@@ -155,6 +159,7 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    /*
     @Override
     public List<RegisteredUserDTO> suggestUsers(String userId) throws BusinessException {
         try {
@@ -163,4 +168,5 @@ public class UserServiceImpl implements UserService {
             throw new BusinessException("Error while suggesting users.", e);
         }
     }
+     */
 }

@@ -2,16 +2,15 @@ package it.unipi.lsmsd.fnf.dao;
 
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
-import org.bson.types.ObjectId;
 
 import java.util.List;
 
 public interface ReviewDAO {
-    ObjectId insert(ReviewDTO review) throws DAOException;
-    void delete(ObjectId id) throws DAOException;
-    void deleteByMedia(ObjectId mediaId) throws DAOException;
+    String insert(ReviewDTO review) throws DAOException;
+    void delete(String id) throws DAOException;
+    void deleteByMedia(String mediaId) throws DAOException;
     void update(ReviewDTO review) throws DAOException;
-    List<ReviewDTO> findByUser(ObjectId userId) throws DAOException;
-    List<ReviewDTO> findByMedia(ObjectId mediaId) throws DAOException;
+    List<ReviewDTO> findByUser(String userId) throws DAOException;
+    List<ReviewDTO> findByMedia(String mediaId) throws DAOException;
 }
 

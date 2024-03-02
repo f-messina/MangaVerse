@@ -3,6 +3,7 @@ package it.unipi.lsmsd.fnf.model.registeredUser;
 import it.unipi.lsmsd.fnf.model.PersonalList;
 import it.unipi.lsmsd.fnf.model.Review;
 import it.unipi.lsmsd.fnf.model.enums.Gender;
+import it.unipi.lsmsd.fnf.model.mediaContent.MediaContent;
 import org.bson.types.ObjectId;
 
 import java.time.LocalDate;
@@ -18,6 +19,8 @@ public class User extends RegisteredUser {
     private String location;
     private List<PersonalList> lists = new ArrayList<>();
     private List<Review> reviews = new ArrayList<>();
+
+    private List<MediaContent> likedMediaContent = new ArrayList<>();
 
     public String getUsername() {
         return username;
@@ -45,6 +48,10 @@ public class User extends RegisteredUser {
 
     public List<Review> getReviews() {
         return reviews;
+    }
+
+    public List<MediaContent> getLikedMediaContent() {
+        return likedMediaContent;
     }
 
     public void setUsername(String username) {
@@ -75,11 +82,15 @@ public class User extends RegisteredUser {
         this.reviews = reviews;
     }
 
+    public void setLikedMediaContent(List<MediaContent> likedMediaContent) {
+        this.likedMediaContent = likedMediaContent;
+    }
+
     public void addList(PersonalList list) {
         this.lists.add(list);
     }
 
-    public void removeList(ObjectId listId) {
+    public void removeList(String listId) {
         this.lists.removeIf(personalList -> personalList.getId().equals(listId));
     }
 
@@ -89,6 +100,14 @@ public class User extends RegisteredUser {
 
     public void removeReview(Review review) {
         this.reviews.remove(review);
+    }
+
+    public void addLikedMediaContent(MediaContent mediaContent) {
+        this.likedMediaContent.add(mediaContent);
+    }
+
+    public void removeLikedMediaContent(String mediaContentId) {
+        this.likedMediaContent.removeIf(content -> content.getId().equals(mediaContentId));
     }
 
     @Override

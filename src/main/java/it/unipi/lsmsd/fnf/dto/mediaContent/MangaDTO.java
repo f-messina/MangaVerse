@@ -17,17 +17,17 @@ public class MangaDTO extends MediaContentDTO{
     public MangaDTO() {
     }
 
-    public MangaDTO(ObjectId id, String title, String imageUrl, Double averageRating, LocalDate startDate, LocalDate endDate) {
+    public MangaDTO(String id, String title, String imageUrl, Double averageRating, LocalDate startDate, LocalDate endDate) {
         super(id, title, imageUrl, averageRating);
         this.startDate = startDate;
         this.endDate = endDate;
     }
 
-    public MangaDTO(ObjectId id, String title, String imageUrl, Double averageRating) {
+    public MangaDTO(String id, String title, String imageUrl, Double averageRating) {
         super(id, title, imageUrl, averageRating);
     }
 
-    public MangaDTO(ObjectId id, String title, String imageUrl) {
+    public MangaDTO(String id, String title, String imageUrl) {
         super(id, title, imageUrl);
     }
 

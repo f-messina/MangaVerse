@@ -3,6 +3,8 @@ package it.unipi.lsmsd.fnf.service.impl;
 import it.unipi.lsmsd.fnf.dao.*;
 import it.unipi.lsmsd.fnf.dao.enums.DataRepositoryEnum;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
+import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
+import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
@@ -68,29 +70,29 @@ public class MediaContentServiceImpl implements MediaContentService {
     }
 
     @Override
-    public void removeMediaContent(String id, MediaContentType type) throws BusinessException {
+    public void removeMediaContent(String mediaId, MediaContentType type) throws BusinessException {
         try {
             if (MediaContentType.ANIME.equals(type)) {
-                animeDAO.delete(new ObjectId(id));
+                animeDAO.delete(mediaId);
             } else if (MediaContentType.MANGA.equals(type)) {
-                mangaDAO.delete(new ObjectId(id));
+                mangaDAO.delete(mediaId);
             } else {
                 throw new BusinessException("Invalid media content type");
             }
-            personalListDAO.removeItem(new ObjectId(id));
-            reviewDAO.deleteByMedia(new ObjectId(id));
+            personalListDAO.removeItem(mediaId);
+            reviewDAO.deleteByMedia(mediaId);
         } catch (Exception e) {
             throw new BusinessException(e);
         }
     }
 
     @Override
-    public MediaContent getMediaContentById(String id, MediaContentType type) throws BusinessException {
+    public MediaContent getMediaContentById(String mediaId, MediaContentType type) throws BusinessException {
         try {
             if (MediaContentType.ANIME.equals(type)) {
-                return animeDAO.find(new ObjectId(id));
+                return animeDAO.find(mediaId);
             } else if (MediaContentType.MANGA.equals(type)) {
-                return mangaDAO.find(new ObjectId(id));
+                return mangaDAO.find(mediaId);
             } else {
                 throw new BusinessException("Invalid media content type");
             }
@@ -129,32 +131,33 @@ public class MediaContentServiceImpl implements MediaContentService {
         }
     }
 
-    /*@Override
-    public void likeMediaContent(String userId, String mediaId) throws BusinessException {
+    @Override
+    public void addLike(String userId, String mediaContentId, MediaContentType type) throws BusinessException {
         try {
-            neo4JDAO.likeMediaContent(userId, mediaId);
-
-        } catch (DAOException e) {
-            throw new BusinessException("Error while liking the media content.", e);
+            if (MediaContentType.ANIME.equals(type)) {
+                neo4JDAO.likeAnime(userId, mediaContentId);
+            } else if (MediaContentType.MANGA.equals(type)) {
+                neo4JDAO.likeManga(userId, mediaContentId);
+            } else {
+                throw new BusinessException("Invalid media content type");
+            }
+        } catch (Exception e) {
+            throw new BusinessException("Error while liking anime.", e);
         }
     }
-
 
     @Override
-    public void unlikeMediaContent(String userId, String mediaId) throws BusinessException {
+    public void removeLike(String userId, String mediaContentId, MediaContentType type) throws BusinessException {
         try {
-            neo4JDAO.unlikeMediaContent(userId, mediaId);
-        } catch (DAOException e) {
-            throw new BusinessException("Error while unliking media content.", e);
-        }
-    }
-
-    /*@Override
-    public List<MediaContentDTO> getLikedMediaContents(String userId) throws BusinessException {
-        try {
-            return neo4JDAO.getLikedMediaContents(userId);
-        } catch (DAOException e) {
-            throw new BusinessException("Error while retrieving liked media contents.", e);
+            if (MediaContentType.ANIME.equals(type)) {
+                neo4JDAO.unlikeAnime(userId, mediaContentId);
+            } else if (MediaContentType.MANGA.equals(type)) {
+                neo4JDAO.unlikeManga(userId, mediaContentId);
+            } else {
+                throw new BusinessException("Invalid media content type");
+            }
+        } catch (Exception e) {
+            throw new BusinessException("Error while unliking anime.", e);
         }
     }
 
@@ -162,7 +165,7 @@ public class MediaContentServiceImpl implements MediaContentService {
     public List<AnimeDTO> getLikedAnime(String userId) throws BusinessException {
         try {
             return neo4JDAO.getLikedAnime(userId);
-        } catch (DAOException e) {
+        } catch (Exception e) {
             throw new BusinessException("Error while retrieving liked anime.", e);
         }
     }
@@ -171,7 +174,7 @@ public class MediaContentServiceImpl implements MediaContentService {
     public List<MangaDTO> getLikedManga(String userId) throws BusinessException {
         try {
             return neo4JDAO.getLikedManga(userId);
-        } catch (DAOException e) {
+        } catch (Exception e) {
             throw new BusinessException("Error while retrieving liked manga.", e);
         }
     }
@@ -229,16 +232,6 @@ public class MediaContentServiceImpl implements MediaContentService {
         } catch (DAOException e) {
             throw new BusinessException("Error while retrieving the trend.", e);
         }
-    }
-
-    /*@Override
-    public List<Record> getMediaContentByGenre(String genre) throws BusinessException {
-        try {
-            return neo4JDAO.getMediaContentByGenre(genre);
-        } catch (DAOException e) {
-            throw new BusinessException("Error while getting media content by genre.", e);
-        }
-
     }
 
     @Override

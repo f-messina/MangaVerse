@@ -31,7 +31,7 @@ import static com.mongodb.client.model.Updates.setOnInsert;
 public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anime> {
 
     @Override
-    public ObjectId insert(Anime anime) throws DAOException {
+    public String insert(Anime anime) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> animeCollection = mongoClient.getDatabase("mangaVerse").getCollection("anime");
 
@@ -42,7 +42,7 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
             if (result.getUpsertedId() == null) {
                 throw new DAOException("Anime already exists");
             } else {
-                return result.getUpsertedId().asObjectId().getValue();
+                return result.getUpsertedId().asObjectId().getValue().toString();
             }
         } catch (Exception e) {
             throw new DAOException("Error while inserting anime", e);
@@ -54,7 +54,7 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> animeCollection = mongoClient.getDatabase("mangaVerse").getCollection("anime");
 
-            Bson filter = Filters.eq("_id", anime.getId());
+            Bson filter = Filters.eq("_id", new ObjectId(anime.getId()));
             Bson update = new Document("$set", animeToDocument(anime));
 
             animeCollection.updateOne(filter, update);
@@ -64,11 +64,11 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
     }
 
     @Override
-    public void delete(ObjectId animeId) throws DAOException {
+    public void delete(String animeId) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> animeCollection = mongoClient.getDatabase("mangaVerse").getCollection("anime");
 
-            Bson filter = Filters.eq("_id", animeId);
+            Bson filter = Filters.eq("_id", new ObjectId(animeId));
 
             animeCollection.deleteOne(filter);
         } catch (Exception e) {
@@ -77,11 +77,11 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
     }
 
     @Override
-    public Anime find(ObjectId id) throws DAOException {
+    public Anime find(String animeId) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> animeCollection = mongoClient.getDatabase("mangaVerse").getCollection("anime");
 
-            Bson filter = Filters.eq("_id", id);
+            Bson filter = Filters.eq("_id", new ObjectId(animeId));
 
             Document result = animeCollection.find(filter).first();
 
@@ -202,7 +202,7 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
 
     private Anime documentToAnime(Document document) {
         Anime anime = new Anime();
-        anime.setId(document.getObjectId("_id"));
+        anime.setId(document.getObjectId("_id").toString());
         anime.setTitle(document.getString("title"));
         anime.setEpisodeCount(document.getInteger("episodes"));
         anime.setStatus(Status.valueOf(document.getString("status")));
@@ -228,11 +228,11 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
                     Review review = new Review();
                     User reviewer = new User();
                     Document userDocument = reviewDocument.get("user", Document.class);
-                    reviewer.setId(userDocument.getObjectId("id"));
+                    reviewer.setId(userDocument.getObjectId("id").toString());
                     reviewer.setUsername(userDocument.getString("username"));
                     reviewer.setProfilePicUrl(userDocument.getString("picture"));
                     review.setUser(reviewer);
-                    review.setId(reviewDocument.getObjectId("id"));
+                    review.setId(reviewDocument.getObjectId("id").toString());
                     review.setComment(reviewDocument.getString("comment"));
                     review.setDate(ConverterUtils.dateToLocalDate(reviewDocument.getDate("date")));
                     return review;
@@ -245,7 +245,7 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
 
     private AnimeDTO documentToAnimeDTO(Document doc) {
         AnimeDTO anime = new AnimeDTO();
-        anime.setId(doc.getObjectId("_id"));
+        anime.setId(doc.getObjectId("_id").toString());
         anime.setTitle(doc.getString("title"));
         anime.setImageUrl(doc.getString("picture"));
         Object averageRatingObj = doc.get("average_rating");

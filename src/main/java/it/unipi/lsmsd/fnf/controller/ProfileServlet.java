@@ -15,7 +15,6 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -116,7 +115,7 @@ String targetJSP = "main-page.jsp";
             list.setName(listName);
             list.setUser(authUser);
 
-            ObjectId id = personalListService.insertList(list);
+            String id = personalListService.insertList(list);
             list.setId(id);
             list.setUser(null); // Avoid storing the user in the list; it's already stored in the user's lists
             authUser.addList(list);

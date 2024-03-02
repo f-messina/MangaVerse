@@ -5,16 +5,15 @@ import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.mediaContent.MediaContent;
-import org.bson.types.ObjectId;
 
 import java.util.List;
 import java.util.Map;
 
 public interface MediaContentDAO<T extends MediaContent> {
-    ObjectId insert(T mediaContent) throws DAOException;
+    String insert(T mediaContent) throws DAOException;
     void update(T mediaContent) throws DAOException;
-    T find(ObjectId id) throws DAOException;
-    void delete(ObjectId id) throws DAOException;
+    T find(String id) throws DAOException;
+    void delete(String id) throws DAOException;
     PageDTO<? extends MediaContentDTO> search(List<Map<String, Object>> filters, Map<String, Integer> orderBy, int page) throws DAOException;
     void updateLatestReview (ReviewDTO reviewDTO) throws DAOException;
 }

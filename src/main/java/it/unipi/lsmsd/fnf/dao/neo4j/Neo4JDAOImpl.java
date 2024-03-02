@@ -6,30 +6,29 @@ import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dto.RegisteredUserDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
-import org.bson.types.ObjectId;
 import org.neo4j.driver.Record;
 import org.neo4j.driver.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 public class Neo4JDAOImpl extends BaseNeo4JDAO implements Neo4JDAO {
 
-    //like a media content OK
     @Override
     public void likeAnime(String userId, String animeId) throws DAOException {
-        try (Session session = getSession()) {
+        try (Driver driver = getDriver();
+             Session session = driver.session()) {
             String query = "MATCH (u:User {id: $userId}), (a:Anime {id: $animeId}) " +
                             "MERGE (u)-[r:LIKE]->(a) " +
                             "SET r.date = datetime() ";
-            session.run(query, Map.of("userId", userId, "animeId", animeId));
 
+            session.run(query, Map.of("userId", userId, "animeId", animeId));
         } catch (Exception e) {
             throw new DAOException(e);
         }
-
     }
 
     @Override
@@ -38,8 +37,8 @@ public class Neo4JDAOImpl extends BaseNeo4JDAO implements Neo4JDAO {
             String query = "MATCH (u:User {id: $userId}), (m:Manga {id: $mangaId}) " +
                     "MERGE (u)-[r:LIKE]->(m) " +
                     "SET r.date = datetime() ";
-            session.run(query, Map.of("userId", userId, "mangaId", mangaId));
 
+            session.run(query, Map.of("userId", userId, "mangaId", mangaId));
         } catch (Exception e) {
             throw new DAOException(e);
         }
@@ -110,7 +109,7 @@ public class Neo4JDAOImpl extends BaseNeo4JDAO implements Neo4JDAO {
     private AnimeDTO recordToAnimeDTO(Record record) {
         Map<String, Object> map = record.asMap();
         AnimeDTO animeDTO = new AnimeDTO();
-        animeDTO.setId(new ObjectId(String.valueOf(map.get("id"))));
+        animeDTO.setId(String.valueOf(map.get("id")));
         animeDTO.setTitle((String)map.get("title"));
         if (map.get("picture") != null) {
             animeDTO.setImageUrl((String)map.get("picture"));
@@ -136,7 +135,7 @@ public class Neo4JDAOImpl extends BaseNeo4JDAO implements Neo4JDAO {
     private MangaDTO recordToMangaDTO(Record record) {
         Map<String, Object> map = record.asMap();
         MangaDTO mangaDTO = new MangaDTO();
-        mangaDTO.setId(new ObjectId(String.valueOf(map.get("id"))));
+        mangaDTO.setId(String.valueOf(map.get("id")));
         mangaDTO.setTitle((String)map.get("title"));
         if (map.get("picture") != null) {
             mangaDTO.setImageUrl((String)map.get("picture"));
@@ -164,7 +163,7 @@ public class Neo4JDAOImpl extends BaseNeo4JDAO implements Neo4JDAO {
     private RegisteredUserDTO recordToRegisteredUserDTO(Record record) {
         Map<String, Object> map = record.asMap();
         RegisteredUserDTO registeredUserDTO = new RegisteredUserDTO();
-        registeredUserDTO.setId(new ObjectId(String.valueOf(map.get("id"))));
+        registeredUserDTO.setId(String.valueOf(map.get("id")));
         registeredUserDTO.setUsername((String) map.get("username"));
         registeredUserDTO.setProfilePicUrl((String) map.get("picture"));
         return registeredUserDTO;
@@ -182,6 +181,7 @@ public class Neo4JDAOImpl extends BaseNeo4JDAO implements Neo4JDAO {
         }
     }
 
+    /*
     //Suggest users based on common following OK
     @Override
     public List<RegisteredUserDTO> suggestUsers(String userId) throws DAOException {
@@ -277,37 +277,6 @@ public class Neo4JDAOImpl extends BaseNeo4JDAO implements Neo4JDAO {
             throw new DAOException(e);
         }
     }
-
-    // To show the media contents with a certain genre
-    //OK
-    @Override
-    public List<AnimeDTO> getAnimeByGenre(String genre) throws DAOException {
-        try (Session session = getSession()) {
-            String query = "MATCH (a:Anime)-[:BELONGS_TO]->(g:Genre {name: $genre}) " +
-                            "RETURN a.id as id, a.title as title, a.picture as picture " +
-                            "LIMIT 10";
-            List<Record> records =  session.run(query, Map.of("genre", genre)).list();
-            return records.stream().map(this::recordToAnimeDTO).collect(Collectors.toList());
-        } catch (Exception e) {
-            throw new DAOException(e);
-        }
-    }
-
-    //OK
-    @Override
-    public List<MangaDTO> getMangaByGenre(String genre) throws DAOException {
-        try (Session session = getSession()) {
-            String query = "MATCH (m:Manga)-[:BELONGS_TO]->(g:Genre {name: $genre}) " +
-                            "RETURN m.id as id, m.title as title, m.picture as picture " +
-                            "LIMIT 10";
-            List<Record> records =  session.run(query, Map.of("genre", genre)).list();
-            return records.stream().map(this::recordToMangaDTO).collect(Collectors.toList());
-        } catch (Exception e) {
-            throw new DAOException(e);
-        }
-    }
-
-    //Suggest the media content based on the most liked genres of a user (not implemented)
 
 
     //Show the trends of the genres for year
@@ -507,5 +476,5 @@ public class Neo4JDAOImpl extends BaseNeo4JDAO implements Neo4JDAO {
             throw new DAOException(e);
         }
     }
-
+*/
 }

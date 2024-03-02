@@ -12,11 +12,13 @@ public interface UserService {
     User registerUserAndLogin(UserRegistrationDTO userRegistrationDTO) throws BusinessException;
     RegisteredUser login(String email, String password) throws BusinessException;
     void updateUserInfo(User user) throws BusinessException;
-    void followUser(String followerUserId, String followingUserId) throws BusinessException;
-    void unfollowUser(String followerUserId, String followingUserId) throws BusinessException;
+    void follow(String followerUserId, String followingUserId) throws BusinessException;
+    void unfollow(String followerUserId, String followingUserId) throws BusinessException;
     List<RegisteredUserDTO> getFollowing(String userId) throws BusinessException;
 
     List<RegisteredUserDTO> getFollowers(String userId) throws BusinessException;
 
+    /*
     List<RegisteredUserDTO> suggestUsers(String userId) throws BusinessException;
+     */
 }

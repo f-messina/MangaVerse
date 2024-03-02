@@ -1,9 +1,7 @@
 package it.unipi.lsmsd.fnf.service;
 
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
-import it.unipi.lsmsd.fnf.model.Review;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
-import org.bson.types.ObjectId;
 
 import java.util.List;
 

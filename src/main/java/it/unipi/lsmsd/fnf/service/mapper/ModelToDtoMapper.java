@@ -121,7 +121,7 @@ public class ModelToDtoMapper {
 
     public static PersonalList convertToPersonalList(PersonalListDTO personalListDTO) {
         PersonalList personalList = new PersonalList();
-        personalList.setId(new ObjectId(String.valueOf(personalListDTO.getId())));
+        personalList.setId(String.valueOf(personalListDTO.getId()));
         personalList.setName(personalListDTO.getName());
         personalList.setUser(convertToUser(personalListDTO.getUser()));
         List<Manga> manga = new ArrayList<>();

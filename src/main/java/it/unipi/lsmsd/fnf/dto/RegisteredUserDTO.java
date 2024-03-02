@@ -12,7 +12,7 @@ import java.util.Map;
 
 public class RegisteredUserDTO {
 
-    private ObjectId id;
+    private String id;
     private String username;
     private String profilePicUrl;
     private String location;
@@ -22,19 +22,19 @@ public class RegisteredUserDTO {
     public RegisteredUserDTO() {
     }
 
-    public RegisteredUserDTO(ObjectId id, String username, String profilePicUrl) {
+    public RegisteredUserDTO(String id, String username, String profilePicUrl) {
         this.id = id;
         this.username = username;
         this.profilePicUrl = profilePicUrl;
     }
 
-    public RegisteredUserDTO(ObjectId id, String location, LocalDate birthday) {
+    public RegisteredUserDTO(String id, String location, LocalDate birthday) {
         this.id = id;
         this.location = location;
         this.birthday = birthday;
     }
 
-    public RegisteredUserDTO(ObjectId id, String location, LocalDate birthday, Integer age) {
+    public RegisteredUserDTO(String id, String location, LocalDate birthday, Integer age) {
         this.id = id;
         this.location = location;
         this.birthday = birthday;
@@ -42,11 +42,11 @@ public class RegisteredUserDTO {
     }
 
 
-    public ObjectId getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(ObjectId id) {
+    public void setId(String id) {
         this.id = id;
     }
 

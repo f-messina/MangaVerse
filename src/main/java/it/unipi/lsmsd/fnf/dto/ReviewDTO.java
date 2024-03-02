@@ -6,7 +6,7 @@ import org.bson.types.ObjectId;
 import java.time.LocalDate;
 
 public class ReviewDTO {
-    private ObjectId id;
+    private String id;
     private LocalDate date;
     private String comment;
     private Integer rating;
@@ -16,7 +16,7 @@ public class ReviewDTO {
     public ReviewDTO() {
     }
 
-    public ReviewDTO(ObjectId id, LocalDate date, String comment, Integer rating, MediaContentDTO mediaContent, RegisteredUserDTO user) {
+    public ReviewDTO(String id, LocalDate date, String comment, Integer rating, MediaContentDTO mediaContent, RegisteredUserDTO user) {
         this.id = id;
         this.date = date;
         this.comment = comment;
@@ -25,7 +25,7 @@ public class ReviewDTO {
         this.user = user;
     }
 
-    public ObjectId getId() {
+    public String getId() {
         return id;
     }
 
@@ -49,7 +49,7 @@ public class ReviewDTO {
         return user;
     }
 
-    public void setId(ObjectId id) {
+    public void setId(String id) {
         this.id = id;
     }
 

@@ -5,6 +5,8 @@
   Time: 12:31
   To change this template use File | Settings | File Templates.
 --%>
+<%@ page import="it.unipi.lsmsd.fnf.utils.Constants" %>
+
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
@@ -146,7 +148,6 @@
         const form = $("#" + formId);
         const url = form.attr("action");
         const formData = form.serialize();
-        console.log(formData);
 
         $.post(url, formData, function (data) {
             const container = $("#" + containerId).empty();
@@ -156,6 +157,7 @@
                 $("<div>").attr("id", "mediaContentContainer"),
                 $("<div>").attr("id", "pageSelection")
             );
+
             updateOrderSelection(data, formId);
             updateMediaContent(data, "mediaContentContainer");
             updatePageBar(data, formId);
@@ -206,16 +208,34 @@
     function updateMediaContent(data, containerId) {
         const mediaContentPage = data.mediaContentList;
         const mediaContentContainer = $("#" + containerId).empty();
-
         mediaContentContainer.append(
-            mediaContentPage.entries.map(manga => $("<article>").append(
+            mediaContentPage.entries.map(manga => {
+                const articleElement = $("<article>").append(
                 $("<h2>").text(manga.title),
                 $("<img>").attr({ src: manga.imageUrl, alt: "No image" }),
                 manga.averageRating !== null ? $("<p>").text("Score: " + manga.averageRating) : "",
                 manga.startDate !== null ? $("<p>").text("Start Date: " + manga.startDate) : "",
                 manga.endDate !== null ? $("<p>").text("End Date: " + manga.endDate) : ""
-            ))
+                );
+                <% if (session.getAttribute(Constants.AUTHENTICATED_USER_KEY) != null) { %>
+                articleElement.append($("<button>").text("Like").on("click", () => toggleLike(manga)));
+                <% } %>
+                return articleElement;
+            })
         );
+    }
+
+    function toggleLike(manga) {
+        console.log(manga.id)
+        const requestData = {
+            action: "toggleLike",
+            mediaId: manga.id,
+            mediaTitle: manga.title,
+            mediaImageUrl: manga.imageUrl
+        };
+        $.post("${pageContext.request.contextPath}/mainPage/manga", requestData, function (data) {
+            console.log(data);
+        }, "json").fail(() => console.error("Error occurred during the asynchronous request"));
     }
 
     function updatePageBar(data, formId) {
