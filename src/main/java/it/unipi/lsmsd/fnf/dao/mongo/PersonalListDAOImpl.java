@@ -300,4 +300,83 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
                 .append("anime_list", animeDoc)
                 .append("manga_list", mangaDoc);
     }
+
+
+    //MongoDB queries
+    //Find tha anime most present in all of the lists
+    @Override
+    public List<AnimeDTO> popularAnime() throws DAOException {
+        try (MongoClient mongoClient = getConnection()) {
+            MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
+
+
+            //N.B.: use of unwind (I have arrays). Is it worth it?
+            List<Document> pipeline = new ArrayList<>();
+            pipeline.add(Document.parse("{$project: { items: { $concatArrays: ['$anime_list'] } }}"));
+            pipeline.add(Document.parse("{$unwind: '$items'}"));
+            pipeline.add(Document.parse("{$group: { _id: '$items.id', title: { $first: '$items.title' }, totalLists: { $sum: 1 } }}"));
+            pipeline.add(Document.parse("{$sort: { totalLists: -1 }}"));
+            pipeline.add(Document.parse("{$limit: 5 }"));
+
+
+            // Execute aggregation and store results in a list
+            List<Document> result = listsCollection.aggregate(pipeline).into(new ArrayList<>());
+
+            // Map aggregation results to AnimeDTO objects
+            List<AnimeDTO> popularAnimeList = new ArrayList<>();
+
+            for (Document doc : result) {
+                ObjectId id = doc.getObjectId("_id");
+                String title = doc.getString("title");
+
+
+                AnimeDTO animeDTO = new AnimeDTO(id, title, null);
+                popularAnimeList.add(animeDTO);
+            }
+
+            return popularAnimeList;
+
+        } catch (Exception e) {
+            throw new DAOException("Error finding popular anime", e);
+        }
+    }
+
+    //Find tha anime most present in all of the lists
+    @Override
+    public List<MangaDTO> popularManga () throws DAOException {
+        try (MongoClient mongoClient = getConnection()) {
+            MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
+
+
+            //N.B.: use of unwind (I have arrays). Is it worth it?
+            List<Document> pipeline = new ArrayList<>();
+            pipeline.add(Document.parse("{$project: { items: { $concatArrays: ['$manga_list'] } }}"));
+            pipeline.add(Document.parse("{$unwind: '$items'}"));
+            pipeline.add(Document.parse("{$group: { _id: '$items.id', title: { $first: '$items.title' }, totalLists: { $sum: 1 } }}"));
+            pipeline.add(Document.parse("{$sort: { totalLists: -1 }}"));
+            pipeline.add(Document.parse("{$limit: 5 }"));
+
+
+            // Execute aggregation and store results in a list
+            List<Document> result = listsCollection.aggregate(pipeline).into(new ArrayList<>());
+
+            // Map aggregation results to AnimeDTO objects
+            List<MangaDTO> popularMangaList = new ArrayList<>();
+
+            for (Document doc : result) {
+                ObjectId id = doc.getObjectId("_id");
+                String title = doc.getString("title");
+
+
+                MangaDTO mangaDTO = new MangaDTO(id, title, null);
+                popularMangaList.add(mangaDTO);
+            }
+
+            return popularMangaList;
+
+        } catch (Exception e) {
+            throw new DAOException("Error finding popular anime", e);
+        }
+    }
+
 }

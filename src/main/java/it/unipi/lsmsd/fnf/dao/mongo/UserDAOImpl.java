@@ -1,5 +1,6 @@
 package it.unipi.lsmsd.fnf.dao.mongo;
 
+import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.result.UpdateResult;
@@ -19,9 +20,6 @@ import com.mongodb.client.MongoCollection;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -258,7 +256,6 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
             appendIfNotNull(doc, "birthday", ConverterUtils.localDateToDate(regularUser.getBirthday()));
             appendIfNotNull(doc, "description", regularUser.getDescription());
             appendIfNotNull(doc, "gender", regularUser.getGender() != null ? regularUser.getGender().name() : null);
-            Logger logger = LoggerFactory.getLogger(UserDAOImpl.class);
             appendIfNotNull(doc, "location", regularUser.getLocation());
         }
 
@@ -279,5 +276,198 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
             doc.append("gender", 1);
 
         return doc;
+    }
+
+    //MongoDB complex queries
+    //Find the distribution of genders between users
+    @Override
+    public List<Document> getGenderDistribution() throws DAOException {
+        try (MongoClient mongoClient = getConnection()) {
+            MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
+
+            List<Document> pipeline = new ArrayList<>();
+            pipeline.add(Document.parse("{$group: {_id: \"$gender\", count: { $sum: 1 }}}"));
+
+            AggregateIterable<Document> aggregationResult = users.aggregate(pipeline);
+
+            List<Document> result = new ArrayList<>();
+            aggregationResult.into(result);
+
+            return result;
+
+
+        }
+        catch (Exception e){
+            throw new DAOException("Error getting genre distribution", e);
+        }
+    }
+
+    //Find the average age of users
+    @Override
+    public Integer averageAgeUsers() throws DAOException {
+        try (MongoClient mongoClient = getConnection()) {
+            MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
+
+            List<Document> pipeline = new ArrayList<>();
+            pipeline.add(Document.parse("""
+                    {$project: {age: {$divide: [{ $subtract: [new Date(), "$birthday"] },
+                              1000 * 60 * 60 * 24 * 365 ] }}
+                    """));
+            pipeline.add(Document.parse("{ $group: {_id: null, averageAge: { $avg: \"$age\" }}}"));
+            AggregateIterable<Document> aggregationResult = users.aggregate(pipeline);
+
+            List<Document> result = new ArrayList<>();
+            aggregationResult.into(result);
+            return result.getFirst().getInteger("averageAge");
+        }
+        catch (Exception e){
+            throw new DAOException("Error getting average age of users", e);
+        }
+    }
+
+    //Find the distribution of users by location
+    @Override
+    public List<Document> getLocationDistribution() throws DAOException {
+        try (MongoClient mongoClient = getConnection()) {
+            MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
+
+            List<Document> pipeline = new ArrayList<>();
+            pipeline.add(Document.parse("{$group: {_id: \"$location\", count: { $sum: 1 }}}"));
+            AggregateIterable<Document> aggregationResult = users.aggregate(pipeline);
+
+            List<Document> result = new ArrayList<>();
+            aggregationResult.into(result);
+            return result;
+        }
+        catch (Exception e){
+            throw new DAOException("Error getting location distribution", e);
+        }
+    }
+
+    //Find how many users there are grouped by age range
+    @Override
+    public List<Document> getUsersByAgeRange() throws DAOException {
+        try (MongoClient mongoClient = getConnection()) {
+            MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
+
+            List<Document> pipeline = new ArrayList<>();
+            pipeline.add(Document.parse("""
+                    {$project: {age: {$divide: [{ $subtract: [new Date(), "$birthday"] },
+                              1000 * 60 * 60 * 24 * 365 ] }}
+                    """));
+            pipeline.add(Document.parse("{$bucket: {groupBy: \"$age\", boundaries: [13, 20, 40, 50], default: \"Other\", output: { count: { $sum: 1 } }}}"));
+            AggregateIterable<Document> aggregationResult = users.aggregate(pipeline);
+
+            List<Document> result = new ArrayList<>();
+            aggregationResult.into(result);
+            return result;
+        }
+        catch (Exception e){
+            throw new DAOException("Error getting users by age range", e);
+        }
+    }
+
+    //Find how many users registered for each year
+    @Override
+    public List<Document> getUsersRegisteredByYear() throws DAOException {
+        try (MongoClient mongoClient = getConnection()) {
+            MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
+
+            List<Document> pipeline = new ArrayList<>();
+            pipeline.add(Document.parse("{ $group: { _id: { $year: { $toDate: \"$joined_on\" } }, count: { $sum: 1 } } }"));
+            AggregateIterable<Document> aggregationResult = users.aggregate(pipeline);
+
+            List<Document> result = new ArrayList<>();
+            aggregationResult.into(result);
+            return result;
+        } catch (Exception e) {
+            throw new DAOException("Error getting users registered by year", e);
+        }
+    }
+
+    //Find average app_rating based on the age of users
+    @Override
+    public Integer averageAppRatingByAge (Integer yearOfBirth) throws DAOException{
+        try (MongoClient mongoClient = getConnection()) {
+            MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
+
+            List<Document> pipeline = new ArrayList<>();
+            pipeline.add(Document.parse("{$match: {\"birthday\": { $gte: ISODate(\"" + yearOfBirth + "-01-01T00:00:00.000Z\"),        " +
+                    "$lt: ISODate(\"" + (yearOfBirth+1) + "-01-01T00:00:00.000Z\")}}}"));
+            pipeline.add(Document.parse("{$group: {_id: null, averageAppRating: { $avg: \"$app_rating\" }}}"));
+            AggregateIterable<Document> aggregationResult = users.aggregate(pipeline);
+
+            List<Document> result = new ArrayList<>();
+            aggregationResult.into(result);
+            return result.getFirst().getInteger("averageAppRating");
+        }
+        catch (Exception e){
+            throw new DAOException("Error getting average app rating by age", e);
+        }
+
+    }
+    //Find average app_rating based on the location of users
+    @Override
+    public Integer averageAppRatingByLocation (String location) throws DAOException{
+        try (MongoClient mongoClient = getConnection()) {
+            MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
+
+            List<Document> pipeline = new ArrayList<>();
+            pipeline.add(Document.parse("{$match: { \"location\": \"" + location + "    }  }"));
+            pipeline.add(Document.parse("{$group: {_id: null, averageAppRating: { $avg: \"$app_rating\" }}}"));
+            AggregateIterable<Document> aggregationResult = users.aggregate(pipeline);
+
+            List<Document> result = new ArrayList<>();
+            aggregationResult.into(result);
+            return result.getFirst().getInteger("averageAppRating");
+        }
+        catch (Exception e){
+            throw new DAOException("Error getting average app rating by age", e);
+        }
+
+    }
+    //Find average app_rating based on the gender of users
+    @Override
+    public List<Document> averageAppRatingByGender () throws DAOException {
+        try (MongoClient mongoClient = getConnection()) {
+            MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
+
+            List<Document> pipeline = new ArrayList<>();
+            pipeline.add(Document.parse("{$group: {_id: \"$gender\", averageAppRating: { $avg: \"$app_rating\" }}}"));
+            AggregateIterable<Document> aggregationResult = users.aggregate(pipeline);
+
+            List<Document> result = new ArrayList<>();
+            aggregationResult.into(result);
+            return result;
+        }
+        catch (Exception e){
+            throw new DAOException("Error getting genre distribution", e);
+        }
+    }
+
+    // Methods available only in Neo4J
+    @Override
+    public void createNode(String id, String username, String picture) throws DAOException {
+    }
+    @Override
+    public void follow(String followerUserId, String followingUserId) throws DAOException {
+    }
+    @Override
+    public void unfollow(String followerUserId, String followingUserId) throws DAOException {
+    }
+    @Override
+    public List<RegisteredUserDTO> getFollowing(String userId) throws DAOException {
+        return null;
+    }
+    @Override
+    public List<RegisteredUserDTO> getFollowers(String userId) throws DAOException {
+        return null;
+    }
+    @Override
+    public List<RegisteredUserDTO> suggestUsers(String userId) throws DAOException {
+        return null;
+    }
+    @Override
+    public void update(RegisteredUser user) throws DAOException {
     }
 }

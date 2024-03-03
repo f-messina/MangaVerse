@@ -14,10 +14,10 @@ public interface UserService {
     void updateUserInfo(User user) throws BusinessException;
     void follow(String followerUserId, String followingUserId) throws BusinessException;
     void unfollow(String followerUserId, String followingUserId) throws BusinessException;
+    void createUserNode(String id, String username, String picture) throws BusinessException;
     List<RegisteredUserDTO> getFollowing(String userId) throws BusinessException;
 
     List<RegisteredUserDTO> getFollowers(String userId) throws BusinessException;
-
     /*
     List<RegisteredUserDTO> suggestUsers(String userId) throws BusinessException;
      */

@@ -26,4 +26,11 @@ import java.util.List;
      List<AnimeDTO> findPopularAnime(SearchCriteriaEnum criteria, String value) throws DAOException;
      List<MangaDTO> findPopularManga(SearchCriteriaEnum criteria) throws DAOException;
      List<MangaDTO> findPopularManga(SearchCriteriaEnum criteria, String value) throws DAOException;
-}
+
+     //MongoDB queries
+     //Find tha anime most present in all of the lists
+     List<AnimeDTO> popularAnime() throws DAOException;
+
+     //Find tha anime most present in all of the lists
+     List<MangaDTO> popularManga() throws DAOException;
+ }
