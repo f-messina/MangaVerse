@@ -3,12 +3,15 @@ package it.unipi.lsmsd.fnf.dao.base;
 import org.neo4j.driver.AuthTokens;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.GraphDatabase;
+import org.neo4j.driver.Session;
 
 public abstract class BaseNeo4JDAO {
     private static final String NE04J_URI = "bolt://localhost:7687";
     private static final String NEO4J_USERNAME = "neo4j";
     private static final String NEO4J_PASSWORD = "neo4j/neo4j";
 
+
+    private static Session session = null;
     private static final Driver driver = GraphDatabase.driver(
             NE04J_URI,
             AuthTokens.basic(NEO4J_USERNAME, NEO4J_PASSWORD)
@@ -17,12 +20,20 @@ public abstract class BaseNeo4JDAO {
     public static Driver getDriver() {
         return driver;
     }
-
     public static void closeDriver() {
         if(driver != null) {
             driver.close();
         }
     }
+    public static Session getSession() {
+        return driver.session();
+    }
 
+    public static void closeSession() {
+        if(session != null) {
+            session.close();
+            session = null;
+        }
+    }
 
 }

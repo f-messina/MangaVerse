@@ -17,7 +17,7 @@ import java.util.List;
 
 public class ModelToDtoMapper {
     public static AnimeDTO animeToAnimeDTO(Anime anime) {
-        return new AnimeDTO(anime.getId(), anime.getTitle(), anime.getImageUrl(), anime.getAverageRating(), anime.getYear());
+        return new AnimeDTO(anime.getId(), anime.getTitle(), anime.getImageUrl(), anime.getAverageRating(), anime.getYear(), anime.getSeason());
     }
 
     public static MangaDTO mangaToMangaDTO(Manga manga) {
@@ -121,7 +121,7 @@ public class ModelToDtoMapper {
 
     public static PersonalList convertToPersonalList(PersonalListDTO personalListDTO) {
         PersonalList personalList = new PersonalList();
-        personalList.setId(new ObjectId(String.valueOf(personalListDTO.getId())));
+        personalList.setId(String.valueOf(personalListDTO.getId()));
         personalList.setName(personalListDTO.getName());
         personalList.setUser(convertToUser(personalListDTO.getUser()));
         List<Manga> manga = new ArrayList<>();

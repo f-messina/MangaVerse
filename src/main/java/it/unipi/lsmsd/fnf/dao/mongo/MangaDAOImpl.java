@@ -8,6 +8,7 @@ import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
+import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.Review;
 import it.unipi.lsmsd.fnf.model.enums.MangaDemographics;
 import it.unipi.lsmsd.fnf.model.enums.MangaType;
@@ -24,8 +25,6 @@ import com.mongodb.client.model.Facet;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -38,7 +37,7 @@ import static com.mongodb.client.model.Updates.setOnInsert;
 public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Manga> {
 
     @Override
-    public ObjectId insert(Manga manga) throws DAOException {
+    public String insert(Manga manga) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> mangaCollection = mongoClient.getDatabase("mangaVerse").getCollection("manga");
 
@@ -49,7 +48,7 @@ public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Mang
             if (result.getUpsertedId() == null) {
                 throw new DAOException("Manga already exists");
             } else {
-                return result.getUpsertedId().asObjectId().getValue();
+                return result.getUpsertedId().asObjectId().getValue().toString();
             }
         } catch (Exception e) {
             throw new DAOException("Error while inserting manga", e);
@@ -61,7 +60,7 @@ public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Mang
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> mangaCollection = mongoClient.getDatabase("mangaVerse").getCollection("manga");
 
-            Bson filter = eq("_id", manga.getId());
+            Bson filter = eq("_id", new ObjectId(manga.getId()));
             Bson update = new Document("$set", mangaToDocument(manga));
 
             mangaCollection.updateOne(filter, update);
@@ -71,11 +70,11 @@ public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Mang
     }
 
     @Override
-    public Manga find(ObjectId id) throws DAOException {
+    public Manga find(String mangaId) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> mangaCollection = mongoClient.getDatabase("mangaVerse").getCollection("manga");
 
-            Bson filter = eq("_id", id);
+            Bson filter = eq("_id", new ObjectId(mangaId));
 
             Document result = mangaCollection.find(filter).first();
 
@@ -139,16 +138,14 @@ public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Mang
 
     @Override
     public void updateLatestReview(ReviewDTO reviewDTO) throws DAOException {
-        // do it later
     }
 
-
     @Override
-    public void delete(ObjectId mangaId) throws DAOException {
+    public void delete(String mangaId) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> mangaCollection = mongoClient.getDatabase("mangaVerse").getCollection("manga");
 
-            Bson filter = eq("_id", mangaId);
+            Bson filter = eq("_id", new ObjectId(mangaId));
 
             mangaCollection.deleteOne(filter);
         } catch (Exception e) {
@@ -208,7 +205,7 @@ public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Mang
 
     public static Manga documentToManga(Document document) {
         Manga manga = new Manga();
-        manga.setId(document.getObjectId("_id"));
+        manga.setId(document.getObjectId("_id").toString());
         manga.setTitle(document.getString("title"));
         manga.setType(MangaType.fromString(document.getString("type")));
         manga.setStatus(Status.valueOf(document.getString("status")));
@@ -249,11 +246,11 @@ public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Mang
                                 Review review = new Review();
                                 User reviewer = new User();
                                 Document userDocument = reviewDocument.get("user", Document.class);
-                                reviewer.setId(userDocument.getObjectId("id"));
+                                reviewer.setId(userDocument.getObjectId("id").toString());
                                 reviewer.setUsername(userDocument.getString("username"));
                                 reviewer.setProfilePicUrl(userDocument.getString("picture"));
                                 review.setUser(reviewer);
-                                review.setId(reviewDocument.getObjectId("id"));
+                                review.setId(reviewDocument.getObjectId("id").toString());
                                 review.setComment(reviewDocument.getString("comment"));
                                 review.setDate(ConverterUtils.dateToLocalDate(reviewDocument.getDate("date")));
                                 return review;
@@ -267,7 +264,7 @@ public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Mang
 
     private MangaDTO documentToMangaDTO(Document doc) {
         MangaDTO manga = new MangaDTO();
-        manga.setId(doc.getObjectId("_id"));
+        manga.setId(doc.getObjectId("_id").toString());
         manga.setTitle(doc.getString("title"));
         manga.setImageUrl(doc.getString("picture"));
         Object averageRatingObj = doc.get("average_rating");
@@ -279,6 +276,49 @@ public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Mang
         manga.setEndDate(ConverterUtils.dateToLocalDate(doc.getDate("end_date")));
 
         return manga;
+    }
+
+
+    @Override
+    public void createNode(MediaContentDTO mangaDTO) throws DAOException {
+    }
+    @Override
+    public void like(String userId, String mediaContentId) throws DAOException {
+    }
+    @Override
+    public void unlike(String userId, String mediaContentId) throws DAOException {
+    }
+    @Override
+    public boolean isLiked(String userId, String mediaId) throws DAOException {
+        return false;
+    }
+    @Override
+    public List<? extends MediaContentDTO> getLiked(String userId) throws DAOException {
+        return null;
+    }
+    @Override
+    public List<? extends MediaContentDTO> getSuggested(String userId) throws DAOException {
+        return null;
+    }
+    @Override
+    public List<? extends MediaContentDTO> getTrendMediaContentByYear(int year) throws DAOException {
+        return null;
+    }
+    @Override
+    public List<String> getMediaContentGenresTrendByYear(int year) throws DAOException {
+        return null;
+    }
+    @Override
+    public List<? extends MediaContentDTO> getMediaContentTrendByGenre() throws DAOException {
+        return null;
+    }
+    @Override
+    public List<? extends MediaContentDTO> getMediaContentTrendByLikes() throws DAOException {
+        return null;
+    }
+    @Override
+    public List<String> getMediaContentGenresTrend() throws DAOException {
+        return null;
     }
 }
 

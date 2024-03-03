@@ -14,7 +14,6 @@ import it.unipi.lsmsd.fnf.service.PersonalListService;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 import it.unipi.lsmsd.fnf.service.mapper.ModelToDtoMapper;
 import it.unipi.lsmsd.fnf.service.mapper.DtoToModelMapper;
-import org.bson.types.ObjectId;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,17 +25,17 @@ public class PersonalListServiceImpl implements PersonalListService {
 
     private static final PersonalListDAO personalListDAO;
 
-
-
-
     static {
-        personalListDAO = Objects.requireNonNull(DAOLocator.getPersonalListDAO(DataRepositoryEnum.MONGODB));
+        personalListDAO = DAOLocator.getPersonalListDAO(DataRepositoryEnum.MONGODB);
     }
 
     @Override
-    public ObjectId insertList(PersonalList list) throws BusinessException {
-        if (list == null) {
-            throw new BusinessException(("The list can't be null."));
+    public String insertList(PersonalList list) throws BusinessException {
+        if (list.getName() == null) {
+            throw new BusinessException(("The list must have a name."));
+        }
+        if (list.getUser() == null) {
+            throw new BusinessException("The list must have a user.");
         }
         try {
             PersonalListDTO dto = ModelToDtoMapper.convertToDTO(list);
@@ -47,15 +46,16 @@ public class PersonalListServiceImpl implements PersonalListService {
     }
 
     @Override
-    public void updateList(String id, String name, User user) throws BusinessException {
-        Objects.requireNonNull(id, "The id can't be null.");
-        Objects.requireNonNull(name, "The name can't be null.");
-        Objects.requireNonNull(user, "The user can't be null");
+    public void updateList(String listId, String listName, User user) throws BusinessException {
+        Objects.requireNonNull(listId, "The id can't be null.");
+
+        if (listName == null && user == null) {
+            throw new BusinessException("At least the name or the user must be defined");
+        }
         try {
-            ObjectId objectId = new ObjectId(id);
-            List<PersonalListDTO> listDTOs = personalListDAO.findByUser(objectId);
+            List<PersonalListDTO> listDTOs = personalListDAO.findByUser(listId, false);
             for (PersonalListDTO listDTO : listDTOs) {
-                listDTO.setName(name);
+                listDTO.setName(listName);
                 RegisteredUserDTO userDTO = ModelToDtoMapper.convertToRegisteredUserDTO(user);
                 listDTO.setUser(userDTO);
                 personalListDAO.update(listDTO);
@@ -66,11 +66,9 @@ public class PersonalListServiceImpl implements PersonalListService {
     }
 
     @Override
-    public void addToList(String listId, MediaContent content) throws BusinessException {
+    public void addToList(String listId, MediaContentDTO content) throws BusinessException {
         try {
-            ObjectId objectId = new ObjectId(listId);
-            MediaContentDTO dto = ModelToDtoMapper.convertToDTO(content);
-            personalListDAO.addToList(objectId, dto);
+            personalListDAO.addToList(listId, content);
         } catch (DAOException e) {
             throw new BusinessException(e);
         }
@@ -79,19 +77,16 @@ public class PersonalListServiceImpl implements PersonalListService {
     @Override
     public void removeFromList(String listId, String mediaContentId, MediaContentType type) throws BusinessException {
         try {
-            ObjectId listObjectId = new ObjectId(listId);
-            ObjectId contentObjectId = new ObjectId(mediaContentId);
-            personalListDAO.removeFromList(listObjectId, contentObjectId, type);
+            personalListDAO.removeFromList(listId, mediaContentId, type);
         } catch (DAOException e) {
             throw new BusinessException(e);
         }
     }
 
     @Override
-    public void updateItemInList(String id, MediaContent content) throws BusinessException {
+    public void updateItemInList(MediaContentDTO content) throws BusinessException {
         try {
-            MediaContentDTO dto = ModelToDtoMapper.convertToDTO(content);
-            personalListDAO.updateItem(dto);
+            personalListDAO.updateItem(content);
         } catch (DAOException e) {
             throw new BusinessException(e);
         }
@@ -100,17 +95,16 @@ public class PersonalListServiceImpl implements PersonalListService {
     @Override
     public void removeMediaContentList(String itemId) throws BusinessException {
         try {
-            ObjectId itemObjectId = new ObjectId(itemId);
-            personalListDAO.removeItem(itemObjectId);
+            personalListDAO.removeItem(itemId);
         } catch (DAOException e) {
             throw new BusinessException(e);
         }
     }
 
     @Override
-    public void deleteList(String id) throws BusinessException {
+    public void deleteList(String listId) throws BusinessException {
         try {
-            personalListDAO.delete(new ObjectId(id));
+            personalListDAO.delete(listId);
         } catch (DAOException e) {
             throw new BusinessException(e);
         }
@@ -119,17 +113,16 @@ public class PersonalListServiceImpl implements PersonalListService {
     @Override
     public void deleteListsByUser(String userId) throws BusinessException {
         try {
-            personalListDAO.deleteByUser(new ObjectId(userId));
+            personalListDAO.deleteByUser(userId);
         } catch (DAOException e) {
             throw new BusinessException(e);
         }
     }
 
     @Override
-    public List<PersonalList> findListsByUser(String userId) throws BusinessException {
+    public List<PersonalList> findListsByUser(String userId, boolean reducedInfo) throws BusinessException {
         try {
-            ObjectId userObjectId = new ObjectId(userId);
-            List<PersonalListDTO> listDTOs = personalListDAO.findByUser(userObjectId);
+            List<PersonalListDTO> listDTOs = personalListDAO.findByUser(userId, reducedInfo);
             return listDTOs.stream()
                     .map(DtoToModelMapper::personalListDTOtoPersonalList)
                     .collect(Collectors.toCollection(ArrayList::new));
@@ -153,7 +146,7 @@ public class PersonalListServiceImpl implements PersonalListService {
     }
 
     @Override
-    public PersonalList findList(ObjectId id) throws BusinessException {
+    public PersonalList findList(String id) throws BusinessException {
         try {
             PersonalListDTO personalListDTO = personalListDAO.find(id);
             return ModelToDtoMapper.convertToPersonalList(personalListDTO);

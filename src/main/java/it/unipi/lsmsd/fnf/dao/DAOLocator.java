@@ -8,13 +8,17 @@ import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
 public class DAOLocator {
     public static MediaContentDAO<Anime> getAnimeDAO(DataRepositoryEnum dataRepositoryEnum){
         if (DataRepositoryEnum.MONGODB.equals(dataRepositoryEnum)){
-            return new AnimeDAOImpl();
+            return new it.unipi.lsmsd.fnf.dao.mongo.AnimeDAOImpl();
+        } else if (DataRepositoryEnum.NEO4J.equals(dataRepositoryEnum)) {
+            return new it.unipi.lsmsd.fnf.dao.neo4j.AnimeDAOImpl();
         }
         throw new UnsupportedOperationException("Data repository not supported: " + dataRepositoryEnum);
     }
     public static MediaContentDAO<Manga> getMangaDAO(DataRepositoryEnum dataRepositoryEnum){
         if (DataRepositoryEnum.MONGODB.equals(dataRepositoryEnum)){
-            return new MangaDAOImpl();
+            return new it.unipi.lsmsd.fnf.dao.mongo.MangaDAOImpl();
+        } else if (DataRepositoryEnum.NEO4J.equals(dataRepositoryEnum)) {
+            return new it.unipi.lsmsd.fnf.dao.neo4j.MangaDAOImpl();
         }
         throw new UnsupportedOperationException("Data repository not supported: " + dataRepositoryEnum);
     }
@@ -26,7 +30,9 @@ public class DAOLocator {
     }
     public static UserDAO getUserDAO(DataRepositoryEnum dataRepositoryEnum){
         if (DataRepositoryEnum.MONGODB.equals(dataRepositoryEnum)){
-            return new UserDAOImpl();
+            return new it.unipi.lsmsd.fnf.dao.mongo.UserDAOImpl();
+        } else if (DataRepositoryEnum.NEO4J.equals(dataRepositoryEnum)) {
+            return new it.unipi.lsmsd.fnf.dao.neo4j.UserDAOImpl();
         }
         throw new UnsupportedOperationException("Data repository not supported: " + dataRepositoryEnum);
     }

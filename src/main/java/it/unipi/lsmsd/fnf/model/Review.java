@@ -7,14 +7,14 @@ import org.bson.types.ObjectId;
 import java.time.LocalDate;
 
 public class Review {
-    private ObjectId id;
+    private String id;
     private LocalDate date;
     private String comment;
     private Integer rating;
     private MediaContent mediaContent;
     private User user;
 
-    public ObjectId getId() {
+    public String getId() {
         return id;
     }
 
@@ -38,7 +38,7 @@ public class Review {
         return user;
     }
 
-    public void setId(ObjectId id) {
+    public void setId(String id) {
         this.id = id;
     }
 

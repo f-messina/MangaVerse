@@ -1,6 +1,12 @@
 package it.unipi.lsmsd.fnf.dto.mediaContent;
 
 import org.bson.types.ObjectId;
+import org.neo4j.driver.Record;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import java.time.LocalDate;
 
@@ -11,17 +17,17 @@ public class MangaDTO extends MediaContentDTO{
     public MangaDTO() {
     }
 
-    public MangaDTO(ObjectId id, String title, String imageUrl, Double averageRating, LocalDate startDate, LocalDate endDate) {
+    public MangaDTO(String id, String title, String imageUrl, Double averageRating, LocalDate startDate, LocalDate endDate) {
         super(id, title, imageUrl, averageRating);
         this.startDate = startDate;
         this.endDate = endDate;
     }
 
-    public MangaDTO(ObjectId id, String title, String imageUrl, Double averageRating) {
+    public MangaDTO(String id, String title, String imageUrl, Double averageRating) {
         super(id, title, imageUrl, averageRating);
     }
 
-    public MangaDTO(ObjectId id, String title, String imageUrl) {
+    public MangaDTO(String id, String title, String imageUrl) {
         super(id, title, imageUrl);
     }
 
@@ -43,7 +49,7 @@ public class MangaDTO extends MediaContentDTO{
 
     @Override
     public String toString() {
-        return "MangaDTO{" +
+        return super.toString() + "MangaDTO{" +
                 ", startDate=" + startDate +
                 ", endDate=" + endDate +
                 '}';

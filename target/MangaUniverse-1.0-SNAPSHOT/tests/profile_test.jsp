@@ -97,6 +97,41 @@
         </form>
     </div>
 </section>
+
+<section class="likes">
+    <h1>Likes</h1>
+    <div class="likes-container">
+        <div class="likes-box">
+            <h2>Manga</h2>
+            <ul class="manga-anime-list" id="manga-list">
+                <c:forEach var="manga" items="${requestScope.likedManga}">
+                    <li>
+                        <a class="manga-anime" href="${pageContext.request.contextPath}/manga?mangaId=${manga.getId()}"><c:out value="${manga.getTitle()}"/></a>
+                        <img class="list-img" src="${manga.getImageUrl()}" alt="${fn:escapeXml(manga.getTitle())} image" />
+                    </li>
+                </c:forEach>
+                <c:if test="${empty requestScope.likedManga}">
+                    <li>No liked manga found</li>
+                </c:if>
+            </ul>
+        </div>
+        <div class="likes-box">
+            <h2>Anime</h2>
+            <ul class="manga-anime-list" id="anime-list">
+                <c:forEach var="anime" items="${requestScope.likedAnime}">
+                    <li>
+                        <a class="manga-anime" href="${pageContext.request.contextPath}/anime?animeId=${anime.getId()}"><c:out value="${anime.getTitle()}"/></a>
+                        <img class="list-img" src="${anime.getImageUrl()}" alt="${fn:escapeXml(anime.getTitle())} image" />
+                    </li>
+                </c:forEach>
+                <c:if test="${empty requestScope.likedAnime}">
+                    <li>No liked anime found</li>
+                </c:if>
+            </ul>
+        </div>
+    </div>
+</section>
+
 <section class="lists">
     <h1>Lists</h1>
     <form class="add-list" method="post" action="${pageContext.request.contextPath}/profile">
@@ -105,7 +140,7 @@
         <input type="text" name="listName" id="listName" placeholder="List Name" required/>
         <button class="add-list-button" type="submit">Add List</button>
     </form>
-    <c:set var="lists" value="${sessionScope[Constants.AUTHENTICATED_USER_KEY].getLists()}" />
+    <c:set var="lists" value="${requestScope.lists}" />
     <c:choose>
         <c:when test="${not empty lists}">
             <c:forEach var="list" items="${lists}">
