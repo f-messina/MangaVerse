@@ -162,22 +162,35 @@ public class MediaContentServiceImpl implements MediaContentService {
     }
 
     @Override
-    public List<AnimeDTO> getLikedAnime(String userId) throws BusinessException {
+    public boolean isLikedByUser(String userId, String mediaId, MediaContentType type) throws BusinessException {
         try {
-            return neo4JDAO.getLikedAnime(userId);
+            if (MediaContentType.ANIME.equals(type)) {
+                return neo4JDAO.isLiked(userId, mediaId, MediaContentType.ANIME);
+            } else if (MediaContentType.MANGA.equals(type)) {
+                return neo4JDAO.isLiked(userId, mediaId, MediaContentType.MANGA);
+            } else {
+                throw new BusinessException("Invalid media content type");
+            }
+        } catch (Exception e) {
+            throw new BusinessException("Error while checking like.", e);
+        }
+    }
+
+    @Override
+    public List<? extends MediaContentDTO> getLikedMedia(String userId, MediaContentType type) throws BusinessException {
+        try {
+            if (MediaContentType.ANIME.equals(type)) {
+                return neo4JDAO.getLikedAnime(userId);
+            } else if (MediaContentType.MANGA.equals(type)) {
+                return neo4JDAO.getLikedManga(userId);
+            } else {
+                throw new BusinessException("Invalid media content type");
+            }
         } catch (Exception e) {
             throw new BusinessException("Error while retrieving liked anime.", e);
         }
     }
 
-    @Override
-    public List<MangaDTO> getLikedManga(String userId) throws BusinessException {
-        try {
-            return neo4JDAO.getLikedManga(userId);
-        } catch (Exception e) {
-            throw new BusinessException("Error while retrieving liked manga.", e);
-        }
-    }
 
     /*@Override
     public List<Record> suggestMediaContents(String userId) throws BusinessException {

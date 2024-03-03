@@ -6,6 +6,7 @@ import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dto.RegisteredUserDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
+import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import org.neo4j.driver.Record;
 import org.neo4j.driver.*;
 import org.slf4j.Logger;
@@ -42,7 +43,29 @@ public class Neo4JDAOImpl extends BaseNeo4JDAO implements Neo4JDAO {
         } catch (Exception e) {
             throw new DAOException(e);
         }
+    }
 
+    @Override
+    public boolean isLiked(String userId, String mediaId, MediaContentType type) throws DAOException {
+        try (Session session = getSession()) {
+            String mediaType = type == MediaContentType.ANIME ? "Anime" : "Manga";
+            String query = "MATCH (u:User {id: $userId})-[r:LIKE]->(m:" + mediaType + " {id: $mediaId}) RETURN count(r) > 0 as isLiked";
+            Record record = session.run(query, Map.of("userId", userId, "mediaId", mediaId)).single();
+            return record.get("isLiked").asBoolean();
+        } catch (Exception e) {
+            throw new DAOException(e);
+        }
+    }
+
+    @Override
+    public boolean isFollowing(String followerUserId, String followingUserId) throws DAOException {
+        try (Session session = getSession()) {
+            String query = "MATCH (follower:User {id: $followerUserId})-[r:FOLLOWS]->(following:User {id: $followingUserId}) RETURN count(r) > 0 as isFollowing";
+            Record record = session.run(query, Map.of("followerUserId", followerUserId, "followingUserId", followingUserId)).single();
+            return record.get("isFollowing").asBoolean();
+        } catch (Exception e) {
+            throw new DAOException(e);
+        }
     }
 
     //follow a user OK

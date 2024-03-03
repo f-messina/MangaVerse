@@ -53,7 +53,7 @@ public class PersonalListServiceImpl implements PersonalListService {
             throw new BusinessException("At least the name or the user must be defined");
         }
         try {
-            List<PersonalListDTO> listDTOs = personalListDAO.findByUser(listId);
+            List<PersonalListDTO> listDTOs = personalListDAO.findByUser(listId, false);
             for (PersonalListDTO listDTO : listDTOs) {
                 listDTO.setName(listName);
                 RegisteredUserDTO userDTO = ModelToDtoMapper.convertToRegisteredUserDTO(user);
@@ -66,10 +66,9 @@ public class PersonalListServiceImpl implements PersonalListService {
     }
 
     @Override
-    public void addToList(String listId, MediaContent content) throws BusinessException {
+    public void addToList(String listId, MediaContentDTO content) throws BusinessException {
         try {
-            MediaContentDTO dto = ModelToDtoMapper.convertToDTO(content);
-            personalListDAO.addToList(listId, dto);
+            personalListDAO.addToList(listId, content);
         } catch (DAOException e) {
             throw new BusinessException(e);
         }
@@ -85,10 +84,9 @@ public class PersonalListServiceImpl implements PersonalListService {
     }
 
     @Override
-    public void updateItemInList(MediaContent content) throws BusinessException {
+    public void updateItemInList(MediaContentDTO content) throws BusinessException {
         try {
-            MediaContentDTO dto = ModelToDtoMapper.convertToDTO(content);
-            personalListDAO.updateItem(dto);
+            personalListDAO.updateItem(content);
         } catch (DAOException e) {
             throw new BusinessException(e);
         }
@@ -122,9 +120,9 @@ public class PersonalListServiceImpl implements PersonalListService {
     }
 
     @Override
-    public List<PersonalList> findListsByUser(String userId) throws BusinessException {
+    public List<PersonalList> findListsByUser(String userId, boolean reducedInfo) throws BusinessException {
         try {
-            List<PersonalListDTO> listDTOs = personalListDAO.findByUser(userId);
+            List<PersonalListDTO> listDTOs = personalListDAO.findByUser(userId, reducedInfo);
             return listDTOs.stream()
                     .map(DtoToModelMapper::personalListDTOtoPersonalList)
                     .collect(Collectors.toCollection(ArrayList::new));

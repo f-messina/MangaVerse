@@ -78,7 +78,7 @@ public class UserServiceImpl implements UserService {
         try {
             RegisteredUser registeredUser = userDAO.authenticate(email, password);
             if (registeredUser instanceof User user) {
-                user.setLists(personalListDAO.findByUser(user.getId())
+                user.setLists(personalListDAO.findByUser(user.getId(), true)
                         .stream()
                         .map(DtoToModelMapper::personalListDTOtoPersonalList)
                         .collect(Collectors.toCollection(ArrayList::new)));

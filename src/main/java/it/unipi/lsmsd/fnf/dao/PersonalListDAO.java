@@ -11,7 +11,7 @@ import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import java.util.List;
 
  public interface PersonalListDAO {
-     List<PersonalListDTO> findByUser(String userId) throws DAOException;
+     List<PersonalListDTO> findByUser(String userId, boolean reducedInfo) throws DAOException;
      List<PersonalListDTO> findAll() throws DAOException;
      PersonalListDTO find(String id) throws DAOException;
      String insert(PersonalListDTO list) throws DAOException;

@@ -14,9 +14,10 @@
 <head>
     <title>MAIN PAGE</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/range_input.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/main_page_test.css">
     <script src="${pageContext.request.contextPath}/js/range_input.js" defer></script>
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" defer></script>
+    <script src="${pageContext.request.contextPath}/js/main_page_test.js" defer></script>
 </head>
 <body>
 <form id="searchForm" action="${pageContext.request.contextPath}/mainPage/manga" method="post">
@@ -130,145 +131,17 @@
     </form>
 </div>
 
+
+<c:set var="authenticatedUser" value="${not empty sessionScope[Constants.AUTHENTICATED_USER_KEY]}" />
+<c:set var="lists" value="${authenticatedUser ? sessionScope[Constants.AUTHENTICATED_USER_KEY].getLists() : null}" />
 <script>
-    function toggleRadio(element) {
-        if (element.classList.contains("active")) {
-            element.checked = false;
-        }
-        element.classList.toggle("active");
-        let radios = document.getElementsByName(element.name);
-        radios.forEach(radio => {
-            if (radio !== element) {
-                radio.classList.remove("active");
-            }
-        });
-    }
 
-    function performAsyncSearch(formId, containerId) {
-        const form = $("#" + formId);
-        const url = form.attr("action");
-        const formData = form.serialize();
-
-        $.post(url, formData, function (data) {
-            const container = $("#" + containerId).empty();
-            container.append(
-                $("<h1>").text("Total results: " + data.mediaContentList.totalCount),
-                $("<div>").attr("id", "orderSelection"),
-                $("<div>").attr("id", "mediaContentContainer"),
-                $("<div>").attr("id", "pageSelection")
-            );
-
-            updateOrderSelection(data, formId);
-            updateMediaContent(data, "mediaContentContainer");
-            updatePageBar(data, formId);
-        }, "json").fail(() => console.error("Error occurred during the asynchronous request"));
-    }
-
-    function updateOrderSelection(data, formId) {
-        const options = [
-            { value: "title 1", text: "Title enc" },
-            { value: "title -1", text: "Title dec" },
-            { value: "average_rating 1", text: "Average Rating enc" },
-            { value: "average_rating -1", text: "Average Rating dec" },
-            { value: "start_date 1", text: "Start Date enc" },
-            { value: "start_date -1", text: "Start Date dec" }
-        ];
-        const orderContainer = $("#orderSelection").empty();
-        $("<form>").attr({ id: "orderForm", action: "mainPage", method: "post" }).on("change", () =>
-            performAsyncOrderChange(formId, "mediaContentContainer", $("#orderResults").val())
-        ).append(
-            $("<input>").attr({ type: "hidden", name: "action", value: "sortAndPaginate" }),
-            $("<label>").attr("for", "orderResults").text("Order By:"),
-            $("<select>").attr({ name: "orderBy", id: "orderResults" }).append(
-                options.map(option => $("<option>").attr("value", option.value).text(option.text).prop("selected", data.orderBy === option.value))
-            )
-        ).appendTo(formId === "filterForm" || isSearchFormEmpty(formId) ? orderContainer : "");
-    }
-
-    function performAsyncOrderChange(formId, containerId, selectedOrder) {
-        const form = $("#" + formId);
-        const formData = form.serialize().replace(/&orderBy=[^&]*/, '') + "&orderBy=" + selectedOrder;
-
-        $.post(form.attr("action"), formData, function (data) {
-            $("#orderBy").val(selectedOrder);
-            updateMediaContent(data, containerId);
-            updatePageBar(data, formId);
-        }, "json").fail(() => console.error("Error occurred during the asynchronous request"));
-    }
-
-    function performAsyncPagination(formId, containerId, page) {
-        const formData = $("#" + formId).serialize() + "&page=" + page;
-
-        $.post($("#" + formId).attr("action"), formData, function (data) {
-            updateMediaContent(data, containerId);
-            updatePageBar(data, formId);
-        }, "json").fail(() => console.error("Error occurred during the asynchronous request"));
-    }
-
-    function updateMediaContent(data, containerId) {
-        const mediaContentPage = data.mediaContentList;
-        const mediaContentContainer = $("#" + containerId).empty();
-        mediaContentContainer.append(
-            mediaContentPage.entries.map(manga => {
-                const articleElement = $("<article>").append(
-                $("<h2>").text(manga.title),
-                $("<img>").attr({ src: manga.imageUrl, alt: "No image" }),
-                manga.averageRating !== null ? $("<p>").text("Score: " + manga.averageRating) : "",
-                manga.startDate !== null ? $("<p>").text("Start Date: " + manga.startDate) : "",
-                manga.endDate !== null ? $("<p>").text("End Date: " + manga.endDate) : ""
-                );
-                <% if (session.getAttribute(Constants.AUTHENTICATED_USER_KEY) != null) { %>
-                articleElement.append($("<button>").text("Like").on("click", () => toggleLike(manga)));
-                <% } %>
-                return articleElement;
-            })
-        );
-    }
-
-    function toggleLike(manga) {
-        const requestData = {
-            action: "toggleLike",
-            mediaId: manga.id,
-            mediaTitle: manga.title,
-            mediaImageUrl: manga.imageUrl
-        };
-        $.post("${pageContext.request.contextPath}/mainPage/manga", requestData, function (data) {
-        }, "json").fail(() => console.error("Error occurred during the asynchronous request"));
-    }
-
-    function updatePageBar(data, formId) {
-        const pageSelection = $("#pageSelection").empty();
-        const form = $("<form>", { action: "mainPage", method: "post" }).appendTo(pageSelection);
-
-        $("<input>", { type: "hidden", name: "action", value: "sortAndPaginate" }).appendTo(form);
-
-        const createButton = (value, text) =>
-            $("<button>", { type: "button", class: "navigation-button", name: "page", value })
-                .text(text)
-                .on("click", () => performAsyncPagination(formId, "mediaContentContainer", value))
-                .appendTo(form);
-
-        if (data.page > 1) createButton(data.page - 1, "Previous Page");
-        if (data.page < data.mediaContentList.totalPages) createButton(data.page + 1, "Next Page");
-    }
-
-    function isSearchFormEmpty(formId) {
-        return formId === "searchForm" && $("#search").val().trim() === "";
-    }
-
-    $(document).ready(function () {
-        // Bind the searchForm submission to the performAsyncSearch function
-        $("#searchForm").submit(function (event) {
-            event.preventDefault(); // Prevent the default form submission
-            performAsyncSearch("searchForm", "resultsSection");
-        });
-
-        // Bind the filterForm submission to a different function
-        $("#filterForm").submit(function (event) {
-            event.preventDefault(); // Prevent the default form submission
-            performAsyncSearch("filterForm", "resultsSection");
-        });
-    });
+    const authenticatedUser = ${authenticatedUser};
+    const servletURI = "${pageContext.request.contextPath}/mainPage/manga";
+    const lists = [];
+    <c:forEach items="${lists}" var="list">
+        lists.push(["${list.getId()}", "${list.getName()}"]);
+    </c:forEach>
 </script>
 </body>
 </html>

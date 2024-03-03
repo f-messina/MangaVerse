@@ -20,9 +20,8 @@ public interface MediaContentService {
     PageDTO<? extends MediaContentDTO> searchByTitle(String title, int page, MediaContentType type) throws BusinessException;
     void addLike(String userId, String animeId, MediaContentType type) throws BusinessException;
     void removeLike(String userId, String animeId, MediaContentType type) throws BusinessException;
-    List<AnimeDTO> getLikedAnime(String userId) throws BusinessException;
-    List<MangaDTO> getLikedManga(String userId) throws BusinessException;
-
+    boolean isLikedByUser(String userId, String mediaId, MediaContentType type) throws BusinessException;
+    List<? extends MediaContentDTO> getLikedMedia(String userId, MediaContentType type) throws BusinessException;
     /*
     List<AnimeDTO> suggestAnime(String userId) throws BusinessException;
 

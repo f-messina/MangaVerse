@@ -3,6 +3,7 @@ package it.unipi.lsmsd.fnf.controller;
 import it.unipi.lsmsd.fnf.model.PersonalList;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
+import it.unipi.lsmsd.fnf.service.MediaContentService;
 import it.unipi.lsmsd.fnf.service.PersonalListService;
 import it.unipi.lsmsd.fnf.service.ServiceLocator;
 import it.unipi.lsmsd.fnf.service.UserService;
@@ -25,6 +26,7 @@ public class ProfileServlet extends HttpServlet {
     private static final Logger logger = LoggerFactory.getLogger(ProfileServlet.class);
     private static final UserService userService = ServiceLocator.getUserService();
     private static final PersonalListService personalListService = ServiceLocator.getPersonalListService();
+    private static final MediaContentService mediaContentService = ServiceLocator.getMediaContentService();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -50,7 +52,18 @@ public class ProfileServlet extends HttpServlet {
             case "delete-list" -> handleDeleteList(request, response);
             case "logout" -> handleLogout(request, response);
             case "delete-item" -> handleDeleteItem(request, response);
-            case null, default -> request.getRequestDispatcher(targetJSP).forward(request, response);
+            case null, default -> {
+                try {
+                    request.setAttribute("lists", personalListService.findListsByUser(authUser.getId(), false));
+                    request.setAttribute("likedAnime", mediaContentService.getLikedMedia(authUser.getId(), MediaContentType.ANIME));
+                    request.setAttribute("likedManga", mediaContentService.getLikedMedia(authUser.getId(), MediaContentType.MANGA));
+                } catch (BusinessException e) {
+                    logger.error("Error during find lists by user operation.", e);
+                    request.setAttribute("errorMessage", "Error during find lists by user operation.");
+                    targetJSP = "error-page.jsp";
+                }
+                request.getRequestDispatcher(targetJSP).forward(request, response);
+            }
         }
     }
 

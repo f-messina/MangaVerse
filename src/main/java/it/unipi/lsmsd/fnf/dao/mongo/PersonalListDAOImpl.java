@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.exclude;
+import static com.mongodb.client.model.Projections.include;
 import static com.mongodb.client.model.Updates.*;
 
 public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListDAO {
@@ -171,12 +172,12 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
     }
 
     @Override
-    public List<PersonalListDTO> findByUser(String userId) throws DAOException {
+    public List<PersonalListDTO> findByUser(String userId, boolean redusedInfo) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
 
             Bson filter = eq("user.id", new ObjectId(userId));
-            Bson projection = exclude("user");
+            Bson projection = redusedInfo? include("name") : exclude("user");
 
             List<PersonalListDTO> personalLists = new ArrayList<>();
             listsCollection.find(filter).projection(projection).forEach(document -> personalLists.add(documentToPersonalListDTO(document)));

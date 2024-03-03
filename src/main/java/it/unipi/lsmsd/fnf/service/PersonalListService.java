@@ -1,5 +1,6 @@
 package it.unipi.lsmsd.fnf.service;
 
+import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.PersonalList;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.model.mediaContent.MediaContent;
@@ -15,13 +16,13 @@ public interface PersonalListService {
     //Update list with id, name and user
     void updateList(String id, String name, User user) throws BusinessException;
 
-    void addToList(String listId, MediaContent content) throws BusinessException;
+    void addToList(String listId, MediaContentDTO content) throws BusinessException;
 
     //Remove list removing anime or manga from list
     void removeFromList(String listId, String mediaContentId, MediaContentType type) throws BusinessException;
 
     //Update list with name and picture
-    void updateItemInList(MediaContent content) throws BusinessException;
+    void updateItemInList(MediaContentDTO content) throws BusinessException;
 
     //Remove anime or manga list
     void removeMediaContentList(String itemId) throws BusinessException;
@@ -33,7 +34,7 @@ public interface PersonalListService {
     void deleteListsByUser(String userId) throws BusinessException;
 
     //Find lists by user ID
-    List<PersonalList> findListsByUser(String userId) throws BusinessException;
+    List<PersonalList> findListsByUser(String userId, boolean reducedInfo) throws BusinessException;
 
     //Find all lists
     List<PersonalList> findAllLists() throws BusinessException;

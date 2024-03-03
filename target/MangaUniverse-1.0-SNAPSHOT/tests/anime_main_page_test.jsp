@@ -5,6 +5,9 @@
   Time: 14:15
   To change this template use File | Settings | File Templates.
 --%>
+
+<%@ page import="it.unipi.lsmsd.fnf.utils.Constants" %>
+
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
@@ -12,8 +15,11 @@
 <head>
     <title>MAIN PAGE</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/range_input.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/main_page_test.css">
     <script src="${pageContext.request.contextPath}/js/range_input.js" defer></script>
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="${pageContext.request.contextPath}/js/main_page_test.js" defer></script>
+    <script src="${pageContext.request.contextPath}/js/anime_main_page_test.js" defer></script>
 </head>
 <body>
 <form id="searchForm" action="${pageContext.request.contextPath}/mainPage/anime" method="post">
@@ -137,157 +143,14 @@
 </div>
 
 <script>
-    function toggleRadio(element) {
-        if (element.classList.contains("active")) {
-            element.checked = false;
-        }
-        element.classList.toggle("active");
-        let radios = document.getElementsByName(element.name);
-        radios.forEach(radio => {
-            if (radio !== element) {
-                radio.classList.remove("active");
-            }
-        });
-    }
-
-    function toggleYearRangeInputs(checked) {
-        const singleYearDiv = document.getElementById('singleYearDiv');
-        const yearRangeDiv = document.getElementById('yearRangeDiv');
-        const minYearInput = document.getElementById('minYear');
-        const maxYearInput = document.getElementById('maxYear');
-        const yearInput = document.getElementById('year');
-        const seasonInput = document.getElementById('season');
-
-        if (checked) {
-            singleYearDiv.style.display = 'none';
-            yearRangeDiv.style.display = 'block';
-            minYearInput.disabled = false;
-            maxYearInput.disabled = false;
-            yearInput.disabled = true;
-            seasonInput.disabled = true;
-        } else {
-            singleYearDiv.style.display = 'block';
-            yearRangeDiv.style.display = 'none';
-            minYearInput.disabled = true;
-            maxYearInput.disabled = true;
-            yearInput.disabled = false;
-            seasonInput.disabled = false;
-        }
-    }
-
-    const yearRangeCheckbox = document.getElementById('yearRangeCheckbox');
-    toggleYearRangeInputs(yearRangeCheckbox.checked);
-    yearRangeCheckbox.addEventListener('change', function () {
-        toggleYearRangeInputs(this.checked);
-    });
-
-    function performAsyncSearch(formId, containerId) {
-        const form = $("#" + formId);
-        const url = form.attr("action");
-        const formData = form.serialize();
-        $.post(url, formData, function (data) {
-            const container = $("#" + containerId).empty();
-            container.append(
-                $("<h1>").text("Total results: " + data.mediaContentList.totalCount),
-                $("<div>").attr("id", "orderSelection"),
-                $("<div>").attr("id", "mediaContentContainer"),
-                $("<div>").attr("id", "pageSelection")
-            );
-            updateOrderSelection(data, formId);
-            updateMediaContent(data, "mediaContentContainer");
-            updatePageBar(data, formId);
-        }, "json").fail(() => console.error("Error occurred during the asynchronous request"));
-    }
-
-    function performAsyncOrderChange(formId, containerId, selectedOrder) {
-        const form = $("#" + formId);
-        const formData = form.serialize().replace(/&orderBy=[^&]*/, '') + "&orderBy=" + selectedOrder;
-
-        $.post(form.attr("action"), formData, function (data) {
-            $("#orderBy").val(selectedOrder);
-            updateMediaContent(data, containerId);
-            updatePageBar(data, formId);
-        }, "json").fail(() => console.error("Error occurred during the asynchronous request"));
-    }
-
-    function performAsyncPagination(formId, containerId, page) {
-        const formData = $("#" + formId).serialize() + "&page=" + page;
-
-        $.post($("#" + formId).attr("action"), formData, function (data) {
-            updateMediaContent(data, containerId);
-            updatePageBar(data, formId);
-        }, "json").fail(() => console.error("Error occurred during the asynchronous request"));
-    }
-
-    function updateOrderSelection(data, formId) {
-        const options = [
-            { value: "title 1", text: "Title enc" },
-            { value: "title -1", text: "Title dec" },
-            { value: "average_rating 1", text: "Average Rating enc" },
-            { value: "average_rating -1", text: "Average Rating dec" },
-            { value: "anime_season.year 1", text: "Year enc" },
-            { value: "anime_season.year -1", text: "Year dec" }
-        ];
-        const orderContainer = $("#orderSelection").empty();
-        $("<form>").attr({ id: "orderForm", action: "mainPage/anime", method: "post" }).on("change", () =>
-            performAsyncOrderChange(formId, "mediaContentContainer", $("#orderResults").val())
-        ).append(
-            $("<input>").attr({ type: "hidden", name: "action", value: "sortAndPaginate" }),
-            $("<label>").attr("for", "orderResults").text("Order By:"),
-            $("<select>").attr({ name: "orderBy", id: "orderResults" }).append(
-                options.map(option => $("<option>").attr("value", option.value).text(option.text).prop("selected", data.orderBy === option.value))
-            )
-        ).appendTo(formId === "filterForm" || isSearchFormEmpty(formId) ? orderContainer : "");
-    }
-
-    function updateMediaContent(data, containerId) {
-        const mediaContentPage = data.mediaContentList;
-        const mediaContentContainer = $("#" + containerId).empty();
-
-        mediaContentContainer.append(
-            mediaContentPage.entries.map(anime => $("<article>").append(
-                $("<h2>").text(anime.title),
-                $("<img>").attr({ src: anime.imageUrl, alt: "No image" }),
-                anime.averageRating !== null ? $("<p>").text("Score: " + anime.averageRating) : "",
-                anime.season !== null ? $("<p>").text("Season: " + anime.season) : "",
-                anime.year !== null ? $("<p>").text("Year: " + anime.year) : ""
-            ))
-        );
-    }
-
-    function updatePageBar(data, formId) {
-        const pageSelection = $("#pageSelection").empty();
-        const form = $("<form>", { action: "mainPage/anime", method: "post" }).appendTo(pageSelection);
-
-        $("<input>", { type: "hidden", name: "action", value: "sortAndPaginate" }).appendTo(form);
-
-        const createButton = (value, text) =>
-            $("<button>", { type: "button", class: "navigation-button", name: "page", value })
-                .text(text)
-                .on("click", () => performAsyncPagination(formId, "mediaContentContainer", value))
-                .appendTo(form);
-
-        if (data.page > 1) createButton(data.page - 1, "Previous Page");
-        if (data.page < data.mediaContentList.totalPages) createButton(data.page + 1, "Next Page");
-    }
-
-    function isSearchFormEmpty(formId) {
-        return formId === "searchForm" && $("#search").val().trim() === "";
-    }
-
-    $(document).ready(function () {
-        // Bind the searchForm submission to the performAsyncSearch function
-        $("#searchForm").submit(function (event) {
-            event.preventDefault(); // Prevent the default form submission
-            performAsyncSearch("searchForm", "resultsSection");
-        });
-
-        // Bind the filterForm submission to a different function
-        $("#filterForm").submit(function (event) {
-            event.preventDefault(); // Prevent the default form submission
-            performAsyncSearch("filterForm", "resultsSection");
-        });
-    });
+    <c:set var="authenticatedUser" value="${not empty sessionScope[Constants.AUTHENTICATED_USER_KEY]}" />
+    <c:set var="lists" value="${authenticatedUser ? sessionScope[Constants.AUTHENTICATED_USER_KEY].getLists() : null}" />
+    const authenticatedUser = ${authenticatedUser};
+    const servletURI = "${pageContext.request.contextPath}/mainPage/anime";
+    const lists = [];
+    <c:forEach items="${lists}" var="list">
+    lists.push(["${list.getId()}", "${list.getName()}"]);
+    </c:forEach>
 </script>
 </body>
 </html>
