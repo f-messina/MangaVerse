@@ -180,19 +180,19 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
     //MongoDB queries
     //Find the average rating a user has given to media contents given the userId
     @Override
-    public int averageRatingUser(ObjectId userId) throws DAOException {
+    public int averageRatingUser(String userId) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> reviewCollection = mongoClient.getDatabase("mangaVerse").getCollection("review");
 
             List<Document> pipeline = new ArrayList<>();
-            pipeline.add(Document.parse("{$match: { 'user.id': '" + userId + "' }}")); // Match reviews by user ID
+            pipeline.add(Document.parse("{$match: { 'user.id': '" + new ObjectId(userId) + "' }}")); // Match reviews by user ID
             pipeline.add(Document.parse("{$group: { _id: '$user.id', averageRating: { $avg: '$rating' }}}")); // Group by user ID and calculate average rating
             // Execute the aggregation
             List<Document> result = reviewCollection.aggregate(pipeline).into(new ArrayList<>());
 
             // Retrieve the average rating from the aggregation result
             if (!result.isEmpty()) {
-                Document aggregationResult = result.get(0);
+                Document aggregationResult = result.getFirst();
                 Double averageRating = aggregationResult.getDouble("averageRating");
                 if (averageRating != null) {
                     return averageRating.intValue(); // Convert average rating to int
@@ -207,12 +207,12 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
 
     //Trend of the rating of a specific anime grouped by year
     @Override
-    public int ratingAnimeYear(int year, ObjectId animeId) throws DAOException {
+    public int ratingAnimeYear(int year, String animeId) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> reviewCollection = mongoClient.getDatabase("mangaVerse").getCollection("reviews");
 
             List<Document> pipeline = new ArrayList<>();
-            pipeline.add(Document.parse("{$match: { \"anime.id\": ObjectId(\"" + animeId + "\"), \"date\": { $gte: ISODate(\"" + year + "-01-01\"), $lt: ISODate(\"" + (year + 1) + "-01-01\")}}}}"));
+            pipeline.add(Document.parse("{$match: { \"anime.id\": ObjectId(\"" +  new ObjectId(animeId) + "\"), \"date\": { $gte: ISODate(\"" + year + "-01-01\"), $lt: ISODate(\"" + (year + 1) + "-01-01\")}}}}"));
             pipeline.add(Document.parse("{$project: { year: { $year: \"$date\" }, rating: 1 }}"));
             pipeline.add(Document.parse("{$group: { _id: \"$year\", averageRating: { $avg: \"$rating\" }}}"));// Execute the aggregation
             List<Document> result = reviewCollection.aggregate(pipeline).into(new ArrayList<>());
@@ -235,12 +235,12 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
 
     //Trend of the rating of a specific anime grouped by month
     @Override
-    public int ratingAnimeMonth(int month, int year, ObjectId animeId) throws DAOException {
+    public int ratingAnimeMonth(int month, int year, String animeId) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> reviewCollection = mongoClient.getDatabase("mangaVerse").getCollection("reviews");
 
             List<Document> pipeline = new ArrayList<>();
-            pipeline.add(Document.parse("{$match: { \"anime.id\": ObjectId(\"" + animeId + "\"), \" +\n" +
+            pipeline.add(Document.parse("{$match: { \"anime.id\": ObjectId(\"" +  new ObjectId(animeId) + "\"), \" +\n" +
                     "        \"date\": { \"$gte: ISODate(\"\"" + year + "\"-\"" + month + "\"-01\"),  \"$lt: ISODate(\"" + year + "\"-\"" + (month + 1) + "\"-01\")\"} }"));
             pipeline.add(Document.parse("{$project: { month: { $month: \"$date\" }, rating: 1 }}"));
             pipeline.add(Document.parse("{$group: { _id: \"$month\", averageRating: { $avg: \"$rating\" }}}"));// Execute the aggregation
@@ -265,12 +265,12 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
     //Trend of the rating of a specific manga grouped by year
 
     @Override
-    public int ratingMangaYear(int year, ObjectId mangaId) throws DAOException {
+    public int ratingMangaYear(int year, String mangaId) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> reviewCollection = mongoClient.getDatabase("mangaVerse").getCollection("reviews");
 
             List<Document> pipeline = new ArrayList<>();
-            pipeline.add(Document.parse("{$match: { \"anime.id\": ObjectId(\"" + mangaId + "\"), \"date\": { $gte: ISODate(\"" + year + "-01-01\"), $lt: ISODate(\"" + (year + 1) + "-01-01\")}}}}"));
+            pipeline.add(Document.parse("{$match: { \"anime.id\": ObjectId(\"" + new ObjectId(mangaId) + "\"), \"date\": { $gte: ISODate(\"" + year + "-01-01\"), $lt: ISODate(\"" + (year + 1) + "-01-01\")}}}}"));
             pipeline.add(Document.parse("{$project: { year: { $year: \"$date\" }, rating: 1 }}"));
             pipeline.add(Document.parse("{$group: { _id: \"$year\", averageRating: { $avg: \"$rating\" }}}"));// Execute the aggregation
             List<Document> result = reviewCollection.aggregate(pipeline).into(new ArrayList<>());
@@ -295,12 +295,12 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
 
     //Trend of the rating of a specific manga grouped by month
     @Override
-    public int ratingMangaMonth(int month, int year, ObjectId mangaId) throws DAOException {
+    public int ratingMangaMonth(int month, int year, String mangaId) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> reviewCollection = mongoClient.getDatabase("mangaVerse").getCollection("reviews");
 
             List<Document> pipeline = new ArrayList<>();
-            pipeline.add(Document.parse("{$match: { \"manga.id\": ObjectId(" + mangaId + "), " +
+            pipeline.add(Document.parse("{$match: { \"manga.id\": ObjectId(" + new ObjectId(mangaId) + "), " +
                     "        \"date\": { \"$gte: ISODate(\"" + month + "\"" + month + "\"-01\"),  \"$lt: ISODate(\"" + year + "\"-\"" + (month + 1) + "\"-01\")\"} }"));
             pipeline.add(Document.parse("{$project: { month: { $month: \"$date\" }, rating: 1 }}"));
             pipeline.add(Document.parse("{$group: { _id: \"$month\", averageRating: { $avg: \"$rating\" }}}"));

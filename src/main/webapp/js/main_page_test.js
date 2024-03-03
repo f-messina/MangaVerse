@@ -98,10 +98,19 @@ function createArticleElement(media) {
     const articleElement = $("<article>").append(
         $("<h2>").text(media.title),
         $("<img>").attr({ src: media.imageUrl, alt: "No image" }),
-        ...(media.averageRating !== null ? [$("<p>").text("Score: " + media.averageRating)] : []),
-        ...(media.startDate !== null ? [$("<p>").text("Start Date: " + media.startDate)] : []),
-        ...(media.endDate !== null ? [$("<p>").text("End Date: " + media.endDate)] : [])
+        (media.averageRating !== null ? [$("<p>").text("Score: " + media.averageRating)] : [])
     );
+    if (servletURI.includes("manga")) {
+        articleElement.append(
+            (media.startDate !== null ? [$("<p>").text("Start Date: " + media.startDate)] : []),
+            (media.endDate !== null ? [$("<p>").text("End Date: " + media.endDate)] : [])
+        );
+    } else {
+        articleElement.append(
+            (media.season !== null ? [$("<p>").text("Season: " + media.season)] : []),
+            (media.year !== null ? [$("<p>").text("Year: " + media.year)] : [])
+        );
+    }
 
     // Add interaction buttons if authenticated user
     if (authenticatedUser) {

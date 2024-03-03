@@ -133,13 +133,16 @@ public class MediaContentServiceImpl implements MediaContentService {
     }
 
     @Override
-    public void createNode(String id, String title, String picture, MediaContentType type) throws BusinessException {
+    public void createNode(MediaContentDTO mediaContentDTO) throws BusinessException {
         try {
+            MediaContentType type = mediaContentDTO instanceof AnimeDTO ? MediaContentType.ANIME :
+                    mediaContentDTO instanceof MangaDTO? MediaContentType.MANGA : null;
             if (MediaContentType.ANIME.equals(type))
-                animeDAONeo4J.createNode(id, title, picture);
+                animeDAONeo4J.createNode(mediaContentDTO);
             else if (MediaContentType.MANGA.equals(type))
-                mangaDAONeo4J.createNode(id, title, picture);
-
+                mangaDAONeo4J.createNode(mediaContentDTO);
+            else
+                throw new BusinessException("Invalid media content type");
         } catch (Exception e) {
             throw new BusinessException(e);
         }

@@ -17,15 +17,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<Manga> {
+public class MangaDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Manga> {
 
-    //Create a Neo4J Manga node
     @Override
-    public void createMediaContentNode(String id, String title, String picture) throws DAOException {
+    public void createNode(MediaContentDTO mangaDTO) throws DAOException {
         try (Session session = getSession()) {
 
             String query = "CREATE (m:Manga {id: $id, title: $title, picture: $picture})";
-            session.run(query, Map.of("id", id, "title", title, "picture", picture));
+            session.run(query, Map.of("id", mangaDTO.getId(), "title", mangaDTO.getTitle(), "picture", mangaDTO.getImageUrl()));
 
         } catch (Exception e) {
             throw new DAOException(e);
@@ -33,21 +32,20 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
     }
 
     @Override
-    public void likeMediaContent(String userId, String mangaId) throws DAOException {
+    public void like(String userId, String mangaId) throws DAOException {
         try (Session session = getSession()) {
             String query = "MATCH (u:User {id: $userId}), (m:Manga {id: $mangaId}) " +
                     "MERGE (u)-[r:LIKE]->(m) " +
                     "SET r.date = datetime() ";
-            session.run(query, Map.of("userId", userId, "mangaId", mangaId));
 
+            session.run(query, Map.of("userId", userId, "mangaId", mangaId));
         } catch (Exception e) {
             throw new DAOException(e);
         }
-
     }
 
     @Override
-    public void unlikeMediaContent(String userId, String mangaId) throws DAOException {
+    public void unlike(String userId, String mangaId) throws DAOException {
         try (Session session = getSession()) {
             String query = "MATCH (u:User {id: $userId})-[r:LIKE]->(m:Manga {id: $mangaId}) DELETE r";
             session.run(query, Map.of("userId", userId, "mangaId", mangaId));
@@ -56,9 +54,18 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
         }
     }
 
-    //OK
     @Override
-    public List<MangaDTO> getLikedMediaContent(String userId) throws DAOException {
+    public boolean isLiked(String userId, String mediaId) throws DAOException {
+        try (Session session = getSession()) {
+            String query = "MATCH (u:User {id: $userId})-[r:LIKE]->(m:Manga {id: $mediaId}) RETURN count(r) > 0 as isLiked";
+            Record record = session.run(query, Map.of("userId", userId, "mediaId", mediaId)).single();
+            return record.get("isLiked").asBoolean();
+        } catch (Exception e) {
+            throw new DAOException(e);
+        }
+    }
+    @Override
+    public List<MangaDTO> getLiked(String userId) throws DAOException {
         try (Session session = getSession()) {
             String query = "MATCH (u:User {id: $userId})-[:LIKE]->(m:Manga) RETURN m.id as id, m.title as title, m.picture as picture";
             List<Record> records = session.run(query, Map.of("userId", userId)).list();
@@ -80,9 +87,8 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
         return mangaDTO;
     }
 
-    //OK
     @Override
-    public List<MangaDTO> suggestMediaContent(String userId) throws DAOException {
+    public List<MangaDTO> getSuggested(String userId) throws DAOException {
         try (Session session = getSession()) {
             String query = "MATCH (u:User {id: $userId})-[:FOLLOWS]->(f:User)-[:LIKE]->(m:Manga) " +
                     "WITH m, COUNT(DISTINCT f) AS num_likes  " +
@@ -96,7 +102,6 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
 
     }
 
-    //OK
     @Override
     public List<MangaDTO> getTrendMediaContentByYear(int year) throws DAOException {
         try (Session session = getSession()) {
@@ -117,7 +122,6 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
         }
     }
 
-    //OK
     @Override
     public List<String> getMediaContentGenresTrendByYear(int year) throws DAOException {
         List<String> genreNames = new ArrayList<>();
@@ -182,7 +186,6 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
         }
     }
 
-    //OK
     @Override
     public List<String> getMediaContentGenresTrend() throws DAOException {
         List<String> genreNames = new ArrayList<>();

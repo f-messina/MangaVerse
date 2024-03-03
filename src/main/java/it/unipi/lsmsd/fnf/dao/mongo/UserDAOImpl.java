@@ -447,7 +447,7 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
 
     // Methods available only in Neo4J
     @Override
-    public void createNode(String id, String username, String picture) throws DAOException {
+    public void createNode(RegisteredUserDTO registeredUserDTO) throws DAOException {
     }
     @Override
     public void follow(String followerUserId, String followingUserId) throws DAOException {

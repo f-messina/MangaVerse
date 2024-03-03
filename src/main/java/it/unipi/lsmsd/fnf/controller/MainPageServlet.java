@@ -137,7 +137,7 @@ public class MainPageServlet extends HttpServlet {
             for (MediaContentDTO mediaContent : mediaContentList.getEntries()) {
                 try {
                     String userId = SecurityUtils.getAuthenticatedUser(request).getId();
-                    mediaContent.setIsLiked(mediaContentService.isLikedByUser(userId, mediaContent.getId(), isManga ? MediaContentType.MANGA : MediaContentType.ANIME));
+                    mediaContent.setIsLiked(mediaContentService.isLiked(userId, mediaContent.getId(), isManga ? MediaContentType.MANGA : MediaContentType.ANIME));
                 } catch (BusinessException e) {
                     logger.error("Error occurred during search", e);
                     request.getRequestDispatcher("/error.jsp").forward(request, response);

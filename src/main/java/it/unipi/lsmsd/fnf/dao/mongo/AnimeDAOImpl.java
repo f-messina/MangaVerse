@@ -156,9 +156,6 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
         // sonra  bu methodu reviewservice de insert kısmında kullan ki yeni review eklendiğinde latest review da değişmiş olsun
         //mangaya da koy aynısından
     }
-    public void createMediaContentNode(String id, String title, String picture) throws DAOException {
-    }
-
 
     private Document animeToDocument(Anime anime) {
         Document doc = new Document();
@@ -264,50 +261,47 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
         return anime;
     }
 
+    // Neo4J specific methods
     @Override
-    public void likeMediaContent(String userId, String mediaContentId) throws DAOException {
-
+    public void createNode(MediaContentDTO animeDTO) throws DAOException {
     }
-
     @Override
-    public void unlikeMediaContent(String userId, String mediaContentId) throws DAOException {
-
+    public void like(String userId, String mediaContentId) throws DAOException {
     }
-
     @Override
-    public List<? extends MediaContentDTO> getLikedMediaContent(String userId) throws DAOException {
+    public void unlike(String userId, String mediaContentId) throws DAOException {
+    }
+    @Override
+    public boolean isLiked(String userId, String mediaId) throws DAOException {
+        return false;
+    }
+    @Override
+    public List<? extends MediaContentDTO> getLiked(String userId) throws DAOException {
         return null;
     }
-
     @Override
-    public List<? extends MediaContentDTO> suggestMediaContent(String userId) throws DAOException {
+    public List<? extends MediaContentDTO> getSuggested(String userId) throws DAOException {
         return null;
     }
-
     @Override
     public List<? extends MediaContentDTO> getTrendMediaContentByYear(int year) throws DAOException {
         return null;
     }
-
     @Override
     public List<String> getMediaContentGenresTrendByYear(int year) throws DAOException {
         return null;
     }
-
     @Override
     public List<? extends MediaContentDTO> getMediaContentTrendByGenre() throws DAOException {
         return null;
     }
-
     @Override
     public List<? extends MediaContentDTO> getMediaContentTrendByLikes() throws DAOException {
         return null;
     }
-
     @Override
     public List<String> getMediaContentGenresTrend() throws DAOException {
         return null;
     }
-
 }
 

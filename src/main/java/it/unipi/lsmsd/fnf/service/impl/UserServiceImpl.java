@@ -137,9 +137,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void createUserNode(String id, String username, String picture) throws BusinessException {
+    public void createNode(RegisteredUserDTO registeredUserDTO) throws BusinessException {
         try {
-            userDAONeo4J.createNode(id, username, picture);
+            userDAONeo4J.createNode(registeredUserDTO);
         } catch (Exception e) {
             throw new BusinessException("Error while creating the user node.", e);
         }

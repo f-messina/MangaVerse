@@ -4,16 +4,13 @@ import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.model.enums.Status;
 import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
 import junit.framework.TestCase;
-
 import org.junit.Test;
 
 import java.util.List;
 
 public class AnimeDAOImplTest extends TestCase {
 
-    @Test
     public void testInsert() {
-        // Creazione di un oggetto Anime di prova
         Anime animeToInsert = createSampleAnime();
         AnimeDAOImpl animeDAO = new AnimeDAOImpl();
 

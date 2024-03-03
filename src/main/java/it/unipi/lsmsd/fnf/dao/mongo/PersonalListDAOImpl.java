@@ -329,8 +329,7 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
                 ObjectId id = doc.getObjectId("_id");
                 String title = doc.getString("title");
 
-
-                AnimeDTO animeDTO = new AnimeDTO(id, title, null);
+                AnimeDTO animeDTO = new AnimeDTO(id.toString(), title, null);
                 popularAnimeList.add(animeDTO);
             }
 
@@ -368,7 +367,7 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
                 String title = doc.getString("title");
 
 
-                MangaDTO mangaDTO = new MangaDTO(id, title, null);
+                MangaDTO mangaDTO = new MangaDTO(id.toString(), title, null);
                 popularMangaList.add(mangaDTO);
             }
 

@@ -13,7 +13,6 @@ public interface ReviewDAO {
     void update(ReviewDTO review) throws DAOException;
     List<ReviewDTO> findByUser(String userId) throws DAOException;
     List<ReviewDTO> findByMedia(String mediaId) throws DAOException;
-    List<ReviewDTO> findByUserAndMedia(String userId, String mediaId) throws DAOException;
     int averageRatingUser(String userId) throws DAOException;
     int ratingAnimeYear(int year, String animeId) throws DAOException;
     int ratingAnimeMonth(int month, int year, String animeId) throws DAOException;

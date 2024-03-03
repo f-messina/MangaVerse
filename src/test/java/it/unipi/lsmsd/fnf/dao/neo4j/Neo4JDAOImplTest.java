@@ -5,64 +5,52 @@ import it.unipi.lsmsd.fnf.dto.RegisteredUserDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
 import  org.junit.Test;
-
+import junit.framework.TestCase;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+public class Neo4JDAOImplTest extends TestCase {
 
-public class Neo4JDAOImplTest {
-
-    @Test
     public void testLikeAnime() throws DAOException {
         AnimeDAOImpl dao = new AnimeDAOImpl();
-        dao.likeMediaContent("6577877be68376234760585f","65789bb52f5d29465d0abd09");
+        dao.like("6577877be68376234760585f","65789bb52f5d29465d0abd09");
     }
 
-    @Test
     public void testLikeManga() throws DAOException {
         MangaDAOImpl dao = new MangaDAOImpl();
-        dao.likeMediaContent("6577877be68376234760585f","657ac61bb34f5514b91ea235");
+        dao.like("6577877be68376234760585f","657ac61bb34f5514b91ea235");
     }
 
-    @Test
     public void testFollowUser() throws DAOException {
         UserDAOImpl neo4JDAO = new UserDAOImpl();
-        neo4JDAO.followUser("6577877be68376234760585a", "6577877be683762347605859");
+        neo4JDAO.follow("6577877be68376234760585a", "6577877be683762347605859");
     }
 
-    @Test
     public void testUnlikeAnime() throws DAOException {
         AnimeDAOImpl dao = new AnimeDAOImpl();
-        dao.unlikeMediaContent("6577877be68376234760585f","65789bb52f5d29465d0abd09");
+        dao.unlike("6577877be68376234760585f","65789bb52f5d29465d0abd09");
     }
 
-    @Test
     public void testUnlikeManga() throws DAOException {
         MangaDAOImpl dao = new MangaDAOImpl();
-        dao.unlikeMediaContent("6577877be68376234760585f","657ac61bb34f5514b91ea233");
+        dao.unlike("6577877be68376234760585f","657ac61bb34f5514b91ea233");
     }
 
-    @Test
     public void testUnfollowUser() throws DAOException {
         UserDAOImpl neo4JDAO = new UserDAOImpl();
-        neo4JDAO.unfollowUser("6577877be68376234760585a", "6577877be683762347605859");
+        neo4JDAO.unfollow("6577877be68376234760585a", "6577877be683762347605859");
     }
 
-
-    @Test
     public void testGetLikedAnime() throws DAOException {
         AnimeDAOImpl neo4JDAO = new AnimeDAOImpl();
-        List<AnimeDTO> anime = neo4JDAO.getLikedMediaContent("6577877be68376234760585f");
+        List<AnimeDTO> anime = neo4JDAO.getLiked("6577877be68376234760585f");
         for (AnimeDTO animeDTO : anime) {
             System.out.println("id: " + animeDTO.getId() + ", title: " + animeDTO.getTitle() + ", picture: " + animeDTO.getImageUrl());
         }
     }
 
-
-    @Test
     public void testGetLikedManga() throws DAOException{
         MangaDAOImpl neo4JDAO = new MangaDAOImpl();
-        List<MangaDTO> manga = neo4JDAO.getLikedMediaContent("6577877be68376234760585f");
+        List<MangaDTO> manga = neo4JDAO.getLiked("6577877be68376234760585f");
         for (MangaDTO mangaDTO : manga) {
             System.out.println("id: " + mangaDTO.getId() + ", title: " + mangaDTO.getTitle() + ", picture: " + mangaDTO.getImageUrl());
         }

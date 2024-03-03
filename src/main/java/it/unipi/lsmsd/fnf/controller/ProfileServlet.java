@@ -55,8 +55,8 @@ public class ProfileServlet extends HttpServlet {
             case null, default -> {
                 try {
                     request.setAttribute("lists", personalListService.findListsByUser(authUser.getId(), false));
-                    request.setAttribute("likedAnime", mediaContentService.getLikedMedia(authUser.getId(), MediaContentType.ANIME));
-                    request.setAttribute("likedManga", mediaContentService.getLikedMedia(authUser.getId(), MediaContentType.MANGA));
+                    request.setAttribute("likedAnime", mediaContentService.getLikedMediaContent(authUser.getId(), MediaContentType.ANIME));
+                    request.setAttribute("likedManga", mediaContentService.getLikedMediaContent(authUser.getId(), MediaContentType.MANGA));
                 } catch (BusinessException e) {
                     logger.error("Error during find lists by user operation.", e);
                     request.setAttribute("errorMessage", "Error during find lists by user operation.");
