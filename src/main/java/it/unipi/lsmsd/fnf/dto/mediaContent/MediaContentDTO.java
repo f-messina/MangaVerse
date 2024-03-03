@@ -68,9 +68,7 @@ public abstract class MediaContentDTO {
                 "id='" + id + '\'' +
                 ", title='" + title + '\'' +
                 ", imageUrl='" + imageUrl + '\'' +
-
                 ", averageRating='" + averageRating + '\'' +
-
                 '}';
     }
 }

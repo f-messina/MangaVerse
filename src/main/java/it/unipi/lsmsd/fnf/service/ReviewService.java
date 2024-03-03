@@ -15,5 +15,4 @@ public interface ReviewService {
     void update(ReviewDTO review) throws BusinessException;
     List<ReviewDTO> findByUser(String userId) throws BusinessException;
     List<ReviewDTO> findByMedia(String mediaId) throws BusinessException;
-    List<ReviewDTO> findByUserAndMedia(String userId, String mediaId) throws BusinessException;
 }

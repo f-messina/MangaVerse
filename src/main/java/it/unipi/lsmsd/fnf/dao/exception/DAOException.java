@@ -1,7 +1,30 @@
 package it.unipi.lsmsd.fnf.dao.exception;
 
 public class DAOException extends Exception{
-    public DAOException(Exception ex){super(ex);}
-    public DAOException(String message){super(message);}
-    public DAOException(String message, Exception ex){super(message, ex);}
+    private final DAOExceptionType type;
+
+    public DAOException(Exception ex){
+        super(ex);
+        this.type = DAOExceptionType.GENERIC;
+    }
+    public DAOException(String message){
+        super(message);
+        this.type = DAOExceptionType.GENERIC;
+    }
+    public DAOException(String message, Exception ex){
+        super(message, ex);
+        this.type = DAOExceptionType.GENERIC;
+    }
+
+    /*
+    public DAOException(DAOExceptionType type, String message){
+        super(message);
+        this.type = type;
+    }
+    public DAOException(DAOExceptionType type, String message, Exception ex){
+        super(message, ex);
+        this.type = type;
+    }
+    */
 }
+

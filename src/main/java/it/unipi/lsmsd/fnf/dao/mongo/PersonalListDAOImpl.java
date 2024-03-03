@@ -20,6 +20,8 @@ import com.mongodb.client.model.UpdateOptions;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
+import org.slf4j.Logger;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -243,7 +245,7 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
             user = new RegisteredUserDTO(
                     userDoc.getObjectId("id"),
                     userDoc.getString("location"),
-                    ConverterUtils.convertDateToLocalDate(userDoc.getDate("birthday"))
+                    ConverterUtils.dateToLocalDate(userDoc.getDate("birthday"))
             );
         }
 
@@ -285,7 +287,7 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
     private Document userDTOToDocument(RegisteredUserDTO user) {
         Document doc = new Document("id", user.getId());
         appendIfNotNull(doc, "location", user.getLocation());
-        appendIfNotNull(doc, "birthday", ConverterUtils.convertLocalDateToDate(user.getBirthday()));
+        appendIfNotNull(doc, "birthday", ConverterUtils.localDateToDate(user.getBirthday()));
         return doc;
     }
 

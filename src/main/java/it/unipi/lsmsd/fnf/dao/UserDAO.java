@@ -16,7 +16,7 @@ public interface UserDAO {
     RegisteredUser find(ObjectId id) throws DAOException;
     List<RegisteredUserDTO> find(String username) throws DAOException;
     List<RegisteredUserDTO> findAll() throws DAOException;
-    void update(RegisteredUser user) throws DAOException;
+
 
     //MongoDB queries
     //Find the distribution of genders between users
@@ -59,5 +59,7 @@ public interface UserDAO {
 
     List<RegisteredUserDTO> suggestUsers(String userId) throws DAOException;
 
+
+    void update(User user) throws DAOException;
 
 }

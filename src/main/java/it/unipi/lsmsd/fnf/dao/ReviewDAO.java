@@ -7,13 +7,13 @@ import org.bson.types.ObjectId;
 import java.util.List;
 
 public interface ReviewDAO {
-    void insert(ReviewDTO review) throws DAOException;
+    ObjectId insert(ReviewDTO review) throws DAOException;
     void delete(ObjectId id) throws DAOException;
     void deleteByMedia(ObjectId mediaId) throws DAOException;
     void update(ReviewDTO review) throws DAOException;
     List<ReviewDTO> findByUser(ObjectId userId) throws DAOException;
     List<ReviewDTO> findByMedia(ObjectId mediaId) throws DAOException;
-    List<ReviewDTO> findByUserAndMedia(ObjectId userId, ObjectId mediaId) throws DAOException;
+
 
     //MongoDB queries
     //Find the average rating a user has given to media contents given the userId
@@ -35,5 +35,6 @@ public interface ReviewDAO {
 
     //Average rating given by users of a certain location: select a location and see what is the average rating in general
     int averageRatingByLocation(String location) throws DAOException;
+
 }
 

@@ -8,14 +8,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import java.time.LocalDate;
+
 public class MangaDTO extends MediaContentDTO{
-    private String startDate;
-    private String endDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
 
     public MangaDTO() {
     }
 
-    public MangaDTO(ObjectId id, String title, String imageUrl, Double averageRating, String startDate, String endDate) {
+    public MangaDTO(ObjectId id, String title, String imageUrl, Double averageRating, LocalDate startDate, LocalDate endDate) {
         super(id, title, imageUrl, averageRating);
         this.startDate = startDate;
         this.endDate = endDate;
@@ -30,19 +32,23 @@ public class MangaDTO extends MediaContentDTO{
     }
 
 
-    public String getStartDate() {
+
+
+
+    public LocalDate getStartDate() {
+
         return startDate;
     }
 
-    public void setStartDate(String startDate) {
+    public void setStartDate(LocalDate startDate) {
         this.startDate = startDate;
     }
 
-    public String getEndDate() {
+    public LocalDate getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(String endDate) {
+    public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
     }
 

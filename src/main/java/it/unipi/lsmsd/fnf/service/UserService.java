@@ -10,7 +10,6 @@ import java.util.List;
 
 public interface UserService {
     User registerUserAndLogin(UserRegistrationDTO userRegistrationDTO) throws BusinessException;
-    RegisteredUser login(String username, String password) throws BusinessException;
 
 
     void createUserNode(String id, String username, String picture) throws BusinessException;
@@ -24,4 +23,8 @@ public interface UserService {
     List<RegisteredUserDTO> getFollowers(String userId) throws BusinessException;
 
     List<RegisteredUserDTO> suggestUsers(String userId) throws BusinessException;
+
+    RegisteredUser login(String email, String password) throws BusinessException;
+    void updateUserInfo(User user) throws BusinessException;
+
 }

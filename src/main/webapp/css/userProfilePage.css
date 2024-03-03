@@ -51,6 +51,8 @@ nav .nav-items a {
     color: black;
 }
 
+
+
 .user-info{
     display: flex;
     flex-direction: row;
@@ -86,22 +88,93 @@ nav .nav-items a {
 .info{
     display: flex;
 }
-.info p{
-    padding-left: 15px;
+
+.info p, .info p span {
+    border-radius: 3px;
+    --s: 0.1em;   /* the thickness of the line */
+    --c: #2c4bff; /* the color */
+    color: #0000;
+    padding-bottom: var(--s);
+    background:
+            linear-gradient(90deg,var(--c) 50%,#000 0) calc(100% - var(--_p,0%))/200% 100%,
+            linear-gradient(var(--c) 0 0) 0% 100%/var(--_p,0%) var(--s) no-repeat;
+    -webkit-background-clip: text,padding-box;
+    background-clip: text,padding-box;
+    transition: 0.5s;
+}
+
+.highlighted {
+    --_p: 100%
+}
+
+.info p, .info div p{
+    margin-left: 15px;
+    padding-left: 3px;
+    padding-right: 3px;
     font-weight: 300;
     font-size: 22px;
 }
+
+
+.info p[contenteditable="true"]:hover,
+.info div p[contenteditable="true"]:hover,
+.info p span[contenteditable="true"]:hover {
+    color: #fff;
+    background-color: #2C4BFFFF;
+    border-color: #2C4BFFFF;
+}
+
+.info p[contenteditable="true"]:active,
+.info div p[contenteditable="true"]:active,
+.info p span[contenteditable="true"]:active {
+    color: #fff;
+    background-color: #1032FFFF;
+    border-color: #1032FFFF;
+}
+
+.info p[contenteditable="true"]:focus,
+.info div p[contenteditable="true"]:focus,
+.info p span[contenteditable="true"]:focus {
+    outline: none;
+    box-shadow: 0 0 0 0.1em #2C4BFFFF;
+    --_p: 0%;
+    transition: box-shadow 0s;
+}
+
+.info p[contenteditable="true"]:focus:hover,
+.info div p[contenteditable="true"]:focus:hover,
+.info p span[contenteditable="true"]:focus:hover,
+.info p[contenteditable="true"].disabled-hover:hover,
+.info div p[contenteditable="true"].disabled-hover:hover,
+.info p span[contenteditable="true"].disabled-hover:hover{
+    color: inherit;
+    background-color: inherit;
+    border-color: inherit;
+}
+
 .edit-prof{
     width: 100%;
     padding: 12px;
     border: transparent;
-    box-shadow: 5px 5px 23px -7px rgba(0,0,0,0.84);
     -webkit-box-shadow: 5px 5px 23px -7px rgba(0,0,0,0.84);
-    -moz-box-shadow: 5px 5px 23px -7px rgba(0,0,0,0.84);
     border-radius: 7px;
     background-color: white;
     margin-top: 20px;
 }
+
+.edit-actions {
+    width: 90%;
+    border: transparent;
+    border-radius: 7px;
+    background-color: white;
+}
+
+.vertical-line {
+    width: 4px;   /* Set the width of the line */
+    background-color: #ccc; /* Set the color of the line */
+    margin: 0 10px; /* Adjust the margin as needed to control the spacing */
+}
+
 .lists-section{
     display: flex;
     flex-direction: column;
@@ -142,4 +215,25 @@ nav .nav-items a {
 .list-items ol li{
     padding-top: 8px;
     font-size: 18px;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    border-radius: 5px;
+    width: 200px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1;
+}
+.dropdown-content a {
+    display: block;
+    padding: 10px;
+    text-decoration: none;
+    color: #333;
+}
+.dropdown-content a.selected {
+    background-color: #f2f2f2;
 }

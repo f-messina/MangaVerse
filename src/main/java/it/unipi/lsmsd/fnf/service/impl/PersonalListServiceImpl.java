@@ -19,6 +19,7 @@ import org.bson.types.ObjectId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 
 public class PersonalListServiceImpl implements PersonalListService {
@@ -30,7 +31,12 @@ public class PersonalListServiceImpl implements PersonalListService {
     }
 
     @Override
-    public void insertList(PersonalList list) throws BusinessException {
+
+    public ObjectId insertList(PersonalList list) throws BusinessException {
+        if (list == null) {
+            throw new BusinessException(("The list can't be null."));
+
+        }
         if (list.getName() == null) {
             throw new BusinessException(("The list must have a name."));
         }
@@ -39,7 +45,7 @@ public class PersonalListServiceImpl implements PersonalListService {
         }
         try {
             PersonalListDTO dto = ModelToDtoMapper.convertToDTO(list);
-            personalListDAO.insert((dto));
+            return personalListDAO.insert(dto);
         } catch(DAOException e) {
             throw new BusinessException(e);
         }
@@ -78,12 +84,11 @@ public class PersonalListServiceImpl implements PersonalListService {
     }
 
     @Override
-    public void removeFromList(String listId, MediaContent content) throws BusinessException {
+    public void removeFromList(String listId, String mediaContentId, MediaContentType type) throws BusinessException {
         try {
             ObjectId listObjectId = new ObjectId(listId);
-            ObjectId contentObjectId = new ObjectId(String.valueOf(content.getId()));
-            MediaContentType contentType = MediaContentType.valueOf(content.getType().toUpperCase());
-            personalListDAO.removeFromList(listObjectId, contentObjectId, contentType);
+            ObjectId contentObjectId = new ObjectId(mediaContentId);
+            personalListDAO.removeFromList(listObjectId, contentObjectId, type);
         } catch (DAOException e) {
             throw new BusinessException(e);
         }
@@ -132,7 +137,9 @@ public class PersonalListServiceImpl implements PersonalListService {
         try {
             ObjectId userObjectId = new ObjectId(userId);
             List<PersonalListDTO> listDTOs = personalListDAO.findByUser(userObjectId);
-            return listDTOs.stream().map(DtoToModelMapper::personalListDTOtoPersonalList).toList();
+            return listDTOs.stream()
+                    .map(DtoToModelMapper::personalListDTOtoPersonalList)
+                    .collect(Collectors.toCollection(ArrayList::new));
         } catch (DAOException e) {
             throw new BusinessException(e);
         }

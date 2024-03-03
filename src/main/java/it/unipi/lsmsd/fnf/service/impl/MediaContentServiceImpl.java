@@ -14,6 +14,9 @@ import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 
 import org.bson.types.ObjectId;
 
+
+import java.util.ArrayList;
+
 import java.util.List;
 import java.util.Map;
 
@@ -104,7 +107,7 @@ public class MediaContentServiceImpl implements MediaContentService {
     }
 
     @Override
-    public PageDTO<? extends MediaContentDTO> searchByFilter(Map<String, Object> filters, Map<String, Integer> orderBy, int page, MediaContentType type) throws BusinessException {
+    public PageDTO<? extends MediaContentDTO> searchByFilter(List<Map<String, Object>> filters, Map<String, Integer> orderBy, int page, MediaContentType type) throws BusinessException {
         try {
             if (MediaContentType.ANIME.equals(type)) {
                 return animeDAO.search(filters, orderBy, page);
@@ -122,9 +125,9 @@ public class MediaContentServiceImpl implements MediaContentService {
     public PageDTO<? extends MediaContentDTO> searchByTitle(String title, int page, MediaContentType type) throws BusinessException {
         try {
             if (MediaContentType.ANIME.equals(type)) {
-                return animeDAO.search(singletonMap("title", title), singletonMap("score", null), page);
+                return animeDAO.search(List.of(Map.of("title", title)), Map.of("score", 1), page);
             } else if (MediaContentType.MANGA.equals(type)) {
-                return mangaDAO.search(singletonMap("title", title), singletonMap("score", null), page);
+                return mangaDAO.search(List.of(Map.of("title", title)), Map.of("score", 1), page);
             } else {
                 throw new BusinessException("Invalid media content type");
             }

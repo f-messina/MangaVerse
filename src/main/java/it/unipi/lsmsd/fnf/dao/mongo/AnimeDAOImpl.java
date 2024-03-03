@@ -5,9 +5,11 @@ import it.unipi.lsmsd.fnf.dao.MediaContentDAO;
 import it.unipi.lsmsd.fnf.dao.base.BaseMongoDBDAO;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
+import it.unipi.lsmsd.fnf.dto.ReviewDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.Review;
+import it.unipi.lsmsd.fnf.model.enums.AnimeType;
 import it.unipi.lsmsd.fnf.model.enums.Status;
 import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
@@ -16,6 +18,7 @@ import it.unipi.lsmsd.fnf.utils.ConverterUtils;
 
 import com.mongodb.client.model.*;
 import com.mongodb.client.*;
+import org.apache.commons.collections.map.SingletonMap;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
@@ -90,7 +93,7 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
     }
 
     @Override
-    public PageDTO<AnimeDTO> search(Map<String, Object> filters, Map<String, Integer> orderBy, int page) throws DAOException {
+    public PageDTO<AnimeDTO> search(List<Map<String, Object>> filters, Map<String, Integer> orderBy, int page) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> animeCollection = mongoClient.getDatabase("mangaVerse").getCollection("anime");
 
@@ -143,7 +146,16 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
     }
 
     @Override
-    public void createMediaContentNode(String id, String title, String picture) throws DAOException {
+
+    public void createMediaContentNode(String id, String title, String picture) throws DAOException { }
+
+
+    public void updateLatestReview(ReviewDTO reviewDTO) throws DAOException {
+        //do it later
+        // if the review id is already inside just change the review, if it doesnt exist it measn it is new so oush the new one and pull the oldest one
+        //check if checking the date or the id is better according to the performance
+        // sonra  bu methodu reviewservice de insert kısmında kullan ki yeni review eklendiğinde latest review da değişmiş olsun
+        //mangaya da koy aynısından
 
     }
 
@@ -176,7 +188,7 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
                     Document reviewDocument = new Document();
                     appendIfNotNull(reviewDocument, "id", review.getId());
                     appendIfNotNull(reviewDocument, "comment", review.getComment());
-                    appendIfNotNull(reviewDocument, "date", ConverterUtils.convertLocalDateToDate(review.getDate()));
+                    appendIfNotNull(reviewDocument, "date", ConverterUtils.localDateToDate(review.getDate()));
                     Document userDocument = new Document();
                     appendIfNotNull(userDocument, "id", review.getUser().getId());
                     appendIfNotNull(userDocument, "username", review.getUser().getUsername());
@@ -199,7 +211,7 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
         anime.setStatus(Status.valueOf(document.getString("status")));
         anime.setImageUrl(document.getString("picture"));
         anime.setAverageRating(document.getDouble("average_score"));
-        anime.setType(document.getString("type"));
+        anime.setType(AnimeType.fromString(document.getString("type")));
         anime.setRelatedAnime(document.getList("relations", String.class));
         anime.setTags(document.getList("tags", String.class));
         anime.setProducers(document.getString("producers"));
@@ -225,7 +237,7 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
                     review.setUser(reviewer);
                     review.setId(reviewDocument.getObjectId("id"));
                     review.setComment(reviewDocument.getString("comment"));
-                    review.setDate(ConverterUtils.convertDateToLocalDate(reviewDocument.getDate("date")));
+                    review.setDate(ConverterUtils.dateToLocalDate(reviewDocument.getDate("date")));
                     return review;
                 })
                 .toList();
@@ -239,13 +251,18 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
         anime.setId(doc.getObjectId("_id"));
         anime.setTitle(doc.getString("title"));
         anime.setImageUrl(doc.getString("picture"));
-        anime.setAverageRating(doc.getDouble("average_score"));
+        Object averageRatingObj = doc.get("average_score");
+        anime.setAverageRating(
+                (averageRatingObj instanceof Integer) ? ((Integer) averageRatingObj).doubleValue() :
+                        (averageRatingObj instanceof Double) ? (Double) averageRatingObj : 0.0
+        );
         if ((doc.get("anime_season", Document.class) != null)) {
             anime.setYear(doc.get("anime_season", Document.class).getInteger("year"));
         }
 
         return anime;
     }
+
 
     @Override
     public void likeMediaContent(String userId, String mediaContentId) throws DAOException {
@@ -293,3 +310,4 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
     }
 
 }
+
