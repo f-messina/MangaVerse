@@ -7,6 +7,7 @@ import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
+import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.Review;
 import it.unipi.lsmsd.fnf.model.enums.Status;
 import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
@@ -150,6 +151,8 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
         // sonra  bu methodu reviewservice de insert kısmında kullan ki yeni review eklendiğinde latest review da değişmiş olsun
         //mangaya da koy aynısından
     }
+    public void createMediaContentNode(String id, String title, String picture) throws DAOException {
+    }
 
 
     private Document animeToDocument(Anime anime) {
@@ -250,4 +253,51 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
 
         return anime;
     }
+
+    @Override
+    public void likeMediaContent(String userId, String mediaContentId) throws DAOException {
+
+    }
+
+    @Override
+    public void unlikeMediaContent(String userId, String mediaContentId) throws DAOException {
+
+    }
+
+    @Override
+    public List<? extends MediaContentDTO> getLikedMediaContent(String userId) throws DAOException {
+        return null;
+    }
+
+    @Override
+    public List<? extends MediaContentDTO> suggestMediaContent(String userId) throws DAOException {
+        return null;
+    }
+
+    @Override
+    public List<? extends MediaContentDTO> getTrendMediaContentByYear(int year) throws DAOException {
+        return null;
+    }
+
+    @Override
+    public List<String> getMediaContentGenresTrendByYear(int year) throws DAOException {
+        return null;
+    }
+
+    @Override
+    public List<? extends MediaContentDTO> getMediaContentTrendByGenre() throws DAOException {
+        return null;
+    }
+
+    @Override
+    public List<? extends MediaContentDTO> getMediaContentTrendByLikes() throws DAOException {
+        return null;
+    }
+
+    @Override
+    public List<String> getMediaContentGenresTrend() throws DAOException {
+        return null;
+    }
+
 }
+
