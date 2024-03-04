@@ -18,11 +18,11 @@ import it.unipi.lsmsd.fnf.utils.ConverterUtils;
 
 import com.mongodb.client.model.*;
 import com.mongodb.client.*;
-import org.apache.commons.collections.map.SingletonMap;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import java.util.*;
+import java.util.logging.Logger;
 
 import static com.mongodb.client.model.Aggregates.*;
 import static com.mongodb.client.model.Filters.eq;
@@ -32,7 +32,7 @@ import static com.mongodb.client.model.Updates.setOnInsert;
 public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anime> {
 
     @Override
-    public ObjectId insert(Anime anime) throws DAOException {
+    public String insert(Anime anime) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> animeCollection = mongoClient.getDatabase("mangaVerse").getCollection("anime");
 
@@ -43,7 +43,7 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
             if (result.getUpsertedId() == null) {
                 throw new DAOException("Anime already exists");
             } else {
-                return result.getUpsertedId().asObjectId().getValue();
+                return result.getUpsertedId().asObjectId().getValue().toString();
             }
         } catch (Exception e) {
             throw new DAOException("Error while inserting anime", e);
@@ -55,7 +55,7 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> animeCollection = mongoClient.getDatabase("mangaVerse").getCollection("anime");
 
-            Bson filter = Filters.eq("_id", anime.getId());
+            Bson filter = Filters.eq("_id", new ObjectId(anime.getId()));
             Bson update = new Document("$set", animeToDocument(anime));
 
             animeCollection.updateOne(filter, update);
@@ -65,11 +65,11 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
     }
 
     @Override
-    public void delete(ObjectId animeId) throws DAOException {
+    public void delete(String animeId) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> animeCollection = mongoClient.getDatabase("mangaVerse").getCollection("anime");
 
-            Bson filter = Filters.eq("_id", animeId);
+            Bson filter = Filters.eq("_id", new ObjectId(animeId));
 
             animeCollection.deleteOne(filter);
         } catch (Exception e) {
@@ -78,11 +78,11 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
     }
 
     @Override
-    public Anime find(ObjectId id) throws DAOException {
+    public Anime find(String animeId) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> animeCollection = mongoClient.getDatabase("mangaVerse").getCollection("anime");
 
-            Bson filter = Filters.eq("_id", id);
+            Bson filter = Filters.eq("_id", new ObjectId(animeId));
 
             Document result = animeCollection.find(filter).first();
 
@@ -99,7 +99,7 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
 
             Bson filter = buildFilter(filters);
             Bson sort = buildSort(orderBy);
-            Bson projection = Projections.include("title", "picture", "average_score", "anime_season.year");
+            Bson projection = Projections.include("title", "picture", "average_rating", "anime_season");
 
             int pageOffset = (page - 1) * Constants.PAGE_SIZE;
 
@@ -123,7 +123,8 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
                             )
                     )
             );
-
+            Logger logger = Logger.getLogger("AnimeDAOImpl");
+            logger.info(pipeline.toString());
             Document result = animeCollection.aggregate(pipeline).first();
 
             List<AnimeDTO> animeList = Optional.ofNullable(result)
@@ -134,7 +135,9 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
                     .toList();
 
             int totalCount = Optional.of(result)
-                    .map(doc -> doc.getList(Constants.COUNT_FACET, Document.class).getFirst())
+                    .map(doc -> doc.getList(Constants.COUNT_FACET, Document.class))
+                    .filter(list -> !list.isEmpty())
+                    .map(List::getFirst)
                     .filter(doc -> !doc.isEmpty())
                     .map(doc -> doc.getInteger("total"))
                     .orElse(0);
@@ -146,19 +149,13 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
     }
 
     @Override
-
-    public void createMediaContentNode(String id, String title, String picture) throws DAOException { }
-
-
     public void updateLatestReview(ReviewDTO reviewDTO) throws DAOException {
         //do it later
         // if the review id is already inside just change the review, if it doesnt exist it measn it is new so oush the new one and pull the oldest one
         //check if checking the date or the id is better according to the performance
         // sonra  bu methodu reviewservice de insert kısmında kullan ki yeni review eklendiğinde latest review da değişmiş olsun
         //mangaya da koy aynısından
-
     }
-
 
     private Document animeToDocument(Anime anime) {
         Document doc = new Document();
@@ -205,12 +202,12 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
 
     private Anime documentToAnime(Document document) {
         Anime anime = new Anime();
-        anime.setId(document.getObjectId("_id"));
+        anime.setId(document.getObjectId("_id").toString());
         anime.setTitle(document.getString("title"));
         anime.setEpisodeCount(document.getInteger("episodes"));
         anime.setStatus(Status.valueOf(document.getString("status")));
         anime.setImageUrl(document.getString("picture"));
-        anime.setAverageRating(document.getDouble("average_score"));
+        anime.setAverageRating(document.getDouble("average_rating"));
         anime.setType(AnimeType.fromString(document.getString("type")));
         anime.setRelatedAnime(document.getList("relations", String.class));
         anime.setTags(document.getList("tags", String.class));
@@ -231,11 +228,11 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
                     Review review = new Review();
                     User reviewer = new User();
                     Document userDocument = reviewDocument.get("user", Document.class);
-                    reviewer.setId(userDocument.getObjectId("id"));
+                    reviewer.setId(userDocument.getObjectId("id").toString());
                     reviewer.setUsername(userDocument.getString("username"));
                     reviewer.setProfilePicUrl(userDocument.getString("picture"));
                     review.setUser(reviewer);
-                    review.setId(reviewDocument.getObjectId("id"));
+                    review.setId(reviewDocument.getObjectId("id").toString());
                     review.setComment(reviewDocument.getString("comment"));
                     review.setDate(ConverterUtils.dateToLocalDate(reviewDocument.getDate("date")));
                     return review;
@@ -248,66 +245,63 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
 
     private AnimeDTO documentToAnimeDTO(Document doc) {
         AnimeDTO anime = new AnimeDTO();
-        anime.setId(doc.getObjectId("_id"));
+        anime.setId(doc.getObjectId("_id").toString());
         anime.setTitle(doc.getString("title"));
         anime.setImageUrl(doc.getString("picture"));
-        Object averageRatingObj = doc.get("average_score");
+        Object averageRatingObj = doc.get("average_rating");
         anime.setAverageRating(
                 (averageRatingObj instanceof Integer) ? ((Integer) averageRatingObj).doubleValue() :
                         (averageRatingObj instanceof Double) ? (Double) averageRatingObj : 0.0
         );
         if ((doc.get("anime_season", Document.class) != null)) {
             anime.setYear(doc.get("anime_season", Document.class).getInteger("year"));
+            anime.setSeason(doc.get("anime_season", Document.class).getString("season"));
         }
 
         return anime;
     }
 
-
+    // Neo4J specific methods
     @Override
-    public void likeMediaContent(String userId, String mediaContentId) throws DAOException {
-
+    public void createNode(MediaContentDTO animeDTO) throws DAOException {
     }
-
     @Override
-    public void unlikeMediaContent(String userId, String mediaContentId) throws DAOException {
-
+    public void like(String userId, String mediaContentId) throws DAOException {
     }
-
     @Override
-    public List<? extends MediaContentDTO> getLikedMediaContent(String userId) throws DAOException {
+    public void unlike(String userId, String mediaContentId) throws DAOException {
+    }
+    @Override
+    public boolean isLiked(String userId, String mediaId) throws DAOException {
+        return false;
+    }
+    @Override
+    public List<? extends MediaContentDTO> getLiked(String userId) throws DAOException {
         return null;
     }
-
     @Override
-    public List<? extends MediaContentDTO> suggestMediaContent(String userId) throws DAOException {
+    public List<? extends MediaContentDTO> getSuggested(String userId) throws DAOException {
         return null;
     }
-
     @Override
     public List<? extends MediaContentDTO> getTrendMediaContentByYear(int year) throws DAOException {
         return null;
     }
-
     @Override
     public List<String> getMediaContentGenresTrendByYear(int year) throws DAOException {
         return null;
     }
-
     @Override
     public List<? extends MediaContentDTO> getMediaContentTrendByGenre() throws DAOException {
         return null;
     }
-
     @Override
     public List<? extends MediaContentDTO> getMediaContentTrendByLikes() throws DAOException {
         return null;
     }
-
     @Override
     public List<String> getMediaContentGenresTrend() throws DAOException {
         return null;
     }
-
 }
 

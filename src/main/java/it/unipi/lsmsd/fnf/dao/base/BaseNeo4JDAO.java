@@ -36,8 +36,4 @@ public abstract class BaseNeo4JDAO {
         }
     }
 
-
-
-
-
 }

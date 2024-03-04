@@ -2,6 +2,9 @@ package it.unipi.lsmsd.fnf.utils;
 
 import it.unipi.lsmsd.fnf.model.PersonalList;
 import it.unipi.lsmsd.fnf.model.enums.Gender;
+import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
+import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
+import it.unipi.lsmsd.fnf.model.mediaContent.MediaContent;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
@@ -15,30 +18,26 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class UserUtils {
-
     public static void updateUserSession(HttpServletRequest request) {
         User authUserUpdated = SecurityUtils.getAuthenticatedUser(request);
 
-        if (request.getParameter("listIdToRemove") != null) {
-            handleRemoveList(authUserUpdated, request.getParameter("listIdToRemove"));
-        } else if (request.getParameter("listId") != null) {
-            handleRemoveItemFromList(authUserUpdated, request.getParameter("listId"), request);
-        } else {
-            handleUserInfo(authUserUpdated, request);
+        switch (request.getParameter("action")) {
+            case "delete-list" -> handleRemoveList(authUserUpdated, request.getParameter("listIdToRemove"));
+            case "delete-item" -> handleRemoveItemFromList(authUserUpdated, request.getParameter("listId"), request);
+            case "update-info" -> handleUserInfo(authUserUpdated, request);
+            case "toggleLike" -> handleToggleLike(authUserUpdated, request);
         }
 
         request.getSession().setAttribute(Constants.AUTHENTICATED_USER_KEY, authUserUpdated);
     }
 
     private static void handleRemoveList(User authUserUpdated, String listIdToRemove) {
-        ObjectId listId = new ObjectId(listIdToRemove);
-        authUserUpdated.removeList(listId);
+        authUserUpdated.removeList(listIdToRemove);
     }
 
     private static void handleRemoveItemFromList(User authUserUpdated, String listId, HttpServletRequest request) {
-        ObjectId objectId = new ObjectId(listId);
         authUserUpdated.getLists().stream()
-                .filter(list -> list.getId().equals(objectId))
+                .filter(list -> list.getId().equals(listId))
                 .findFirst()
                 .ifPresent(list -> {
                     Optional.ofNullable(request.getParameter("mangaIdToRemove")).map(ObjectId::new).ifPresent(list::removeManga);
@@ -56,6 +55,18 @@ public class UserUtils {
                 .ifPresent(authUserUpdated::setBirthday);
         Optional.ofNullable(request.getParameter("fullname")).ifPresent(authUserUpdated::setFullname);
         Optional.ofNullable(request.getParameter("gender")).map(Gender::valueOf).ifPresent(authUserUpdated::setGender);
+    }
+
+    private static void handleToggleLike(User authUserUpdated, HttpServletRequest request) {
+        if((boolean) request.getAttribute("isLiked")) {
+            MediaContent mediaContent = (boolean) request.getAttribute("isManga") ? new Manga() : new Anime();
+            mediaContent.setId(request.getParameter("mediaId"));
+            mediaContent.setTitle(request.getParameter("mediaTitle"));
+            mediaContent.setImageUrl(request.getParameter("mediaImageUrl"));
+            authUserUpdated.addLikedMediaContent(mediaContent);
+        } else {
+            authUserUpdated.removeLikedMediaContent(request.getParameter("mediaId"));
+        }
     }
 
     public static User updateUserFromRequest(HttpServletRequest request) {
@@ -81,8 +92,6 @@ public class UserUtils {
             }
         }
 
-        Logger logger = LoggerFactory.getLogger(UserUtils.class);
-        logger.info("User updated: " + user);
         return user;
     }
 
@@ -96,5 +105,10 @@ public class UserUtils {
             case "gender" -> authUser.getGender().name();
             default -> null;
         };
+    }
+
+    public static boolean isLiked(HttpServletRequest request) {
+        return SecurityUtils.getAuthenticatedUser(request).getLikedMediaContent().stream()
+                .anyMatch(mediaContent -> mediaContent.getId().equals(request.getParameter("mediaId")));
     }
 }

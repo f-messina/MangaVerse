@@ -7,7 +7,6 @@ import it.unipi.lsmsd.fnf.dao.mongo.MangaDAOImpl;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
 import it.unipi.lsmsd.fnf.service.ReviewService;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
-import org.bson.types.ObjectId;
 
 import java.util.List;
 
@@ -36,9 +35,9 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public void deleteReview(String id) throws BusinessException {
+    public void deleteReview(String reviewId) throws BusinessException {
         try {
-            reviewDAO.delete(new ObjectId(id));
+            reviewDAO.delete(reviewId);
         } catch (Exception e){
             throw new BusinessException(e);
         }
@@ -47,7 +46,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public void deleteByMedia(String mediaId) throws BusinessException {
         try {
-            reviewDAO.deleteByMedia(new ObjectId(mediaId));
+            reviewDAO.deleteByMedia(mediaId);
         } catch (Exception e){
             throw new BusinessException(e);
         }
@@ -65,7 +64,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public List<ReviewDTO> findByUser(String userId) throws BusinessException {
         try {
-         return reviewDAO.findByUser(new ObjectId(userId));
+         return reviewDAO.findByUser(userId);
         } catch (Exception e){
             throw new BusinessException(e);
         }
@@ -74,7 +73,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public List<ReviewDTO> findByMedia(String mediaId) throws BusinessException {
         try{
-            return reviewDAO.findByMedia(new ObjectId(mediaId));
+            return reviewDAO.findByMedia(mediaId);
         }catch (Exception e){
             throw new BusinessException(e);
         }

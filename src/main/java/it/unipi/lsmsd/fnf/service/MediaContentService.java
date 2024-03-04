@@ -1,8 +1,6 @@
 package it.unipi.lsmsd.fnf.service;
 
 import it.unipi.lsmsd.fnf.dto.PageDTO;
-import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
-import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.model.mediaContent.MediaContent;
@@ -18,27 +16,17 @@ public interface MediaContentService {
     MediaContent getMediaContentById(String id, MediaContentType type) throws BusinessException;
     PageDTO<? extends MediaContentDTO> searchByFilter(List<Map<String, Object>> filters, Map<String, Integer> orderBy, int page, MediaContentType type) throws BusinessException;
     PageDTO<? extends MediaContentDTO> searchByTitle(String title, int page, MediaContentType type) throws BusinessException;
-
-    void createMediaContentNode(String id, String title, String picture, MediaContentType type) throws BusinessException;
-
-    void likeMediaContent(String userId, String mediaId, MediaContentType type) throws BusinessException;
-    void unlikeMediaContent(String userId, String mediaId, MediaContentType type) throws BusinessException;
-    List<? extends MediaContentDTO> getLikedMediaContents(String userId, MediaContentType type) throws BusinessException;
-
-
-    public List<? extends MediaContentDTO> getLikedAnime(String userId, MediaContentType type) throws BusinessException;
-
-    List<? extends MediaContentDTO> getLikedManga(String userId, MediaContentType type) throws BusinessException;
-
-    List<? extends MediaContentDTO> suggestMediaContent(String userId, MediaContentType type) throws BusinessException;
-
+    void addLike(String userId, String animeId, MediaContentType type) throws BusinessException;
+    void removeLike(String userId, String animeId, MediaContentType type) throws BusinessException;
+    void createNode(MediaContentDTO mediaContentDTO) throws BusinessException;
+    boolean isLiked(String userId, String mediaId, MediaContentType type) throws BusinessException;
+    List<? extends MediaContentDTO> getLikedMediaContent(String userId, MediaContentType type) throws BusinessException;
+    List<? extends MediaContentDTO> getSuggestedMediaContent(String userId, MediaContentType type) throws BusinessException;
     List<? extends MediaContentDTO> getTrendMediaContentByYear(int year, MediaContentType type) throws BusinessException;
-
+    /*
     List<String> getMediaContentGenresTrendByYear(int year, MediaContentType type) throws BusinessException;
-
     List<? extends MediaContentDTO> getMediaContentTrendByGenre(MediaContentType type) throws BusinessException;
-
     List<? extends MediaContentDTO> getMediaContentTrendByLikes(MediaContentType type) throws BusinessException;
-
     List<String> getMediaContentGenresTrend(MediaContentType type) throws BusinessException;
+     */
 }

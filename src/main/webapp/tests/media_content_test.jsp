@@ -1,6 +1,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page import="it.unipi.lsmsd.fnf.utils.Constants" %>
-<%@ page import="it.unipi.lsmsd.fnf.model.enums.Gender" %>
+
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <%--

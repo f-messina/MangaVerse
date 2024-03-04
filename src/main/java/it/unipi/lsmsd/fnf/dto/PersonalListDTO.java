@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PersonalListDTO {
-    private ObjectId id;
+    private String id;
     private String name;
     private RegisteredUserDTO user;
     private List<MangaDTO> manga = new ArrayList<>();
@@ -17,7 +17,7 @@ public class PersonalListDTO {
     public PersonalListDTO() {
     }
 
-    public PersonalListDTO(ObjectId id, String name, RegisteredUserDTO user, List<MangaDTO> manga, List<AnimeDTO> anime) {
+    public PersonalListDTO(String id, String name, RegisteredUserDTO user, List<MangaDTO> manga, List<AnimeDTO> anime) {
         this.id = id;
         this.name = name;
         this.user = user;
@@ -25,7 +25,7 @@ public class PersonalListDTO {
         this.anime = anime;
     }
 
-    public ObjectId getId() {
+    public String getId() {
         return id;
     }
 
@@ -45,7 +45,7 @@ public class PersonalListDTO {
         return anime;
     }
 
-    public void setId(ObjectId id) {
+    public void setId(String id) {
         this.id = id;
     }
 

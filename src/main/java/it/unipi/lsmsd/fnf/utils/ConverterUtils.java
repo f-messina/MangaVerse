@@ -1,6 +1,7 @@
 package it.unipi.lsmsd.fnf.utils;
 
 import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
+import it.unipi.lsmsd.fnf.model.enums.AnimeType;
 import it.unipi.lsmsd.fnf.model.enums.Gender;
 import it.unipi.lsmsd.fnf.model.enums.MangaDemographics;
 import it.unipi.lsmsd.fnf.model.enums.MangaType;
@@ -41,8 +42,7 @@ public class ConverterUtils {
         return userRegistrationDTO;
     }
 
-    public static List<Map<String, Object>> fromRequestToFilters(HttpServletRequest request) {
-
+    public static List<Map<String, Object>> fromRequestToMangaFilters(HttpServletRequest request) {
         return Stream.of(
                 buildGenreFilter(request, "select", request.getParameter("genreOperator").equals("and")? "$all": "$in"),
                 buildGenreFilter(request, "avoid", "$nin"),
@@ -56,12 +56,33 @@ public class ConverterUtils {
                 .toList();
     }
 
-    private static Map<String, Object> buildGenreFilter(HttpServletRequest request, String condition, String operator) {
-        List<String> genres = Arrays.stream(Constants.MANGA_GENRES)
-                .filter(genre -> request.getParameter(genre) != null && condition.equals(request.getParameter(genre)))
+    public static List<Map<String, Object>> fromRequestToAnimeFilters(HttpServletRequest request) {
+        return Stream.of(
+                        buildGenreFilter(request, "select", request.getParameter("genreOperator").equals("and")? "$all": "$in"),
+                        buildGenreFilter(request, "avoid", "$nin"),
+                        buildEnumFilter(request.getParameterValues("animeTypes"), AnimeType.values(), "type"),
+                        buildEnumFilter(request.getParameterValues("status"), Constants.ANIME_STATUS, "status"),
+                        buildScoreFilter(request),
+                        buildYearFilter(request),
+                        buildSeasonFilter(request)
+                )
+                .filter(filter -> !filter.isEmpty())
                 .toList();
+    }
 
-        return genres.isEmpty() ? Map.of() : Map.of(operator, Map.of("genres", genres));
+    private static Map<String, Object> buildGenreFilter(HttpServletRequest request, String condition, String operator) {
+        if (request.getServletPath().equals("/mainPage/manga")) {
+            List<String> genres = Arrays.stream(Constants.MANGA_GENRES)
+                    .filter(genre -> request.getParameter(genre) != null && condition.equals(request.getParameter(genre)))
+                    .toList();
+
+            return genres.isEmpty() ? Map.of() : Map.of(operator, Map.of("genres", genres));
+        } else {
+            List<String> tags = Arrays.stream(Constants.ANIME_TAGS)
+                    .filter(tag -> request.getParameter(tag) != null && condition.equals(request.getParameter(tag)))
+                    .toList();
+            return tags.isEmpty() ? Map.of() : Map.of(operator, Map.of("tags", tags));
+        }
     }
 
     private static Map<String, Object> buildEnumFilter(String[] values, Enum<?>[] enumConstants, String key) {
@@ -80,11 +101,12 @@ public class ConverterUtils {
         if (StringUtils.isBlank(min) || StringUtils.isBlank(max)) return Map.of();
 
         List<Map<String,Object>> rangeList = new ArrayList<>();
+        List<Map<String,Object>> rangeListWithNull = new ArrayList<>();
         rangeList.add(Map.of("$gte", Map.of("average_rating", Double.parseDouble(min))));
         rangeList.add(Map.of("$lte", Map.of("average_rating", Double.parseDouble(max))));
-        List<Map<String,Object>> rangeListWithNull = new ArrayList<>();
         rangeListWithNull.add(Map.of("$and", rangeList));
         rangeListWithNull.add(Map.of("$exists", Map.of("average_rating", false)));
+
         return Map.of("$or", rangeListWithNull);
     }
 
@@ -101,5 +123,27 @@ public class ConverterUtils {
             dateRange.add(Map.of("$lte", Map.of("end_date", ConverterUtils.localDateToDate(LocalDate.parse(endDate)))));
             return Map.of("$and", dateRange);
         }
+    }
+
+    private static Map<String, Object> buildYearFilter(HttpServletRequest request) {
+        String min = request.getParameter("minYear");
+        String max = request.getParameter("maxYear");
+
+        if (StringUtils.isBlank(min) || StringUtils.isBlank(max)) return Map.of();
+
+        List<Map<String,Object>> rangeList = new ArrayList<>();
+        rangeList.add(Map.of("$gte", Map.of("anime_season.year", Integer.parseInt(min))));
+        rangeList.add(Map.of("$lte", Map.of("anime_season.year", Integer.parseInt(max))));
+        return Map.of("$and", rangeList);
+    }
+
+    private static Map<String, Object> buildSeasonFilter(HttpServletRequest request) {
+        String season = request.getParameter("season");
+        String year = request.getParameter("year");
+        if (StringUtils.isBlank(year)) return Map.of();
+        List<Map<String,Object>> animeSeason = new ArrayList<>();
+        animeSeason.add(Map.of("anime_season.year", Integer.parseInt(year)));
+        animeSeason.add(Map.of("anime_season.season", season));
+        return Map.of("$and", animeSeason);
     }
 }
