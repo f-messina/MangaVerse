@@ -4,7 +4,14 @@ import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import org.neo4j.driver.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.neo4j.driver.AuthTokens;
+import org.neo4j.driver.Driver;
+import org.neo4j.driver.GraphDatabase;
 
+/**
+ * This abstract class serves as the base for Neo4j Data Access Objects (DAOs).
+ * It provides methods for establishing connections to Neo4j and closing the connection.
+ */
 public abstract class BaseNeo4JDAO {
     private static final Logger logger = LoggerFactory.getLogger(BaseNeo4JDAO.class);
     private static final String PROTOCOL = "bolt://";

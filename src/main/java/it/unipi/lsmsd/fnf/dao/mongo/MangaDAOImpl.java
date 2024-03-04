@@ -5,6 +5,7 @@ import com.mongodb.client.result.UpdateResult;
 import it.unipi.lsmsd.fnf.dao.MediaContentDAO;
 import it.unipi.lsmsd.fnf.dao.base.BaseMongoDBDAO;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
+import it.unipi.lsmsd.fnf.dao.exception.DAOExceptionType;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
@@ -51,7 +52,7 @@ public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Mang
                 return result.getUpsertedId().asObjectId().getValue().toString();
             }
         } catch (Exception e) {
-            throw new DAOException("Error while inserting manga", e);
+            throw new DAOException(DAOExceptionType.EXIST_MANGA,"Error while inserting manga");
         }
     }
 

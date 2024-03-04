@@ -7,6 +7,7 @@ import it.unipi.lsmsd.fnf.dao.UserDAO;
 import it.unipi.lsmsd.fnf.dao.enums.DataRepositoryEnum;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dto.RegisteredUserDTO;
+import it.unipi.lsmsd.fnf.dao.exception.DAOExceptionType;
 import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
@@ -17,7 +18,9 @@ import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import it.unipi.lsmsd.fnf.service.UserService;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
+import it.unipi.lsmsd.fnf.service.exception.BusinessExceptionType;
 import it.unipi.lsmsd.fnf.service.mapper.DtoToModelMapper;
+
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -54,7 +57,7 @@ public class UserServiceImpl implements UserService {
                     userRegistrationDTO.getPassword(),
                     userRegistrationDTO.getEmail()
             )) {
-                throw new BusinessException("Username, password and email cannot be empty");
+                throw new BusinessException(BusinessExceptionType.EMPTY_USERNAME_PSW_EMAIL,"Username, password and email cannot be empty");
             }
 
             User user = userRegistrationDTOToUser(userRegistrationDTO);
@@ -62,11 +65,14 @@ public class UserServiceImpl implements UserService {
             return user;
 
         } catch (DAOException e) {
-            String errorMessage = e.getMessage();
+            DAOExceptionType type = e.getType();
 
-            if (errorMessage.contains("Email") || errorMessage.contains("Username")) {
-                throw new BusinessException(errorMessage, e);
-            } else {
+            if (DAOExceptionType.TAKEN_EMAIL.equals(type)) {
+                throw new BusinessException(BusinessExceptionType.TAKEN_EMAIL,"Email is already taken");
+            }
+            else if(DAOExceptionType.TAKEN_USERNAME.equals(type)) {
+                throw new BusinessException(BusinessExceptionType.TAKEN_USERNAME,"Username is taken");
+            }else {
                 throw new BusinessException("DAOException during registration operation", e);
             }
 
@@ -79,9 +85,9 @@ public class UserServiceImpl implements UserService {
     public RegisteredUser login(String email, String password) throws BusinessException {
         // Validation checks for empty fields
         if (StringUtils.isEmpty(email))
-            throw new BusinessException("Email cannot be empty");
+            throw new BusinessException(BusinessExceptionType.EMPTY_EMAIL,"Email cannot be empty");
         if (StringUtils.isEmpty(password))
-            throw new BusinessException("Password cannot be empty");
+            throw new BusinessException(BusinessExceptionType.EMPTY_PSW,"Password cannot be empty");
 
         try {
             RegisteredUser registeredUser = userDAO.authenticate(email, password);
@@ -107,11 +113,12 @@ public class UserServiceImpl implements UserService {
             return registeredUser;
 
         } catch (DAOException e) {
-            switch (e.getMessage()) {
-                case "User not found":
-                    throw new BusinessException("Invalid email", e);
-                case "Wrong password":
-                    throw new BusinessException("Wrong password", e);
+            DAOExceptionType type = e.getType();
+            switch (type) {
+                case DAOExceptionType.WRONG_EMAIL:
+                    throw new BusinessException(BusinessExceptionType.INVALID_EMAIL,"Invalid email");
+                case DAOExceptionType.WRONG_PSW:
+                    throw new BusinessException(BusinessExceptionType.WRONG_PSW,"Wrong password");
                 default:
                     throw new BusinessException("DAOException during authenticating operation", e);
             }
@@ -126,8 +133,9 @@ public class UserServiceImpl implements UserService {
         try {
             userDAO.update(user);
         } catch (DAOException e) {
-            if (e.getMessage().contains("already exists")) {
-                throw new BusinessException("Username already in use", e);
+            DAOExceptionType type = e.getType();
+            if (DAOExceptionType.TAKEN_USERNAME.equals(type)) {
+                throw new BusinessException(BusinessExceptionType.TAKEN_USERNAME,"Username already in use");
             } else {
                 throw new BusinessException(e);
             }

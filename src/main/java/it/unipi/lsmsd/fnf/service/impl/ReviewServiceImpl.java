@@ -2,11 +2,10 @@ package it.unipi.lsmsd.fnf.service.impl;
 
 import it.unipi.lsmsd.fnf.dao.ReviewDAO;
 import it.unipi.lsmsd.fnf.dao.enums.DataRepositoryEnum;
-import it.unipi.lsmsd.fnf.dao.mongo.AnimeDAOImpl;
-import it.unipi.lsmsd.fnf.dao.mongo.MangaDAOImpl;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
 import it.unipi.lsmsd.fnf.service.ReviewService;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
+
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
@@ -29,7 +28,7 @@ public class ReviewServiceImpl implements ReviewService {
         try{
             reviewDAO.insert(review);
         } catch (Exception e){
-            throw new BusinessException(e);
+            throw new BusinessException("Error adding review",e);
         }
     }
 
@@ -38,7 +37,7 @@ public class ReviewServiceImpl implements ReviewService {
         try {
             reviewDAO.delete(reviewId);
         } catch (Exception e){
-            throw new BusinessException(e);
+            throw new BusinessException("Error deleting review",e);
         }
     }
 
@@ -47,7 +46,7 @@ public class ReviewServiceImpl implements ReviewService {
         try {
             reviewDAO.deleteByMedia(mediaId);
         } catch (Exception e){
-            throw new BusinessException(e);
+            throw new BusinessException("Error deleting by media",e);
         }
     }
 
@@ -59,7 +58,7 @@ public class ReviewServiceImpl implements ReviewService {
         try {
             reviewDAO.update(review);
         } catch (Exception e){
-            throw new BusinessException(e);
+            throw new BusinessException("Error updating the review",e);
         }
     }
 
@@ -68,7 +67,7 @@ public class ReviewServiceImpl implements ReviewService {
         try {
          return reviewDAO.findByUser(userId);
         } catch (Exception e){
-            throw new BusinessException(e);
+            throw new BusinessException("Error finding media by user",e);
         }
     }
 
@@ -77,7 +76,7 @@ public class ReviewServiceImpl implements ReviewService {
         try{
             return reviewDAO.findByMedia(mediaId);
         } catch (Exception e){
-            throw new BusinessException(e);
+            throw new BusinessException("Error finding review by media",e);
         }
     }
 }

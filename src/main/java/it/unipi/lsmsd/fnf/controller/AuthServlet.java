@@ -4,6 +4,7 @@ import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import it.unipi.lsmsd.fnf.service.ServiceLocator;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
+import it.unipi.lsmsd.fnf.service.exception.BusinessExceptionType;
 import it.unipi.lsmsd.fnf.utils.Constants;
 import it.unipi.lsmsd.fnf.utils.ConverterUtils;
 import it.unipi.lsmsd.fnf.utils.SecurityUtils;
@@ -55,19 +56,21 @@ public class AuthServlet extends HttpServlet {
             response.sendRedirect("profile");
             return;
         } catch (BusinessException e) {
+            BusinessExceptionType type = e.getType();
+
             logger.error("BusinessException during signup operation.", e);
             targetJSP = "tests/auth_test.jsp";
 
-            String errorMessage = e.getMessage();
-            switch (errorMessage) {
-                case "Email already in use" -> request.setAttribute("emailError", e.getMessage());
-                case "Username already in use" -> request.setAttribute("usernameError", e.getMessage());
-                case "Email and username already in use" -> {
+
+            switch (type) {
+                case BusinessExceptionType.TAKEN_EMAIL -> request.setAttribute("emailError", "Email already in use");
+                case BusinessExceptionType.TAKEN_USERNAME-> request.setAttribute("usernameError", "Password already in use");
+                case BusinessExceptionType.TAKEN_EMAIL_PSW-> {
                     request.setAttribute("emailError", "Email already in use.");
                     request.setAttribute("usernameError", "Username already in use.");
                 }
-                case "Username, password and email cannot be empty" ->
-                        request.setAttribute("errorMessage", e.getMessage());
+                case BusinessExceptionType.EMPTY_USERNAME_PSW_EMAIL ->
+                        request.setAttribute("errorMessage", "Username, password and email cannot be empty");
                 case null, default -> {
                     request.setAttribute("errorMessage", "Error during signup operation.");
                     targetJSP = "error.jsp";
@@ -95,10 +98,10 @@ public class AuthServlet extends HttpServlet {
             logger.error("BusinessException during login operation.", e);
             targetJSP = "tests/auth_test.jsp";
 
-            String errorMessage = e.getMessage();
-            switch (errorMessage) {
-                case "Invalid email" -> request.setAttribute("emailLoginError", e.getMessage());
-                case "Wrong password" -> request.setAttribute("passwordLoginError", e.getMessage());
+            BusinessExceptionType type = e.getType();
+            switch (type) {
+                case BusinessExceptionType.INVALID_EMAIL -> request.setAttribute("emailLoginError", "Invalid Email");
+                case BusinessExceptionType.WRONG_PSW -> request.setAttribute("passwordLoginError", "Wrong Pasword");
                 case null, default -> {
                     request.setAttribute("errorMessage", "Error during login operation.");
                     targetJSP = "error.jsp";
