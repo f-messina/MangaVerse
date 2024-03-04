@@ -45,14 +45,14 @@
 </nav>
 
 
-<button style="margin-top: 100px" onclick="window.location.href='mainPage'">Home</button>
+<button style="margin-top: 100px; padding: 8px" class="search" onclick="window.location.href='mainPage'">Home</button>
 <div class="write-search">
     <form id="searchForm" action="mainPage" method="post">
         <input type="hidden" name="action" value="search">
         <input type="hidden" name="type" value="manga">
-        <label for="search">Title:</label>
+        <label class="filter-name" for="search">Title:</label>
         <input type="search" id="search" name="searchTerm" placeholder="Title">
-        <input type="submit" value="SEARCH">
+        <input class="search" type="submit" value="SEARCH">
     </form>
     <button onclick="myFunction()" class="more-filtering">See Detailed Filtering</button>
 </div>
@@ -66,10 +66,10 @@
         <div class="title-ope">
             <%-- This are the radios for the genres --%>
             <label class="filter-name">Genres:</label><br/>
-            <div style="background-color: #ecebeb; padding: 5px">
+            <div class="operator" style="background-color: #ecebeb; padding: 5px">
                 <label >Operator:</label>
-                <input type="radio" name="genreOperator" checked value="and">and
-                <input type="radio" name="genreOperator" value="or">or
+                <input class="gap" type="radio" name="genreOperator" checked value="and">and
+                <input class="gap" type="radio" name="genreOperator" value="or">or
             </div>
         </div>
 
@@ -122,9 +122,9 @@
             </c:forEach>
         </div>
 
+        <label class="filter-name">Rating:</label>
         <%-- This are the range inputs for the min and max score --%>
         <div class="rating">
-            <label class="filter-name">Rating:</label>
             <div class="range-slider container">
                 <span class="output outputOne"></span>
                 <span class="output outputTwo"></span>
@@ -135,18 +135,21 @@
             </div>
         </div>
 
+
+
+
         <%-- This are the range inputs for the min and max start date --%>
         <div>
             <label  class="filter-name" for="startDate">Start Date:</label>
-            <input type="date" id="startDate" name="startDate">
+            <input class="date" type="date" id="startDate" name="startDate">
             <br/>
             <label  class="filter-name" for="endDate">End Date:</label>
-            <input type="date" id="endDate" name="endDate">
+            <input class="date" type="date" id="endDate" name="endDate">
         </div>
 
         <div>
             <label  class="filter-name" for="orderBy">Order By:</label>
-            <select name="orderBy" id="orderBy">
+            <select class="order" name="orderBy" id="orderBy">
                 <option value="title 1">Title enc</option>
                 <option value="title -1">Title dec</option>
                 <option value="average_rating 1">Average Rating enc</option>
@@ -155,7 +158,7 @@
                 <option value="start_date -1">Start Date dec</option>
             </select>
         </div>
-        <input type="submit" value="SEARCH">
+        <input class="search" type="submit" value="SEARCH">
     </form>
 
 </div>
@@ -165,7 +168,7 @@
 
 <section id="resultsSection"></section>
 <!-- page bar -->
-<div>
+<div >
     <form action="mainPage" method="post">
         <input type="hidden" name="action" value="sortAndPaginate">
         <input type="hidden" name="type" value="manga">
@@ -178,6 +181,7 @@
         </c:if>
     </form>
 </div>
+
 
 <script>
     function toggleRadio(element) {
@@ -314,6 +318,9 @@
             x.style.display = "none";
         }
     }
+
+
+
 </script>
 </body>
 </html>

@@ -81,11 +81,44 @@ form {
 }
 
 .filter-name{
-    font-size: 23px;
-    margin-bottom: 20px;
-    margin-top: 30px;
+    font-size: 20px;
+    margin-bottom: 15px;
+}
+.operator{
+    display: flex;
+    flex-direction: row;
+    align-items: start;
+    gap: 5px;
+}
+.gap{
+    margin-left: 10px;
 }
 
+.date{
+    padding: 8px;
+    font-size: 15px;
+    margin-bottom: 15px;
+}
+.order{
+    padding: 8px;
+    font-size: 15px;
+    margin-bottom: 15px;
+}
+#orderResults{
+    padding: 8px;
+    font-size: 15px;
+    margin-bottom: 15px;
+}
+.search{
+    padding: 8px;
+    border: transparent;
+    -webkit-box-shadow: 5px 5px 23px -7px rgba(0,0,0,0.84);
+    border-radius: 7px;
+    background-color: white;
+}
+#search{
+    padding: 8px;
+}
 .one{
     margin-bottom: 10px;
     display: flex;
@@ -103,9 +136,15 @@ form {
     flex-direction: row;
 }
 
-.rating{
-    margin-left: -200px;
 
+.start-end-order{
+    display: flex;
+}
+
+
+form {
+    margin: 20px;
+    width: 20rem;
 }
 
 .range-slider {
@@ -113,7 +152,6 @@ form {
     width: 200px;
     height: 35px;
 }
-
 
 .range-slider input {
     pointer-events: none;
@@ -263,5 +301,38 @@ input[type=range]::-moz-range-thumb {
 }
 
 .incl-range {
-    background: #004c8b;
+    background: gold;
+}
+
+#mediaContentContainer{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+#mediaContentContainer article img{
+    height: 250px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+#mediaContentContainer article{
+    padding: 15px;
+    border: transparent;
+    -webkit-box-shadow: 5px 5px 23px -7px rgba(0,0,0,0.84);
+    border-radius: 7px;
+    background-color: white;
+    margin-top: 20px;
+    width: 250px;
+}
+.navigation-button{
+    padding: 8px;
+    font-size: 15px;
+    margin-bottom: 15px;
+    margin-right: 10px;
+    border: transparent;
+    -webkit-box-shadow: 5px 5px 23px -7px rgba(0,0,0,0.84);
+    border-radius: 7px;
+    background-color: white;
 }

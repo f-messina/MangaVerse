@@ -10,25 +10,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7526b11c-d57e-42b1-96ad-0eaf1f2db0d2" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/exception/BusinessExceptionType.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/controller/AuthServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/controller/AuthServlet.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/controller/ProfileServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/controller/ProfileServlet.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/base/BaseMongoDBDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/base/BaseMongoDBDAO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/base/BaseNeo4JDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/base/BaseNeo4JDAO.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/exception/DAOException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/exception/DAOException.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/exception/DAOExceptionType.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/exception/DAOExceptionType.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/mongo/AnimeDAOImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/mongo/AnimeDAOImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/mongo/ListDAOImpl.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/mongo/MangaDAOImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/mongo/MangaDAOImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/mongo/UserDAOImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/mongo/UserDAOImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/exception/BusinessException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/exception/BusinessException.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/impl/MediaContentServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/impl/MediaContentServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/impl/PersonalListServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/impl/PersonalListServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/impl/ReviewServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/impl/ReviewServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/impl/UserServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/impl/UserServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/webapp/css/main-registered-user.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/css/main-registered-user.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/webapp/css/range_input.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/css/range_input.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/webapp/tests/manga_main_page_test.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/tests/manga_main_page_test.jsp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/META-INF/MANIFEST.MF" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/META-INF/MANIFEST.MF" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/css/range_input.css" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/css/range_input.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/tests/manga_main_page_test.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaUniverse-1.0-SNAPSHOT/tests/manga_main_page_test.jsp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -51,9 +41,9 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="KubernetesApiProvider"><![CDATA[{
-  "isMigrated": true
-}]]></component>
+  <component name="KubernetesApiProvider">{
+  &quot;isMigrated&quot;: true
+}</component>
   <component name="LogFilters">
     <option name="FILTER_ERRORS" value="false" />
     <option name="FILTER_WARNINGS" value="false" />
@@ -77,33 +67,33 @@
     <option name="openDirectoriesWithSingleClick" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Application.UserDAOTest.executor": "Run",
-    "Application.test.executor": "Run",
-    "DefaultHtmlFileTemplate": "HTML File",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "Tomcat Server.Tomcat 10.1.16.executor": "Run",
-    "WebServerToolWindowFactoryState": "false",
-    "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "feyzan",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/messi/Desktop/MangaUniverseTestController",
-    "list.type.of.created.stylesheet": "CSS",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "preferences.general",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.UserDAOTest.executor&quot;: &quot;Run&quot;,
+    &quot;Application.test.executor&quot;: &quot;Run&quot;,
+    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;Tomcat Server.Tomcat 10.1.16.executor&quot;: &quot;Run&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;feyzan&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/messi/Desktop/MangaUniverseTestController&quot;,
+    &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.general&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
-  "keyToStringList": {
-    "stardust.markdown.MarkdownSplitEditorSuppressor:keyList": [
+  &quot;keyToStringList&quot;: {
+    &quot;stardust.markdown.MarkdownSplitEditorSuppressor:keyList&quot;: [
     ]
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\messi\Documents\GitHub\MangaUniverse\src\main\webapp\tests" />
@@ -288,6 +278,10 @@
       <workItem from="1707571191146" duration="16036000" />
       <workItem from="1707661085528" duration="23221000" />
       <workItem from="1709125338792" duration="12965000" />
+      <workItem from="1709139224356" duration="1785000" />
+      <workItem from="1709149503691" duration="5932000" />
+      <workItem from="1709237917006" duration="5315000" />
+      <workItem from="1709582294065" duration="2341000" />
     </task>
     <servers />
   </component>

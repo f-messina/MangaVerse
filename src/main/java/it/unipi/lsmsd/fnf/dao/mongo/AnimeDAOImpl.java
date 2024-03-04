@@ -28,9 +28,18 @@ import static com.mongodb.client.model.Aggregates.*;
 import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Updates.setOnInsert;
 
-
+/**
+ * Implementation of the MediaContentDAO interface for Anime objects, providing CRUD operations for Anime data in MongoDB.
+ */
 public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anime> {
 
+    /**
+     * Inserts an Anime object into the MongoDB database.
+     *
+     * @param anime The Anime object to insert.
+     * @return The ObjectId of the inserted Anime.
+     * @throws DAOException If an error occurs during the insertion process.
+     */
     @Override
     public ObjectId insert(Anime anime) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
@@ -50,6 +59,13 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
         }
     }
 
+
+    /**
+     * Updates an existing Anime object in the MongoDB database.
+     *
+     * @param anime The Anime object to update.
+     * @throws DAOException If an error occurs during the update process.
+     */
     @Override
     public void update(Anime anime) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
@@ -64,6 +80,12 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
         }
     }
 
+    /**
+     * Deletes an Anime object from the MongoDB database based on its ObjectId.
+     *
+     * @param animeId The ObjectId of the Anime to delete.
+     * @throws DAOException If an error occurs during the deletion process.
+     */
     @Override
     public void delete(ObjectId animeId) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
@@ -77,6 +99,13 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
         }
     }
 
+    /**
+     * Finds an Anime object in the MongoDB database based on its ObjectId.
+     *
+     * @param id The ObjectId of the Anime to find.
+     * @return The found Anime object, or null if not found.
+     * @throws DAOException If an error occurs during the search process.
+     */
     @Override
     public Anime find(ObjectId id) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {

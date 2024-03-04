@@ -18,14 +18,25 @@ import java.util.*;
 
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Sorts.*;
-
+/**
+ * This abstract class serves as the base for MongoDB Data Access Objects (DAOs).
+ * It provides methods for establishing connections to MongoDB, building filters and sorts,
+ * and appending values to documents.
+ */
 public abstract class BaseMongoDBDAO {
+
+    //mongoDB connection details
     private static final String PROTOCOL = "mongodb://";
     private static final String MONGO_HOST = "localhost";
     private static final String MONGO_PORT = "27017";
 
     private static final String connectionString = String.format("%s%s:%s", PROTOCOL, MONGO_HOST, MONGO_PORT);
 
+    /**
+     * Establishes a connection to the MongoDB server.
+     *
+     * @return MongoClient instance representing the connection to MongoDB.
+     */
     public static MongoClient getConnection() {
         ConnectionString uri = new ConnectionString(connectionString);
 
@@ -35,12 +46,24 @@ public abstract class BaseMongoDBDAO {
                         .build()
         );
     }
+
+    /**
+     * Closes the MongoDB connection.
+     *
+     * @param mongoClient MongoClient instance to be closed.
+     */
     public static void closeConnection(MongoClient mongoClient){
         if (mongoClient != null) {
             mongoClient.close();
         }
     }
 
+    /**
+     * Builds a MongoDB filter based on the provided filter list.
+     *
+     * @param filterList List of maps representing the filter criteria.
+     * @return Bson filter object representing the constructed filter.
+     */
     protected Bson buildFilter(List<Map<String, Object>> filterList) {
         if (filterList == null || filterList.isEmpty()) {
             return empty();
@@ -52,6 +75,12 @@ public abstract class BaseMongoDBDAO {
         }
     }
 
+    /**
+     * Recursively builds a MongoDB filter based on nested filter conditions.
+     *
+     * @param filterList List of maps representing the filter criteria.
+     * @return List of Bson objects representing the constructed filter.
+     */
     protected List<Bson> buildFilterInternal(List<Map<String, Object>> filterList) {
         return filterList.stream()
                 .map(filter -> {
@@ -68,6 +97,14 @@ public abstract class BaseMongoDBDAO {
                 .toList();
     }
 
+
+    /**
+     * Builds a field-specific filter for MongoDB.
+     *
+     * @param fieldName Name of the field to filter on.
+     * @param value     Value of the field for filtering.
+     * @return Bson object representing the constructed field filter.
+     */
     protected Bson buildFieldFilter(String fieldName, Object value) {
         return switch (fieldName) {
             case "$all" -> {
@@ -98,6 +135,14 @@ public abstract class BaseMongoDBDAO {
         };
     }
 
+
+
+    /**
+     * Builds a sort specification for MongoDB based on the provided ordering criteria.
+     *
+     * @param orderBy Map representing the fields to sort by and their corresponding order.
+     * @return Bson object representing the constructed sort specification.
+     */
     protected Bson buildSort(Map<String, Integer> orderBy) {
         if (orderBy != null && orderBy.containsKey("score")) {
             return metaTextScore("score");
@@ -115,6 +160,14 @@ public abstract class BaseMongoDBDAO {
         return orderBy(sortList);
     }
 
+
+    /**
+     * Appends a key-value pair to a MongoDB document if the value is not null or empty.
+     *
+     * @param doc   MongoDB document to which the key-value pair is to be appended.
+     * @param key   Key of the key-value pair.
+     * @param value Value of the key-value pair.
+     */
     protected void appendIfNotNull(Document doc, String key, Object value) {
         if (value != null &&
                 !(value instanceof String && (value.equals(Constants.NULL_STRING) || value.equals(Gender.UNKNOWN.name()))) &&
