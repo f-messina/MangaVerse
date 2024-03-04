@@ -6,6 +6,7 @@ import it.unipi.lsmsd.fnf.dao.PersonalListDAO;
 import it.unipi.lsmsd.fnf.dao.base.BaseMongoDBDAO;
 import it.unipi.lsmsd.fnf.dao.enums.SearchCriteriaEnum;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
+import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.PersonalListDTO;
 import it.unipi.lsmsd.fnf.dto.RegisteredUserDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
@@ -304,6 +305,7 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
 
     //MongoDB queries
     //Find tha anime most present in all of the lists
+    //These queries have unwind, better to do them in reviews
     @Override
     public List<AnimeDTO> popularAnime() throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
@@ -376,6 +378,11 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
         } catch (Exception e) {
             throw new DAOException("Error finding popular anime", e);
         }
+    }
+
+    //I can put these methods together
+    public PageDTO<? extends MediaContentDTO> popularMediaContentList(MediaContentType mediaContentType) {
+        return null;
     }
 
 }

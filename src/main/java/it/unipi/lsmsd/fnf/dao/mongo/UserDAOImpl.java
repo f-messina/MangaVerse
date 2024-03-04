@@ -279,6 +279,7 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
     }
 
     //MongoDB complex queries
+    //Find the distribution of genders, of ages, of locations
     //Find the distribution of genders between users
     @Override
     public List<Document> getGenderDistribution() throws DAOException {
@@ -385,6 +386,8 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
         }
     }
 
+
+    //Find average app_rating based on the age, location and gender.
     //Find average app_rating based on the age of users
     @Override
     public Integer averageAppRatingByAge (Integer yearOfBirth) throws DAOException{
@@ -444,6 +447,8 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
             throw new DAOException("Error getting genre distribution", e);
         }
     }
+
+    //Find the average app_rating of users based on group af ages
 
     // Methods available only in Neo4J
     @Override

@@ -261,6 +261,13 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
         return anime;
     }
 
+    //MongoDB queries
+    //Best tags based on the average rating
+    public List<String> getBestCriteria (String criteria) {
+        return null;
+    }
+
+
     // Neo4J specific methods
     @Override
     public void createNode(MediaContentDTO animeDTO) throws DAOException {

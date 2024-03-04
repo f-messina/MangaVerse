@@ -1,14 +1,17 @@
 package it.unipi.lsmsd.fnf.dao.mongo;
 
+import com.mongodb.client.model.Filters;
 import com.mongodb.client.result.InsertOneResult;
 import it.unipi.lsmsd.fnf.dao.ReviewDAO;
 import it.unipi.lsmsd.fnf.dao.base.BaseMongoDBDAO;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
+import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.RegisteredUserDTO;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
+import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.utils.ConverterUtils;
 
 import com.mongodb.client.MongoClient;
@@ -19,7 +22,9 @@ import org.bson.types.ObjectId;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.exclude;
@@ -206,7 +211,7 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
     }
 
     //Trend of the rating of a specific anime grouped by year
-    @Override
+    /*@Override
     public int ratingAnimeYear(int year, String animeId) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> reviewCollection = mongoClient.getDatabase("mangaVerse").getCollection("reviews");
@@ -301,7 +306,7 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
 
             List<Document> pipeline = new ArrayList<>();
             pipeline.add(Document.parse("{$match: { \"manga.id\": ObjectId(" + new ObjectId(mangaId) + "), " +
-                    "        \"date\": { \"$gte: ISODate(\"" + month + "\"" + month + "\"-01\"),  \"$lt: ISODate(\"" + year + "\"-\"" + (month + 1) + "\"-01\")\"} }"));
+                    "        \"date\": { \"$gte: ISODate(\"" + year + "\"" + month + "\"-01\"),  \"$lt: ISODate(\"" + year + "\"-\"" + (month + 1) + "\"-01\")\"} }"));
             pipeline.add(Document.parse("{$project: { month: { $month: \"$date\" }, rating: 1 }}"));
             pipeline.add(Document.parse("{$group: { _id: \"$month\", averageRating: { $avg: \"$rating\" }}}"));
             // Execute the aggregation
@@ -321,10 +326,58 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
         } catch (Exception e) {
             throw new DAOException("Error while finding ratings by user", e);
         }
+    }*/
+
+    @Override
+    public Map<String, Double> ratingMediaContentByPeriod(MediaContentType type, String mediaContentId, String period) throws  DAOException {
+        try (MongoClient mongoClient = getConnection()) {
+            MongoCollection<Document> reviewCollection = mongoClient.getDatabase("mangaVerse").getCollection("reviews");
+
+            String nodeType = type.equals(MediaContentType.ANIME) ? "anime" : "manga";
+
+
+            List<Document> pipeline = new ArrayList<>();
+
+            if (period.equals("year")) {
+                pipeline.add(Document.parse("{$match: { \"" + nodeType + ".id\": ObjectId(\"" + mediaContentId + "),},}"));
+                pipeline.add(Document.parse("{$group: {_id: {$year: \"$date\",}, average_rating: {$avg: \"$rating\",},},},\n"));
+                pipeline.add(Document.parse("{$project: {_id: 0, year: \"$_id\", average_rating: 1,},},"));
+                pipeline.add(Document.parse("{$sort: {year: 1}}"));
+
+            } else if(period.equals("month")) {
+                pipeline.add(Document.parse("{$match: {\"" + nodeType + ".id\": ObjectId( \"" + mediaContentId + "),\n" +
+                                                "rating: {$exists: true,},},},\n"));
+                pipeline.add(Document.parse("$group:{_id: {year: {$year: \"$date\",}, month: {$month: \"$date\" } },\n" +
+                                                "average_rating: {$avg: \"$rating\",},},\n"));
+                pipeline.add(Document.parse("{$project: {_id: 0, period: \"$_id\", average_rating: 1,} }"));
+                pipeline.add(Document.parse("{$sort: {\"period.year\": 1, \"period.month\": 1 } }"));
+
+            } else {
+                throw new DAOException("Invalid period");
+            }
+            List<Document> result = reviewCollection.aggregate(pipeline).into(new ArrayList<>());
+
+            Map<String, Double> resultMap = new HashMap<>();
+
+            // Convert the aggregation result to a map of String and Double
+            for (Document document : result) {
+                String periodKey = document.getString("period");
+                double averageRating = document.getDouble("average_rating");
+                resultMap.put(periodKey, averageRating);
+            }
+
+            return resultMap;
+
+        } catch (Exception e) {
+            throw new DAOException("Error while finding ratings by user", e);
+        }
+
+
+
     }
 
     //Average rating given by users of a certain age: select a year of birth and see what is the average rating in general
-    @Override
+    /*@Override
     public int averageRatingByAge(int yearOfBirth) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> reviewCollection = mongoClient.getDatabase("mangaVerse").getCollection("reviews");
@@ -380,5 +433,121 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
             throw new DAOException("Error while finding ratings by user", e);
         }
 
+    }*/
+
+    //For users: suggestions based on age and location. For example: show the 25 anime or manga with highest average rating in Italy.
+    @Override
+    public Map<PageDTO<? extends MediaContentDTO>, Double> suggestTopMediaContentByAge(MediaContentType mediaContentType, String criteria, String type) throws DAOException {
+        try (MongoClient mongoClient = getConnection()) {
+            MongoCollection<Document> reviewCollection = mongoClient.getDatabase("mangaVerse").getCollection("reviews");
+            String nodeType = mediaContentType.equals(MediaContentType.ANIME) ? "anime" : "manga";
+
+            //nodeType is either anime or manga
+            //type is either birthday or location
+            //criteria is the value of the type
+
+
+            List<Document> pipeline = new ArrayList<>();
+            pipeline.add(Document.parse("{$match: {\"user." + type + ": \"" + criteria + "}}"));
+            pipeline.add(Document.parse("{$group: {_id: \"$" + nodeType + ".id\", average_rating: { $avg: \"$rating\" }}}"));
+            pipeline.add(Document.parse("{$sort: {average_rating: -1 }}"));
+            pipeline.add(Document.parse("{$limit: 25}"));
+
+            List<Document> result = reviewCollection.aggregate(pipeline).into(new ArrayList<>());
+
+            Map<PageDTO<? extends MediaContentDTO>, Double> resultMap = new HashMap<>();
+
+            for (Document document : result) {
+                String contentId = document.getString("_id");
+                double averageRating = document.getDouble("average_rating");
+                MediaContentDTO mediaContentDTO;
+                if (nodeType.equals("anime")) {
+                    AnimeDTO animeDTO = documentToAnimeDTO(reviewCollection.find(Filters.eq("_id", new ObjectId(contentId))).first());
+                    mediaContentDTO = animeDTO;
+                } else { // Assume manga for other cases
+                    MangaDTO mangaDTO = documentToMangaDTO(reviewCollection.find(Filters.eq("_id", new ObjectId(contentId))).first());
+                    mediaContentDTO = mangaDTO;
+                }
+                List<MediaContentDTO> entries = new ArrayList<>();
+                entries.add(mediaContentDTO);
+                PageDTO<MediaContentDTO> pageDTO = new PageDTO<>(entries, 1); // Assuming total count as 1
+                resultMap.put(pageDTO, averageRating);
+            }
+
+            return resultMap;
+
+        } catch (Exception e) {
+            throw new DAOException("Error while finding ratings by users", e);
+        }
+
+    }//Use documentToAnimeDTO from AnimeDAOImpl
+
+    private AnimeDTO documentToAnimeDTO(Document doc) {
+        AnimeDTO anime = new AnimeDTO();
+        anime.setId(doc.getObjectId("_id").toString());
+        anime.setTitle(doc.getString("title"));
+        anime.setImageUrl(doc.getString("picture"));
+        Object averageRatingObj = doc.get("average_rating");
+        anime.setAverageRating(
+                (averageRatingObj instanceof Integer) ? ((Integer) averageRatingObj).doubleValue() :
+                        (averageRatingObj instanceof Double) ? (Double) averageRatingObj : 0.0
+        );
+        if ((doc.get("anime_season", Document.class) != null)) {
+            anime.setYear(doc.get("anime_season", Document.class).getInteger("year"));
+            anime.setSeason(doc.get("anime_season", Document.class).getString("season"));
+        }
+
+        return anime;
     }
+
+    private MangaDTO documentToMangaDTO(Document doc) {
+        MangaDTO manga = new MangaDTO();
+        manga.setId(doc.getObjectId("_id").toString());
+        manga.setTitle(doc.getString("title"));
+        manga.setImageUrl(doc.getString("picture"));
+        Object averageRatingObj = doc.get("average_rating");
+        manga.setAverageRating(
+                (averageRatingObj instanceof Integer) ? Double.valueOf(((Integer) averageRatingObj)) :
+                        (averageRatingObj instanceof Double) ? (Double) averageRatingObj : null
+        );
+        manga.setStartDate(ConverterUtils.dateToLocalDate(doc.getDate("start_date")));
+        manga.setEndDate(ConverterUtils.dateToLocalDate(doc.getDate("end_date")));
+
+        return manga;
+    }
+
+
+    @Override
+    public Map<String, Double> averageRatingByCriteria(String type) throws DAOException {
+        try (MongoClient mongoClient = getConnection()) {
+            MongoCollection<Document> reviewCollection = mongoClient.getDatabase("mangaVerse").getCollection("reviews");
+            //Type can be birthday or location
+
+            List<Document> pipeline = new ArrayList<>();
+
+            pipeline.add(Document.parse("{$match: {\"user." + type + "\": {$exists: true} } }"));
+            pipeline.add(Document.parse("{$group: {_id: \"$user.\"" + type + "\", average_rating: {$avg: \"$rating\"}}}"));
+            pipeline.add(Document.parse("{$project: {_id: 0, \"user\"" + type + "\"\": \"$_id\", average_rating: 1}}"));
+            pipeline.add(Document.parse("{$sort: { \"user." + type + "\": -1}}"));
+
+
+            List<Document> result = reviewCollection.aggregate(pipeline).into(new ArrayList<>());
+
+            Map<String, Double> resultMap = new HashMap<>();
+
+            // Convert the aggregation result to a map of String and Double
+            for (Document document : result) {
+                String periodKey = document.getString("period");
+                double averageRating = document.getDouble("average_rating");
+                resultMap.put(periodKey, averageRating);
+            }
+
+            return resultMap;
+
+        } catch (Exception e) {
+            throw new DAOException("Error while finding ratings by users", e);
+        }
+
+    }
+
 }

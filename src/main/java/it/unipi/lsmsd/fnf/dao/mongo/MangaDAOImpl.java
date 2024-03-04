@@ -278,6 +278,11 @@ public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Mang
         return manga;
     }
 
+    //Best genres/themes/demographics/authors based on the average rating
+    public List<String> getBestCriteria (String criteria) {
+        return null;
+    }
+
 
     @Override
     public void createNode(MediaContentDTO mangaDTO) throws DAOException {
