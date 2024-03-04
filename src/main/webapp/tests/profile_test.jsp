@@ -106,7 +106,7 @@
             <ul class="manga-anime-list" id="manga-list">
                 <c:forEach var="manga" items="${requestScope.likedManga}">
                     <li>
-                        <a class="manga-anime" href="${pageContext.request.contextPath}/manga?mangaId=${manga.getId()}"><c:out value="${manga.getTitle()}"/></a>
+                        <a class="manga-anime" href="${pageContext.request.contextPath}/manga?mediaId=${manga.getId()}"><c:out value="${manga.getTitle()}"/></a>
                         <img class="list-img" src="${manga.getImageUrl()}" alt="${fn:escapeXml(manga.getTitle())} image" />
                     </li>
                 </c:forEach>
@@ -120,7 +120,7 @@
             <ul class="manga-anime-list" id="anime-list">
                 <c:forEach var="anime" items="${requestScope.likedAnime}">
                     <li>
-                        <a class="manga-anime" href="${pageContext.request.contextPath}/anime?animeId=${anime.getId()}"><c:out value="${anime.getTitle()}"/></a>
+                        <a class="manga-anime" href="${pageContext.request.contextPath}/anime?mediaId=${anime.getId()}"><c:out value="${anime.getTitle()}"/></a>
                         <img class="list-img" src="${anime.getImageUrl()}" alt="${fn:escapeXml(anime.getTitle())} image" />
                     </li>
                 </c:forEach>
@@ -168,7 +168,7 @@
 
                                             <div style="display: flex; align-items: center;">
                                                 <div style="margin-right: 10px;">
-                                                    <a class="manga-anime" ><c:out value="${manga.getTitle()}"/></a>
+                                                    <a class="manga-anime" href="${pageContext.request.contextPath}/manga?mediaId=${manga.getId()}"><c:out value="${manga.getTitle()}"/></a>
                                                 </div>
 
                                                 <div style="margin-right: 10px;">
@@ -192,7 +192,7 @@
 
                                             <div style="display: flex; align-items: center;">
                                                 <div style="margin-right: 10px;">
-                                                    <a class="manga-anime"><c:out value="${anime.getTitle()}"/></a>
+                                                    <a class="manga-anime" href="${pageContext.request.contextPath}/anime?mediaId=${anime.getId()}"><c:out value="${anime.getTitle()}"/></a>
                                                 </div>
 
                                                 <div style="margin-right: 10px;">

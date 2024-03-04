@@ -145,6 +145,8 @@
 <script>
     <c:set var="authenticatedUser" value="${not empty sessionScope[Constants.AUTHENTICATED_USER_KEY]}" />
     <c:set var="lists" value="${authenticatedUser ? sessionScope[Constants.AUTHENTICATED_USER_KEY].getLists() : null}" />
+
+    const mediaDetailHRef = "${pageContext.request.contextPath}/anime?mediaId=";
     const authenticatedUser = ${authenticatedUser};
     const servletURI = "${pageContext.request.contextPath}/mainPage/anime";
     const lists = [];

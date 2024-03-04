@@ -22,7 +22,6 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import java.util.*;
-import java.util.logging.Logger;
 
 import static com.mongodb.client.model.Aggregates.*;
 import static com.mongodb.client.model.Filters.eq;
@@ -30,11 +29,12 @@ import static com.mongodb.client.model.Updates.setOnInsert;
 
 
 public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anime> {
+    private static final String COLLECTION_NAME = "anime";
 
     @Override
     public String insert(Anime anime) throws DAOException {
-        try (MongoClient mongoClient = getConnection()) {
-            MongoCollection<Document> animeCollection = mongoClient.getDatabase("mangaVerse").getCollection("anime");
+        try {
+            MongoCollection<Document> animeCollection = getCollection(COLLECTION_NAME);
 
             Bson filter = eq("title", anime.getTitle());
             Bson update = setOnInsert(animeToDocument(anime));
@@ -52,8 +52,8 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
 
     @Override
     public void update(Anime anime) throws DAOException {
-        try (MongoClient mongoClient = getConnection()) {
-            MongoCollection<Document> animeCollection = mongoClient.getDatabase("mangaVerse").getCollection("anime");
+        try {
+            MongoCollection<Document> animeCollection = getCollection(COLLECTION_NAME);
 
             Bson filter = Filters.eq("_id", new ObjectId(anime.getId()));
             Bson update = new Document("$set", animeToDocument(anime));
@@ -66,8 +66,8 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
 
     @Override
     public void delete(String animeId) throws DAOException {
-        try (MongoClient mongoClient = getConnection()) {
-            MongoCollection<Document> animeCollection = mongoClient.getDatabase("mangaVerse").getCollection("anime");
+        try {
+            MongoCollection<Document> animeCollection = getCollection(COLLECTION_NAME);
 
             Bson filter = Filters.eq("_id", new ObjectId(animeId));
 
@@ -79,8 +79,8 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
 
     @Override
     public Anime find(String animeId) throws DAOException {
-        try (MongoClient mongoClient = getConnection()) {
-            MongoCollection<Document> animeCollection = mongoClient.getDatabase("mangaVerse").getCollection("anime");
+        try {
+            MongoCollection<Document> animeCollection = getCollection(COLLECTION_NAME);
 
             Bson filter = Filters.eq("_id", new ObjectId(animeId));
 
@@ -94,8 +94,8 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
 
     @Override
     public PageDTO<AnimeDTO> search(List<Map<String, Object>> filters, Map<String, Integer> orderBy, int page) throws DAOException {
-        try (MongoClient mongoClient = getConnection()) {
-            MongoCollection<Document> animeCollection = mongoClient.getDatabase("mangaVerse").getCollection("anime");
+        try {
+            MongoCollection<Document> animeCollection = getCollection(COLLECTION_NAME);
 
             Bson filter = buildFilter(filters);
             Bson sort = buildSort(orderBy);
@@ -123,8 +123,6 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
                             )
                     )
             );
-            Logger logger = Logger.getLogger("AnimeDAOImpl");
-            logger.info(pipeline.toString());
             Document result = animeCollection.aggregate(pipeline).first();
 
             List<AnimeDTO> animeList = Optional.ofNullable(result)
@@ -200,28 +198,32 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
         return doc;
     }
 
-    private Anime documentToAnime(Document document) {
+    private Anime documentToAnime(Document doc) {
         Anime anime = new Anime();
-        anime.setId(document.getObjectId("_id").toString());
-        anime.setTitle(document.getString("title"));
-        anime.setEpisodeCount(document.getInteger("episodes"));
-        anime.setStatus(Status.valueOf(document.getString("status")));
-        anime.setImageUrl(document.getString("picture"));
-        anime.setAverageRating(document.getDouble("average_rating"));
-        anime.setType(AnimeType.fromString(document.getString("type")));
-        anime.setRelatedAnime(document.getList("relations", String.class));
-        anime.setTags(document.getList("tags", String.class));
-        anime.setProducers(document.getString("producers"));
-        anime.setStudios(document.getString("studios"));
-        anime.setSynopsis(document.getString("synopsis"));
+        anime.setId(doc.getObjectId("_id").toString());
+        anime.setTitle(doc.getString("title"));
+        anime.setEpisodeCount(doc.getInteger("episodes"));
+        anime.setStatus(Status.valueOf(doc.getString("status")));
+        anime.setImageUrl(doc.getString("picture"));
+        Object averageRatingObj = doc.get("average_rating");
+        anime.setAverageRating(
+                (averageRatingObj instanceof Integer) ? ((Integer) averageRatingObj).doubleValue() :
+                        (averageRatingObj instanceof Double) ? (Double) averageRatingObj : 0.0
+        );
+        anime.setType(AnimeType.fromString(doc.getString("type")));
+        anime.setRelatedAnime(doc.getList("relations", String.class));
+        anime.setTags(doc.getList("tags", String.class));
+        anime.setProducers(doc.getString("producers"));
+        anime.setStudios(doc.getString("studios"));
+        anime.setSynopsis(doc.getString("synopsis"));
 
-        Optional.ofNullable(document.get("anime_season", Document.class))
+        Optional.ofNullable(doc.get("anime_season", Document.class))
                 .ifPresent(seasonDocument -> {
                     anime.setSeason(seasonDocument.getString("season"));
                     anime.setYear(seasonDocument.getInteger("year"));
                 });
 
-        List<Review> reviewList = Optional.ofNullable(document.getList("latest_reviews", Document.class))
+        List<Review> reviewList = Optional.ofNullable(doc.getList("latest_reviews", Document.class))
                 .orElse(Collections.emptyList())
                 .stream()
                 .map(reviewDocument -> {

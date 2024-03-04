@@ -21,10 +21,8 @@ public class AnimeDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Anime>
     @Override
     public void createNode(MediaContentDTO animeDTO) throws DAOException {
         try (Session session = getSession()) {
-
             String query = "CREATE (a:Anime {id: $id, title: $title, picture: $picture})";
             session.run(query, Map.of("id", animeDTO.getId(), "title", animeDTO.getTitle(), "picture", animeDTO.getImageUrl()));
-
         } catch (Exception e) {
             throw new DAOException(e);
         }

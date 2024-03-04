@@ -19,7 +19,6 @@ import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import it.unipi.lsmsd.fnf.utils.Constants;
 import it.unipi.lsmsd.fnf.utils.ConverterUtils;
 
-import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Facet;
 import org.bson.Document;
@@ -35,11 +34,12 @@ import static com.mongodb.client.model.Projections.include;
 import static com.mongodb.client.model.Updates.setOnInsert;
 
 public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Manga> {
+    private static final String COLLECTION_NAME = "manga";
 
     @Override
     public String insert(Manga manga) throws DAOException {
-        try (MongoClient mongoClient = getConnection()) {
-            MongoCollection<Document> mangaCollection = mongoClient.getDatabase("mangaVerse").getCollection("manga");
+        try {
+            MongoCollection<Document> mangaCollection = getCollection(COLLECTION_NAME);
 
             Bson filter = eq("title", manga.getTitle());
             Bson update = setOnInsert(mangaToDocument(manga));
@@ -57,8 +57,8 @@ public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Mang
 
     @Override
     public void update(Manga manga) throws DAOException {
-        try (MongoClient mongoClient = getConnection()) {
-            MongoCollection<Document> mangaCollection = mongoClient.getDatabase("mangaVerse").getCollection("manga");
+        try {
+            MongoCollection<Document> mangaCollection = getCollection(COLLECTION_NAME);
 
             Bson filter = eq("_id", new ObjectId(manga.getId()));
             Bson update = new Document("$set", mangaToDocument(manga));
@@ -71,8 +71,8 @@ public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Mang
 
     @Override
     public Manga find(String mangaId) throws DAOException {
-        try (MongoClient mongoClient = getConnection()) {
-            MongoCollection<Document> mangaCollection = mongoClient.getDatabase("mangaVerse").getCollection("manga");
+        try {
+            MongoCollection<Document> mangaCollection = getCollection(COLLECTION_NAME);
 
             Bson filter = eq("_id", new ObjectId(mangaId));
 
@@ -85,8 +85,8 @@ public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Mang
     }
 
     public PageDTO<MangaDTO> search(List<Map<String, Object>> filters, Map<String, Integer> orderBy, int page) throws DAOException {
-        try (MongoClient mongoClient = getConnection()) {
-            MongoCollection<Document> mangaCollection = mongoClient.getDatabase("mangaVerse").getCollection("manga");
+        try {
+            MongoCollection<Document> mangaCollection = getCollection(COLLECTION_NAME);
             Bson filter = buildFilter(filters);
             Bson sort = buildSort(orderBy);
             Bson projection = include("title", "picture", "average_rating", "start_date", "end_date");
@@ -142,8 +142,8 @@ public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Mang
 
     @Override
     public void delete(String mangaId) throws DAOException {
-        try (MongoClient mongoClient = getConnection()) {
-            MongoCollection<Document> mangaCollection = mongoClient.getDatabase("mangaVerse").getCollection("manga");
+        try {
+            MongoCollection<Document> mangaCollection = getCollection(COLLECTION_NAME);
 
             Bson filter = eq("_id", new ObjectId(mangaId));
 
@@ -212,7 +212,8 @@ public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Mang
         manga.setThemes(document.getList("themes", String.class));
         manga.setGenres(document.getList("genres", String.class));
         manga.setImageUrl(document.getString("picture"));
-        manga.setDemographics(document.getList("demographics", String.class).stream()
+        manga.setDemographics(Optional.ofNullable(document.getList("demographics", String.class)).stream()
+                .flatMap(List::stream)
                 .map(MangaDemographics::fromString)
                 .collect(Collectors.toList()));
         manga.setSerializations(document.getString("serializations"));
@@ -223,7 +224,11 @@ public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Mang
         manga.setEndDate(ConverterUtils.dateToLocalDate(document.getDate("end_date")));
         manga.setVolumes(document.getInteger("volumes"));
         manga.setChapters(document.getInteger("chapters"));
-        manga.setAverageRating(document.getDouble("average_rating"));
+        Object averageRatingObj = document.get("average_rating");
+        manga.setAverageRating(
+                (averageRatingObj instanceof Integer) ? ((Integer) averageRatingObj).doubleValue() :
+                        (averageRatingObj instanceof Double) ? (Double) averageRatingObj : 0.0
+        );
 
         Optional.ofNullable(document.getList("authors", Document.class))
                 .ifPresent(authors -> {

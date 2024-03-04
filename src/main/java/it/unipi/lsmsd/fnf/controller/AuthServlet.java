@@ -77,7 +77,6 @@ public class AuthServlet extends HttpServlet {
             logger.error("Error during signup operation.", e);
             targetJSP = "error.jsp";
         }
-        logger.info(targetJSP);
         request.getRequestDispatcher(targetJSP).forward(request, response);
     }
 
@@ -90,7 +89,6 @@ public class AuthServlet extends HttpServlet {
             RegisteredUser registeredUser = userService.login(email, password);
             HttpSession session = request.getSession(true);
             session.setAttribute(Constants.AUTHENTICATED_USER_KEY, registeredUser);
-            // Redirect to avoid resubmission on page reload
             response.sendRedirect("profile");
             return;
         } catch (BusinessException e) {

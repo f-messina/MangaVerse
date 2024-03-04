@@ -131,16 +131,16 @@
     </form>
 </div>
 
-
-<c:set var="authenticatedUser" value="${not empty sessionScope[Constants.AUTHENTICATED_USER_KEY]}" />
-<c:set var="lists" value="${authenticatedUser ? sessionScope[Constants.AUTHENTICATED_USER_KEY].getLists() : null}" />
 <script>
+    <c:set var="authenticatedUser" value="${not empty sessionScope[Constants.AUTHENTICATED_USER_KEY]}" />
+    <c:set var="lists" value="${authenticatedUser ? sessionScope[Constants.AUTHENTICATED_USER_KEY].getLists() : null}" />
 
+    const mediaDetailHRef = "${pageContext.request.contextPath}/manga?mediaId=";
     const authenticatedUser = ${authenticatedUser};
     const servletURI = "${pageContext.request.contextPath}/mainPage/manga";
     const lists = [];
     <c:forEach items="${lists}" var="list">
-        lists.push(["${list.getId()}", "${list.getName()}"]);
+    lists.push(["${list.getId()}", "${list.getName()}"]);
     </c:forEach>
 </script>
 </body>

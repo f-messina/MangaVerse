@@ -92,7 +92,6 @@ public class MainPageServlet extends HttpServlet {
             mediaContentList = new PageDTO<AnimeDTO>();
         }
 
-        logger.info("Search request received");
         // Search by title
         String searchTerm = request.getParameter("searchTerm");
         if (searchTerm != null) {
@@ -125,7 +124,6 @@ public class MainPageServlet extends HttpServlet {
             // Add the search parameters to the JSON response
             jsonResponse.put("orderBy", request.getParameter("orderBy"));
             try {
-                logger.info("Search by filter request received");
                 mediaContentList = mediaContentService.searchByFilter(filters, orderBy, page, mediaContentType);
             } catch (BusinessException e) {
                 logger.error("Error occurred during search", e);

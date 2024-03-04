@@ -7,6 +7,7 @@ import it.unipi.lsmsd.fnf.dao.mongo.MangaDAOImpl;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
 import it.unipi.lsmsd.fnf.service.ReviewService;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
@@ -15,20 +16,18 @@ import static it.unipi.lsmsd.fnf.dao.DAOLocator.*;
 public class ReviewServiceImpl implements ReviewService {
 
     private static final ReviewDAO reviewDAO;
-    private static final MangaDAOImpl mangaDAO;
-    private static final AnimeDAOImpl animeDAO;
 
     static {
         reviewDAO = getReviewDAO(DataRepositoryEnum.MONGODB);
-        mangaDAO = (MangaDAOImpl) getMangaDAO(DataRepositoryEnum.MONGODB);
-        animeDAO = (AnimeDAOImpl) getAnimeDAO(DataRepositoryEnum.MONGODB);
     }
 
     @Override
     public void addReview(ReviewDTO review) throws BusinessException {
+        if (StringUtils.isEmpty(review.getComment()) && review.getRating() == null) {
+            throw new BusinessException("The review must have a comment or a rating");
+        }
         try{
             reviewDAO.insert(review);
-
         } catch (Exception e){
             throw new BusinessException(e);
         }
@@ -44,7 +43,7 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public void deleteByMedia(String mediaId) throws BusinessException {
+    public void deleteReviewByMedia(String mediaId) throws BusinessException {
         try {
             reviewDAO.deleteByMedia(mediaId);
         } catch (Exception e){
@@ -53,7 +52,10 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public void update(ReviewDTO review) throws BusinessException {
+    public void updateReview(ReviewDTO review) throws BusinessException {
+        if (StringUtils.isEmpty(review.getComment()) && review.getRating() == null) {
+            throw new BusinessException("The review must have a comment or a rating");
+        }
         try {
             reviewDAO.update(review);
         } catch (Exception e){
@@ -74,7 +76,7 @@ public class ReviewServiceImpl implements ReviewService {
     public List<ReviewDTO> findByMedia(String mediaId) throws BusinessException {
         try{
             return reviewDAO.findByMedia(mediaId);
-        }catch (Exception e){
+        } catch (Exception e){
             throw new BusinessException(e);
         }
     }

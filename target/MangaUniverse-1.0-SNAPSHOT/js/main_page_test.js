@@ -96,10 +96,11 @@ function updateMediaContent(data, containerId) {
 // Create HTML element for a media article
 function createArticleElement(media) {
     const articleElement = $("<article>").append(
-        $("<h2>").text(media.title),
+        $("<a>").text(media.title).attr("href", mediaDetailHRef + media.id),
         $("<img>").attr({ src: media.imageUrl, alt: "No image" }),
         (media.averageRating !== null ? [$("<p>").text("Score: " + media.averageRating)] : [])
     );
+
     if (servletURI.includes("manga")) {
         articleElement.append(
             (media.startDate !== null ? [$("<p>").text("Start Date: " + media.startDate)] : []),
