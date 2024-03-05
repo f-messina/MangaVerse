@@ -18,14 +18,25 @@ public interface UserDAO {
     List<RegisteredUserDTO> findAll() throws DAOException;
     void update(User user) throws DAOException;
     void update(RegisteredUser user) throws DAOException;
-    List<Document> getGenderDistribution() throws DAOException;
+
+    //MongoDB complex queries
+    //Find the distribution of genders, of ages, of locations
+    List<Document> getDistribution(String criteria) throws DAOException;
+
+    //List<Document> getGenderDistribution() throws DAOException;
     Integer averageAgeUsers() throws DAOException;
-    List<Document> getLocationDistribution() throws DAOException;
+    //List<Document> getLocationDistribution() throws DAOException;
     List<Document> getUsersByAgeRange() throws DAOException;
     List<Document> getUsersRegisteredByYear() throws DAOException;
-    Integer averageAppRatingByAge(Integer yearOfBirth) throws DAOException;
-    Integer averageAppRatingByLocation(String location) throws DAOException;
-    List<Document> averageAppRatingByGender() throws DAOException;
+    //Integer averageAppRatingByAge(Integer yearOfBirth) throws DAOException;
+    //Integer averageAppRatingByLocation(String location) throws DAOException;
+    //List<Document> averageAppRatingByGender() throws DAOException;
+
+    //Find average app_rating based on the age, location and gender.
+    int averageAppRating(String criteria, String value) throws DAOException;
+
+    //Find the average app_rating of users based on group af ages
+    List<Integer> averageAppRatingByAgeRange() throws DAOException;
 
     //Neo4J queries
     void createNode(RegisteredUserDTO registeredUserDTO) throws DAOException;

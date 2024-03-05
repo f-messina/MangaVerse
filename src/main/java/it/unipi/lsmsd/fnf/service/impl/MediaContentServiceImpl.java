@@ -286,4 +286,19 @@ public class MediaContentServiceImpl implements MediaContentService {
         }
     }
     */
+
+    //Service for mongoDB queries
+    @Override
+    public List<String> getBestCriteria (String criteria, MediaContentType mediaContentType) throws BusinessException {
+        try {
+            if (mediaContentType.equals(MediaContentType.ANIME))
+                return animeDAO.getBestCriteria(criteria);
+            else if (mediaContentType.equals(MediaContentType.MANGA))
+                    return mangaDAO.getBestCriteria(criteria);
+            else
+                throw new BusinessException("Invalid media content type");
+        } catch (DAOException e) {
+            throw new BusinessException("Error while retrieving the best criteria.", e);
+        }
+    }
 }

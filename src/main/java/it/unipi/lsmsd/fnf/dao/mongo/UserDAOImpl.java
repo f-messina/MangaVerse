@@ -280,8 +280,27 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
 
     //MongoDB complex queries
     //Find the distribution of genders, of ages, of locations
-    //Find the distribution of genders between users
     @Override
+    public List<Document> getDistribution (String criteria) throws DAOException {
+        try (MongoClient mongoClient = getConnection()) {
+            MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
+
+            //criteria can be: gender, location, age
+
+            List<Document> pipeline = new ArrayList<>();
+            pipeline.add(Document.parse("{$group: {_id: \"$" + criteria + "\", count: { $sum: 1 }}}"));
+            AggregateIterable<Document> aggregationResult = users.aggregate(pipeline);
+
+            List<Document> result = new ArrayList<>();
+            aggregationResult.into(result);
+            return result;
+        }
+        catch (Exception e){
+            throw new DAOException("Error getting distribution", e);
+        }
+    }
+    //Find the distribution of genders between users
+    /*@Override
     public List<Document> getGenderDistribution() throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
@@ -301,7 +320,7 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
         catch (Exception e){
             throw new DAOException("Error getting genre distribution", e);
         }
-    }
+    }*/
 
     //Find the average age of users
     @Override
@@ -310,10 +329,7 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
             MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
 
             List<Document> pipeline = new ArrayList<>();
-            pipeline.add(Document.parse("""
-                    {$project: {age: {$divide: [{ $subtract: [new Date(), "$birthday"] },
-                              1000 * 60 * 60 * 24 * 365 ] }}
-                    """));
+            pipeline.add(Document.parse("{$project: {age: {$divide: [{ $subtract: [new Date(), $birthday] }, 1000 * 60 * 60 * 24 * 365 ]}}"));
             pipeline.add(Document.parse("{ $group: {_id: null, averageAge: { $avg: \"$age\" }}}"));
             AggregateIterable<Document> aggregationResult = users.aggregate(pipeline);
 
@@ -327,7 +343,7 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
     }
 
     //Find the distribution of users by location
-    @Override
+    /*@Override
     public List<Document> getLocationDistribution() throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
@@ -343,7 +359,7 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
         catch (Exception e){
             throw new DAOException("Error getting location distribution", e);
         }
-    }
+    }*/
 
     //Find how many users there are grouped by age range
     @Override
@@ -352,10 +368,7 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
             MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
 
             List<Document> pipeline = new ArrayList<>();
-            pipeline.add(Document.parse("""
-                    {$project: {age: {$divide: [{ $subtract: [new Date(), "$birthday"] },
-                              1000 * 60 * 60 * 24 * 365 ] }}
-                    """));
+            pipeline.add(Document.parse("{$project: {age: {$divide: [{ $subtract: [new Date(), $birthday] }, 1000 * 60 * 60 * 24 * 365 ] }} "));
             pipeline.add(Document.parse("{$bucket: {groupBy: \"$age\", boundaries: [13, 20, 40, 50], default: \"Other\", output: { count: { $sum: 1 } }}}"));
             AggregateIterable<Document> aggregationResult = users.aggregate(pipeline);
 
@@ -388,8 +401,28 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
 
 
     //Find average app_rating based on the age, location and gender.
-    //Find average app_rating based on the age of users
     @Override
+    public int averageAppRating (String criteria, String value) throws DAOException {
+        try (MongoClient mongoClient = getConnection()) {
+            MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
+
+            //criteria can be: age, location and gender
+
+            List<Document> pipeline = new ArrayList<>();
+            pipeline.add(Document.parse("{$match: {\"" + criteria + "\": \"" + value + "\"}}"));
+            pipeline.add(Document.parse("{$group: {_id: null, averageAppRating: { $avg: \"$app_rating\" }}}"));
+            AggregateIterable<Document> aggregationResult = users.aggregate(pipeline);
+
+            List<Document> result = new ArrayList<>();
+            aggregationResult.into(result);
+            return result.getFirst().getInteger("averageAppRating");
+        }
+        catch (Exception e){
+            throw new DAOException("Error getting average app rating", e);
+        }
+    }
+    //Find average app_rating based on the age of users
+    /*@Override
     public Integer averageAppRatingByAge (Integer yearOfBirth) throws DAOException{
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
@@ -446,9 +479,31 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
         catch (Exception e){
             throw new DAOException("Error getting genre distribution", e);
         }
-    }
+    }*/
 
     //Find the average app_rating of users based on group af ages
+    @Override
+    public List<Integer> averageAppRatingByAgeRange () throws DAOException {
+        try (MongoClient mongoClient = getConnection()) {
+            MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
+
+            List<Document> pipeline = new ArrayList<>();
+            pipeline.add(Document.parse("{$project: {age: {$divide: [{ $subtract: [new Date(), $birthday] }, 1000 * 60 * 60 * 24 * 365 ] }} "));
+            pipeline.add(Document.parse("{$bucket: {groupBy: \"$age\", boundaries: [13, 20, 40, 50], default: \"Other\", output: { averageAppRating: { $avg: \"$app_rating\" } }}}"));
+            AggregateIterable<Document> aggregationResult = users.aggregate(pipeline);
+
+            List<Document> result = new ArrayList<>();
+            aggregationResult.into(result);
+            List<Integer> averageAppRating = new ArrayList<>();
+            for (Document doc : result) {
+                averageAppRating.add(doc.getInteger("averageAppRating"));
+            }
+            return averageAppRating;
+        }
+        catch (Exception e){
+            throw new DAOException("Error getting average app rating by age range", e);
+        }
+    }
 
     // Methods available only in Neo4J
     @Override

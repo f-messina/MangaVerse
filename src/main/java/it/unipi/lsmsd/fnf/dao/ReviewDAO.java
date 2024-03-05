@@ -28,7 +28,7 @@ public interface ReviewDAO {
     Map<String, Double> ratingMediaContentByPeriod(MediaContentType type, String mediaContentId, String period) throws  DAOException;
 
     //For users: suggestions based on age and location. For example: show the 25 anime or manga with highest average rating in Italy.
-    Map<PageDTO<? extends MediaContentDTO>, Double> suggestTopMediaContentByAge(MediaContentType mediaContentType, String criteria, String type) throws DAOException//Use documentToAnimeDTO from AnimeDAOImpl
+    Map<PageDTO<? extends MediaContentDTO>, Double> suggestTopMediaContent(MediaContentType mediaContentType, String criteria, String type) throws DAOException//Use documentToAnimeDTO from AnimeDAOImpl
     ;
 
     Map<String, Double> averageRatingByCriteria(String type) throws DAOException;

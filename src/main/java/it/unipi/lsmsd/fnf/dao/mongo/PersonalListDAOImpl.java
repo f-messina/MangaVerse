@@ -1,6 +1,7 @@
 package it.unipi.lsmsd.fnf.dao.mongo;
 
 
+import com.mongodb.client.model.Filters;
 import com.mongodb.client.result.InsertOneResult;
 import it.unipi.lsmsd.fnf.dao.PersonalListDAO;
 import it.unipi.lsmsd.fnf.dao.base.BaseMongoDBDAO;
@@ -22,9 +23,7 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.mongodb.client.model.Filters.*;
@@ -306,7 +305,7 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
     //MongoDB queries
     //Find tha anime most present in all of the lists
     //These queries have unwind, better to do them in reviews
-    @Override
+    /*@Override
     public List<AnimeDTO> popularAnime() throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
@@ -378,11 +377,81 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
         } catch (Exception e) {
             throw new DAOException("Error finding popular anime", e);
         }
-    }
+    }*/
 
     //I can put these methods together
-    public PageDTO<? extends MediaContentDTO> popularMediaContentList(MediaContentType mediaContentType) {
-        return null;
+    @Override
+    public PageDTO<? extends MediaContentDTO> popularMediaContentList(MediaContentType mediaContentType) throws DAOException {
+        try (MongoClient mongoClient = getConnection()) {
+            MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse" ).getCollection("lists" );
+
+            String nodeType = mediaContentType.equals(MediaContentType.ANIME) ? "anime" : "manga";
+
+
+            //N.B.: use of unwind (I have arrays). Is it worth it?
+            List<Document> pipeline = new ArrayList<>();
+            pipeline.add(Document.parse("{$project: { items: { $concatArrays: ['" + nodeType + "_list'] } }}" ));
+            pipeline.add(Document.parse("{$unwind: '$items'}" ));
+            pipeline.add(Document.parse("{$group: { _id: '$items.id', title: { $first: '$items.title' }, totalLists: { $sum: 1 } }}" ));
+            pipeline.add(Document.parse("{$sort: { totalLists: -1 }}" ));
+            pipeline.add(Document.parse("{$limit: 25 }" ));
+
+
+            List<Document> result = listsCollection.aggregate(pipeline).into(new ArrayList<>());
+
+            List<MediaContentDTO> mediaContentDTOs = new ArrayList<>();
+
+            for (Document document : result) {
+                String contentId = document.getString("_id");
+                MediaContentDTO mediaContentDTO;
+                if (nodeType.equals("anime")) {
+                    mediaContentDTO = documentToAnimeDTO(listsCollection.find(Filters.eq("_id", new ObjectId(contentId))).first());
+                } else { // Assume manga for other cases
+                    mediaContentDTO = documentToMangaDTO(listsCollection.find(Filters.eq("_id", new ObjectId(contentId))).first());
+                }
+                mediaContentDTOs.add(mediaContentDTO);
+            }
+
+            return new PageDTO<>(mediaContentDTOs, mediaContentDTOs.size());
+        } catch (Exception e) {
+            throw new DAOException("Error finding popular media content", e);
+
+        }
+
+
     }
 
+    private AnimeDTO documentToAnimeDTO(Document doc) {
+        AnimeDTO anime = new AnimeDTO();
+        anime.setId(doc.getObjectId("_id").toString());
+        anime.setTitle(doc.getString("title"));
+        anime.setImageUrl(doc.getString("picture"));
+        Object averageRatingObj = doc.get("average_rating");
+        anime.setAverageRating(
+                (averageRatingObj instanceof Integer) ? ((Integer) averageRatingObj).doubleValue() :
+                        (averageRatingObj instanceof Double) ? (Double) averageRatingObj : 0.0
+        );
+        if ((doc.get("anime_season", Document.class) != null)) {
+            anime.setYear(doc.get("anime_season", Document.class).getInteger("year"));
+            anime.setSeason(doc.get("anime_season", Document.class).getString("season"));
+        }
+
+        return anime;
+    }
+
+    private MangaDTO documentToMangaDTO(Document doc) {
+        MangaDTO manga = new MangaDTO();
+        manga.setId(doc.getObjectId("_id").toString());
+        manga.setTitle(doc.getString("title"));
+        manga.setImageUrl(doc.getString("picture"));
+        Object averageRatingObj = doc.get("average_rating");
+        manga.setAverageRating(
+                (averageRatingObj instanceof Integer) ? Double.valueOf(((Integer) averageRatingObj)) :
+                        (averageRatingObj instanceof Double) ? (Double) averageRatingObj : null
+        );
+        manga.setStartDate(ConverterUtils.dateToLocalDate(doc.getDate("start_date")));
+        manga.setEndDate(ConverterUtils.dateToLocalDate(doc.getDate("end_date")));
+
+        return manga;
+    }
 }

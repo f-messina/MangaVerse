@@ -278,9 +278,33 @@ public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Mang
         return manga;
     }
 
+    //MongoDB queries
     //Best genres/themes/demographics/authors based on the average rating
-    public List<String> getBestCriteria (String criteria) {
-        return null;
+    @Override
+    public List<String> getBestCriteria (String criteria) throws DAOException {
+        try (MongoClient mongoClient = getConnection()) {
+            MongoCollection<Document> mangaCollection = mongoClient.getDatabase("mangaVerse").getCollection("manga");
+
+            //criteria can be genres, themes, demographics, authors
+            //I have to use unwind, I don't have another way to do the query
+
+            List<Document> pipeline = new ArrayList<>();
+            pipeline.add(Document.parse("{$match:{" + criteria + ": { $exists: true } } }"));
+            pipeline.add(Document.parse("{$unwind: \"$" + criteria + "}"));
+            pipeline.add(Document.parse("{$group: {_id: \"$" + criteria + "max_average_rating: {$max: \"$average_rating\"} } }"));
+
+
+            List<Document> result = mangaCollection.aggregate(pipeline).into(new ArrayList<>());
+            List<String> tags = new ArrayList<>();
+            for (Document document : result) {
+                tags.add(document.getString("tags"));
+            }
+
+            return tags;
+        } catch (Exception e) {
+            throw new DAOException("Error while searching anime", e);
+        }
+
     }
 
 

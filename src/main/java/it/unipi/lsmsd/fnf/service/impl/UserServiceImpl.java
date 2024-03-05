@@ -19,6 +19,7 @@ import it.unipi.lsmsd.fnf.service.UserService;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 import it.unipi.lsmsd.fnf.service.mapper.DtoToModelMapper;
 import org.apache.commons.lang3.StringUtils;
+import org.bson.Document;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -191,4 +192,59 @@ public class UserServiceImpl implements UserService {
         }
     }
      */
+
+    //Service for mongoDB queries
+    @Override
+    public List<Document> getDistribution (String criteria) throws BusinessException {
+        try {
+            return userDAO.getDistribution(criteria);
+        } catch (Exception e) {
+            throw new BusinessException("Error while retrieving the distribution.", e);
+        }
+    }
+
+    @Override
+    public Integer averageAgeUsers() throws BusinessException {
+        try {
+            return userDAO.averageAgeUsers();
+        } catch (Exception e) {
+            throw new BusinessException("Error while retrieving the average age of users.", e);
+        }
+    }
+
+    @Override
+    public List<Document> getUsersByAgeRange() throws BusinessException {
+        try {
+            return userDAO.getUsersByAgeRange();
+        } catch (Exception e) {
+            throw new BusinessException("Error while retrieving the users by age range.", e);
+        }
+    }
+
+    @Override
+    public List<Document> getUsersRegisteredByYear() throws BusinessException {
+        try {
+            return userDAO.getUsersRegisteredByYear();
+        } catch (Exception e) {
+            throw new BusinessException("Error while retrieving the users registered by year.", e);
+        }
+    }
+
+    @Override
+    public int averageAppRating (String criteria, String value) throws BusinessException {
+        try {
+            return userDAO.averageAppRating(criteria, value);
+        } catch (Exception e) {
+            throw new BusinessException("Error while retrieving the average app rating.", e);
+        }
+    }
+
+    @Override
+    public List<Integer> averageAppRatingByAgeRange () throws BusinessException {
+        try {
+            return userDAO.averageAppRatingByAgeRange();
+        } catch (Exception e) {
+            throw new BusinessException("Error while retrieving the average app rating by age range.", e);
+        }
+    }
 }

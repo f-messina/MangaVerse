@@ -2,6 +2,7 @@ package it.unipi.lsmsd.fnf.dao;
 
 import it.unipi.lsmsd.fnf.dao.enums.SearchCriteriaEnum;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
+import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.PersonalListDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
@@ -27,10 +28,13 @@ import java.util.List;
      List<MangaDTO> findPopularManga(SearchCriteriaEnum criteria) throws DAOException;
      List<MangaDTO> findPopularManga(SearchCriteriaEnum criteria, String value) throws DAOException;
 
+     //I can put these methods together
+     PageDTO<? extends MediaContentDTO> popularMediaContentList(MediaContentType mediaContentType) throws DAOException;
+
      //MongoDB queries
      //Find tha anime most present in all of the lists
-     List<AnimeDTO> popularAnime() throws DAOException;
+     //List<AnimeDTO> popularAnime() throws DAOException;
 
      //Find tha anime most present in all of the lists
-     List<MangaDTO> popularManga() throws DAOException;
+     //List<MangaDTO> popularManga() throws DAOException;
  }

@@ -3,12 +3,12 @@ package it.unipi.lsmsd.fnf.service.impl;
 import it.unipi.lsmsd.fnf.dao.*;
 import it.unipi.lsmsd.fnf.dao.enums.DataRepositoryEnum;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
+import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.PersonalListDTO;
 import it.unipi.lsmsd.fnf.dto.RegisteredUserDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.PersonalList;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
-import it.unipi.lsmsd.fnf.model.mediaContent.MediaContent;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import it.unipi.lsmsd.fnf.service.PersonalListService;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
@@ -150,6 +150,16 @@ public class PersonalListServiceImpl implements PersonalListService {
         try {
             PersonalListDTO personalListDTO = personalListDAO.find(id);
             return ModelToDtoMapper.convertToPersonalList(personalListDTO);
+        } catch (DAOException e) {
+            throw new BusinessException(e);
+        }
+    }
+
+    //Service for mongoDB queries
+    @Override
+    public PageDTO<? extends MediaContentDTO> popularMediaContentList(MediaContentType mediaContentType) throws BusinessException {
+        try {
+            return personalListDAO.popularMediaContentList(mediaContentType);
         } catch (DAOException e) {
             throw new BusinessException(e);
         }

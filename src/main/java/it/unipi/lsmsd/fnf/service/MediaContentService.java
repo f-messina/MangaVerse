@@ -23,6 +23,9 @@ public interface MediaContentService {
     List<? extends MediaContentDTO> getLikedMediaContent(String userId, MediaContentType type) throws BusinessException;
     List<? extends MediaContentDTO> getSuggestedMediaContent(String userId, MediaContentType type) throws BusinessException;
     List<? extends MediaContentDTO> getTrendMediaContentByYear(int year, MediaContentType type) throws BusinessException;
+
+    //Service for mongoDB queries
+    List<String> getBestCriteria(String criteria, MediaContentType mediaContentType) throws BusinessException;
     /*
     List<String> getMediaContentGenresTrendByYear(int year, MediaContentType type) throws BusinessException;
     List<? extends MediaContentDTO> getMediaContentTrendByGenre(MediaContentType type) throws BusinessException;

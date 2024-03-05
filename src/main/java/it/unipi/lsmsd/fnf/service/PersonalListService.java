@@ -1,5 +1,6 @@
 package it.unipi.lsmsd.fnf.service;
 
+import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.PersonalList;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
@@ -40,4 +41,7 @@ public interface PersonalListService {
     List<PersonalList> findAllLists() throws BusinessException;
 
     PersonalList findList(String id) throws BusinessException;
+
+    //Service for mongoDB queries
+    PageDTO<? extends MediaContentDTO> popularMediaContentList(MediaContentType mediaContentType) throws BusinessException;
 }
