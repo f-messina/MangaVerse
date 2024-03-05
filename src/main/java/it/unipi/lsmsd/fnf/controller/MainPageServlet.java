@@ -1,9 +1,5 @@
 package it.unipi.lsmsd.fnf.controller;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
@@ -12,7 +8,6 @@ import it.unipi.lsmsd.fnf.model.enums.AnimeType;
 import it.unipi.lsmsd.fnf.model.enums.MangaDemographics;
 import it.unipi.lsmsd.fnf.model.enums.MangaType;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
-import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
 import it.unipi.lsmsd.fnf.service.MediaContentService;
 import it.unipi.lsmsd.fnf.service.PersonalListService;
 import it.unipi.lsmsd.fnf.service.ServiceLocator;
@@ -21,18 +16,28 @@ import it.unipi.lsmsd.fnf.utils.Constants;
 import it.unipi.lsmsd.fnf.utils.ConverterUtils;
 import it.unipi.lsmsd.fnf.utils.SecurityUtils;
 import it.unipi.lsmsd.fnf.utils.UserUtils;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
+
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
+
 @WebServlet(urlPatterns = {"/mainPage", "/mainPage/anime", "/mainPage/manga"})
 public class MainPageServlet extends HttpServlet {
-    private static final Logger logger = LoggerFactory.getLogger(AuthServlet.class);
+    private static final Logger logger = LoggerFactory.getLogger(MainPageServlet.class);
     private static final MediaContentService mediaContentService = ServiceLocator.getMediaContentService();
     private static final PersonalListService personalListService = ServiceLocator.getPersonalListService();
     @Override
@@ -50,17 +55,20 @@ public class MainPageServlet extends HttpServlet {
         request.setAttribute("isManga",  request.getServletPath().equals("/mainPage/manga"));
         request.setAttribute("isAnime", request.getServletPath().equals("/mainPage/anime"));
 
+        if (request.getServletPath().equals("/mainPage")) {
+            request.getRequestDispatcher("homepage.jsp").forward(request, response);
+        }
         if ((boolean) request.getAttribute("isManga")) {
             request.setAttribute("mangaGenres", Constants.MANGA_GENRES);
             request.setAttribute("mangaTypes", MangaType.values());
             request.setAttribute("mangaDemographics", MangaDemographics.values());
             request.setAttribute("mangaStatus", Constants.MANGA_STATUS);
-            targetJSP = "/tests/manga_main_page_test.jsp";
+            targetJSP = "/WEB-INF/jsp/manga_main_page.jsp";
         } else if((boolean) request.getAttribute("isAnime")) {
             request.setAttribute("animeTags", Constants.ANIME_TAGS);
             request.setAttribute("animeTypes", AnimeType.values())  ;
             request.setAttribute("animeStatus", Constants.ANIME_STATUS);
-            targetJSP = "/tests/anime_main_page_test.jsp";
+            targetJSP = "/WEB-INF/jsp/anime_main_page.jsp";
         } else {
             response.sendRedirect("mainPage/manga");
             return;
@@ -158,7 +166,7 @@ public class MainPageServlet extends HttpServlet {
 
 
     private void handleSortAndPaginate(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
-        String targetJSP = "/tests/manga_main_page_test.jsp";
+        String targetJSP = "/WEB-INF/jsp/manga_main_page.jsp";
         int page = request.getParameter("page") != null ? Integer.parseInt(request.getParameter("page")) : 1;
 
         request.setAttribute("page", page);

@@ -1,6 +1,5 @@
 package it.unipi.lsmsd.fnf.controller;
 
-import it.unipi.lsmsd.fnf.dto.ReviewDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.model.mediaContent.MediaContent;
@@ -12,11 +11,13 @@ import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 import it.unipi.lsmsd.fnf.utils.ConverterUtils;
 import it.unipi.lsmsd.fnf.utils.SecurityUtils;
 import it.unipi.lsmsd.fnf.utils.UserUtils;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +49,7 @@ public class MediaContentServlet extends HttpServlet {
 
         String action = request.getParameter("action");
         MediaContentType mediaType = MediaContentType.valueOf(request.getServletPath().substring(1).toUpperCase());
-        String targetJSP = mediaType.equals(MediaContentType.ANIME) ? "tests/anime_test.jsp" : "tests/manga_test.jsp";
+        String targetJSP = mediaType.equals(MediaContentType.ANIME) ? "WEB-INF/jsp/anime.jsp" : "WEB-INF/jsp/manga.jsp";
         try {
             MediaContent mediaContent = mediaContentService.getMediaContentById(mediaId, mediaType);
             if (mediaContent == null) {
@@ -76,7 +77,7 @@ public class MediaContentServlet extends HttpServlet {
     private void handleAddToList(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String listId = request.getParameter("listId");
         MediaContentType mediaType = MediaContentType.valueOf(request.getServletPath().substring(1).toUpperCase());
-        String targetJSP = mediaType.equals(MediaContentType.ANIME) ? "tests/anime_test.jsp" : "tests/manga_test.jsp";
+        String targetJSP = mediaType.equals(MediaContentType.ANIME) ? "WEB-INF/jsp/anime.jsp" : "WEB-INF/jsp/manga.jsp";
 
         try {
             personalListService.addToList(listId, (MediaContentDTO) request.getAttribute("media"));
@@ -118,7 +119,7 @@ public class MediaContentServlet extends HttpServlet {
 
     private void handleAddReview(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         MediaContentType mediaType = MediaContentType.valueOf(request.getServletPath().substring(1).toUpperCase());
-        String targetJSP = mediaType.equals(MediaContentType.ANIME) ? "tests/anime_test.jsp" : "tests/manga_test.jsp";
+        String targetJSP = mediaType.equals(MediaContentType.ANIME) ? "WEB-INF/jsp/anime.jsp" : "WEB-INF/jsp/manga.jsp";
         try {
             reviewService.addReview(ConverterUtils.fromRequestToReviewDTO(request, mediaType));
             request.setAttribute("success", "Review added");
@@ -135,7 +136,7 @@ public class MediaContentServlet extends HttpServlet {
         String reviewId = request.getParameter("reviewId");
 
         MediaContentType mediaType = MediaContentType.valueOf(request.getServletPath().substring(1).toUpperCase());
-        String targetJSP = mediaType.equals(MediaContentType.ANIME) ? "tests/anime_test.jsp" : "tests/manga_test.jsp";
+        String targetJSP = mediaType.equals(MediaContentType.ANIME) ? "WEB-INF/jsp/anime.jsp" : "WEB-INF/jsp/manga.jsp";
 
         if (!request.getParameter("reviewUserId").equals(SecurityUtils.getAuthenticatedUser(request).getId())) {
             request.setAttribute("error", "You can't delete other user's reviews");
@@ -157,7 +158,7 @@ public class MediaContentServlet extends HttpServlet {
 
     private void handleEditReview(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         MediaContentType mediaType = MediaContentType.valueOf(request.getServletPath().substring(1).toUpperCase());
-        String targetJSP = mediaType.equals(MediaContentType.ANIME) ? "tests/anime_test.jsp" : "tests/manga_test.jsp";
+        String targetJSP = mediaType.equals(MediaContentType.ANIME) ? "WEB-INF/jsp/anime.jsp" : "WEB-INF/jsp/manga.jsp";
 
         if (!request.getParameter("reviewUserId").equals(SecurityUtils.getAuthenticatedUser(request).getId())) {
             request.setAttribute("error", "You can't edit other user's reviews");

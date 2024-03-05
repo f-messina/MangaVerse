@@ -24,7 +24,7 @@ public class AnimeDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Anime>
             String query = "CREATE (a:Anime {id: $id, title: $title, picture: $picture})";
             session.run(query, Map.of("id", animeDTO.getId(), "title", animeDTO.getTitle(), "picture", animeDTO.getImageUrl()));
         } catch (Exception e) {
-            throw new DAOException(e);
+            throw new DAOException("Error while creating anime node", e);
         }
     }
 
@@ -37,7 +37,7 @@ public class AnimeDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Anime>
 
             session.run(query, Map.of("userId", userId, "animeId", animeId));
         } catch (Exception e) {
-            throw new DAOException(e);
+            throw new DAOException("Error while liking anime", e);
         }
     }
 
@@ -47,7 +47,7 @@ public class AnimeDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Anime>
             String query = "MATCH (u:User {id: $userId})-[r:LIKE]->(a:Anime {id: $animeId}) DELETE r";
             session.run(query, Map.of("userId", userId, "animeId", animeId));
         } catch (Exception e) {
-            throw new DAOException(e);
+            throw new DAOException("Error while unliking anime", e);
         }
     }
 
@@ -59,7 +59,7 @@ public class AnimeDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Anime>
             Record record = session.run(query, Map.of("userId", userId, "mediaId", mediaId)).single();
             return record.get("isLiked").asBoolean();
         } catch (Exception e) {
-            throw new DAOException(e);
+            throw new DAOException("Error while checking if anime is liked", e);
         }
     }
 
@@ -70,7 +70,7 @@ public class AnimeDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Anime>
             List<Record> records = session.run(query, Map.of("userId", userId)).list();
             return records.stream().map(this::recordToAnimeDTO).collect(Collectors.toList());
         } catch (Exception e) {
-            throw new DAOException(e);
+            throw new DAOException("Error while getting liked anime", e);
         }
     }
 
@@ -85,7 +85,7 @@ public class AnimeDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Anime>
 
             return records.stream().map(this::recordToAnimeDTO).collect(Collectors.toList());
         } catch (Exception e) {
-            throw new DAOException(e);
+            throw new DAOException("Error while getting suggested anime", e);
         }
     }
 
@@ -104,7 +104,7 @@ public class AnimeDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Anime>
             List<Record> records = session.run(query, Map.of("startDate", startDate, "endDate", endDate)).list();
             return records.stream().map(this::recordToAnimeDTO).collect(Collectors.toList());
         } catch (Exception e) {
-            throw new DAOException(e);
+            throw new DAOException("Error while getting trend anime by year", e);
         }
     }
 
@@ -134,7 +134,7 @@ public class AnimeDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Anime>
             return genreNames;
         }
         catch (Exception e) {
-            throw new DAOException(e);
+            throw new DAOException("Error while getting trend anime genres by year", e);
         }
     }
 
@@ -151,7 +151,7 @@ public class AnimeDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Anime>
 
             return records.stream().map(this::recordToAnimeDTO).collect(Collectors.toList());
         } catch(Exception e) {
-            throw new DAOException(e);
+            throw new DAOException("Error while getting trend anime by genre", e);
         }
     }
 
@@ -167,7 +167,7 @@ public class AnimeDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Anime>
 
             return records.stream().map(this::recordToAnimeDTO).collect(Collectors.toList());
         } catch(Exception e) {
-            throw new DAOException(e);
+            throw new DAOException("Error while getting trend anime by likes", e);
         }
     }
 
@@ -194,7 +194,7 @@ public class AnimeDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Anime>
 
             return genreNames;
         } catch (Exception e) {
-            throw new DAOException(e);
+            throw new DAOException("Error while getting trend anime genres", e);
         }
     }
 

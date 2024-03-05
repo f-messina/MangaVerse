@@ -37,9 +37,12 @@ public class AuthServlet extends HttpServlet {
     }
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
+        String targetJSP = "WEB-INF/jsp/auth.jsp";
 
-        String targetJSP = "tests/auth_test.jsp";
-        switch (action) {
+        User authUser = SecurityUtils.getAuthenticatedUser(request);
+        if (authUser != null) {
+            response.sendRedirect("profile");
+        } else switch (action) {
             case "signup" -> handleSignUp(request, response);
             case "login" -> handleLogin(request, response);
             case "logout" -> handleLogout(request, response);
@@ -59,7 +62,7 @@ public class AuthServlet extends HttpServlet {
             BusinessExceptionType type = e.getType();
 
             logger.error("BusinessException during signup operation.", e);
-            targetJSP = "tests/auth_test.jsp";
+            targetJSP = "WEB-INF/jsp/auth.jsp";
 
 
             switch (type) {
@@ -96,7 +99,7 @@ public class AuthServlet extends HttpServlet {
             return;
         } catch (BusinessException e) {
             logger.error("BusinessException during login operation.", e);
-            targetJSP = "tests/auth_test.jsp";
+            targetJSP = "WEB-INF/jsp/auth.jsp";
 
             BusinessExceptionType type = e.getType();
             switch (type) {
@@ -118,12 +121,11 @@ public class AuthServlet extends HttpServlet {
 
     private void handleLogout(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         User authenticatedUserDTO = SecurityUtils.getAuthenticatedUser(request);
-        String targetJSP = request.getParameter("targetJSP") != null ? request.getParameter("targetJSP") : "tests/auth_test.jsp";
+        String targetJSP = request.getParameter("targetJSP");
         if (authenticatedUserDTO != null) {
             request.getSession().removeAttribute(Constants.AUTHENTICATED_USER_KEY);
             request.getSession().invalidate();
         }
-
         request.getRequestDispatcher(targetJSP).forward(request, response);
     }
 }

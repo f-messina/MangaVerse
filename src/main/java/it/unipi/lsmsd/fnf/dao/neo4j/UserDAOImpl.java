@@ -24,7 +24,7 @@ public class UserDAOImpl extends BaseNeo4JDAO implements UserDAO {
             session.run(query, Map.of("id", registeredUserDTO.getId(), "title", registeredUserDTO.getUsername(), "picture", registeredUserDTO.getProfilePicUrl()));
 
         } catch (Exception e) {
-            throw new DAOException(e);
+            throw new DAOException("Error while creating user node", e);
         }
     }
 
@@ -35,7 +35,7 @@ public class UserDAOImpl extends BaseNeo4JDAO implements UserDAO {
                     "MERGE (follower)-[r:FOLLOWS]->(following) ";
             session.run(query, Map.of("followerUserId", followerUserId, "followingUserId", followingUserId));
         } catch (Exception e) {
-            throw new DAOException(e);
+            throw new DAOException("Error while following user", e);
         }
     }
 
@@ -45,7 +45,7 @@ public class UserDAOImpl extends BaseNeo4JDAO implements UserDAO {
             String query = "MATCH (follower:User {id: $followerUserId})-[r:FOLLOWS]->(following:User {id: $followingUserId}) DELETE r";
             session.run(query, Map.of("followerUserId", followerUserId, "followingUserId", followingUserId));
         } catch (Exception e) {
-            throw new DAOException(e);
+            throw new DAOException("Error while unfollowing user", e);
         }
     }
 
@@ -58,7 +58,7 @@ public class UserDAOImpl extends BaseNeo4JDAO implements UserDAO {
                     .map(this::recordToRegisteredUserDTO)
                     .collect(Collectors.toList());
         } catch (Exception e) {
-            throw new DAOException(e);
+            throw new DAOException("Error while retrieving the following list", e);
         }
     }
 
@@ -78,7 +78,7 @@ public class UserDAOImpl extends BaseNeo4JDAO implements UserDAO {
             List<Record> records = session.run(query, Map.of("userId", userId)).list();
             return records.stream().map(this::recordToRegisteredUserDTO).collect(Collectors.toList());
         } catch (Exception e) {
-            throw new DAOException(e);
+            throw new DAOException("Error while retrieving the follower list", e);
         }
     }
 
@@ -95,7 +95,7 @@ public class UserDAOImpl extends BaseNeo4JDAO implements UserDAO {
 
             return records.stream().map(this::recordToRegisteredUserDTO).collect(Collectors.toList());
         } catch (Exception e) {
-            throw new DAOException(e);
+            throw new DAOException("Error while suggesting users", e);
         }
     }
 

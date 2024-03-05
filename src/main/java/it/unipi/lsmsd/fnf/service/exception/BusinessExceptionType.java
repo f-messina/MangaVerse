@@ -11,6 +11,7 @@ public enum BusinessExceptionType {
     WRONG_PSW,
     TAKEN_USERNAME,
     TAKEN_EMAIL,
-    TAKEN_EMAIL_PSW;
-
+    TAKEN_EMAIL_PSW,
+    NO_NAME,
+    NO_USER
 }

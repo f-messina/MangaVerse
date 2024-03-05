@@ -12,11 +12,13 @@ import it.unipi.lsmsd.fnf.service.exception.BusinessExceptionType;
 import it.unipi.lsmsd.fnf.utils.Constants;
 import it.unipi.lsmsd.fnf.utils.SecurityUtils;
 import it.unipi.lsmsd.fnf.utils.UserUtils;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +43,7 @@ public class ProfileServlet extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
-        String targetJSP = "tests/profile_test.jsp";
+        String targetJSP = "WEB-INF/jsp/profile.jsp";
         User authUser = SecurityUtils.getAuthenticatedUser(request);
 
         if (authUser == null) {
@@ -86,7 +88,7 @@ public class ProfileServlet extends HttpServlet {
             } else {
                 handleUpdateError(request, "Invalid input. Please check your data.", e);
             }
-            targetJSP = "tests/profile_test.jsp";
+            targetJSP = "WEB-INF/jsp/profile.jsp";
         } catch (Exception e) {
             handleUpdateError(request, "Error during update operation.", e);
             targetJSP = "error-page.jsp";
@@ -117,7 +119,7 @@ public class ProfileServlet extends HttpServlet {
     }
 
     private void handleDelete(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-String targetJSP = "main-page.jsp";
+String targetJSP = "homepage.jsp";
         request.getRequestDispatcher(targetJSP).forward(request, response);
     }
 
