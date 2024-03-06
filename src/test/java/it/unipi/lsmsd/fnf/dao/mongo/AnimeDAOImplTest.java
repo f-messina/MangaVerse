@@ -4,7 +4,6 @@ import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.model.enums.Status;
 import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
 import junit.framework.TestCase;
-import org.junit.Test;
 
 import java.util.List;
 

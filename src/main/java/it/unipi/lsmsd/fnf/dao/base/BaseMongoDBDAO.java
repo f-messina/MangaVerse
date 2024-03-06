@@ -1,12 +1,13 @@
 package it.unipi.lsmsd.fnf.dao.base;
 
-import com.mongodb.ConnectionString;
-import com.mongodb.MongoClientSettings;
+import com.mongodb.*;
 import com.mongodb.client.*;
+
+import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.model.enums.Gender;
 import it.unipi.lsmsd.fnf.utils.Constants;
 import it.unipi.lsmsd.fnf.utils.ConverterUtils;
-import org.apache.commons.collections.map.SingletonMap;
+
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -18,29 +19,76 @@ import java.util.*;
 
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Sorts.*;
-
+/**
+ * This abstract class serves as the base for MongoDB Data Access Objects (DAOs).
+ * It provides methods for establishing connections to MongoDB, building filters and sorts,
+ * and appending values to documents.
+ */
 public abstract class BaseMongoDBDAO {
+    private static final Logger logger = LoggerFactory.getLogger(BaseMongoDBDAO.class);
     private static final String PROTOCOL = "mongodb://";
-    private static final String MONGO_HOST = "localhost";
+    private static final String MONGO_HOST1 = "localhost";
     private static final String MONGO_PORT = "27017";
+    private static final String MONGO_DB = "mangaVerse";
+    private static final MongoClientSettings settings;
+    private static MongoClient mongoClient;
 
-    private static final String connectionString = String.format("%s%s:%s", PROTOCOL, MONGO_HOST, MONGO_PORT);
-
-    public static MongoClient getConnection() {
-        ConnectionString uri = new ConnectionString(connectionString);
-
-        return MongoClients.create(
-                MongoClientSettings.builder()
-                        .applyConnectionString(uri)
-                        .build()
-        );
+    static {
+        ConnectionString connectionString = new ConnectionString(String.format("%s%s:%s/%s", PROTOCOL, MONGO_HOST1, MONGO_PORT, MONGO_DB));
+        settings = MongoClientSettings.builder()
+                .applyConnectionString(connectionString)
+                .writeConcern(WriteConcern.W1)
+                .readPreference(ReadPreference.nearest())
+                .retryWrites(true)
+                .readConcern(ReadConcern.LOCAL)
+                .build();
     }
-    public static void closeConnection(MongoClient mongoClient){
-        if (mongoClient != null) {
-            mongoClient.close();
+
+    /**
+     * Opens a connection to the database
+     *
+     * @throws DAOException CONNECTION_ERROR if an error occurs while opening the connection
+     */
+    public static void openConnection() throws DAOException {
+
+        if(mongoClient == null){
+            try {
+                mongoClient = MongoClients.create(settings);
+            } catch (Exception e) {
+                logger.error("BaseMongoDBDAO: Error while connecting to MongoDB (openConnection): " + e.getMessage());
+                throw new DAOException(e.getMessage());
+            }
         }
     }
 
+    public MongoCollection<Document> getCollection(String collectionName) {
+        return mongoClient.getDatabase(MONGO_DB).getCollection(collectionName);
+    }
+
+    /**
+     * Closes the connection to the database
+     *
+     * @throws DAOException CONNECTION_ERROR if an error occurs while closing the connection or if the connection was not previously opened
+     */
+    public static void closeConnection() throws DAOException {
+        if(mongoClient != null){
+            try {
+                mongoClient.close();
+            } catch (Exception e) {
+                throw new DAOException(e.getMessage());
+            }
+        }
+        else {
+            throw new DAOException("Error while closing MongoDB connection: connection was not previously opened");
+        }
+    }
+
+    /**
+     * Builds a MongoDB filter based on the provided filter list.
+     *
+     * @param filterList List of maps representing the filter criteria.
+     * @return Bson filter object representing the constructed filter.
+     */
     protected Bson buildFilter(List<Map<String, Object>> filterList) {
         if (filterList == null || filterList.isEmpty()) {
             return empty();
@@ -52,6 +100,12 @@ public abstract class BaseMongoDBDAO {
         }
     }
 
+    /**
+     * Recursively builds a MongoDB filter based on nested filter conditions.
+     *
+     * @param filterList List of maps representing the filter criteria.
+     * @return List of Bson objects representing the constructed filter.
+     */
     protected List<Bson> buildFilterInternal(List<Map<String, Object>> filterList) {
         return filterList.stream()
                 .map(filter -> {
@@ -68,6 +122,14 @@ public abstract class BaseMongoDBDAO {
                 .toList();
     }
 
+
+    /**
+     * Builds a field-specific filter for MongoDB.
+     *
+     * @param fieldName Name of the field to filter on.
+     * @param value     Value of the field for filtering.
+     * @return Bson object representing the constructed field filter.
+     */
     protected Bson buildFieldFilter(String fieldName, Object value) {
         return switch (fieldName) {
             case "$all" -> {
@@ -98,6 +160,14 @@ public abstract class BaseMongoDBDAO {
         };
     }
 
+
+
+    /**
+     * Builds a sort specification for MongoDB based on the provided ordering criteria.
+     *
+     * @param orderBy Map representing the fields to sort by and their corresponding order.
+     * @return Bson object representing the constructed sort specification.
+     */
     protected Bson buildSort(Map<String, Integer> orderBy) {
         if (orderBy != null && orderBy.containsKey("score")) {
             return metaTextScore("score");
@@ -115,6 +185,14 @@ public abstract class BaseMongoDBDAO {
         return orderBy(sortList);
     }
 
+
+    /**
+     * Appends a key-value pair to a MongoDB document if the value is not null or empty.
+     *
+     * @param doc   MongoDB document to which the key-value pair is to be appended.
+     * @param key   Key of the key-value pair.
+     * @param value Value of the key-value pair.
+     */
     protected void appendIfNotNull(Document doc, String key, Object value) {
         if (value != null &&
                 !(value instanceof String && (value.equals(Constants.NULL_STRING) || value.equals(Gender.UNKNOWN.name()))) &&

@@ -4,6 +4,7 @@ import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import it.unipi.lsmsd.fnf.service.ServiceLocator;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
+import it.unipi.lsmsd.fnf.service.exception.BusinessExceptionType;
 import it.unipi.lsmsd.fnf.utils.Constants;
 import it.unipi.lsmsd.fnf.utils.ConverterUtils;
 import it.unipi.lsmsd.fnf.utils.SecurityUtils;
@@ -36,9 +37,12 @@ public class AuthServlet extends HttpServlet {
     }
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
+        String targetJSP = "WEB-INF/jsp/auth.jsp";
 
-        String targetJSP = "tests/auth_test.jsp";
-        switch (action) {
+        User authUser = SecurityUtils.getAuthenticatedUser(request);
+        if (authUser != null) {
+            response.sendRedirect("profile");
+        } else switch (action) {
             case "signup" -> handleSignUp(request, response);
             case "login" -> handleLogin(request, response);
             case "logout" -> handleLogout(request, response);
@@ -55,19 +59,21 @@ public class AuthServlet extends HttpServlet {
             response.sendRedirect("profile");
             return;
         } catch (BusinessException e) {
-            logger.error("BusinessException during signup operation.", e);
-            targetJSP = "tests/auth_test.jsp";
+            BusinessExceptionType type = e.getType();
 
-            String errorMessage = e.getMessage();
-            switch (errorMessage) {
-                case "Email already in use" -> request.setAttribute("emailError", e.getMessage());
-                case "Username already in use" -> request.setAttribute("usernameError", e.getMessage());
-                case "Email and username already in use" -> {
+            logger.error("BusinessException during signup operation.", e);
+            targetJSP = "WEB-INF/jsp/auth.jsp";
+
+
+            switch (type) {
+                case BusinessExceptionType.TAKEN_EMAIL -> request.setAttribute("emailError", "Email already in use");
+                case BusinessExceptionType.TAKEN_USERNAME-> request.setAttribute("usernameError", "Password already in use");
+                case BusinessExceptionType.TAKEN_EMAIL_PSW-> {
                     request.setAttribute("emailError", "Email already in use.");
                     request.setAttribute("usernameError", "Username already in use.");
                 }
-                case "Username, password and email cannot be empty" ->
-                        request.setAttribute("errorMessage", e.getMessage());
+                case BusinessExceptionType.EMPTY_USERNAME_PSW_EMAIL ->
+                        request.setAttribute("errorMessage", "Username, password and email cannot be empty");
                 case null, default -> {
                     request.setAttribute("errorMessage", "Error during signup operation.");
                     targetJSP = "error.jsp";
@@ -77,7 +83,6 @@ public class AuthServlet extends HttpServlet {
             logger.error("Error during signup operation.", e);
             targetJSP = "error.jsp";
         }
-        logger.info(targetJSP);
         request.getRequestDispatcher(targetJSP).forward(request, response);
     }
 
@@ -90,17 +95,16 @@ public class AuthServlet extends HttpServlet {
             RegisteredUser registeredUser = userService.login(email, password);
             HttpSession session = request.getSession(true);
             session.setAttribute(Constants.AUTHENTICATED_USER_KEY, registeredUser);
-            // Redirect to avoid resubmission on page reload
             response.sendRedirect("profile");
             return;
         } catch (BusinessException e) {
             logger.error("BusinessException during login operation.", e);
-            targetJSP = "tests/auth_test.jsp";
+            targetJSP = "WEB-INF/jsp/auth.jsp";
 
-            String errorMessage = e.getMessage();
-            switch (errorMessage) {
-                case "Invalid email" -> request.setAttribute("emailLoginError", e.getMessage());
-                case "Wrong password" -> request.setAttribute("passwordLoginError", e.getMessage());
+            BusinessExceptionType type = e.getType();
+            switch (type) {
+                case BusinessExceptionType.INVALID_EMAIL -> request.setAttribute("emailLoginError", "Invalid Email");
+                case BusinessExceptionType.WRONG_PSW -> request.setAttribute("passwordLoginError", "Wrong Pasword");
                 case null, default -> {
                     request.setAttribute("errorMessage", "Error during login operation.");
                     targetJSP = "error.jsp";
@@ -117,12 +121,11 @@ public class AuthServlet extends HttpServlet {
 
     private void handleLogout(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         User authenticatedUserDTO = SecurityUtils.getAuthenticatedUser(request);
-        String targetJSP = request.getParameter("targetJSP") != null ? request.getParameter("targetJSP") : "tests/auth_test.jsp";
+        String targetJSP = request.getParameter("targetJSP");
         if (authenticatedUserDTO != null) {
             request.getSession().removeAttribute(Constants.AUTHENTICATED_USER_KEY);
             request.getSession().invalidate();
         }
-
         request.getRequestDispatcher(targetJSP).forward(request, response);
     }
 }
