@@ -26,10 +26,5 @@ public interface MediaContentService {
 
     //Service for mongoDB queries
     List<String> getBestCriteria(String criteria, MediaContentType mediaContentType) throws BusinessException;
-    /*
-    List<String> getMediaContentGenresTrendByYear(int year, MediaContentType type) throws BusinessException;
-    List<? extends MediaContentDTO> getMediaContentTrendByGenre(MediaContentType type) throws BusinessException;
-    List<? extends MediaContentDTO> getMediaContentTrendByLikes(MediaContentType type) throws BusinessException;
-    List<String> getMediaContentGenresTrend(MediaContentType type) throws BusinessException;
-     */
+
 }

@@ -7,6 +7,7 @@ import it.unipi.lsmsd.fnf.model.registeredUser.User;
 
 import org.bson.Document;
 import java.util.List;
+import java.util.Map;
 
 public interface UserDAO {
     //MongoDB queries
@@ -20,22 +21,10 @@ public interface UserDAO {
     void update(RegisteredUser user) throws DAOException;
 
     //MongoDB complex queries
-    //Find the distribution of genders, of ages, of locations
-    List<Document> getDistribution(String criteria) throws DAOException;
 
-    //List<Document> getGenderDistribution() throws DAOException;
-    Integer averageAgeUsers() throws DAOException;
-    //List<Document> getLocationDistribution() throws DAOException;
-    List<Document> getUsersByAgeRange() throws DAOException;
-    List<Document> getUsersRegisteredByYear() throws DAOException;
-    //Integer averageAppRatingByAge(Integer yearOfBirth) throws DAOException;
-    //Integer averageAppRatingByLocation(String location) throws DAOException;
-    //List<Document> averageAppRatingByGender() throws DAOException;
-
-    //Find average app_rating based on the age, location and gender.
-    int averageAppRating(String criteria, String value) throws DAOException;
-
-    //Find the average app_rating of users based on group af ages
+    Map<String, Integer> getDistribution(String criteria) throws DAOException;
+    Double averageAgeUsers() throws DAOException;
+    Map<String, Double> averageAppRating(String criteria) throws DAOException;
     List<Integer> averageAppRatingByAgeRange() throws DAOException;
 
     //Neo4J queries

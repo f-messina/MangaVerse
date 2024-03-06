@@ -281,7 +281,7 @@ public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Mang
     //MongoDB queries
     //Best genres/themes/demographics/authors based on the average rating
     @Override
-    public List<String> getBestCriteria (String criteria) throws DAOException {
+    public List<String> getBestCriteria (String criteria, boolean isArray) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> mangaCollection = mongoClient.getDatabase("mangaVerse").getCollection("manga");
 
@@ -290,22 +290,23 @@ public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Mang
 
             List<Document> pipeline = new ArrayList<>();
             pipeline.add(Document.parse("{$match:{" + criteria + ": { $exists: true } } }"));
-            pipeline.add(Document.parse("{$unwind: \"$" + criteria + "}"));
-            pipeline.add(Document.parse("{$group: {_id: \"$" + criteria + "max_average_rating: {$max: \"$average_rating\"} } }"));
-
-
-            List<Document> result = mangaCollection.aggregate(pipeline).into(new ArrayList<>());
-            List<String> tags = new ArrayList<>();
-            for (Document document : result) {
-                tags.add(document.getString("tags"));
+            if (isArray) {
+                pipeline.add(Document.parse("{$unwind: \"$" + criteria + "}"));
             }
 
-            return tags;
+            pipeline.add(Document.parse("{$group: {_id: \"$" + criteria + "\", max_average_rating: {$max: \"$average_rating\"} } }"));
+            pipeline.add(Document.parse("{$sort: {max_average_rating: -1}}"));
+
+            return mangaCollection.aggregate(pipeline).into(new ArrayList<>()).stream()
+                    .map(doc -> doc.getString(criteria))
+                    .collect(Collectors.toList());
         } catch (Exception e) {
-            throw new DAOException("Error while searching anime", e);
+            throw new DAOException("Error while searching manga", e);
         }
 
     }
+
+
 
 
     @Override

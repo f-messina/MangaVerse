@@ -240,61 +240,19 @@ public class MediaContentServiceImpl implements MediaContentService {
         }
     }
 
-   /*
-    @Override
-    public List<? extends MediaContentDTO> getMediaContentTrendByGenre(MediaContentType type) throws BusinessException {
-        try {
-            if (MediaContentType.ANIME.equals(type)) {
-                return animeDAONeo4J.getMediaContentTrendByGenre();
-            } else if (MediaContentType.MANGA.equals(type)) {
-                return mangaDAONeo4J.getMediaContentTrendByGenre();
-            } else {
-                throw new BusinessException("Invalid media content type");
-            }
-        } catch(Exception e) {
-            throw new BusinessException("Error while retrieving the trend.", e);
-        }
-    }
-
-    @Override
-    public List<? extends MediaContentDTO> getMediaContentTrendByLikes(MediaContentType type) throws BusinessException {
-        try {
-            if (MediaContentType.ANIME.equals(type)) {
-                return animeDAONeo4J.getMediaContentTrendByLikes();
-            } else if (MediaContentType.MANGA.equals(type)) {
-                return mangaDAONeo4J.getMediaContentTrendByLikes();
-            } else {
-                throw new BusinessException("Invalid media content type");
-            }
-        } catch(Exception e) {
-            throw new BusinessException("Error while retrieving the trend.", e);
-        }
-    }
-
-    @Override
-    public List<String> getMediaContentGenresTrend(MediaContentType type) throws BusinessException {
-        try {
-            if (MediaContentType.ANIME.equals(type)) {
-                return animeDAONeo4J.getMediaContentGenresTrend();
-            } else if (MediaContentType.MANGA.equals(type)) {
-                return mangaDAONeo4J.getMediaContentGenresTrend();
-            } else {
-                throw new BusinessException("Invalid media content type");
-            }
-        } catch (Exception e) {
-            throw new BusinessException("Error while retrieving the trend.", e);
-        }
-    }
-    */
 
     //Service for mongoDB queries
     @Override
     public List<String> getBestCriteria (String criteria, MediaContentType mediaContentType) throws BusinessException {
         try {
-            if (mediaContentType.equals(MediaContentType.ANIME))
-                return animeDAO.getBestCriteria(criteria);
-            else if (mediaContentType.equals(MediaContentType.MANGA))
-                    return mangaDAO.getBestCriteria(criteria);
+            if (mediaContentType.equals(MediaContentType.ANIME)) {
+                return animeDAO.getBestCriteria(criteria, criteria.equals("tags"));
+            }
+            else if (mediaContentType.equals(MediaContentType.MANGA)) {
+                boolean isArray = criteria.equals("genres") || criteria.equals("demographics") ||
+                        criteria.equals("themes") || criteria.equals("authors");
+                return mangaDAO.getBestCriteria(criteria, isArray);
+            }
             else
                 throw new BusinessException("Invalid media content type");
         } catch (DAOException e) {

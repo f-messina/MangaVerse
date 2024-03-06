@@ -236,4 +236,9 @@ public class MangaDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Manga>
     @Override
     public void updateLatestReview(ReviewDTO reviewDTO) throws DAOException {
     }
+
+    @Override
+    public List<String> getBestCriteria(String criteria, boolean isArray) throws DAOException {
+        return null;
+    }
 }

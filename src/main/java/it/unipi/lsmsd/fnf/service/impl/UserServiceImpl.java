@@ -23,6 +23,7 @@ import org.bson.Document;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static it.unipi.lsmsd.fnf.dao.DAOLocator.*;
@@ -182,20 +183,10 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    /*
-    @Override
-    public List<RegisteredUserDTO> suggestUsers(String userId) throws BusinessException {
-        try {
-            return userDAONeo4J.suggestUsers(userId);
-        } catch (Exception e) {
-            throw new BusinessException("Error while suggesting users.", e);
-        }
-    }
-     */
 
     //Service for mongoDB queries
     @Override
-    public List<Document> getDistribution (String criteria) throws BusinessException {
+    public Map<String, Integer> getDistribution (String criteria) throws BusinessException {
         try {
             return userDAO.getDistribution(criteria);
         } catch (Exception e) {
@@ -204,7 +195,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Integer averageAgeUsers() throws BusinessException {
+    public Double averageAgeUsers() throws BusinessException {
         try {
             return userDAO.averageAgeUsers();
         } catch (Exception e) {
@@ -213,27 +204,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<Document> getUsersByAgeRange() throws BusinessException {
+    public Map<String, Double> averageAppRating (String criteria) throws BusinessException {
         try {
-            return userDAO.getUsersByAgeRange();
-        } catch (Exception e) {
-            throw new BusinessException("Error while retrieving the users by age range.", e);
-        }
-    }
-
-    @Override
-    public List<Document> getUsersRegisteredByYear() throws BusinessException {
-        try {
-            return userDAO.getUsersRegisteredByYear();
-        } catch (Exception e) {
-            throw new BusinessException("Error while retrieving the users registered by year.", e);
-        }
-    }
-
-    @Override
-    public int averageAppRating (String criteria, String value) throws BusinessException {
-        try {
-            return userDAO.averageAppRating(criteria, value);
+            return userDAO.averageAppRating(criteria);
         } catch (Exception e) {
             throw new BusinessException("Error while retrieving the average app rating.", e);
         }

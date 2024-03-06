@@ -33,7 +33,7 @@
 <body>
 
 <nav>
-    <a href="#"><img src="images/logo-with-initial.png" alt="logo" /></a>
+    <a href="#"><img src="${pageContext.request.contextPath}/images/logo-with-initial.png" alt="logo" /></a>
     <h1>Profile Page</h1>
     <div class="nav-items">
         <a href="main--registered-user.jsp" class="anime">Anime</a>

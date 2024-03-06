@@ -22,7 +22,7 @@ public interface ReviewService {
 
     Map<String, Double> ratingMediaContentByPeriod(MediaContentType type, String mediaContentId, String period) throws BusinessException;
 
-    Map<PageDTO<? extends MediaContentDTO>, Double> suggestTopMediaContent(MediaContentType mediaContentType, String criteria, String type) throws BusinessException;
+    PageDTO<MediaContentDTO> suggestTopMediaContent(MediaContentType mediaContentType, String criteria, String type) throws BusinessException;
 
     Map<String, Double> averageRatingByCriteria(String type) throws BusinessException;
 }

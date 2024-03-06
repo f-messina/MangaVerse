@@ -103,7 +103,7 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public Map<PageDTO<? extends MediaContentDTO>, Double> suggestTopMediaContent(MediaContentType mediaContentType, String criteria, String type) throws BusinessException {
+    public PageDTO<MediaContentDTO> suggestTopMediaContent(MediaContentType mediaContentType, String criteria, String type) throws BusinessException {
         try {
             return reviewDAO.suggestTopMediaContent(mediaContentType, criteria, type);
         } catch (Exception e){

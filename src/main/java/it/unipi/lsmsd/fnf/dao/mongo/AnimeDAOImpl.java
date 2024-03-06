@@ -23,6 +23,7 @@ import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import java.util.*;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static com.mongodb.client.model.Aggregates.*;
 import static com.mongodb.client.model.Filters.eq;
@@ -264,31 +265,31 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
     //MongoDB queries
     //Best tags based on the average rating
     @Override
-    public List<String> getBestCriteria (String criteria) throws DAOException {
+    public List<String> getBestCriteria (String criteria, boolean isArray) throws DAOException {
         try (MongoClient mongoClient = getConnection()) {
             MongoCollection<Document> animeCollection = mongoClient.getDatabase("mangaVerse").getCollection("anime");
 
-            //criteria can be tags, producers, studios
+            //criteria can be tags
             //I have to use unwind, I don't have another way to do the query
 
             List<Document> pipeline = new ArrayList<>();
             pipeline.add(Document.parse("{$match:{" + criteria + ": { $exists: true } } }"));
-            pipeline.add(Document.parse("{$unwind: \"$" + criteria + "}"));
-            pipeline.add(Document.parse("{$group: {_id: \"$" + criteria + "max_average_rating: {$max: \"$average_rating\"} } }"));
-
-
-            List<Document> result = animeCollection.aggregate(pipeline).into(new ArrayList<>());
-            List<String> tags = new ArrayList<>();
-            for (Document document : result) {
-                tags.add(document.getString("tags"));
+            if (isArray) {
+                pipeline.add(Document.parse("{$unwind: \"$" + criteria + "}"));
             }
 
-            return tags;
+            pipeline.add(Document.parse("{$group: {_id: \"$" + criteria + "\", max_average_rating: {$max: \"$average_rating\"} } }"));
+            pipeline.add(Document.parse("{$sort: {max_average_rating: -1}}"));
+
+            return animeCollection.aggregate(pipeline).into(new ArrayList<>()).stream()
+                    .map(doc -> doc.getString(criteria))
+                    .collect(Collectors.toList());
         } catch (Exception e) {
             throw new DAOException("Error while searching anime", e);
         }
 
     }
+
 
 
     // Neo4J specific methods

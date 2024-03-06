@@ -129,36 +129,28 @@ public class UserDAOImpl extends BaseNeo4JDAO implements UserDAO {
     @Override
     public void update(RegisteredUser user) throws DAOException {
     }
+
     @Override
-    public List<Document> getGenderDistribution() throws DAOException {
+    public Map<String, Integer> getDistribution(String criteria) throws DAOException {
         return null;
     }
+
+
     @Override
-    public Integer averageAgeUsers() throws DAOException {
-        return 0;
-    }
-    @Override
-    public List<Document> getLocationDistribution() throws DAOException {
+    public Double averageAgeUsers() throws DAOException {
         return null;
     }
+
+
     @Override
-    public List<Document> getUsersByAgeRange() throws DAOException {
+    public Map<String, Double> averageAppRating(String criteria) throws DAOException {
         return null;
     }
+
     @Override
-    public List<Document> getUsersRegisteredByYear() throws DAOException {
+    public List<Integer> averageAppRatingByAgeRange() throws DAOException {
         return null;
     }
-    @Override
-    public Integer averageAppRatingByAge(Integer yearOfBirth) throws DAOException {
-        return 0;
-    }
-    @Override
-    public Integer averageAppRatingByLocation(String location) throws DAOException {
-        return 0;
-    }
-    @Override
-    public List<Document> averageAppRatingByGender() throws DAOException {
-        return null;
-    }
+
+
 }
