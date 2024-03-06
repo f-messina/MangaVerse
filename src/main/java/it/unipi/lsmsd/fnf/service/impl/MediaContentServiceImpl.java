@@ -2,7 +2,6 @@ package it.unipi.lsmsd.fnf.service.impl;
 
 import it.unipi.lsmsd.fnf.dao.*;
 import it.unipi.lsmsd.fnf.dao.enums.DataRepositoryEnum;
-import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
@@ -13,6 +12,7 @@ import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
 import it.unipi.lsmsd.fnf.model.mediaContent.MediaContent;
 import it.unipi.lsmsd.fnf.service.MediaContentService;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
+import it.unipi.lsmsd.fnf.service.exception.BusinessExceptionType;
 
 import java.util.List;
 import java.util.Map;
@@ -47,7 +47,7 @@ public class MediaContentServiceImpl implements MediaContentService {
                 mangaDAO.insert((Manga) mediaContent);
             }
         } catch (Exception e) {
-            throw new BusinessException(e);
+            throw new BusinessException("Error adding media content",e);
         }
     }
 
@@ -66,7 +66,7 @@ public class MediaContentServiceImpl implements MediaContentService {
                 }
             }
         } catch (Exception e) {
-            throw new BusinessException(e);
+            throw new BusinessException("Error updating the media content",e);
         }
     }
 
@@ -78,12 +78,12 @@ public class MediaContentServiceImpl implements MediaContentService {
             } else if (MediaContentType.MANGA.equals(type)) {
                 mangaDAO.delete(mediaId);
             } else {
-                throw new BusinessException("Invalid media content type");
+                throw new BusinessException(BusinessExceptionType.INVALID_TYPE,"Invalid media content type");
             }
             personalListDAO.removeItem(mediaId);
             reviewDAO.deleteByMedia(mediaId);
         } catch (Exception e) {
-            throw new BusinessException(e);
+            throw new BusinessException("Error removing the media content",e);
         }
     }
 
@@ -95,10 +95,10 @@ public class MediaContentServiceImpl implements MediaContentService {
             } else if (MediaContentType.MANGA.equals(type)) {
                 return mangaDAO.find(mediaId);
             } else {
-                throw new BusinessException("Invalid media content type");
+                throw new BusinessException(BusinessExceptionType.INVALID_TYPE,"Invalid media content type");
             }
         } catch (Exception e) {
-            throw new BusinessException(e);
+            throw new BusinessException("Error finding media content by id",e);
         }
     }
 
@@ -110,10 +110,10 @@ public class MediaContentServiceImpl implements MediaContentService {
             } else if (MediaContentType.MANGA.equals(type)) {
                 return mangaDAO.search(filters, orderBy, page);
             } else {
-                throw new BusinessException("Invalid media content type");
+                throw new BusinessException(BusinessExceptionType.INVALID_TYPE,"Invalid media content type");
             }
         } catch (Exception e) {
-            throw new BusinessException(e);
+            throw new BusinessException("Error while searching",e);
         }
     }
 
@@ -125,10 +125,10 @@ public class MediaContentServiceImpl implements MediaContentService {
             } else if (MediaContentType.MANGA.equals(type)) {
                 return mangaDAO.search(List.of(Map.of("title", title)), Map.of("score", 1), page);
             } else {
-                throw new BusinessException("Invalid media content type");
+                throw new BusinessException(BusinessExceptionType.INVALID_TYPE,"Invalid media content type");
             }
         } catch (Exception e) {
-            throw new BusinessException(e);
+            throw new BusinessException("Error while searching",e);
         }
     }
 

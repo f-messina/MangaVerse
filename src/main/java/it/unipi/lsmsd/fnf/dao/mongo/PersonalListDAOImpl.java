@@ -1,6 +1,5 @@
 package it.unipi.lsmsd.fnf.dao.mongo;
 
-
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.result.InsertOneResult;
 import it.unipi.lsmsd.fnf.dao.PersonalListDAO;
@@ -16,9 +15,6 @@ import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.utils.ConverterUtils;
 
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.model.UpdateOptions;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
@@ -26,17 +22,22 @@ import org.bson.types.ObjectId;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.mongodb.client.result.InsertOneResult;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.UpdateOptions;
+
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.exclude;
 import static com.mongodb.client.model.Projections.include;
 import static com.mongodb.client.model.Updates.*;
 
 public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListDAO {
+    private static final String COLLECTION_NAME = "lists";
 
     @Override
     public String insert(PersonalListDTO list) throws DAOException {
-        try (MongoClient mongoClient = getConnection()) {
-            MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
+        try {
+            MongoCollection<Document> listsCollection = getCollection(COLLECTION_NAME);
 
             Document listDoc = PersonalListDTOTODocument(list);
 
@@ -53,8 +54,8 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
 
     @Override
     public void update(PersonalListDTO list) throws DAOException {
-        try (MongoClient mongoClient = getConnection()) {
-            MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
+        try {
+            MongoCollection<Document> listsCollection = getCollection(COLLECTION_NAME);
 
             Bson filter = eq("_id", new ObjectId(list.getId()));
             Bson update = combine();
@@ -75,8 +76,8 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
 
     @Override
     public void addToList(String listId, MediaContentDTO item) throws DAOException {
-        try (MongoClient mongoClient = getConnection()) {
-            MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
+        try {
+            MongoCollection<Document> listsCollection = getCollection(COLLECTION_NAME);
 
             Bson filter = eq("_id", new ObjectId(listId));
             Bson update = combine();
@@ -94,8 +95,8 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
 
     @Override
     public void removeFromList(String listId, String itemId, MediaContentType type) throws DAOException {
-        try (MongoClient mongoClient = getConnection()) {
-            MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
+        try {
+            MongoCollection<Document> listsCollection = getCollection(COLLECTION_NAME);
 
             String listType = type.toString().toLowerCase() + "_list";
             Bson filter = eq("_id", new ObjectId(listId));
@@ -109,8 +110,8 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
 
     @Override
     public void updateItem(MediaContentDTO item) throws DAOException {
-        try (MongoClient mongoClient = getConnection()) {
-            MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
+        try {
+            MongoCollection<Document> listsCollection = getCollection(COLLECTION_NAME);
 
             String listType = (item instanceof AnimeDTO)? "anime_list" : "manga_list";
             Bson filter = elemMatch(listType, eq("id", new ObjectId(item.getId())));
@@ -133,8 +134,8 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
 
     @Override
     public void removeItem(String itemId) throws DAOException {
-        try (MongoClient mongoClient = getConnection()) {
-            MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
+        try {
+            MongoCollection<Document> listsCollection = getCollection(COLLECTION_NAME);
 
             Bson filter = or(elemMatch("anime_list" , eq("id", new ObjectId(itemId))),elemMatch("manga_list", eq("id", itemId)));
             Bson update = combine(pull("anime_list", new Document("id", new ObjectId(itemId))), pull("manga_list", new Document("id", itemId)));
@@ -147,8 +148,8 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
 
     @Override
     public void delete(String listId) throws DAOException {
-        try (MongoClient mongoClient = getConnection()) {
-            MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
+        try {
+            MongoCollection<Document> listsCollection = getCollection(COLLECTION_NAME);
 
             Bson filter = eq("_id", new ObjectId(listId));
 
@@ -160,8 +161,8 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
 
     @Override
     public void deleteByUser(String userId) throws DAOException {
-        try (MongoClient mongoClient = getConnection()) {
-            MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
+        try {
+            MongoCollection<Document> listsCollection = getCollection(COLLECTION_NAME);
 
             Bson filter = eq("user.id", new ObjectId(userId));
 
@@ -173,8 +174,8 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
 
     @Override
     public List<PersonalListDTO> findByUser(String userId, boolean redusedInfo) throws DAOException {
-        try (MongoClient mongoClient = getConnection()) {
-            MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
+        try {
+            MongoCollection<Document> listsCollection = getCollection(COLLECTION_NAME);
 
             Bson filter = eq("user.id", new ObjectId(userId));
             Bson projection = redusedInfo? include("name") : exclude("user");
@@ -190,8 +191,8 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
 
     @Override
     public List<PersonalListDTO> findAll() throws DAOException {
-        try (MongoClient mongoClient = getConnection()) {
-            MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
+        try {
+            MongoCollection<Document> listsCollection = getCollection(COLLECTION_NAME);
 
             List<PersonalListDTO> personalLists = new ArrayList<>();
             listsCollection.find().forEach(document -> personalLists.add(documentToPersonalListDTO(document)));
@@ -204,8 +205,8 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
 
     @Override
     public PersonalListDTO find(String listId) throws DAOException {
-        try (MongoClient mongoClient = getConnection()) {
-            MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse").getCollection("lists");
+        try {
+            MongoCollection<Document> listsCollection = getCollection(COLLECTION_NAME);
 
             Bson filter = eq("_id", new ObjectId(listId));
             Bson projection = exclude("user");
@@ -311,7 +312,6 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
 
             String nodeType = mediaContentType.equals(MediaContentType.ANIME) ? "anime" : "manga";
 
-
             //N.B.: use of unwind (I have arrays). Is it worth it?
             List<Document> pipeline = new ArrayList<>();
             pipeline.add(Document.parse("{$project: { items: { $concatArrays: ['" + nodeType + "_list'] } }}" ));
@@ -358,8 +358,6 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
         if ((doc.get("anime_season", Document.class) != null)) {
             anime.setYear(doc.get("anime_season", Document.class).getInteger("year"));
             anime.setSeason(doc.get("anime_season", Document.class).getString("season"));
-        }
-
         return anime;
     }
 

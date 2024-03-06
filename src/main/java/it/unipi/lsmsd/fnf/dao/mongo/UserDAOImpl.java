@@ -7,6 +7,7 @@ import com.mongodb.client.result.UpdateResult;
 import it.unipi.lsmsd.fnf.dao.UserDAO;
 import it.unipi.lsmsd.fnf.dao.base.BaseMongoDBDAO;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
+import it.unipi.lsmsd.fnf.dao.exception.DAOExceptionType;
 import it.unipi.lsmsd.fnf.dto.RegisteredUserDTO;
 import it.unipi.lsmsd.fnf.model.enums.Gender;
 import it.unipi.lsmsd.fnf.model.registeredUser.Manager;
@@ -33,11 +34,12 @@ import static com.mongodb.client.model.Sorts.metaTextScore;
 import static com.mongodb.client.model.Updates.setOnInsert;
 
 public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
+    private static final String COLLECTION_NAME = "users";
 
     @Override
     public String register(User user) throws DAOException {
-        try (MongoClient mongoClient = getConnection()) {
-            MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
+        try {
+            MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
 
             user.setJoinedDate(LocalDate.now());
             user.setProfilePicUrl("images/user%20icon%20-%20Kopya%20-%20Kopya.png");
@@ -48,18 +50,18 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
             );
             Bson update = setOnInsert(RegisteredUserToDocument(user));
 
-            UpdateResult result = users.updateOne(filter, update, new UpdateOptions().upsert(true));
+            UpdateResult result = usersCollection.updateOne(filter, update, new UpdateOptions().upsert(true));
 
             if (result.getUpsertedId() == null) {
                 // Check which field is causing the conflict
-                Document existingUser = users.find(filter).first();
+                Document existingUser = usersCollection.find(filter).first();
                 if (existingUser != null) {
                     if (existingUser.getString("email").equals(user.getEmail()) && existingUser.getString("username").equals(user.getUsername())) {
-                        throw new DAOException("Email and username already in use");
+                        throw new DAOException(DAOExceptionType.TAKEN_EMAIL_USERNAME,"Email and username already in use");
                     } else if (existingUser.getString("email").equals(user.getEmail())) {
-                        throw new DAOException("Email already in use");
+                        throw new DAOException(DAOExceptionType.TAKEN_EMAIL,"Email already in use");
                     } else {
-                        throw new DAOException("Username already in use");
+                        throw new DAOException(DAOExceptionType.TAKEN_USERNAME,"Username already in use");
                     }
                 } else {
                     throw new DAOException("Error adding new user");
@@ -76,13 +78,13 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
 
     @Override
     public void update(User user) throws DAOException {
-        try (MongoClient mongoClient = getConnection()) {
-            MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
+        try {
+            MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
 
             // Check if the new username already exists in the collection
             Bson usernameExistsFilter = eq("username", user.getUsername());
-            if (users.countDocuments(usernameExistsFilter) > 0) {
-                throw new DAOException("Username already exists in the collection");
+            if (usersCollection.countDocuments(usernameExistsFilter) > 0) {
+                throw new DAOException(DAOExceptionType.TAKEN_USERNAME,"Username already exists in the collection");
             }
 
             // Update the document
@@ -90,7 +92,7 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
             Bson update = new Document("$set", RegisteredUserToDocument(user))
                     .append("$unset", UnsetDocument(user));
 
-            UpdateResult results = users.updateOne(filter, update);
+            UpdateResult results = usersCollection.updateOne(filter, update);
             if (results.getModifiedCount() == 0) {
                 throw new DAOException("No user was updated");
             }
@@ -103,12 +105,12 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
 
     @Override
     public void remove(String userId) throws DAOException {
-        try (MongoClient mongoClient = getConnection()) {
-            MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
+        try {
+            MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
 
             Bson filter = eq("_id", new ObjectId(userId));
 
-            users.deleteOne(filter);
+            usersCollection.deleteOne(filter);
         }
         catch (Exception e){
             throw new DAOException("Error removing user", e);
@@ -117,23 +119,23 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
 
     @Override
     public RegisteredUser authenticate(String email, String password) throws DAOException {
-        try (MongoClient mongoClient = getConnection()) {
-            MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
+        try {
+            MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
 
             Bson filter = eq("email", email);
             Bson projection = exclude("is_manager");
 
-            Document userDocument = users.find(filter).projection(projection).first();
+            Document userDocument = usersCollection.find(filter).projection(projection).first();
             if (userDocument != null) {
                 RegisteredUser user = documentToRegisteredUser(userDocument);
                 if (user.getPassword().equals(password)) {
                     user.setPassword(null);
                     return user;
                 } else {
-                    throw new DAOException("Wrong password");
+                    throw new DAOException(DAOExceptionType.WRONG_PSW,"Wrong password");
                 }
             } else {
-                throw new DAOException("User not found");
+                throw new DAOException(DAOExceptionType.WRONG_EMAIL,"User not found");
             }
         }
         catch (DAOException e){
@@ -146,13 +148,13 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
 
     @Override
     public RegisteredUser find(String userId) throws DAOException {
-        try (MongoClient mongoClient = getConnection()) {
-            MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
+        try {
+            MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
 
             Bson filter = eq("_id", new ObjectId(userId));
             Bson projection = exclude("is_manager", "password");
 
-            Document userDocument = users.find(filter).projection(projection).first();
+            Document userDocument = usersCollection.find(filter).projection(projection).first();
             return (userDocument != null)? documentToRegisteredUser(userDocument) : null;
         }
         catch (Exception e){
@@ -162,15 +164,15 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
 
     @Override
     public List<RegisteredUserDTO> search(String username) throws DAOException {
-        try (MongoClient mongoClient = getConnection()) {
-            MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
+        try {
+            MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
 
             Bson filter = text(username);
             Bson sort = metaTextScore("score");
             Bson projection = include("username", "picture");
 
             List<RegisteredUserDTO> result = new ArrayList<>();
-            FindIterable<Document> results = users.find(filter).sort(sort).projection(projection);
+            FindIterable<Document> results = usersCollection.find(filter).sort(sort).projection(projection);
 
             results.forEach(document -> {
                 RegisteredUserDTO user = documentToRegisteredUserDTO(document);
@@ -185,14 +187,14 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
     }
 
     public List<RegisteredUserDTO> findAll() throws DAOException {
-        try (MongoClient mongoClient = getConnection()) {
-            MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
+        try {
+            MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
 
             Bson filter = eq("is_manager", null);
             Bson projection = include("username", "picture");
 
             List<RegisteredUserDTO> result = new ArrayList<>();
-            users.find(filter).projection(projection).forEach(document -> {
+            usersCollection.find(filter).projection(projection).forEach(document -> {
                 RegisteredUserDTO user = documentToRegisteredUserDTO(document);
                 result.add(user);
             });
@@ -200,7 +202,7 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
             return result;
         }
         catch (Exception e){
-            throw new DAOException("Error searching all the users", e);
+            throw new DAOException("Error searching all the usersCollection", e);
         }
     }
 
@@ -284,9 +286,8 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
     //Find the distribution of genders, of ages, of locations
     @Override
     public Map<String, Integer> getDistribution (String criteria) throws DAOException {
-        try (MongoClient mongoClient = getConnection()) {
-            MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
-
+        try {
+            MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
             //criteria can be: gender, location, birthday, joined_on
 
             List<Document> pipeline = new ArrayList<>();
@@ -317,20 +318,20 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
     //Find the average age of users
     @Override
     public Double averageAgeUsers() throws DAOException {
-        try (MongoClient mongoClient = getConnection()) {
-            MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
+        try {
+            MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
 
             List<Document> pipeline = new ArrayList<>();
             pipeline.add(Document.parse("{$project: {age: {$divide: [{ $subtract: [new Date(), $birthday] }, 1000 * 60 * 60 * 24 * 365 ]}}"));
             pipeline.add(Document.parse("{ $group: {_id: null, averageAge: { $avg: \"$age\" }}}"));
-            AggregateIterable<Document> aggregationResult = users.aggregate(pipeline);
+            AggregateIterable<Document> aggregationResult = usersCollection.aggregate(pipeline);
 
             List<Document> result = new ArrayList<>();
             aggregationResult.into(result);
             return result.getFirst().getDouble("averageAge");
         }
         catch (Exception e){
-            throw new DAOException("Error getting average age of users", e);
+            throw new DAOException("Error getting average age of usersCollection", e);
         }
     }
 
@@ -338,8 +339,8 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
     //Find average app_rating based on the birthday, location and gender.
     @Override
     public Map<String, Double> averageAppRating (String criteria) throws DAOException {
-        try (MongoClient mongoClient = getConnection()) {
-            MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
+        try {
+            MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
 
             //criteria can be: birthday, location and gender
 
@@ -371,8 +372,8 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
     //Find the average app_rating of users based on group af ages
     @Override
     public List<Integer> averageAppRatingByAgeRange () throws DAOException {
-        try (MongoClient mongoClient = getConnection()) {
-            MongoCollection<Document> users = mongoClient.getDatabase("mangaVerse").getCollection("users");
+        try {
+            MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
 
             List<Document> pipeline = new ArrayList<>();
             pipeline.add(Document.parse("{$project: {age: {$divide: [{ $subtract: [new Date(), $birthday] }, 1000 * 60 * 60 * 24 * 365 ] }} "));

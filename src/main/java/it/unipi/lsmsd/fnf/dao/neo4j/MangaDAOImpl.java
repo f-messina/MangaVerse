@@ -27,7 +27,7 @@ public class MangaDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Manga>
             session.run(query, Map.of("id", mangaDTO.getId(), "title", mangaDTO.getTitle(), "picture", mangaDTO.getImageUrl()));
 
         } catch (Exception e) {
-            throw new DAOException(e);
+            throw new DAOException("Error while creating manga node", e);
         }
     }
 
@@ -40,7 +40,7 @@ public class MangaDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Manga>
 
             session.run(query, Map.of("userId", userId, "mangaId", mangaId));
         } catch (Exception e) {
-            throw new DAOException(e);
+            throw new DAOException("Error while liking manga", e);
         }
     }
 
@@ -50,7 +50,7 @@ public class MangaDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Manga>
             String query = "MATCH (u:User {id: $userId})-[r:LIKE]->(m:Manga {id: $mangaId}) DELETE r";
             session.run(query, Map.of("userId", userId, "mangaId", mangaId));
         } catch (Exception e) {
-            throw new DAOException(e);
+            throw new DAOException("Error while unliking manga", e);
         }
     }
 
@@ -61,7 +61,7 @@ public class MangaDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Manga>
             Record record = session.run(query, Map.of("userId", userId, "mediaId", mediaId)).single();
             return record.get("isLiked").asBoolean();
         } catch (Exception e) {
-            throw new DAOException(e);
+            throw new DAOException("Error while checking if manga is liked", e);
         }
     }
     @Override
@@ -71,7 +71,7 @@ public class MangaDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Manga>
             List<Record> records = session.run(query, Map.of("userId", userId)).list();
             return records.stream().map(this::recordToMangaDTO).collect(Collectors.toList());
         } catch (Exception e) {
-            throw new DAOException(e);
+            throw new DAOException("Error while getting liked manga", e);
         }
     }
 
@@ -97,7 +97,7 @@ public class MangaDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Manga>
             List<Record> records = session.run(query, Map.of("userId", userId)).list();
             return records.stream().map(this::recordToMangaDTO).collect(Collectors.toList());
         } catch (Exception e) {
-            throw new DAOException(e);
+            throw new DAOException("Error while getting suggested manga", e);
         }
 
     }
@@ -118,7 +118,7 @@ public class MangaDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Manga>
 
             return records.stream().map(this::recordToMangaDTO).collect(Collectors.toList());
         } catch (Exception e) {
-            throw new DAOException(e);
+            throw new DAOException("Error while getting trend manga by year", e);
         }
     }
 
@@ -149,7 +149,7 @@ public class MangaDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Manga>
 
             return genreNames;
         } catch (Exception e) {
-            throw new DAOException(e);
+            throw new DAOException("Error while getting trend manga genres by year", e);
         }
     }
 
@@ -166,7 +166,7 @@ public class MangaDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Manga>
 
             return records.stream().map(this::recordToMangaDTO).collect(Collectors.toList());
         } catch(Exception e) {
-            throw new DAOException(e);
+            throw new DAOException("Error while getting trend manga by genre", e);
         }
     }
 
@@ -182,7 +182,7 @@ public class MangaDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Manga>
 
             return records.stream().map(this::recordToMangaDTO).collect(Collectors.toList());
         } catch(Exception e) {
-            throw new DAOException(e);
+            throw new DAOException("Error while getting trend manga by likes", e);
         }
     }
 
@@ -209,7 +209,7 @@ public class MangaDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Manga>
 
             return genreNames;
         } catch (Exception e) {
-            throw new DAOException(e);
+            throw new DAOException("Error while getting trend manga genres", e);
         }
     }
 

@@ -6,8 +6,8 @@
 
     <display-name>MangaVerse</display-name>
     <welcome-file-list>
-        <welcome-file>tests/manga_main_page_test.jsp</welcome-file>
+        <welcome-file>homepage.jsp</welcome-file>
     </welcome-file-list>
-
 </web-app>
+
 

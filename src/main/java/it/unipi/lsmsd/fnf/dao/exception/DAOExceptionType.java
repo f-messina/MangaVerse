@@ -1,12 +1,12 @@
 package it.unipi.lsmsd.fnf.dao.exception;
 
 public enum DAOExceptionType {
-    DUPLICATE_KEY,
+    EXIST_ANIME,
     GENERIC,
-    NOT_FOUND,
-    INVALID_DATA,
-    CONNECTION_ERROR,
-    UNAUTHORIZED,
-    FORBIDDEN,
-    INTERNAL_SERVER_ERROR
+    EXIST_MANGA,
+    TAKEN_EMAIL_USERNAME,
+    TAKEN_EMAIL,
+    TAKEN_USERNAME,
+    WRONG_PSW,
+    WRONG_EMAIL;
 }
