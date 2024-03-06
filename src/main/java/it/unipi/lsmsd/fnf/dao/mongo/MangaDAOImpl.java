@@ -34,9 +34,20 @@ import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Projections.include;
 import static com.mongodb.client.model.Updates.setOnInsert;
 
+/**
+ * Implementation of the MediaContentDAO interface for handling Manga objects in MongoDB.
+ */
 public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Manga> {
     private static final String COLLECTION_NAME = "manga";
 
+
+    /**
+     * Inserts a Manga object into the MongoDB collection.
+     *
+     * @param manga The Manga object to insert.
+     * @return The ID of the inserted Manga.
+     * @throws DAOException If an error occurs during insertion.
+     */
     @Override
     public String insert(Manga manga) throws DAOException {
         try {
@@ -56,6 +67,12 @@ public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Mang
         }
     }
 
+    /**
+     * Updates a Manga object in the MongoDB collection.
+     *
+     * @param manga The Manga object to update.
+     * @throws DAOException If an error occurs during update.
+     */
     @Override
     public void update(Manga manga) throws DAOException {
         try {
@@ -70,6 +87,13 @@ public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Mang
         }
     }
 
+    /**
+     * Finds a Manga object in the MongoDB collection by its ID.
+     *
+     * @param mangaId The ID of the Manga to find.
+     * @return The Manga object if found, otherwise null.
+     * @throws DAOException If an error occurs during search.
+     */
     @Override
     public Manga find(String mangaId) throws DAOException {
         try {
@@ -85,6 +109,15 @@ public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Mang
         }
     }
 
+    /**
+     * Searches for Manga objects in the MongoDB collection based on provided filters, order, and pagination.
+     *
+     * @param filters  The list of filters to apply.
+     * @param orderBy  The map containing sorting criteria.
+     * @param page     The page number for pagination.
+     * @return A PageDTO containing the results and total count.
+     * @throws DAOException If an error occurs during search.
+     */
     public PageDTO<MangaDTO> search(List<Map<String, Object>> filters, Map<String, Integer> orderBy, int page) throws DAOException {
         try {
             MongoCollection<Document> mangaCollection = getCollection(COLLECTION_NAME);
@@ -137,10 +170,23 @@ public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Mang
         }
     }
 
+
+    /**
+     * Updates the latest review for a Manga object.
+     *
+     * @param reviewDTO The ReviewDTO object containing the review information.
+     * @throws DAOException If an error occurs during update.
+     */
     @Override
     public void updateLatestReview(ReviewDTO reviewDTO) throws DAOException {
     }
 
+    /**
+     * Deletes a Manga object from the MongoDB collection by its ID.
+     *
+     * @param mangaId The ID of the Manga to delete.
+     * @throws DAOException If an error occurs during deletion.
+     */
     @Override
     public void delete(String mangaId) throws DAOException {
         try {
@@ -154,6 +200,12 @@ public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Mang
         }
     }
 
+    /**
+     * Converts a Manga object to a MongoDB Document.
+     *
+     * @param manga The Manga object to be converted.
+     * @return The MongoDB Document representation of the Manga object.
+     */
     private Document mangaToDocument(Manga manga) {
         Document doc = new Document();
 
@@ -204,6 +256,12 @@ public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Mang
         return doc;
     }
 
+    /**
+     * Converts a MongoDB Document to a Manga object.
+     *
+     * @param document The MongoDB Document to be converted.
+     * @return The Manga object representation of the MongoDB Document.
+     */
     public static Manga documentToManga(Document document) {
         Manga manga = new Manga();
         manga.setId(document.getObjectId("_id").toString());
@@ -268,6 +326,12 @@ public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Mang
         return manga;
     }
 
+    /**
+     * Converts a MongoDB Document to a MangaDTO object.
+     *
+     * @param doc The MongoDB Document to be converted.
+     * @return The MangaDTO object representation of the MongoDB Document.
+     */
     private MangaDTO documentToMangaDTO(Document doc) {
         MangaDTO manga = new MangaDTO();
         manga.setId(doc.getObjectId("_id").toString());

@@ -30,9 +30,21 @@ import static com.mongodb.client.model.Projections.exclude;
 import static com.mongodb.client.model.Projections.include;
 import static com.mongodb.client.model.Updates.*;
 
+/**
+ * Implementation of the PersonalListDAO interface for MongoDB.
+ * Provides methods to interact with personal lists stored in MongoDB.
+ */
 public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListDAO {
     private static final String COLLECTION_NAME = "lists";
 
+
+    /**
+     * Inserts a new personal list into the database.
+     *
+     * @param list The PersonalListDTO object representing the list to be inserted.
+     * @return The ID of the inserted list.
+     * @throws DAOException If an error occurs during the insertion process.
+     */
     @Override
     public String insert(PersonalListDTO list) throws DAOException {
         try {
@@ -51,6 +63,12 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
         }
     }
 
+    /**
+     * Updates an existing personal list in the database.
+     *
+     * @param list The PersonalListDTO object representing the updated list.
+     * @throws DAOException If an error occurs during the update process.
+     */
     @Override
     public void update(PersonalListDTO list) throws DAOException {
         try {
@@ -73,6 +91,13 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
         }
     }
 
+    /**
+     * Adds a media item to a personal list.
+     *
+     * @param listId The ID of the list to which the item will be added.
+     * @param item   The MediaContentDTO object representing the item to be added.
+     * @throws DAOException If an error occurs during the addition process.
+     */
     @Override
     public void addToList(String listId, MediaContentDTO item) throws DAOException {
         try {
@@ -92,6 +117,14 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
         }
     }
 
+    /**
+     * Removes a media item from a personal list.
+     *
+     * @param listId The ID of the list from which the item will be removed.
+     * @param itemId The ID of the item to be removed.
+     * @param type   The type of media content (Anime or Manga).
+     * @throws DAOException If an error occurs during the removal process.
+     */
     @Override
     public void removeFromList(String listId, String itemId, MediaContentType type) throws DAOException {
         try {
@@ -107,6 +140,12 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
         }
     }
 
+    /**
+     * Updates information about a media item in all personal lists.
+     *
+     * @param item The MediaContentDTO object representing the updated item.
+     * @throws DAOException If an error occurs during the update process.
+     */
     @Override
     public void updateItem(MediaContentDTO item) throws DAOException {
         try {
@@ -131,6 +170,13 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
         }
     }
 
+
+    /**
+     * Removes a media item from all personal lists.
+     *
+     * @param itemId The ID of the item to be removed.
+     * @throws DAOException If an error occurs during the removal process.
+     */
     @Override
     public void removeItem(String itemId) throws DAOException {
         try {
@@ -145,6 +191,12 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
         }
     }
 
+    /**
+     * Deletes a personal list from the database.
+     *
+     * @param listId The ID of the list to be deleted.
+     * @throws DAOException If an error occurs during the deletion process.
+     */
     @Override
     public void delete(String listId) throws DAOException {
         try {
@@ -158,6 +210,12 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
         }
     }
 
+    /**
+     * Deletes all personal lists associated with a user from the database.
+     *
+     * @param userId The ID of the user whose lists will be deleted.
+     * @throws DAOException If an error occurs during the deletion process.
+     */
     @Override
     public void deleteByUser(String userId) throws DAOException {
         try {
@@ -171,6 +229,14 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
         }
     }
 
+    /**
+     * Retrieves all personal lists associated with a user from the database.
+     *
+     * @param userId      The ID of the user whose lists will be retrieved.
+     * @param redusedInfo Flag indicating whether to retrieve reduced information about the lists.
+     * @return A list of PersonalListDTO objects representing the user's lists.
+     * @throws DAOException If an error occurs during the retrieval process.
+     */
     @Override
     public List<PersonalListDTO> findByUser(String userId, boolean redusedInfo) throws DAOException {
         try {
@@ -188,6 +254,12 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
         }
     }
 
+    /**
+     * Retrieves all personal lists from the database.
+     *
+     * @return A list of all PersonalListDTO objects stored in the database.
+     * @throws DAOException If an error occurs during the retrieval process.
+     */
     @Override
     public List<PersonalListDTO> findAll() throws DAOException {
         try {
@@ -202,6 +274,13 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
         }
     }
 
+    /**
+     * Retrieves a personal list from the database by its ID.
+     *
+     * @param listId The ID of the list to be retrieved.
+     * @return The PersonalListDTO object representing the retrieved list, or null if not found.
+     * @throws DAOException If an error occurs during the retrieval process.
+     */
     @Override
     public PersonalListDTO find(String listId) throws DAOException {
         try {
@@ -238,6 +317,13 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
         return null;
     }
 
+
+    /**
+     * Converts a MongoDB document representing a personal list to a PersonalListDTO object.
+     *
+     * @param document The MongoDB document representing the personal list.
+     * @return The PersonalListDTO object.
+     */
     private PersonalListDTO documentToPersonalListDTO(Document document) {
         Document userDoc = document.get("user", Document.class);
         RegisteredUserDTO user = null;
@@ -272,12 +358,24 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
         );
     }
 
+    /**
+     * Converts an AnimeDTO object to a MongoDB document.
+     *
+     * @param anime The AnimeDTO object to be converted.
+     * @return The MongoDB document representing the AnimeDTO.
+     */
     private Document animeDTOToDocument(AnimeDTO anime) {
         return new Document("id", new ObjectId(anime.getId()))
                 .append("title", anime.getTitle())
                 .append("picture", anime.getImageUrl());
     }
 
+    /**
+     * Converts a MangaDTO object to a MongoDB document.
+     *
+     * @param manga The MangaDTO object to be converted.
+     * @return The MongoDB document representing the MangaDTO.
+     */
     private Document mangaDTOToDocument(MangaDTO manga) {
         return new Document("id", new ObjectId(manga.getId()))
                 .append("title", manga.getTitle())
@@ -304,6 +402,12 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
 
     //MongoDB queries
     //Find tha anime most present in all of the lists
+    /**
+     * Retrieves a list of popular anime based on the number of occurrences in all personal lists.
+     *
+     * @return A list of AnimeDTO objects representing popular anime.
+     * @throws DAOException If an error occurs during the retrieval process.
+     */
     @Override
     public List<AnimeDTO> popularAnime() throws DAOException {
         try {
@@ -340,6 +444,12 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
         }
     }
 
+    /**
+     * Retrieves a list of popular manga based on the number of occurrences in all personal lists.
+     *
+     * @return A list of MangaDTO objects representing popular manga.
+     * @throws DAOException If an error occurs during the retrieval process.
+     */
     //Find tha anime most present in all of the lists
     @Override
     public List<MangaDTO> popularManga () throws DAOException {

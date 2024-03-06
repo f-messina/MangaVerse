@@ -31,9 +31,22 @@ import static com.mongodb.client.model.Projections.include;
 import static com.mongodb.client.model.Sorts.metaTextScore;
 import static com.mongodb.client.model.Updates.setOnInsert;
 
+/**
+ * Implementation of UserDAO interface for MongoDB data access.
+ * Provides methods for user registration, authentication, updating, and removal,
+ * as well as methods for querying user data and performing statistical analyses.
+ */
 public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
     private static final String COLLECTION_NAME = "users";
 
+    /**
+     * Registers a new user in the system.
+     *
+     * @param user The User object to be registered.
+     * @return The ID of the newly registered user.
+     * @throws DAOException If an error occurs during registration,
+     *                      such as email or username already in use.
+     */
     @Override
     public String register(User user) throws DAOException {
         try {
@@ -74,6 +87,13 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
         }
     }
 
+    /**
+     * Updates the information of an existing user in the system.
+     *
+     * @param user The User object containing the updated information.
+     * @throws DAOException If an error occurs during the update process,
+     *                      such as the username already exists.
+     */
     @Override
     public void update(User user) throws DAOException {
         try {
@@ -101,6 +121,12 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
         }
     }
 
+    /**
+     * Removes a user from the system based on their ID.
+     *
+     * @param userId The ID of the user to be removed.
+     * @throws DAOException If an error occurs while removing the user.
+     */
     @Override
     public void remove(String userId) throws DAOException {
         try {
@@ -115,6 +141,14 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
         }
     }
 
+    /**
+     * Authenticates a user based on their email and password.
+     *
+     * @param email    The email of the user to authenticate.
+     * @param password The password of the user to authenticate.
+     * @return The authenticated user.
+     * @throws DAOException If authentication fails due to incorrect email or password.
+     */
     @Override
     public RegisteredUser authenticate(String email, String password) throws DAOException {
         try {
@@ -144,6 +178,13 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
         }
     }
 
+    /**
+     * Retrieves a user from the system based on their ID.
+     *
+     * @param userId The ID of the user to retrieve.
+     * @return The retrieved user, or null if not found.
+     * @throws DAOException If an error occurs while retrieving the user.
+     */
     @Override
     public RegisteredUser find(String userId) throws DAOException {
         try {
@@ -160,6 +201,13 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
         }
     }
 
+    /**
+     * Searches for users based on their username.
+     *
+     * @param username The username to search for.
+     * @return A list of RegisteredUserDTO objects matching the search criteria.
+     * @throws DAOException If an error occurs while searching for users.
+     */
     @Override
     public List<RegisteredUserDTO> search(String username) throws DAOException {
         try {
@@ -184,6 +232,12 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
         }
     }
 
+    /**
+     * Retrieves all users from the system.
+     *
+     * @return A list of RegisteredUserDTO objects representing all users in the system.
+     * @throws DAOException If an error occurs while retrieving users.
+     */
     public List<RegisteredUserDTO> findAll() throws DAOException {
         try {
             MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
@@ -204,6 +258,13 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
         }
     }
 
+
+    /**
+     * Converts a MongoDB document to a RegisteredUserDTO object.
+     *
+     * @param doc The MongoDB document to be converted.
+     * @return A RegisteredUserDTO object representing the MongoDB document.
+     */
     private RegisteredUserDTO documentToRegisteredUserDTO(Document doc) {
         RegisteredUserDTO user = new RegisteredUserDTO();
         user.setId(doc.getObjectId("_id").toString());
@@ -212,6 +273,12 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
         return user;
     }
 
+    /**
+     * Converts a MongoDB document to a RegisteredUser object.
+     *
+     * @param doc The MongoDB document to be converted.
+     * @return A RegisteredUser object representing the MongoDB document.
+     */
     private RegisteredUser documentToRegisteredUser(Document doc) {
         RegisteredUser user;
 
@@ -239,6 +306,12 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
         return user;
     }
 
+    /**
+     * Converts a RegisteredUser object to a MongoDB document.
+     *
+     * @param user The RegisteredUser object to be converted.
+     * @return A MongoDB document representing the RegisteredUser object.
+     */
     private Document RegisteredUserToDocument(RegisteredUser user) {
         Document doc = new Document();
         appendIfNotNull(doc, "password", user.getPassword());
@@ -264,6 +337,12 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
         return doc;
     }
 
+    /**
+     * Creates a MongoDB document for unsetting fields in a RegisteredUser object.
+     *
+     * @param registeredUser The RegisteredUser object containing fields to unset.
+     * @return A MongoDB document for unsetting specified fields.
+     */
     private Document UnsetDocument(User registeredUser) {
         Document doc = new Document();
         if (registeredUser.getFullname() != null && registeredUser.getFullname().equals(Constants.NULL_STRING))
@@ -282,6 +361,12 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
 
     //MongoDB complex queries
     //Find the distribution of genders between users
+    /**
+     * Retrieves the distribution of genders among users.
+     *
+     * @return A list of MongoDB documents representing the distribution of genders.
+     * @throws DAOException If an error occurs while retrieving the gender distribution.
+     */
     @Override
     public List<Document> getGenderDistribution() throws DAOException {
         try {
@@ -305,6 +390,12 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
     }
 
     //Find the average age of users
+    /**
+     * Calculates the average age of users.
+     *
+     * @return The average age of users.
+     * @throws DAOException If an error occurs while calculating the average age.
+     */
     @Override
     public Integer averageAgeUsers() throws DAOException {
         try {
@@ -328,6 +419,12 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
     }
 
     //Find the distribution of users by location
+    /**
+     * Retrieves the distribution of users by location.
+     *
+     * @return A list of MongoDB documents representing the distribution of users by location.
+     * @throws DAOException If an error occurs while retrieving the location distribution.
+     */
     @Override
     public List<Document> getLocationDistribution() throws DAOException {
         try {
@@ -347,6 +444,12 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
     }
 
     //Find how many users there are grouped by age range
+    /**
+     * Retrieves the number of users grouped by age range.
+     *
+     * @return A list of MongoDB documents representing the number of users in each age range.
+     * @throws DAOException If an error occurs while retrieving users by age range.
+     */
     @Override
     public List<Document> getUsersByAgeRange() throws DAOException {
         try {
@@ -370,6 +473,12 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
     }
 
     //Find how many users registered for each year
+    /**
+     * Retrieves the number of users registered for each year.
+     *
+     * @return A list of MongoDB documents representing the number of users registered each year.
+     * @throws DAOException If an error occurs while retrieving users registered by year.
+     */
     @Override
     public List<Document> getUsersRegisteredByYear() throws DAOException {
         try {
@@ -388,6 +497,13 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
     }
 
     //Find average app_rating based on the age of users
+    /**
+     * Calculates the average app rating based on the age of users.
+     *
+     * @param yearOfBirth The year of birth to calculate the average app rating for.
+     * @return The average app rating for users born in the specified year.
+     * @throws DAOException If an error occurs while calculating the average app rating.
+     */
     @Override
     public Integer averageAppRatingByAge (Integer yearOfBirth) throws DAOException{
         try {
@@ -409,6 +525,13 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
 
     }
     //Find average app_rating based on the location of users
+    /**
+     * Calculates the average app rating based on the location of users.
+     *
+     * @param location The location to calculate the average app rating for.
+     * @return The average app rating for users in the specified location.
+     * @throws DAOException If an error occurs while calculating the average app rating.
+     */
     @Override
     public Integer averageAppRatingByLocation (String location) throws DAOException{
         try {
@@ -429,6 +552,12 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
 
     }
     //Find average app_rating based on the gender of users
+    /**
+     * Calculates the average app rating based on the gender of users.
+     *
+     * @return A list of MongoDB documents representing the average app rating for each gender.
+     * @throws DAOException If an error occurs while calculating the average app rating.
+     */
     @Override
     public List<Document> averageAppRatingByGender () throws DAOException {
         try {
