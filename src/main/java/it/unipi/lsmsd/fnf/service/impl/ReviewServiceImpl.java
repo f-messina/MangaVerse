@@ -12,6 +12,10 @@ import java.util.List;
 
 import static it.unipi.lsmsd.fnf.dao.DAOLocator.*;
 
+/**
+ * The ReviewServiceImpl class provides implementation for the ReviewService interface.
+ * It handles CRUD operations and other functionalities related to reviews.
+ */
 public class ReviewServiceImpl implements ReviewService {
 
     private static final ReviewDAO reviewDAO;
@@ -20,6 +24,11 @@ public class ReviewServiceImpl implements ReviewService {
         reviewDAO = getReviewDAO(DataRepositoryEnum.MONGODB);
     }
 
+    /**
+     * Adds a new review to the data repository.
+     * @param review The review to be added.
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public void addReview(ReviewDTO review) throws BusinessException {
         if (StringUtils.isEmpty(review.getComment()) && review.getRating() == null) {
@@ -32,6 +41,11 @@ public class ReviewServiceImpl implements ReviewService {
         }
     }
 
+    /**
+     * Deletes a review from the data repository.
+     * @param reviewId The ID of the review to be deleted.
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public void deleteReview(String reviewId) throws BusinessException {
         try {
@@ -41,6 +55,11 @@ public class ReviewServiceImpl implements ReviewService {
         }
     }
 
+    /**
+     * Deletes all reviews associated with a particular media content.
+     * @param mediaId The ID of the media content whose reviews are to be deleted.
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public void deleteReviewByMedia(String mediaId) throws BusinessException {
         try {
@@ -50,6 +69,11 @@ public class ReviewServiceImpl implements ReviewService {
         }
     }
 
+    /**
+     * Updates an existing review in the data repository.
+     * @param review The updated review.
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public void updateReview(ReviewDTO review) throws BusinessException {
         if (StringUtils.isEmpty(review.getComment()) && review.getRating() == null) {
@@ -62,6 +86,12 @@ public class ReviewServiceImpl implements ReviewService {
         }
     }
 
+    /**
+     * Finds all reviews submitted by a particular user.
+     * @param userId The ID of the user.
+     * @return A list of reviews submitted by the user.
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public List<ReviewDTO> findByUser(String userId) throws BusinessException {
         try {
@@ -71,6 +101,12 @@ public class ReviewServiceImpl implements ReviewService {
         }
     }
 
+    /**
+     * Finds all reviews associated with a particular media content.
+     * @param mediaId The ID of the media content.
+     * @return A list of reviews associated with the media content.
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public List<ReviewDTO> findByMedia(String mediaId) throws BusinessException {
         try{

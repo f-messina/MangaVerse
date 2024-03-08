@@ -62,6 +62,10 @@ public class Review {
         this.user = user;
     }
 
+    /**
+     * Overrides the default toString method to provide a custom string representation of the Review object.
+     * @return A string representation of the Review object.
+     */
     @Override
     public String toString() {
         return "Review{" +

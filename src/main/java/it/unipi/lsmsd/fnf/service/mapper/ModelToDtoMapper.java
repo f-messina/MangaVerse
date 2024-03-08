@@ -15,15 +15,36 @@ import org.bson.types.ObjectId;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The ModelToDtoMapper class provides static methods to map model objects to corresponding DTOs (Data Transfer Objects).
+ * It is used to convert model objects used in the service layer into DTOs to be transferred to the data layer.
+ */
 public class ModelToDtoMapper {
+
+    /**
+     * Converts an Anime object to an AnimeDTO object.
+     * @param anime The Anime object to convert.
+     * @return The converted AnimeDTO object.
+     */
     public static AnimeDTO animeToAnimeDTO(Anime anime) {
         return new AnimeDTO(anime.getId(), anime.getTitle(), anime.getImageUrl(), anime.getAverageRating(), anime.getYear(), anime.getSeason());
     }
 
+    /**
+     * Converts a Manga object to a MangaDTO object.
+     * @param manga The Manga object to convert.
+     * @return The converted MangaDTO object.
+     */
     public static MangaDTO mangaToMangaDTO(Manga manga) {
         return new MangaDTO(manga.getId(), manga.getTitle(), manga.getImageUrl(), manga.getAverageRating(), manga.getStartDate(), manga.getEndDate());
     }
 
+    /**
+     * Converts a User object to a RegisteredUserDTO object.
+     * @param user The User object to convert.
+     * @return The converted RegisteredUserDTO object.
+     * @throws IllegalArgumentException If the user object is null.
+     */
     public static RegisteredUserDTO convertToRegisteredUserDTO(User user) {
         if(user == null) {
             throw new IllegalArgumentException("The user can't be null.");
@@ -37,6 +58,12 @@ public class ModelToDtoMapper {
         return userDTO;
     }
 
+    /**
+     * Converts a PersonalList object to a PersonalListDTO object.
+     * @param list The PersonalList object to convert.
+     * @return The converted PersonalListDTO object.
+     * @throws IllegalArgumentException If the list object is null.
+     */
     public static PersonalListDTO convertToDTO(PersonalList list) {
         if(list == null) {
             throw new IllegalArgumentException("The list can't be null.");
@@ -84,6 +111,12 @@ public class ModelToDtoMapper {
         return dto;
     }
 
+    /**
+     * Converts a MediaContent object to a MediaContentDTO object.
+     * @param content The MediaContent object to convert.
+     * @return The converted MediaContentDTO object.
+     * @throws IllegalArgumentException If the content object is null.
+     */
     public static MediaContentDTO convertToDTO(MediaContent content) {
         if(content == null) {
             throw new IllegalArgumentException(("The media content can't be null."));
@@ -119,6 +152,11 @@ public class ModelToDtoMapper {
         return dto;
     }
 
+    /**
+     * Converts a PersonalListDTO object to a PersonalList object.
+     * @param personalListDTO The PersonalListDTO object to convert.
+     * @return The converted PersonalList object.
+     */
     public static PersonalList convertToPersonalList(PersonalListDTO personalListDTO) {
         PersonalList personalList = new PersonalList();
         personalList.setId(String.valueOf(personalListDTO.getId()));
@@ -138,6 +176,12 @@ public class ModelToDtoMapper {
         return personalList;
     }
 
+    /**
+     * Converts a RegisteredUserDTO object to a User object.
+     * @param userDTO The RegisteredUserDTO object to convert.
+     * @return The converted User object.
+     * @throws IllegalArgumentException If the userDTO object is null.
+     */
     public static User convertToUser(RegisteredUserDTO userDTO) {
         if(userDTO == null) {
             throw new IllegalArgumentException("The RegisteredUserDTO can't be null.");
@@ -150,6 +194,13 @@ public class ModelToDtoMapper {
 
         return user;
     }
+
+    /**
+     * Converts an AnimeDTO object to an Anime object.
+     * @param animeDTO The AnimeDTO object to convert.
+     * @return The converted Anime object.
+     * @throws IllegalArgumentException If the animeDTO object is null.
+     */
     public static Anime convertToAnime(AnimeDTO animeDTO) {
         if(animeDTO == null) {
             throw new IllegalArgumentException("The AnimeDTO can't be null.");
@@ -163,6 +214,12 @@ public class ModelToDtoMapper {
         return anime;
     }
 
+    /**
+     * Converts a MangaDTO object to a Manga object.
+     * @param mangaDTO The MangaDTO object to convert.
+     * @return The converted Manga object.
+     * @throws IllegalArgumentException If the mangaDTO object is null.
+     */
     public static Manga convertToManga(MangaDTO mangaDTO) {
         if(mangaDTO == null) {
             throw new IllegalArgumentException("The MangaDTO can't be null.");

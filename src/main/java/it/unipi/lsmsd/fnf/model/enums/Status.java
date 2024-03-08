@@ -1,5 +1,7 @@
 package it.unipi.lsmsd.fnf.model.enums;
-
+/**
+ * Enumeration representing the status of media content.
+ */
 public enum Status {
     DISCONTINUED(1),
     ON_HIATUS(2),
@@ -8,15 +10,24 @@ public enum Status {
     UPCOMING(5),
     UNKNOWN(6);
     private final int code;
-
+    /**
+     * Constructor for Status enum.
+     * @param code The code associated with the enum value.
+     */
     Status(int code){
         this.code=code;
     }
-
+    /**
+     * Returns the code associated with the enum value.
+     * @return The code associated with the enum value.
+     */
     public int getCode() {
         return code;
     }
-
+    /**
+     * Returns a string representation of the enum value.
+     * @return A string representation of the enum value.
+     */
     public String toString() {
         return switch (this) {
             case FINISHED -> "Finished";

@@ -17,7 +17,17 @@ import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
+/**
+ * The DtoToModelMapper class provides static methods to map DTOs (Data Transfer Objects) to corresponding model objects.
+ * It is used to convert DTOs received from the data layer into model objects used in the service layer.
+ */
 public class DtoToModelMapper {
+
+    /**
+     * Converts a UserRegistrationDTO object to a User object.
+     * @param userRegistrationDTO The UserRegistrationDTO object to convert.
+     * @return The converted User object.
+     */
     public static User userRegistrationDTOToUser(UserRegistrationDTO userRegistrationDTO) {
         User user = new User();
         user.setUsername(userRegistrationDTO.getUsername());
@@ -30,6 +40,11 @@ public class DtoToModelMapper {
         return user;
     }
 
+    /**
+     * Converts a RegisteredUserDTO object to a User object.
+     * @param registeredUserDTO The RegisteredUserDTO object to convert.
+     * @return The converted User object.
+     */
     public static User registeredUserDTOtoUser(RegisteredUserDTO registeredUserDTO) {
         User user = new User();
         user.setId(registeredUserDTO.getId());
@@ -40,6 +55,11 @@ public class DtoToModelMapper {
         return user;
     }
 
+    /**
+     * Converts a PersonalListDTO object to a PersonalList object.
+     * @param personalListDTO The PersonalListDTO object to convert.
+     * @return The converted PersonalList object.
+     */
     public static PersonalList personalListDTOtoPersonalList(PersonalListDTO personalListDTO) {
         PersonalList personalList = new PersonalList();
         personalList.setId(personalListDTO.getId());
@@ -55,6 +75,11 @@ public class DtoToModelMapper {
         return personalList;
     }
 
+    /**
+     * Converts an AnimeDTO object to an Anime object.
+     * @param animeDTO The AnimeDTO object to convert.
+     * @return The converted Anime object.
+     */
     public static Anime animeDTOtoAnime(AnimeDTO animeDTO) {
         Anime anime = new Anime();
         anime.setId(animeDTO.getId());
@@ -63,6 +88,11 @@ public class DtoToModelMapper {
         return anime;
     }
 
+    /**
+     * Converts a MangaDTO object to a Manga object.
+     * @param mangaDTO The MangaDTO object to convert.
+     * @return The converted Manga object.
+     */
     public static Manga mangaDTOtoManga(MangaDTO mangaDTO) {
         Manga manga = new Manga();
         manga.setId(mangaDTO.getId());
@@ -71,6 +101,12 @@ public class DtoToModelMapper {
         return manga;
     }
 
+    /**
+     * Converts a MediaContentDTO object to a MediaContent object.
+     * @param dto The MediaContentDTO object to convert.
+     * @return The converted MediaContent object.
+     * @throws IllegalArgumentException If the MediaContentDTO type is unknown.
+     */
     public static MediaContent mediaContentDTOtoMediaContent(MediaContentDTO dto) {
         if (dto instanceof AnimeDTO) {
             return animeDTOtoAnime((AnimeDTO) dto);
@@ -81,6 +117,11 @@ public class DtoToModelMapper {
         }
     }
 
+    /**
+     * Converts a ReviewDTO object to a Review object.
+     * @param reviewDTO The ReviewDTO object to convert.
+     * @return The converted Review object.
+     */
     public static Review reviewDTOtoReview(ReviewDTO reviewDTO) {
         Review review = new Review();
         review.setId(reviewDTO.getId());

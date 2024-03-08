@@ -21,6 +21,10 @@ import static it.unipi.lsmsd.fnf.dao.DAOLocator.*;
 import static it.unipi.lsmsd.fnf.service.mapper.ModelToDtoMapper.animeToAnimeDTO;
 import static it.unipi.lsmsd.fnf.service.mapper.ModelToDtoMapper.mangaToMangaDTO;
 
+/**
+ * The MediaContentServiceImpl class provides implementation for the MediaContentService interface.
+ * It interacts with various DAOs to perform CRUD operations on media content entities and related operations.
+ */
 public class MediaContentServiceImpl implements MediaContentService {
     private static final MediaContentDAO<Anime> animeDAO;
     private static final MediaContentDAO<Manga> mangaDAO;
@@ -38,6 +42,11 @@ public class MediaContentServiceImpl implements MediaContentService {
         mangaDAONeo4J = getMangaDAO(DataRepositoryEnum.NEO4J);
     }
 
+    /**
+     * Adds a new media content to the data repository.
+     * @param mediaContent The media content to be added.
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public void addMediaContent(MediaContent mediaContent) throws BusinessException {
         try {
@@ -51,6 +60,11 @@ public class MediaContentServiceImpl implements MediaContentService {
         }
     }
 
+    /**
+     * Updates an existing media content in the data repository.
+     * @param mediaContent The media content to be updated.
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public void updateMediaContent(MediaContent mediaContent) throws BusinessException {
         try {
@@ -70,6 +84,12 @@ public class MediaContentServiceImpl implements MediaContentService {
         }
     }
 
+    /**
+     * Removes a media content from the data repository.
+     * @param mediaId The ID of the media content to be removed.
+     * @param type The type of media content (Anime or Manga).
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public void removeMediaContent(String mediaId, MediaContentType type) throws BusinessException {
         try {
@@ -87,6 +107,14 @@ public class MediaContentServiceImpl implements MediaContentService {
         }
     }
 
+
+    /**
+     * Retrieves media content by its ID.
+     * @param mediaId The ID of the media content to retrieve.
+     * @param type The type of media content (Anime or Manga).
+     * @return The retrieved media content.
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public MediaContent getMediaContentById(String mediaId, MediaContentType type) throws BusinessException {
         try {
@@ -102,6 +130,16 @@ public class MediaContentServiceImpl implements MediaContentService {
         }
     }
 
+
+    /**
+     * Searches for media content based on specified filters.
+     * @param filters The filters to apply during the search.
+     * @param orderBy The order in which results should be returned.
+     * @param page The page number of the search results.
+     * @param type The type of media content (Anime or Manga).
+     * @return A PageDTO containing the search results.
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public PageDTO<? extends MediaContentDTO> searchByFilter(List<Map<String, Object>> filters, Map<String, Integer> orderBy, int page, MediaContentType type) throws BusinessException {
         try {
@@ -117,6 +155,14 @@ public class MediaContentServiceImpl implements MediaContentService {
         }
     }
 
+    /**
+     * Searches for media content by title.
+     * @param title The title of the media content to search for.
+     * @param page The page number of the search results.
+     * @param type The type of media content (Anime or Manga).
+     * @return A PageDTO containing the search results.
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public PageDTO<? extends MediaContentDTO> searchByTitle(String title, int page, MediaContentType type) throws BusinessException {
         try {
@@ -132,6 +178,11 @@ public class MediaContentServiceImpl implements MediaContentService {
         }
     }
 
+    /**
+     * Creates a node in the Neo4j database for the provided media content.
+     * @param mediaContentDTO The media content DTO representing the node to be created.
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public void createNode(MediaContentDTO mediaContentDTO) throws BusinessException {
         try {
@@ -148,6 +199,13 @@ public class MediaContentServiceImpl implements MediaContentService {
         }
     }
 
+    /**
+     * Adds a like for the specified user to the given media content.
+     * @param userId The ID of the user giving the like.
+     * @param mediaId The ID of the media content to be liked.
+     * @param type The type of media content (Anime or Manga).
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public void addLike(String userId, String mediaId, MediaContentType type) throws BusinessException {
         try {
@@ -164,6 +222,13 @@ public class MediaContentServiceImpl implements MediaContentService {
     }
 
 
+    /**
+     * Removes a like given by the specified user from the provided media content.
+     * @param userId The ID of the user whose like is to be removed.
+     * @param mediaId The ID of the media content from which the like is to be removed.
+     * @param type The type of media content (Anime or Manga).
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public void removeLike(String userId, String mediaId, MediaContentType type) throws BusinessException {
         try {
@@ -180,6 +245,13 @@ public class MediaContentServiceImpl implements MediaContentService {
         }
     }
 
+    /**
+     * Retrieves a list of media content that a user has liked.
+     * @param userId The ID of the user whose liked media content is to be retrieved.
+     * @param type The type of media content (Anime or Manga).
+     * @return A list of media content DTOs that the user has liked.
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public List<? extends MediaContentDTO> getLikedMediaContent(String userId, MediaContentType type) throws BusinessException {
         try {
@@ -195,6 +267,15 @@ public class MediaContentServiceImpl implements MediaContentService {
         }
     }
 
+
+    /**
+     * Checks if a user has liked a particular media content.
+     * @param userId The ID of the user.
+     * @param mediaId The ID of the media content to check.
+     * @param type The type of media content (Anime or Manga).
+     * @return True if the user has liked the media content, false otherwise.
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public boolean isLiked(String userId, String mediaId, MediaContentType type) throws BusinessException {
         try {
@@ -210,6 +291,13 @@ public class MediaContentServiceImpl implements MediaContentService {
         }
     }
 
+    /**
+     * Retrieves a list of suggested media content for a given user.
+     * @param userId The ID of the user for whom suggestions are to be retrieved.
+     * @param type The type of media content (Anime or Manga).
+     * @return A list of suggested media content DTOs.
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public List<? extends MediaContentDTO> getSuggestedMediaContent(String userId, MediaContentType type) throws BusinessException {
         try {
@@ -225,6 +313,13 @@ public class MediaContentServiceImpl implements MediaContentService {
         }
     }
 
+    /**
+     * Retrieves a list of trending media content for a given year.
+     * @param year The year for which trending media content is to be retrieved.
+     * @param type The type of media content (Anime or Manga).
+     * @return A list of trending media content DTOs.
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public List<? extends MediaContentDTO> getTrendMediaContentByYear(int year, MediaContentType type) throws BusinessException {
         try {

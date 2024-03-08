@@ -59,6 +59,11 @@ public abstract class MediaContent {
         this.status = status;
     }
 
+
+    /**
+     * Overrides the default toString method to provide a custom string representation of the MediaContent object.
+     * @return A string representation of the MediaContent object.
+     */
     @Override
     public String toString() {
         return "MediaContent{" +

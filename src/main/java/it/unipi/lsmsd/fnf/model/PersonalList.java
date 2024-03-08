@@ -71,6 +71,11 @@ public class PersonalList {
         this.anime.removeIf(anime -> anime.getId().equals(animeId));
     }
 
+
+    /**
+     * Overrides the default toString method to provide a custom string representation of the PersonalList object.
+     * @return A string representation of the PersonalList object.
+     */
     @Override
     public String toString() {
         return "PersonalList{" +
