@@ -96,34 +96,66 @@ public class User extends RegisteredUser {
         this.reviews = reviews;
     }
 
+    /**
+     * Sets the media content liked by the user.
+     * @param likedMediaContent The media content liked by the user.
+     */
     public void setLikedMediaContent(List<MediaContent> likedMediaContent) {
         this.likedMediaContent = likedMediaContent;
     }
 
+    /**
+     * Adds a new list created by the user.
+     * @param list The list created by the user.
+     */
     public void addList(PersonalList list) {
         this.lists.add(list);
     }
 
+    /**
+     * Removes a list created by the user.
+     * @param listId The ID of the list to be removed.
+     */
     public void removeList(String listId) {
         this.lists.removeIf(personalList -> personalList.getId().equals(listId));
     }
 
+    /**
+     * Adds a new review created by the user.
+     * @param review The review created by the user.
+     */
     public void addReview(Review review) {
         this.reviews.add(review);
     }
 
+    /**
+     * Removes a review created by the user.
+     * @param review The review to be removed.
+     */
     public void removeReview(Review review) {
         this.reviews.remove(review);
     }
 
+    /**
+     * Adds new media content liked by the user.
+     * @param mediaContent The media content liked by the user.
+     */
     public void addLikedMediaContent(MediaContent mediaContent) {
         this.likedMediaContent.add(mediaContent);
     }
 
+    /**
+     * Removes media content liked by the user.
+     * @param mediaContentId The ID of the media content to be removed.
+     */
     public void removeLikedMediaContent(String mediaContentId) {
         this.likedMediaContent.removeIf(content -> content.getId().equals(mediaContentId));
     }
 
+    /**
+     * Overrides the default toString method to provide a custom string representation of the User object.
+     * @return A string representation of the User object.
+     */
     @Override
     public String toString() {
         return "User{" +

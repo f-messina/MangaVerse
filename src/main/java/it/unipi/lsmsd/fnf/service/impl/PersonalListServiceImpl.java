@@ -20,7 +20,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-
+/**
+ * The PersonalListServiceImpl class provides implementation for the PersonalListService interface.
+ * It handles CRUD operations and other functionalities related to personal lists.
+ */
 public class PersonalListServiceImpl implements PersonalListService {
 
     private static final PersonalListDAO personalListDAO;
@@ -29,6 +32,12 @@ public class PersonalListServiceImpl implements PersonalListService {
         personalListDAO = DAOLocator.getPersonalListDAO(DataRepositoryEnum.MONGODB);
     }
 
+    /**
+     * Inserts a new personal list into the data repository.
+     * @param list The personal list to be inserted.
+     * @return The ID of the inserted list.
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public String insertList(PersonalList list) throws BusinessException {
         if (list.getName() == null) {
@@ -46,6 +55,13 @@ public class PersonalListServiceImpl implements PersonalListService {
         }
     }
 
+    /**
+     * Updates an existing personal list in the data repository.
+     * @param listId The ID of the list to be updated.
+     * @param listName The new name for the list.
+     * @param user The user associated with the list.
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public void updateList(String listId, String listName, String userId) throws BusinessException {
         Objects.requireNonNull(listId, "The id can't be null.");
@@ -60,6 +76,12 @@ public class PersonalListServiceImpl implements PersonalListService {
         }
     }
 
+    /**
+     * Adds a media content to a personal list.
+     * @param listId The ID of the list to which the content is to be added.
+     * @param content The media content to be added.
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public void addToList(String listId, MediaContentDTO content) throws BusinessException {
         try {
@@ -69,6 +91,13 @@ public class PersonalListServiceImpl implements PersonalListService {
         }
     }
 
+    /**
+     * Removes a media content from a personal list.
+     * @param listId The ID of the list from which the content is to be removed.
+     * @param mediaContentId The ID of the media content to be removed.
+     * @param type The type of media content (Anime or Manga).
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public void removeFromList(String listId, String mediaContentId, MediaContentType type) throws BusinessException {
         try {
@@ -78,6 +107,11 @@ public class PersonalListServiceImpl implements PersonalListService {
         }
     }
 
+    /**
+     * Updates a media content item in a personal list.
+     * @param content The media content to be updated.
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public void updateItemInList(MediaContentDTO content) throws BusinessException {
         try {
@@ -87,6 +121,11 @@ public class PersonalListServiceImpl implements PersonalListService {
         }
     }
 
+    /**
+     * Removes a media content from a personal list.
+     * @param itemId The ID of the media content item to be removed.
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public void removeMediaContentList(String itemId) throws BusinessException {
         try {
@@ -96,6 +135,12 @@ public class PersonalListServiceImpl implements PersonalListService {
         }
     }
 
+
+    /**
+     * Deletes a personal list from the data repository.
+     * @param listId The ID of the list to be deleted.
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public void deleteList(String listId) throws BusinessException {
         try {
@@ -105,6 +150,11 @@ public class PersonalListServiceImpl implements PersonalListService {
         }
     }
 
+    /**
+     * Deletes all personal lists associated with a user.
+     * @param userId The ID of the user whose lists are to be deleted.
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public void deleteListsByUser(String userId) throws BusinessException {
         try {
@@ -114,6 +164,14 @@ public class PersonalListServiceImpl implements PersonalListService {
         }
     }
 
+
+    /**
+     * Finds all personal lists associated with a user.
+     * @param userId The ID of the user.
+     * @param reducedInfo Flag indicating whether to fetch reduced information for the lists.
+     * @return A list of personal lists.
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public List<PersonalList> findListsByUser(String userId, boolean reducedInfo) throws BusinessException {
         try {
@@ -126,6 +184,11 @@ public class PersonalListServiceImpl implements PersonalListService {
         }
     }
 
+    /**
+     * Finds all personal lists in the data repository.
+     * @return A list of personal lists.
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public List<PersonalList> findAllLists() throws BusinessException {
         try {
@@ -140,6 +203,12 @@ public class PersonalListServiceImpl implements PersonalListService {
         }
     }
 
+    /**
+     * Finds a personal list by its ID.
+     * @param id The ID of the list to find.
+     * @return The personal list.
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public PersonalList findList(String id) throws BusinessException {
         try {

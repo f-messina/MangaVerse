@@ -20,17 +20,32 @@ import java.util.stream.Stream;
 public class ConverterUtils {
 
     // Convert Date to LocalDate
+    /**
+     * Converts a Date object to a LocalDate object.
+     * @param date The Date object to be converted.
+     * @return The LocalDate equivalent of the input Date.
+     */
     public static LocalDate dateToLocalDate(Date date) {
         if (date == null) return null;
         return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
     }
 
     // Convert LocalDate to Date
+    /**
+     * Converts a LocalDate object to a Date object.
+     * @param localDate The LocalDate object to be converted.
+     * @return The Date equivalent of the input LocalDate.
+     */
     public static Date localDateToDate(LocalDate localDate) {
         if (localDate == null) return null;
         return Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
     }
 
+    /**
+     * Converts HTTP request parameters to a UserRegistrationDTO object.
+     * @param request The HttpServletRequest containing request parameters.
+     * @return The UserRegistrationDTO object populated with request parameters.
+     */
     public static UserRegistrationDTO fromRequestToUserRegDTO(HttpServletRequest request){
         UserRegistrationDTO userRegistrationDTO = new UserRegistrationDTO();
         userRegistrationDTO.setUsername(request.getParameter("username"));
@@ -46,6 +61,12 @@ public class ConverterUtils {
         return userRegistrationDTO;
     }
 
+    /**
+     * Converts HTTP request parameters to a ReviewDTO object.
+     * @param request The HttpServletRequest containing request parameters.
+     * @param mediaType The type of media content being reviewed.
+     * @return The ReviewDTO object populated with request parameters.
+     */
     public static ReviewDTO fromRequestToReviewDTO(HttpServletRequest request, MediaContentType mediaType){
         UserSummaryDTO userDTO = new UserSummaryDTO();
         userDTO.setId(SecurityUtils.getAuthenticatedUser(request).getId());
@@ -64,6 +85,11 @@ public class ConverterUtils {
         return reviewDTO;
     }
 
+    /**
+     * Converts HTTP request parameters to filters for manga search.
+     * @param request The HttpServletRequest containing request parameters.
+     * @return A list of filters as Map objects.
+     */
     public static List<Map<String, Object>> fromRequestToMangaFilters(HttpServletRequest request) {
         return Stream.of(
                 buildGenreFilter(request, "select", request.getParameter("genreOperator").equals("and")? "$all": "$in"),
@@ -78,6 +104,11 @@ public class ConverterUtils {
                 .toList();
     }
 
+    /**
+     * Converts HTTP request parameters to filters for anime search.
+     * @param request The HttpServletRequest containing request parameters.
+     * @return A list of filters as Map objects.
+     */
     public static List<Map<String, Object>> fromRequestToAnimeFilters(HttpServletRequest request) {
         return Stream.of(
                         buildGenreFilter(request, "select", request.getParameter("genreOperator").equals("and")? "$all": "$in"),
@@ -92,6 +123,13 @@ public class ConverterUtils {
                 .toList();
     }
 
+    /**
+     * Builds a genre filter based on HTTP request parameters.
+     * @param request The HttpServletRequest containing request parameters.
+     * @param condition The condition for genre selection.
+     * @param operator The operator for combining genre filters.
+     * @return A Map representing the genre filter.
+     */
     private static Map<String, Object> buildGenreFilter(HttpServletRequest request, String condition, String operator) {
         if (request.getServletPath().equals("/mainPage/manga")) {
             List<String> genres = Arrays.stream(Constants.MANGA_GENRES)
@@ -107,6 +145,13 @@ public class ConverterUtils {
         }
     }
 
+    /**
+     * Builds an enum filter based on HTTP request parameters.
+     * @param values The values to filter on.
+     * @param enumConstants The enum constants corresponding to the filter values.
+     * @param key The key for the filter.
+     * @return A Map representing the enum filter.
+     */
     private static Map<String, Object> buildEnumFilter(String[] values, Enum<?>[] enumConstants, String key) {
         List<String> enumValues = Optional.ofNullable(values).stream().flatMap(Arrays::stream)
                 .filter(Objects::nonNull)
@@ -116,6 +161,11 @@ public class ConverterUtils {
         return enumValues.isEmpty() ? Map.of() : Map.of("$in", Map.of(key, enumValues));
     }
 
+    /**
+     * Builds a score filter based on HTTP request parameters.
+     * @param request The HttpServletRequest containing request parameters.
+     * @return A Map representing the score filter.
+     */
     private static Map<String, Object> buildScoreFilter(HttpServletRequest request) {
         String min = request.getParameter("minScore");
         String max = request.getParameter("maxScore");
@@ -132,6 +182,11 @@ public class ConverterUtils {
         return Map.of("$or", rangeListWithNull);
     }
 
+    /**
+     * Builds a date filter based on HTTP request parameters.
+     * @param request The HttpServletRequest containing request parameters.
+     * @return A Map representing the date filter.
+     */
     private static Map<String, Object> buildDateFilter(HttpServletRequest request) {
         String startDate = request.getParameter("startDate");
         String endDate = request.getParameter("endDate");
@@ -147,6 +202,11 @@ public class ConverterUtils {
         }
     }
 
+    /**
+     * Builds a year filter based on HTTP request parameters.
+     * @param request The HttpServletRequest containing request parameters.
+     * @return A Map representing the year filter.
+     */
     private static Map<String, Object> buildYearFilter(HttpServletRequest request) {
         String min = request.getParameter("minYear");
         String max = request.getParameter("maxYear");
@@ -159,6 +219,11 @@ public class ConverterUtils {
         return Map.of("$and", rangeList);
     }
 
+    /**
+     * Builds a season filter based on HTTP request parameters.
+     * @param request The HttpServletRequest containing request parameters.
+     * @return A Map representing the season filter.
+     */
     private static Map<String, Object> buildSeasonFilter(HttpServletRequest request) {
         String season = request.getParameter("season");
         String year = request.getParameter("year");

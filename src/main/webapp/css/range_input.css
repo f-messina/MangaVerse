@@ -261,6 +261,7 @@ input[type=range]::-moz-range-thumb {
 
 #mediaContentContainer article img{
     height: 250px;
+    max-width: 350px;
     margin-top: 10px;
     margin-bottom: 10px;
 }
@@ -283,4 +284,14 @@ input[type=range]::-moz-range-thumb {
     -webkit-box-shadow: 5px 5px 23px -7px rgba(0,0,0,0.84);
     border-radius: 7px;
     background-color: white;
+}
+
+.green{
+    background-color:  greenyellow;
+}
+.red{
+    background-color: #d25656;
+}
+#filtersFormContainer{
+    display: none;
 }

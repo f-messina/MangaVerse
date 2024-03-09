@@ -28,9 +28,21 @@ import static com.mongodb.client.model.Projections.exclude;
 import static com.mongodb.client.model.Projections.include;
 import static com.mongodb.client.model.Sorts.ascending;
 
+/**
+ * Implementation of UserDAO interface for MongoDB data access.
+ * Provides methods for user registration, authentication, updating, and removal,
+ * as well as methods for querying user data and performing statistical analyses.
+ */
 public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
     private static final String COLLECTION_NAME = "users";
 
+    /**
+     * Registers a new user in the system.
+     *
+     * @param user The User object to be registered.
+     * @throws DAOException If an error occurs during registration,
+     *                      such as email or username already in use.
+     */
     @Override
     public void createUser(UserRegistrationDTO user) throws DAOException {
         try {
@@ -68,6 +80,13 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
         }
     }
 
+    /**
+     * Updates the information of an existing user in the system.
+     *
+     * @param user The User object containing the updated information.
+     * @throws DAOException If an error occurs during the update process,
+     *                      such as the username already exists.
+     */
     @Override
     public void updateUser(User user) throws DAOException {
         try {
@@ -101,6 +120,12 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
         }
     }
 
+    /**
+     * Removes a user from the system based on their ID.
+     *
+     * @param userId The ID of the user to be removed.
+     * @throws DAOException If an error occurs while removing the user.
+     */
     @Override
     public void deleteUser(String userId) throws DAOException {
         try {
@@ -118,6 +143,14 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
         }
     }
 
+    /**
+     * Authenticates a user based on their email and password.
+     *
+     * @param email    The email of the user to authenticate.
+     * @param password The password of the user to authenticate.
+     * @return The authenticated user.
+     * @throws DAOException If authentication fails due to incorrect email or password.
+     */
     @Override
     public RegisteredUser authenticate(String email, String password) throws DAOException {
         try {
@@ -146,6 +179,13 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
         }
     }
 
+    /**
+     * Retrieves a user from the system based on their ID.
+     *
+     * @param userId The ID of the user to retrieve.
+     * @return The retrieved user, or null if not found.
+     * @throws DAOException If an error occurs while retrieving the user.
+     */
     @Override
     public RegisteredUser getById(String userId) throws DAOException {
         try {
@@ -162,6 +202,13 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
         }
     }
 
+    /**
+     * Searches for users based on their username.
+     *
+     * @param username The username to search for.
+     * @return A list of RegisteredUserDTO objects matching the search criteria.
+     * @throws DAOException If an error occurs while searching for users.
+     */
     @Override
     public List<UserSummaryDTO> searchFirstNUsers(String username, Integer n, String loggedUser) throws DAOException {
         try {
@@ -197,6 +244,12 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
 
     //MongoDB complex queries
     //Find the distribution of genders between users
+    /**
+     * Retrieves the distribution of genders among users.
+     *
+     * @return A list of MongoDB documents representing the distribution of genders.
+     * @throws DAOException If an error occurs while retrieving the gender distribution.
+     */
     @Override
     public List<Document> getGenderDistribution() throws DAOException {
         try {
@@ -220,6 +273,12 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
     }
 
     //Find the average age of users
+    /**
+     * Calculates the average age of users.
+     *
+     * @return The average age of users.
+     * @throws DAOException If an error occurs while calculating the average age.
+     */
     @Override
     public Integer averageAgeUsers() throws DAOException {
         try {
@@ -243,6 +302,12 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
     }
 
     //Find the distribution of users by location
+    /**
+     * Retrieves the distribution of users by location.
+     *
+     * @return A list of MongoDB documents representing the distribution of users by location.
+     * @throws DAOException If an error occurs while retrieving the location distribution.
+     */
     @Override
     public List<Document> getLocationDistribution() throws DAOException {
         try {
@@ -262,6 +327,12 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
     }
 
     //Find how many users there are grouped by age range
+    /**
+     * Retrieves the number of users grouped by age range.
+     *
+     * @return A list of MongoDB documents representing the number of users in each age range.
+     * @throws DAOException If an error occurs while retrieving users by age range.
+     */
     @Override
     public List<Document> getUsersByAgeRange() throws DAOException {
         try {
@@ -285,6 +356,12 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
     }
 
     //Find how many users registered for each year
+    /**
+     * Retrieves the number of users registered for each year.
+     *
+     * @return A list of MongoDB documents representing the number of users registered each year.
+     * @throws DAOException If an error occurs while retrieving users registered by year.
+     */
     @Override
     public List<Document> getUsersRegisteredByYear() throws DAOException {
         try {
@@ -303,6 +380,13 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
     }
 
     //Find average app_rating based on the age of users
+    /**
+     * Calculates the average app rating based on the age of users.
+     *
+     * @param yearOfBirth The year of birth to calculate the average app rating for.
+     * @return The average app rating for users born in the specified year.
+     * @throws DAOException If an error occurs while calculating the average app rating.
+     */
     @Override
     public Integer averageAppRatingByAge (Integer yearOfBirth) throws DAOException{
         try {
@@ -324,6 +408,13 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
 
     }
     //Find average app_rating based on the location of users
+    /**
+     * Calculates the average app rating based on the location of users.
+     *
+     * @param location The location to calculate the average app rating for.
+     * @return The average app rating for users in the specified location.
+     * @throws DAOException If an error occurs while calculating the average app rating.
+     */
     @Override
     public Integer averageAppRatingByLocation (String location) throws DAOException{
         try {
@@ -344,6 +435,12 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
 
     }
     //Find average app_rating based on the gender of users
+    /**
+     * Calculates the average app rating based on the gender of users.
+     *
+     * @return A list of MongoDB documents representing the average app rating for each gender.
+     * @throws DAOException If an error occurs while calculating the average app rating.
+     */
     @Override
     public List<Document> averageAppRatingByGender () throws DAOException {
         try {
@@ -447,26 +544,26 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
     // Methods available only in Neo4J
     @Override
     public void createNode(UserSummaryDTO userSummaryDTO) throws DAOException {
-        throw new DAOException("Method not available in MongoDB");
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override
     public void follow(String followerUserId, String followingUserId) throws DAOException {
-        throw new DAOException("Method not available in MongoDB");
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override
     public void unfollow(String followerUserId, String followingUserId) throws DAOException {
-        throw new DAOException("Method not available in MongoDB");
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override
     public List<UserSummaryDTO> getFollowing(String userId) throws DAOException {
-        throw new DAOException("Method not available in MongoDB");
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override
     public List<UserSummaryDTO> getFollowers(String userId) throws DAOException {
-        throw new DAOException("Method not available in MongoDB");
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override
     public List<UserSummaryDTO> suggestUsers(String userId) throws DAOException {
-        throw new DAOException("Method not available in MongoDB");
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
 }

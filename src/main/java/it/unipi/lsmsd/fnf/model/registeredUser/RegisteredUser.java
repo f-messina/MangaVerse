@@ -60,6 +60,11 @@ public abstract class RegisteredUser {
         this.joinedDate = joinedDate;
     }
 
+
+    /**
+     * Overrides the default toString method to provide a custom string representation of the RegisteredUser object.
+     * @return A string representation of the RegisteredUser object.
+     */
     @Override
     public String toString() {
         return "RegisteredUser{" +

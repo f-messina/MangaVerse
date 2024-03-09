@@ -15,9 +15,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
+/**
+ * Implementation of the MediaContentDAO interface for handling Manga objects in Neo4j.
+ */
 public class MangaDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Manga> {
 
+    /**
+     * Creates a node for a Manga in the Neo4j database.
+     *
+     * @param mangaDTO The MangaDTO object containing information about the Manga to be created.
+     * @throws DAOException If an error occurs while creating the Manga node.
+     */
     @Override
     public void createNode(MediaContentDTO mangaDTO) throws DAOException {
         try (Session session = getSession()) {
@@ -30,6 +38,13 @@ public class MangaDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Manga>
         }
     }
 
+    /**
+     * Records a user's like for a specific Manga in the Neo4j database.
+     *
+     * @param userId  The ID of the user liking the Manga.
+     * @param mangaId The ID of the Manga being liked.
+     * @throws DAOException If an error occurs while processing the like operation.
+     */
     @Override
     public void like(String userId, String mangaId) throws DAOException {
         try (Session session = getSession()) {
@@ -43,6 +58,13 @@ public class MangaDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Manga>
         }
     }
 
+    /**
+     * Removes a user's like for a specific Manga from the Neo4j database.
+     *
+     * @param userId  The ID of the user unliking the Manga.
+     * @param mangaId The ID of the Manga being unliked.
+     * @throws DAOException If an error occurs while processing the unlike operation.
+     */
     @Override
     public void unlike(String userId, String mangaId) throws DAOException {
         try (Session session = getSession()) {
@@ -53,6 +75,14 @@ public class MangaDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Manga>
         }
     }
 
+    /**
+     * Checks if a user has liked a specific Manga in the Neo4j database.
+     *
+     * @param userId   The ID of the user to check.
+     * @param mediaId  The ID of the Manga to check.
+     * @return True if the user has liked the Manga, false otherwise.
+     * @throws DAOException If an error occurs while checking the like status.
+     */
     @Override
     public boolean isLiked(String userId, String mediaId) throws DAOException {
         try (Session session = getSession()) {
@@ -63,6 +93,14 @@ public class MangaDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Manga>
             throw new DAOException("Error while checking if manga is liked", e);
         }
     }
+
+    /**
+     * Retrieves a list of MangaDTO objects that a user has liked from the Neo4j database.
+     *
+     * @param userId The ID of the user whose liked Manga are to be retrieved.
+     * @return A list of MangaDTO objects representing the Manga liked by the user.
+     * @throws DAOException If an error occurs while retrieving the liked Manga.
+     */
     @Override
     public List<MangaDTO> getLiked(String userId) throws DAOException {
         try (Session session = getSession()) {
@@ -86,6 +124,14 @@ public class MangaDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Manga>
         return mangaDTO;
     }
 
+
+    /**
+     * Retrieves a list of suggested MangaDTO objects for a user from the Neo4j database.
+     *
+     * @param userId The ID of the user for whom suggested Manga are to be retrieved.
+     * @return A list of MangaDTO objects representing suggested Manga for the user.
+     * @throws DAOException If an error occurs while retrieving suggested Manga.
+     */
     @Override
     public List<MangaDTO> getSuggested(String userId) throws DAOException {
         try (Session session = getSession()) {
@@ -101,6 +147,13 @@ public class MangaDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Manga>
 
     }
 
+    /**
+     * Retrieves a list of trending MangaDTO objects for a specific year from the Neo4j database.
+     *
+     * @param year The year for which trending Manga are to be retrieved.
+     * @return A list of MangaDTO objects representing trending Manga for the specified year.
+     * @throws DAOException If an error occurs while retrieving trending Manga.
+     */
     @Override
     public List<MangaDTO> getTrendMediaContentByYear(int year) throws DAOException {
         try (Session session = getSession()) {
@@ -121,6 +174,13 @@ public class MangaDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Manga>
         }
     }
 
+    /**
+     * Retrieves a list of trending Manga genres for a specific year from the Neo4j database.
+     *
+     * @param year The year for which trending Manga genres are to be retrieved.
+     * @return A list of Strings representing trending Manga genres for the specified year.
+     * @throws DAOException If an error occurs while retrieving trending Manga genres.
+     */
     @Override
     public List<String> getMediaContentGenresTrendByYear(int year) throws DAOException {
         List<String> genreNames = new ArrayList<>();
@@ -152,6 +212,12 @@ public class MangaDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Manga>
         }
     }
 
+    /**
+     * Retrieves a list of trending MangaDTO objects by genre from the Neo4j database.
+     *
+     * @return A list of MangaDTO objects representing trending Manga by genre.
+     * @throws DAOException If an error occurs while retrieving trending Manga by genre.
+     */
     @Override
     public List<MangaDTO> getMediaContentTrendByGenre() throws DAOException {
         try (Session session = getSession()) {
@@ -169,6 +235,12 @@ public class MangaDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Manga>
         }
     }
 
+    /**
+     * Retrieves a list of trending MangaDTO objects by likes from the Neo4j database.
+     *
+     * @return A list of MangaDTO objects representing trending Manga by likes.
+     * @throws DAOException If an error occurs while retrieving trending Manga by likes.
+     */
     @Override
     public List<MangaDTO> getMediaContentTrendByLikes() throws DAOException {
         try (Session session = getSession()) {
@@ -185,6 +257,13 @@ public class MangaDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Manga>
         }
     }
 
+
+    /**
+     * Retrieves a list of trending Manga genres from the Neo4j database.
+     *
+     * @return A list of Strings representing trending Manga genres.
+     * @throws DAOException If an error occurs while retrieving trending Manga genres.
+     */
     @Override
     public List<String> getMediaContentGenresTrend() throws DAOException {
         List<String> genreNames = new ArrayList<>();

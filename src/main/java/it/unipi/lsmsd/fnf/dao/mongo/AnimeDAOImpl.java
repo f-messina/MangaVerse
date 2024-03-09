@@ -121,6 +121,15 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
         }
     }
 
+    /**
+     * Searches for Anime objects in the MongoDB database based on provided filters, ordering, and pagination.
+     *
+     * @param filters  The list of filters to apply to the search.
+     * @param orderBy  The map defining the ordering criteria for the search.
+     * @param page     The page number for pagination.
+     * @return A PageDTO object containing a list of AnimeDTO objects matching the search criteria and the total count of results.
+     * @throws DAOException If an error occurs during the search process.
+     */
     @Override
     public PageDTO<AnimeDTO> search(List<Map<String, Object>> filters, Map<String, Integer> orderBy, int page) throws DAOException {
         try {
@@ -175,6 +184,12 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
         }
     }
 
+    /**
+     * Updates the latest review for an Anime in the MongoDB database.
+     *
+     * @param reviewDTO The ReviewDTO object representing the latest review to update.
+     * @throws DAOException If an error occurs during the update process.
+     */
     @Override
     public void updateLatestReview(ReviewDTO reviewDTO) throws DAOException {
         try {
@@ -217,6 +232,28 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
         }
     }
 
+    /**
+     * Converts a ReviewDTO object into a Document for MongoDB storage.
+     *
+     * @param reviewDTO The ReviewDTO object to convert.
+     * @return A Document representing the ReviewDTO.
+     */
+    private Document reviewToDocument(ReviewDTO reviewDTO) {
+        Document doc = new Document();
+        doc.append("id", reviewDTO.getId());
+        doc.append("comment", reviewDTO.getComment());
+        doc.append("date", reviewDTO.getDate());
+        // Add other fields as necessary
+        return doc;
+    }
+
+
+    /**
+     * Converts an Anime object into a Document for MongoDB storage.
+     *
+     * @param anime The Anime object to convert.
+     * @return A Document representing the Anime.
+     */
     private Document animeToDocument(Anime anime) {
         Document doc = new Document();
         appendIfNotNull(doc, "title", anime.getTitle());
@@ -252,6 +289,12 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
         return doc;
     }
 
+    /**
+     * Converts a Document from MongoDB storage into an Anime object.
+     *
+     * @param doc The Document to convert.
+     * @return An Anime object representing the Document.
+     */
     private Anime documentToAnime(Document doc) {
         Anime anime = new Anime();
         anime.setId(doc.getObjectId("_id").toString());
@@ -299,6 +342,12 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
         return anime;
     }
 
+    /**
+     * Converts a Document from MongoDB storage into an AnimeDTO object.
+     *
+     * @param doc The Document to convert.
+     * @return An AnimeDTO object representing the Document.
+     */
     private AnimeDTO documentToAnimeDTO(Document doc) {
         AnimeDTO anime = new AnimeDTO();
         anime.setId(doc.getObjectId("_id").toString());
@@ -333,44 +382,47 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
     // Neo4J specific methods
     @Override
     public void createNode(MediaContentDTO animeDTO) throws DAOException {
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override
     public void like(String userId, String mediaContentId) throws DAOException {
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override
     public void unlike(String userId, String mediaContentId) throws DAOException {
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override
     public boolean isLiked(String userId, String mediaId) throws DAOException {
-        return false;
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override
     public List<? extends MediaContentDTO> getLiked(String userId) throws DAOException {
-        return null;
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override
     public List<? extends MediaContentDTO> getSuggested(String userId) throws DAOException {
-        return null;
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override
     public List<? extends MediaContentDTO> getTrendMediaContentByYear(int year) throws DAOException {
-        return null;
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override
     public List<String> getMediaContentGenresTrendByYear(int year) throws DAOException {
-        return null;
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override
     public List<? extends MediaContentDTO> getMediaContentTrendByGenre() throws DAOException {
-        return null;
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override
     public List<? extends MediaContentDTO> getMediaContentTrendByLikes() throws DAOException {
-        return null;
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override
     public List<String> getMediaContentGenresTrend() throws DAOException {
-        return null;
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
 }
 

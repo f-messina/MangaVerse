@@ -13,9 +13,17 @@ import org.neo4j.driver.Session;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
+/**
+ * Implementation of the UserDAO interface for handling User-related operations in Neo4j.
+ */
 public class UserDAOImpl extends BaseNeo4JDAO implements UserDAO {
 
+    /**
+     * Creates a node for a RegisteredUser in the Neo4j database.
+     *
+     * @param registeredUserDTO The RegisteredUserDTO object containing information about the user to be created.
+     * @throws DAOException If an error occurs while creating the user node.
+     */
     @Override
     public void createNode(UserSummaryDTO userSummaryDTO) throws DAOException {
         try (Session session = getSession()) {
@@ -28,6 +36,13 @@ public class UserDAOImpl extends BaseNeo4JDAO implements UserDAO {
         }
     }
 
+    /**
+     * Establishes a 'follow' relationship between two users in the Neo4j database.
+     *
+     * @param followerUserId   The ID of the user initiating the follow action.
+     * @param followingUserId  The ID of the user being followed.
+     * @throws DAOException If an error occurs while establishing the 'follow' relationship.
+     */
     @Override
     public void follow(String followerUserId, String followingUserId) throws DAOException {
         try (Session session = getSession()) {
@@ -39,6 +54,13 @@ public class UserDAOImpl extends BaseNeo4JDAO implements UserDAO {
         }
     }
 
+    /**
+     * Removes a 'follow' relationship between two users in the Neo4j database.
+     *
+     * @param followerUserId   The ID of the user initiating the unfollow action.
+     * @param followingUserId  The ID of the user being unfollowed.
+     * @throws DAOException If an error occurs while removing the 'follow' relationship.
+     */
     @Override
     public void unfollow(String followerUserId, String followingUserId) throws DAOException {
         try (Session session = getSession()) {
@@ -49,6 +71,13 @@ public class UserDAOImpl extends BaseNeo4JDAO implements UserDAO {
         }
     }
 
+    /**
+     * Retrieves a list of users followed by a specific user from the Neo4j database.
+     *
+     * @param userId The ID of the user whose followed users are to be retrieved.
+     * @return A list of RegisteredUserDTO objects representing the users followed by the specified user.
+     * @throws DAOException If an error occurs while retrieving the followed users list.
+     */
     @Override
     public List<UserSummaryDTO> getFollowing(String userId) throws DAOException {
         try (Session session = getSession()) {
@@ -71,6 +100,13 @@ public class UserDAOImpl extends BaseNeo4JDAO implements UserDAO {
         return userSummaryDTO;
     }
 
+    /**
+     * Retrieves a list of users following a specific user from the Neo4j database.
+     *
+     * @param userId The ID of the user whose followers are to be retrieved.
+     * @return A list of RegisteredUserDTO objects representing the followers of the specified user.
+     * @throws DAOException If an error occurs while retrieving the followers list.
+     */
     @Override
     public List<UserSummaryDTO> getFollowers(String userId) throws DAOException {
         try (Session session = getSession()) {
@@ -82,6 +118,13 @@ public class UserDAOImpl extends BaseNeo4JDAO implements UserDAO {
         }
     }
 
+    /**
+     * Retrieves a list of suggested users for a specific user from the Neo4j database.
+     *
+     * @param userId The ID of the user for whom suggested users are to be retrieved.
+     * @return A list of RegisteredUserDTO objects representing suggested users for the specified user.
+     * @throws DAOException If an error occurs while retrieving suggested users.
+     */
     @Override
     public List<UserSummaryDTO> suggestUsers(String userId) throws DAOException {
         try (Session session = getSession()) {

@@ -283,5 +283,13 @@
         home.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
     });
 </script>
+    <script>
+        function toggleFiltersDisplay() {
+            const filtersFormContainer = document.getElementById('filtersFormContainer');
+            filtersFormContainer.style.display = filtersFormContainer.style.display === 'none' ? 'block' : 'none';
+
+
+        }
+    </script>
 </body>
 </html>

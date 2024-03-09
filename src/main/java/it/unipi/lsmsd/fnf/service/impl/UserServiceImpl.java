@@ -29,6 +29,10 @@ import java.util.stream.Collectors;
 
 import static it.unipi.lsmsd.fnf.dao.DAOLocator.*;
 
+/**
+ * The UserServiceImpl class provides implementation for the UserService interface.
+ * It handles user registration, authentication, updating user information, and other user-related functionalities.
+ */
 public class UserServiceImpl implements UserService {
 
     private static final UserDAO userDAO;
@@ -45,6 +49,12 @@ public class UserServiceImpl implements UserService {
         mangaDAONeo4J = getMangaDAO(DataRepositoryEnum.NEO4J);
     }
 
+    /**
+     * Registers a new user and logs them in.
+     * @param userRegistrationDTO The user registration data.
+     * @return The registered user.
+     * @throws BusinessException If an error occurs during the registration process.
+     */
     @Override
     public void registerUserAndLogin(UserRegistrationDTO userRegistrationDTO) throws BusinessException {
         try {
@@ -70,6 +80,13 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    /**
+     * Authenticates a user based on email and password.
+     * @param email The email of the user.
+     * @param password The password of the user.
+     * @return The authenticated user.
+     * @throws BusinessException If an error occurs during the authentication process.
+     */
     @Override
     public RegisteredUser login(String email, String password) throws BusinessException {
         // Validation checks for empty fields
@@ -107,6 +124,11 @@ public class UserServiceImpl implements UserService {
     }
 
 
+    /**
+     * Updates user information.
+     * @param user The updated user information.
+     * @throws BusinessException If an error occurs during the update process.
+     */
     @Override
     public void updateUserInfo(User user) throws BusinessException {
         try {
@@ -122,6 +144,11 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    /**
+     * Creates a node for a registered user in the Neo4j graph database.
+     * @param registeredUserDTO The registered user data.
+     * @throws BusinessException If an error occurs during the node creation process.
+     */
     @Override
     public void createNode(UserSummaryDTO userSummaryDTO) throws BusinessException {
         try {
@@ -131,6 +158,12 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    /**
+     * Follows a user.
+     * @param followerUserId The ID of the user who wants to follow.
+     * @param followingUserId The ID of the user to be followed.
+     * @throws BusinessException If an error occurs while following the user.
+     */
     @Override
     public void follow(String followerUserId, String followingUserId) throws BusinessException {
         try {
@@ -140,6 +173,12 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    /**
+     * Unfollows a user.
+     * @param followerUserId The ID of the user who wants to unfollow.
+     * @param followingUserId The ID of the user to be unfollowed.
+     * @throws BusinessException If an error occurs while unfollowing the user.
+     */
     @Override
     public void unfollow(String followerUserId, String followingUserId) throws BusinessException {
         try {
@@ -149,6 +188,12 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    /**
+     * Retrieves the list of users being followed by a particular user.
+     * @param userId The ID of the user.
+     * @return The list of users being followed by the specified user.
+     * @throws BusinessException If an error occurs while retrieving the list.
+     */
     @Override
     public List<UserSummaryDTO> getFollowing(String userId) throws BusinessException {
         try {
@@ -158,6 +203,13 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+
+    /**
+     * Retrieves the list of users following a particular user.
+     * @param userId The ID of the user.
+     * @return The list of users following the specified user.
+     * @throws BusinessException If an error occurs while retrieving the list.
+     */
     @Override
     public List<UserSummaryDTO> getFollowers(String userId) throws BusinessException {
         try {

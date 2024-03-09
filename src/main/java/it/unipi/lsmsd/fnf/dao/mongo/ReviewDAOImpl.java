@@ -33,9 +33,20 @@ import static com.mongodb.client.model.Projections.exclude;
 import static com.mongodb.client.model.Sorts.descending;
 import static com.mongodb.client.model.Updates.*;
 
+/**
+ * Implementation of ReviewDAO interface for MongoDB data access operations related to reviews.
+ * This class provides methods to insert, update, delete, and retrieve reviews from the database,
+ * as well as methods to perform various analytical queries on review data.
+ */
 public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
     private static final String COLLECTION_NAME = "reviews";
 
+    /**
+     * Inserts a new review into the database or updates an existing one if the user has already reviewed the media content.
+     *
+     * @param reviewDTO The ReviewDTO object representing the review to be inserted or updated.
+     * @throws DAOException If an error occurs during the insertion or update process.
+     */
     @Override
     public void createReview(ReviewDTO reviewDTO) throws DAOException {
         try {
@@ -89,6 +100,12 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
         }
     }
 
+    /**
+     * Updates an existing review in the database.
+     *
+     * @param reviewDTO The ReviewDTO object representing the review to be updated.
+     * @throws DAOException If an error occurs during the update process.
+     */
     @Override
     public void updateReview(ReviewDTO reviewDTO) throws DAOException {
         try {
@@ -118,6 +135,12 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
         }
     }
 
+    /**
+     * Deletes a review from the database based on its ID.
+     *
+     * @param reviewId The ID of the review to be deleted.
+     * @throws DAOException If an error occurs during the deletion process.
+     */
     @Override
     public void deleteReview(String reviewId) throws DAOException {
         try {
@@ -136,6 +159,11 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
         }
     }
 
+    /**
+     * Deletes all reviews associated with media content not present in the database.
+     * This method is used to clean up the database when media content is deleted.
+     * @throws DAOException If an error occurs during the deletion process.
+     */
     public void deleteReviewsWithNoMedia() throws DAOException {
         try {
             MongoCollection<Document> animeCollection = getCollection("anime");
@@ -169,7 +197,6 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
 
                 session.withTransaction(txnBody, txnOptions);
             }
-
         } catch (MongoException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
 
@@ -179,6 +206,11 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
         }
     }
 
+    /**
+     * Deletes all reviews associated with users not present in the database.
+     * This method is used to clean up the database when users are deleted.
+     * @throws DAOException If an error occurs during the deletion process.
+     */
     @Override
     public void deleteReviewsWithNoAuthor() throws DAOException {
         try {
@@ -218,6 +250,7 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
         }
     }
 
+
     @Override
     public PageDTO<ReviewDTO> getReviewByUser(String userId, int page) throws DAOException {
         try {
@@ -242,6 +275,15 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
         }
     }
 
+    /**
+     * Retrieves a page of reviews associated with a specific media content from the database.
+     *
+     * @param mediaId The ID of the media content for which reviews should be retrieved.
+     * @param type    The type of media content (anime or manga).
+     * @param page    The page number of the reviews to be retrieved.
+     * @return A PageDTO object containing the reviews associated with the specified media content.
+     * @throws DAOException If an error occurs during the retrieval process.
+     */
     @Override
     public PageDTO<ReviewDTO> getReviewByMedia(String mediaId, MediaContentType type, int page) throws DAOException {
         try {
@@ -277,6 +319,13 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
 
     //MongoDB queries
     //Find the average rating a user has given to media contents given the userId
+    /**
+     * Calculates the average rating given by a specific user to all media contents.
+     *
+     * @param userId The ID of the user whose average rating is to be calculated.
+     * @return The average rating given by the user.
+     * @throws DAOException If an error occurs during the calculation process.
+     */
     @Override
     public int averageRatingUser(String userId) throws DAOException {
         try {
@@ -304,6 +353,14 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
     }
 
     //Trend of the rating of a specific anime grouped by year
+    /**
+     * Calculates the average rating of a specific anime for a given year.
+     *
+     * @param year    The year for which the average rating is to be calculated.
+     * @param animeId The ID of the anime for which the average rating is to be calculated.
+     * @return The average rating of the anime for the specified year.
+     * @throws DAOException If an error occurs during the calculation process.
+     */
     @Override
     public int ratingAnimeYear(int year, String animeId) throws DAOException {
         try {
@@ -332,6 +389,15 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
     }
 
     //Trend of the rating of a specific anime grouped by month
+    /**
+     * Calculates the average rating of a specific anime for a given month and year.
+     *
+     * @param month   The month for which the average rating is to be calculated.
+     * @param year    The year for which the average rating is to be calculated.
+     * @param animeId The ID of the anime for which the average rating is to be calculated.
+     * @return The average rating of the anime for the specified month and year.
+     * @throws DAOException If an error occurs during the calculation process.
+     */
     @Override
     public int ratingAnimeMonth(int month, int year, String animeId) throws DAOException {
         try {
@@ -362,6 +428,14 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
 
     //Trend of the rating of a specific manga grouped by year
 
+    /**
+     * Calculates the average rating of a specific manga for a given year.
+     *
+     * @param year    The year for which the average rating is to be calculated.
+     * @param mangaId The ID of the manga for which the average rating is to be calculated.
+     * @return The average rating of the manga for the specified year.
+     * @throws DAOException If an error occurs during the calculation process.
+     */
     @Override
     public int ratingMangaYear(int year, String mangaId) throws DAOException {
         try {
@@ -392,6 +466,15 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
 
 
     //Trend of the rating of a specific manga grouped by month
+    /**
+     * Calculates the average rating of a specific manga for a given month and year.
+     *
+     * @param month   The month for which the average rating is to be calculated.
+     * @param year    The year for which the average rating is to be calculated.
+     * @param mangaId The ID of the manga for which the average rating is to be calculated.
+     * @return The average rating of the manga for the specified month and year.
+     * @throws DAOException If an error occurs during the calculation process.
+     */
     @Override
     public int ratingMangaMonth(int month, int year, String mangaId) throws DAOException {
         try {
@@ -422,6 +505,13 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
     }
 
     //Average rating given by users of a certain age: select a year of birth and see what is the average rating in general
+    /**
+     * Calculates the average rating given by users born in a specific year.
+     *
+     * @param yearOfBirth The year of birth for which the average rating is to be calculated.
+     * @return The average rating given by users born in the specified year.
+     * @throws DAOException If an error occurs during the calculation process.
+     */
     @Override
     public int averageRatingByAge(int yearOfBirth) throws DAOException {
         try {
@@ -452,6 +542,13 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
     }
 
     //Average rating given by users of a certain location: select a location and see what is the average rating in general
+    /**
+     * Calculates the average rating given by users from a specific location.
+     *
+     * @param location The location for which the average rating is to be calculated.
+     * @return The average rating given by users from the specified location.
+     * @throws DAOException If an error occurs during the calculation process.
+     */
     @Override
     public int averageRatingByLocation(String location) throws DAOException {
         try {
@@ -479,6 +576,12 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
         }
     }
 
+    /**
+     * Converts a ReviewDTO object to a MongoDB document for storage in the database.
+     *
+     * @param reviewDTO The ReviewDTO object to be converted.
+     * @return A MongoDB Document representing the ReviewDTO object.
+     */
     private Document reviewDTOToDocument(ReviewDTO reviewDTO) {
         Document reviewDocument = new Document()
                 .append("user", new Document()
@@ -507,6 +610,12 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
         return reviewDocument;
     }
 
+    /**
+     * Converts a MongoDB document representing a review to a ReviewDTO object.
+     *
+     * @param reviewDoc The MongoDB document representing the review.
+     * @return A ReviewDTO object representing the MongoDB document.
+     */
     private ReviewDTO documentToReviewDTO(Document reviewDoc) {
         String reviewId = reviewDoc.getObjectId("_id").toString();
         LocalDate date = ConverterUtils.dateToLocalDate(reviewDoc.getDate("date"));

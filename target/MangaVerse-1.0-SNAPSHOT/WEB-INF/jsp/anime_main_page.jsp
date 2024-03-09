@@ -87,114 +87,130 @@
             </div>
         </nav>
     </div>
-    <form id="searchForm" action="${pageContext.request.contextPath}/mainPage/anime" method="post">
-        <input type="hidden" name="action" value="search">
-        <label for="search">Title:</label>
-        <input type="search" id="search" name="searchTerm" placeholder="Title">
-        <input type="submit" value="SEARCH">
-    </form>
-    <form id="filterForm" action="${pageContext.request.contextPath}/mainPage/anime" method="post" style="width: 15rem">
-        <input type="hidden" name="action" value="search">
+    <div class="write-search">
+        <form id="searchForm" action="${pageContext.request.contextPath}/mainPage/anime" method="post">
+            <input type="hidden" name="action" value="search">
+            <label for="search"  class="filter-name">Title:</label>
+            <input type="search" id="search" name="searchTerm" placeholder="Title">
+            <input  class="search" type="submit" value="SEARCH">
+        </form>
+        <button onclick="toggleFiltersDisplay()" class="more-filtering" id="toggleFilterButton" >See Detailed Filtering</button>
+    </div>
 
-        <%-- This are the radios for the tags --%>
-        <label>Genres:</label><br/>
-        <c:forEach items="${requestScope.animeTags}" var="tag">
-            <div>
-                <input type="radio" name="${tag}" style="color: green" onclick="toggleRadio(this)" value="select">
-                <input type="radio" name="${tag}" style="color: red" onclick="toggleRadio(this)" value="avoid">
-                <label>${tag}</label>
+
+    <div id="filtersFormContainer">
+        <form id="filterForm" action="${pageContext.request.contextPath}/mainPage/anime" method="post" >
+            <input type="hidden" name="action" value="search">
+
+
+            <div class="title-ope">
+                <label  class="filter-name">Genres:</label><br/>
+                <div class="operator" style="background-color: #ecebeb; padding: 5px">
+                    <label >Operator:</label>
+                    <input type="radio" name="genreOperator" checked value="and">and
+                    <input type="radio" name="genreOperator" value="or">or
+                </div>
             </div>
-        </c:forEach>
-        <div>
-            <label>Operator:</label>
-            <input type="radio" name="genreOperator" checked value="and">and
-            <input type="radio" name="genreOperator" value="or">or
-        </div>
-
-        <%-- This are the checkboxes for the types --%>
-        <div>
-            <label>Type:</label>
-            <c:forEach var="entry" items="${requestScope.animeTypes}">
-                <c:if test="${entry.name() != 'UNKNOWN'}">
+            <div class="all">
+                <%-- This are the radios for the tags --%>
+                <c:forEach items="${requestScope.animeTags}" var="tag">
                     <div>
-                        <input type="checkbox" id="${entry.name()}" name="animeTypes" value="${entry.name()}">
+                        <input class="green" type="radio" name="${tag}" onclick="toggleRadio(this)" value="select">
+                        <input class="red" type="radio" name="${tag}" onclick="toggleRadio(this)" value="avoid">
+                        <label>${tag}</label>
+                    </div>
+                </c:forEach>
+            </div>
+
+            <label  class="filter-name">Type:</label>
+            <%-- This are the checkboxes for the types --%>
+            <div>
+                <div class="all">
+                    <c:forEach var="entry" items="${requestScope.animeTypes}">
+                        <c:if test="${entry.name() != 'UNKNOWN'}">
+                            <div>
+                                <input type="checkbox" id="${entry.name()}" name="animeTypes" value="${entry.name()}">
+                                <label for="${entry.name()}">${entry.toString()}</label>
+                            </div>
+                        </c:if>
+                    </c:forEach>
+                </div>
+            </div>
+
+            <label class="filter-name">Publishing status:</label>
+            <%-- This are the checkboxes for the status --%>
+            <div class="all">
+                <c:forEach var="entry" items="${requestScope.animeStatus}">
+                    <div>
+                        <input type="checkbox" id="${entry.name()}" name="status" value="${entry.name()}">
                         <label for="${entry.name()}">${entry.toString()}</label>
                     </div>
-                </c:if>
-            </c:forEach>
-        </div>
-
-        <%-- This are the checkboxes for the status --%>
-        <div>
-            <label>Publishing status:</label>
-            <c:forEach var="entry" items="${requestScope.animeStatus}">
-                <div>
-                    <input type="checkbox" id="${entry.name()}" name="status" value="${entry.name()}">
-                    <label for="${entry.name()}">${entry.toString()}</label>
-                </div>
-            </c:forEach>
-        </div>
-        <%-- This are the range inputs for the min and max score --%>
-        <div>
-            <label>Rating:</label>
-            <div class="range-slider container">
-                <span class="output outputOne"></span>
-                <span class="output outputTwo"></span>
-                <span class="full-range"></span>
-                <span class="incl-range"></span>
-                <input name="minScore" value="0" min="0" max="10" step="0.1" type="range">
-                <input name="maxScore" value="10" min="0" max="10" step="0.1" type="range">
+                </c:forEach>
             </div>
-        </div>
+            <%-- This are the range inputs for the min and max score --%>
+            <div>
+                <label class="filter-name">Rating:</label>
+                <div class="range-slider container order">
+                    <span class="output outputOne"></span>
+                    <span class="output outputTwo"></span>
+                    <span class="full-range"></span>
+                    <span class="incl-range"></span>
+                    <input name="minScore" value="0" min="0" max="10" step="0.1" type="range">
+                    <input name="maxScore" value="10" min="0" max="10" step="0.1" type="range">
+                </div>
+            </div>
 
-        <div>
-            <label>
-                <input type="checkbox" id="yearRangeCheckbox"> Choose Year Range
-            </label>
-        </div>
+            <div>
+                <label>
+                    <input type="checkbox" id="yearRangeCheckbox"> Choose Year Range
+                </label>
+            </div>
 
-        <%-- This is the selection of an anime season --%>
-        <div id="singleYearDiv">
-            <label for="season">Season:</label>
-            <select name="season" id="season">
-                <option value="WINTER">Winter</option>
-                <option value="SPRING">Spring</option>
-                <option value="SUMMER">Summer</option>
-                <option value="FALL">Fall</option>
-            </select>
-            <br/>
-            <label for="year">Year:</label>
-            <input type="number" id="year" name="year" step="1">
-        </div>
+            <%-- This is the selection of an anime season --%>
+            <div id="singleYearDiv">
+                <label  class="filter-name" for="season">Season:</label>
+                <select name="season" id="season">
+                    <option value="WINTER">Winter</option>
+                    <option value="SPRING">Spring</option>
+                    <option value="SUMMER">Summer</option>
+                    <option value="FALL">Fall</option>
+                </select>
+                <br/>
+                <label  class="filter-name" for="year">Year:</label>
+                <input type="number" id="year" name="year" step="1">
+            </div>
 
-        <%-- This are the range inputs for the min and max start year --%>
-        <div id="yearRangeDiv" class="year-range">
-            <label for="minYear">Start Year:</label>
-            <input type="number" id="minYear" name="minYear" step="1" >
-            <br/>
-            <label for="maxYear">End Year:</label>
-            <input type="number" id="maxYear" name="maxYear" step="1">
-        </div>
+            <%-- This are the range inputs for the min and max start year --%>
+            <div id="yearRangeDiv" class="year-range">
+                <label for="minYear" class="filter-name">Start Year:</label>
+                <input type="number" id="minYear" name="minYear" step="1" >
+                <br/>
+                <label for="maxYear" class="filter-name">End Year:</label>
+                <input type="number" id="maxYear" name="maxYear" step="1">
+            </div>
 
-        <div>
-            <label for="orderBy">Order By:</label>
-            <select name="orderBy" id="orderBy">
-                <option value="title 1">Title enc</option>
-                <option value="title -1">Title dec</option>
-                <option value="average_rating 1">Average Rating enc</option>
-                <option value="average_rating -1">Average Rating dec</option>
-                <option value="anime_season.year 1">Year enc</option>
-                <option value="anime_season.year -1">Year dec</option>
-            </select>
-        </div>
+            <div>
+                <label for="orderBy" class="filter-name">Order By:</label>
+                <select  class="order" name="orderBy" id="orderBy">
+                    <option value="title 1">Title enc</option>
+                    <option value="title -1">Title dec</option>
+                    <option value="average_rating 1">Average Rating enc</option>
+                    <option value="average_rating -1">Average Rating dec</option>
+                    <option value="anime_season.year 1">Year enc</option>
+                    <option value="anime_season.year -1">Year dec</option>
+                </select>
+            </div>
 
-        <input type="submit" value="SEARCH">
-    </form>
+            <input class="search" type="submit" value="SEARCH">
+        </form>
+
+    </div>
+
 
     <section id="resultsSection"></section>
 
     <!-- page bar -->
-    <div>
+    <div id="changePage">
         <form action="${pageContext.request.contextPath}/mainPage/anime" method="post">
             <input type="hidden" name="action" value="sortAndPaginate">
 
@@ -279,6 +295,14 @@
             window.scrollTo({ top: scrollPoint.offsetTop, behavior: 'instant' });
             home.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
         });
+    </script>
+    <script>
+        function toggleFiltersDisplay() {
+            const filtersFormContainer = document.getElementById('filtersFormContainer');
+            filtersFormContainer.style.display = filtersFormContainer.style.display === 'none' ? 'block' : 'none';
+
+
+        }
     </script>
 </body>
 </html>

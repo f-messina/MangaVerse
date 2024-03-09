@@ -18,6 +18,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class UserUtils {
+    /**
+     * Updates the user session based on the action performed in the request.
+     * @param request The HttpServletRequest containing the current request.
+     */
     public static void updateUserSession(HttpServletRequest request) {
         User authUserUpdated = SecurityUtils.getAuthenticatedUser(request);
 
@@ -31,10 +35,21 @@ public class UserUtils {
         request.getSession().setAttribute(Constants.AUTHENTICATED_USER_KEY, authUserUpdated);
     }
 
+    /**
+     * Handles the removal of a personal list from the user's lists.
+     * @param authUserUpdated The user object to be updated.
+     * @param listIdToRemove The ID of the list to be removed.
+     */
     private static void handleRemoveList(User authUserUpdated, String listIdToRemove) {
         authUserUpdated.removeList(listIdToRemove);
     }
 
+    /**
+     * Handles the removal of an item from a personal list.
+     * @param authUserUpdated The user object to be updated.
+     * @param listId The ID of the list containing the item to be removed.
+     * @param request The HttpServletRequest containing the current request.
+     */
     private static void handleRemoveItemFromList(User authUserUpdated, String listId, HttpServletRequest request) {
         authUserUpdated.getLists().stream()
                 .filter(list -> list.getId().equals(listId))
@@ -45,6 +60,11 @@ public class UserUtils {
                 });
     }
 
+    /**
+     * Handles the update of user information.
+     * @param authUserUpdated The user object to be updated.
+     * @param request The HttpServletRequest containing the current request.
+     */
     private static void handleUserInfo(User authUserUpdated, HttpServletRequest request) {
         Optional.ofNullable(request.getParameter("username")).ifPresent(authUserUpdated::setUsername);
         Optional.ofNullable(request.getParameter("description")).ifPresent(authUserUpdated::setDescription);
@@ -57,6 +77,11 @@ public class UserUtils {
         Optional.ofNullable(request.getParameter("gender")).map(Gender::valueOf).ifPresent(authUserUpdated::setGender);
     }
 
+    /**
+     * Handles the toggling of a like on a media content item.
+     * @param authUserUpdated The user object to be updated.
+     * @param request The HttpServletRequest containing the current request.
+     */
     private static void handleToggleLike(User authUserUpdated, HttpServletRequest request) {
         if((boolean) request.getAttribute("isLiked")) {
             MediaContent mediaContent = (boolean) request.getAttribute("isManga") ? new Manga() : new Anime();
@@ -69,6 +94,11 @@ public class UserUtils {
         }
     }
 
+    /**
+     * Updates the user information based on the request parameters.
+     * @param request The HttpServletRequest containing the current request.
+     * @return The updated User object.
+     */
     public static User updateUserFromRequest(HttpServletRequest request) {
         User authUser = SecurityUtils.getAuthenticatedUser(request);
         User user = new User();
@@ -95,6 +125,12 @@ public class UserUtils {
         return user;
     }
 
+    /**
+     * Retrieves the value of a specific attribute from the authenticated user.
+     * @param parameterName The name of the attribute.
+     * @param authUser The authenticated user.
+     * @return The value of the specified attribute.
+     */
     private static String getAuthUserValue(String parameterName, User authUser) {
         return switch (parameterName) {
             case "username" -> authUser.getUsername();
@@ -107,6 +143,11 @@ public class UserUtils {
         };
     }
 
+    /**
+     * Checks if the current user has liked the media content specified in the request.
+     * @param request The HttpServletRequest containing the current request.
+     * @return true if the user has liked the media content, false otherwise.
+     */
     public static boolean isLiked(HttpServletRequest request) {
         return SecurityUtils.getAuthenticatedUser(request).getLikedMediaContent().stream()
                 .anyMatch(mediaContent -> mediaContent.getId().equals(request.getParameter("mediaId")));
