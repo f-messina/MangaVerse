@@ -216,10 +216,10 @@
     <c:set var="authenticatedUser" value="${not empty sessionScope[Constants.AUTHENTICATED_USER_KEY]}" />
     <c:set var="lists" value="${authenticatedUser ? sessionScope[Constants.AUTHENTICATED_USER_KEY].getLists() : null}" />
 
-    let mediaDetailHRef = "${pageContext.request.contextPath}/manga?mediaId=";
-    let authenticatedUser = ${authenticatedUser};
-    let servletURI = "${pageContext.request.contextPath}/mainPage/manga";
-    let lists = [];
+    const mediaDetailHRef = "${pageContext.request.contextPath}/manga?mediaId=";
+    const authenticatedUser = ${authenticatedUser};
+    const servletURI = "${pageContext.request.contextPath}/mainPage/manga";
+    const lists = [];
     <c:forEach items="${lists}" var="list">
     lists.push(["${list.getId()}", "${list.getName()}"]);
     </c:forEach>

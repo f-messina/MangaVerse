@@ -10,6 +10,8 @@ import com.mongodb.client.MongoCollection;
 import it.unipi.lsmsd.fnf.dao.ReviewDAO;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dao.exception.DAOExceptionType;
+import it.unipi.lsmsd.fnf.dao.exception.DuplicatedException;
+import it.unipi.lsmsd.fnf.dao.exception.DuplicatedExceptionType;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
@@ -17,6 +19,7 @@ import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
+import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import it.unipi.lsmsd.fnf.utils.Constants;
 import it.unipi.lsmsd.fnf.utils.ConverterUtils;
 
@@ -64,7 +67,7 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
                         eq("anime.id", reviewDTO.getMediaContent().getId()),
                         eq("user.id", reviewDTO.getUser().getId())
                 );
-            } else if (reviewDTO.getMediaContent() instanceof MangaDTO){
+            } else if (reviewDTO.getMediaContent() instanceof MangaDTO) {
                 mediaCollection = getCollection("manga");
                 // Check if the media content exists
                 if (mediaCollection.find(eq("_id", new ObjectId(reviewDTO.getMediaContent().getId()))).first() == null) {
@@ -88,8 +91,11 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
                 reviewDTO.setId(result.getUpsertedId().asObjectId().getValue().toHexString());
             } else {
                 // Document was not inserted or updated, indicating that a similar review already exists
-                throw new MongoException("The user have already reviewed this media content.");
+                throw new DuplicatedException(DuplicatedExceptionType.DUPLICATED_KEY, "The user have already reviewed this media content.");
             }
+
+        } catch (DuplicatedException e) {
+            throw new DAOException(DAOExceptionType.DUPLICATED_KEY, e.getMessage());
 
         } catch (MongoException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
@@ -103,23 +109,25 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
     /**
      * Updates an existing review in the database.
      *
-     * @param reviewDTO The ReviewDTO object representing the review to be updated.
+     * @param reviewId     The ID of the review to be updated.
+     * @param reviewComment The new comment for the review.
+     * @param reviewRating  The new rating for the review.
      * @throws DAOException If an error occurs during the update process.
      */
     @Override
-    public void updateReview(ReviewDTO reviewDTO) throws DAOException {
+    public void updateReview(String reviewId, String reviewComment, Integer reviewRating) throws DAOException {
         try {
             MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
 
-            Bson filter = eq("_id", new ObjectId(reviewDTO.getId()));
+            Bson filter = eq("_id", new ObjectId(reviewId));
             Bson updatedKeys = combine(set("date", ConverterUtils.localDateToDate(LocalDate.now())));
-            if (reviewDTO.getComment() != null) {
-                updatedKeys = combine(updatedKeys, set("comment", reviewDTO.getComment()));
+            if (reviewComment != null) {
+                updatedKeys = combine(updatedKeys, set("comment", reviewComment));
             } else {
                 updatedKeys = combine(updatedKeys, unset("comment"));
             }
-            if (reviewDTO.getRating() != null) {
-                updatedKeys = combine(updatedKeys, set("rating", reviewDTO.getRating()));
+            if (reviewRating != null) {
+                updatedKeys = combine(updatedKeys, set("rating", reviewRating));
             } else {
                 updatedKeys = combine(updatedKeys, unset("rating"));
             }
@@ -132,6 +140,79 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
         } catch (Exception e) {
             throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
 
+        }
+    }
+
+    public void updateMediaRedundancy(MediaContentDTO mediaContentDTO, MediaContentType mediaType) throws DAOException {
+
+        try (ClientSession session = getMongoClient().startSession()) {
+
+            TransactionOptions txnOptions = TransactionOptions.builder()
+                    .readPreference(ReadPreference.primary()) //reading from primary data should be the most up to date
+                    .readConcern(ReadConcern.LOCAL) //read from local data
+                    .writeConcern(WriteConcern.MAJORITY) //write to the majority of replicas
+                    .build();
+
+            //create media embedded Document
+            Document mediaDoc = new Document(mediaType == MediaContentType.ANIME ? "anime" : "manga", new Document()
+                    .append("id", new ObjectId(mediaContentDTO.getId()))
+                    .append("title", mediaContentDTO.getTitle()));
+            TransactionBody<String> txnBody = () -> {
+
+                    MongoCollection<Document> reviewCollection = getCollection("review");
+
+                    //update the recipe data in all the reviews
+                    reviewCollection.updateMany(session, eq(mediaType == MediaContentType.ANIME ? "anime" : "manga", new ObjectId(mediaContentDTO.getId())), new Document("$set", mediaDoc));
+
+                    return "Done";
+            };
+
+            //start the transaction
+            session.withTransaction(txnBody, txnOptions);
+
+        } catch (MongoException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
+        } catch (Exception e) {
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+        }
+    }
+
+    public void updateUserRedundancy(User user) throws DAOException {
+
+        try (ClientSession session = getMongoClient().startSession()) {
+
+            TransactionOptions txnOptions = TransactionOptions.builder()
+                    .readPreference(ReadPreference.primary()) //reading from primary data should be the most up to date
+                    .readConcern(ReadConcern.LOCAL) //read from local data
+                    .writeConcern(WriteConcern.MAJORITY) //write to the majority of replicas
+                    .build();
+
+            //create user emebedded embedded Document
+            Document userDoc = new Document("user", new Document()
+                    .append("username", user.getUsername())
+                    .append("picture", user.getProfilePicUrl()))
+                    .append("location", user.getLocation())
+                    .append("birthday", ConverterUtils.localDateToDate(user.getBirthday()));
+
+            TransactionBody<String> txnBody = () -> {
+
+                MongoCollection<Document> reviewCollection = getCollection("review");
+
+                //update the recipe data in all the reviews
+                reviewCollection.updateMany(session, eq("user", new ObjectId(user.getId())), new Document("$set", userDoc));
+
+                return "Done";
+            };
+
+            //start the transaction
+            session.withTransaction(txnBody, txnOptions);
+
+        } catch (MongoException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
+        } catch (Exception e) {
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
 
@@ -252,20 +333,26 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
 
 
     @Override
-    public PageDTO<ReviewDTO> getReviewByUser(String userId, int page) throws DAOException {
+    public PageDTO<ReviewDTO> getReviewByUser(String userId, Integer page) throws DAOException {
         try {
             MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
 
             Bson filter = eq("user.id", new ObjectId(userId));
             Bson projection = exclude("user");
 
-            int offset = (page - 1) * Constants.PAGE_SIZE;
-            List<ReviewDTO> result = reviewCollection.find(filter).projection(projection)
-                    .sort(descending("date")).skip(offset).limit(Constants.PAGE_SIZE)
-                    .map(this::documentToReviewDTO).into(new ArrayList<>());
-            int totalCount = (int) reviewCollection.countDocuments(filter);
-            return new PageDTO<>(result, totalCount);
-
+            if (page == null) {
+                List<ReviewDTO> result = reviewCollection.find(filter).projection(projection)
+                        .sort(descending("date"))
+                        .map(this::documentToReviewDTO).into(new ArrayList<>());
+                return new PageDTO<>(result, result.size());
+            } else {
+                int offset = (page - 1) * Constants.PAGE_SIZE;
+                List<ReviewDTO> result = reviewCollection.find(filter).projection(projection)
+                        .sort(descending("date")).skip(offset).limit(Constants.PAGE_SIZE)
+                        .map(this::documentToReviewDTO).into(new ArrayList<>());
+                int totalCount = (int) reviewCollection.countDocuments(filter);
+                return new PageDTO<>(result, totalCount);
+            }
         } catch (MongoException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
 
@@ -285,7 +372,7 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
      * @throws DAOException If an error occurs during the retrieval process.
      */
     @Override
-    public PageDTO<ReviewDTO> getReviewByMedia(String mediaId, MediaContentType type, int page) throws DAOException {
+    public PageDTO<ReviewDTO> getReviewByMedia(String mediaId, MediaContentType type, Integer page) throws DAOException {
         try {
             MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
 
@@ -301,12 +388,19 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
                 throw new DAOException("Invalid media content type");
             }
 
-            int offset = (page - 1) * Constants.PAGE_SIZE;
-            List<ReviewDTO> result = reviewCollection.find(filter).projection(projection)
-                    .sort(descending("date")).skip(offset).limit(Constants.PAGE_SIZE)
-                    .map(this::documentToReviewDTO).into(new ArrayList<>());
-            int totalCount = (int) reviewCollection.countDocuments(filter);
-            return new PageDTO<>(result, totalCount);
+            if (page == null) {
+                List<ReviewDTO> result = reviewCollection.find(filter).projection(projection)
+                        .sort(descending("date"))
+                        .map(this::documentToReviewDTO).into(new ArrayList<>());
+                return new PageDTO<>(result, result.size());
+            } else {
+                int offset = (page - 1) * Constants.PAGE_SIZE;
+                List<ReviewDTO> result = reviewCollection.find(filter).projection(projection)
+                        .sort(descending("date")).skip(offset).limit(Constants.PAGE_SIZE)
+                        .map(this::documentToReviewDTO).into(new ArrayList<>());
+                int totalCount = (int) reviewCollection.countDocuments(filter);
+                return new PageDTO<>(result, totalCount);
+            }
 
         } catch (MongoException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
@@ -587,7 +681,9 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
                 .append("user", new Document()
                         .append("id", new ObjectId(reviewDTO.getUser().getId()))
                         .append("username", reviewDTO.getUser().getUsername())
-                        .append("picture", reviewDTO.getUser().getProfilePicUrl()))
+                        .append("picture", reviewDTO.getUser().getProfilePicUrl())
+                        .append("location", reviewDTO.getUser().getLocation())
+                        .append("birthday", ConverterUtils.localDateToDate(reviewDTO.getUser().getBirthDate())))
                 .append("date", ConverterUtils.localDateToDate(LocalDate.now()));
         if (reviewDTO.getComment() != null) {
             reviewDocument.append("comment", reviewDTO.getComment());
@@ -595,17 +691,10 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
         if (reviewDTO.getRating() != null) {
             reviewDocument.append("rating", reviewDTO.getRating());
         }
-        if (reviewDTO.getMediaContent() instanceof AnimeDTO) {
-            reviewDocument.append("anime", new Document()
-                    .append("id", new ObjectId(reviewDTO.getMediaContent().getId()))
-                    .append("title", reviewDTO.getMediaContent().getTitle())
-                    .append("image", reviewDTO.getMediaContent().getImageUrl()));
-        } else if (reviewDTO.getMediaContent() instanceof MangaDTO) {
-            reviewDocument.append("manga", new Document()
-                    .append("id", new ObjectId(reviewDTO.getMediaContent().getId()))
-                    .append("title", reviewDTO.getMediaContent().getTitle())
-                    .append("image", reviewDTO.getMediaContent().getImageUrl()));
-        }
+        boolean isAnime = reviewDTO.getMediaContent() instanceof AnimeDTO;
+        reviewDocument.append(isAnime? "anime" : "manga", new Document()
+                .append("id", new ObjectId(reviewDTO.getMediaContent().getId()))
+                .append("title", reviewDTO.getMediaContent().getTitle()));
 
         return reviewDocument;
     }
@@ -625,9 +714,9 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
         MediaContentDTO mediaDTO = null;
         Document mediaDoc;
         if ((mediaDoc = reviewDoc.get("anime", Document.class)) != null) {
-            mediaDTO = new AnimeDTO(mediaDoc.getObjectId("id").toString(), mediaDoc.getString("title"), mediaDoc.getString("image"));
+            mediaDTO = new AnimeDTO(mediaDoc.getObjectId("id").toString(), mediaDoc.getString("title"));
         } else if ((mediaDoc = reviewDoc.get("manga", Document.class)) != null) {
-            mediaDTO = new MangaDTO(mediaDoc.getObjectId("id").toString(), mediaDoc.getString("title"), mediaDoc.getString("image"));
+            mediaDTO = new MangaDTO(mediaDoc.getObjectId("id").toString(), mediaDoc.getString("title"));
         }
 
         Document userDoc = reviewDoc.get("user", Document.class);

@@ -62,13 +62,17 @@ public class DtoToModelMapper {
         PersonalList personalList = new PersonalList();
         personalList.setId(personalListDTO.getId());
         personalList.setName(personalListDTO.getName());
-        personalList.setUser(new User(personalListDTO.getUserId(), personalListDTO.getUserBirthDate(), personalListDTO.getUserLocation()));
-        personalList.setManga(personalListDTO.getManga().stream()
-                .map(DtoToModelMapper::mangaDTOtoManga)
-                .collect(Collectors.toCollection(ArrayList::new)));
-        personalList.setAnime(personalListDTO.getAnime().stream()
-                .map(DtoToModelMapper::animeDTOtoAnime)
-                .collect(Collectors.toCollection(ArrayList::new)));
+        User user = new User();
+        user.setId(personalListDTO.getUserId());
+        personalList.setUser(user);
+        if (personalListDTO.getManga() != null)
+            personalList.setManga(personalListDTO.getManga().stream()
+                    .map(DtoToModelMapper::mangaDTOtoManga)
+                    .collect(Collectors.toCollection(ArrayList::new)));
+        if (personalListDTO.getAnime() != null)
+            personalList.setAnime(personalListDTO.getAnime().stream()
+                    .map(DtoToModelMapper::animeDTOtoAnime)
+                    .collect(Collectors.toCollection(ArrayList::new)));
         return personalList;
     }
 

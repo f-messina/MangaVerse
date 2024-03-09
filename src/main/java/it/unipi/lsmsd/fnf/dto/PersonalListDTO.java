@@ -11,31 +11,22 @@ public class PersonalListDTO {
     private String id;
     private String name;
     private String userId;
-    private String userLocation;
-    private LocalDate userBirthDate;
     private List<MangaDTO> manga = new ArrayList<>();
     private List<AnimeDTO> anime = new ArrayList<>();
 
     public PersonalListDTO() {
     }
 
-    public PersonalListDTO(String id, String name, String userId,
-                           String userLocation, LocalDate userBirthDate) {
+    public PersonalListDTO(String id, String name, String userId) {
         this.id = id;
         this.name = name;
         this.userId = userId;
-        this.userLocation = userLocation;
-        this.userBirthDate = userBirthDate;
     }
 
-    public PersonalListDTO(String id, String name, String userId,
-                           String userLocation, LocalDate userBirthDate,
-                           List<MangaDTO> manga, List<AnimeDTO> anime) {
+    public PersonalListDTO(String id, String name, String userId, List<MangaDTO> manga, List<AnimeDTO> anime) {
         this.id = id;
         this.name = name;
         this.userId = userId;
-        this.userLocation = userLocation;
-        this.userBirthDate = userBirthDate;
         this.manga = manga;
         this.anime = anime;
     }
@@ -50,14 +41,6 @@ public class PersonalListDTO {
 
     public String getUserId() {
         return userId;
-    }
-
-    public String getUserLocation() {
-        return userLocation;
-    }
-
-    public LocalDate getUserBirthDate() {
-        return userBirthDate;
     }
 
     public List<MangaDTO> getManga() {
@@ -78,14 +61,6 @@ public class PersonalListDTO {
 
     public void setUserId(String userId) {
         this.userId = userId;
-    }
-
-    public void setUserLocation(String userLocation) {
-        this.userLocation = userLocation;
-    }
-
-    public void setUserBirthDate(LocalDate userBirthDate) {
-        this.userBirthDate = userBirthDate;
     }
 
     public void setManga(List<MangaDTO> manga) {
@@ -118,8 +93,6 @@ public class PersonalListDTO {
                 "id='" + id + '\'' +
                 ", name='" + name + '\'' +
                 ", userId='" + userId + '\'' +
-                ", userLocation='" + userLocation + '\'' +
-                ", userBirthDate='" + userBirthDate + '\'' +
                 ", manga=" + manga +
                 ", anime=" + anime +
                 '}';

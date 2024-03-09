@@ -57,8 +57,6 @@ public class ModelToDtoMapper {
         User user = list.getUser();
         if(user != null) {
             dto.setUserId(user.getId());
-            dto.setUserLocation(user.getLocation());
-            dto.setUserBirthDate(user.getBirthday());
         }
 
         List<Anime> animeList = list.getAnime();

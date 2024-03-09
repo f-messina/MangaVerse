@@ -49,6 +49,14 @@ public class UserDAOImplTest {
 
     @Test
     public void testAuthenticate() {
+        String email = "rrussell@example.com";
+        String password = "08128d06e8073a8d8eb055852bf5744d3477e16fed096b86557a7a233c71d791";
+        UserDAOImpl userDAO = new UserDAOImpl();
+        try {
+            System.out.println(userDAO.authenticate(email, password));
+        } catch (DAOException e) {
+            System.err.println(e.getMessage() + " " + e.getType());
+        }
     }
 
     @Test

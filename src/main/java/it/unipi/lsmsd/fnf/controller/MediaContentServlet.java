@@ -62,8 +62,7 @@ public class MediaContentServlet extends HttpServlet {
                 request.getRequestDispatcher(targetJSP).forward(request, response);
             }
             request.setAttribute("media", mediaContentService.getMediaContentById(mediaId, mediaType));
-            request.setAttribute("reviews", reviewService.findByMedia(mediaId, mediaType, 1
-            ));
+            request.setAttribute("reviews", reviewService.findByMedia(mediaId, mediaType, 1));
             if (SecurityUtils.getAuthenticatedUser(request) != null) {
                 request.setAttribute("isLiked", mediaContentService.isLiked(SecurityUtils.getAuthenticatedUser(request).getId(), mediaId, mediaType));
                 request.setAttribute("lists", (SecurityUtils.getAuthenticatedUser(request).getLists()));
@@ -180,7 +179,7 @@ public class MediaContentServlet extends HttpServlet {
 
         String result;
         try {
-            reviewService.updateReview(ConverterUtils.fromRequestToReviewDTO(request, mediaType));
+            reviewService.updateReview(request.getParameter("reviewId"), request.getParameter("reviewText"), Integer.parseInt(request.getParameter("reviewRating")));
             result = "{\"success\": \"Review updated\"}";
         } catch (Exception e) {
             logger.error("Error while processing request", e);

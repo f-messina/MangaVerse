@@ -166,7 +166,7 @@
         <c:if test="${not empty sessionScope[Constants.AUTHENTICATED_USER_KEY]}">
             <div id="review-form-container" class="review-form">
                 <c:set var="found" value="false"/>
-                <c:forEach var="review" items="${requestScope.reviews}">
+                <c:forEach var="review" items="${requestScope.reviews.getEntries()}">
                     <c:if test="${review.user.id == sessionScope[Constants.AUTHENTICATED_USER_KEY].getId()}">
                         <c:set var="found" value="true"/>
                         <button id="enable-modify-review" type="submit">Modify</button>
@@ -191,7 +191,7 @@
                     </c:if>
                 </c:forEach>
                 <c:if test="${found == false}">
-                    <button id="enable-add-review" type="submit">Send</button>
+                    <button id="enable-add-review" type="submit">Write a comment</button>
                     <div id="add-review-container" class="popup-container hidden">
                         <div class="list-popup">
                             <div class="popup-content">
@@ -216,7 +216,7 @@
             <h2>Reviews</h2>
             <c:choose>
                 <c:when test="${not empty requestScope.reviews}">
-                    <c:forEach var="review" items="${requestScope.reviews}">
+                    <c:forEach var="review" items="${requestScope.reviews.getEntries()}">
                         <div class="review">
                             <p>${review.user.username}</p>
                             <img src="${review.user.profilePicUrl}" alt="profile image" />

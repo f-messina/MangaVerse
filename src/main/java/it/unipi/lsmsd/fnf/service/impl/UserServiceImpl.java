@@ -21,7 +21,10 @@ import it.unipi.lsmsd.fnf.service.exception.BusinessExceptionType;
 import it.unipi.lsmsd.fnf.service.mapper.DtoToModelMapper;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -52,7 +55,6 @@ public class UserServiceImpl implements UserService {
     /**
      * Registers a new user and logs them in.
      * @param userRegistrationDTO The user registration data.
-     * @return The registered user.
      * @throws BusinessException If an error occurs during the registration process.
      */
     @Override
@@ -96,18 +98,24 @@ public class UserServiceImpl implements UserService {
             throw new BusinessException(BusinessExceptionType.EMPTY_FIELDS,"Password cannot be empty");
 
         try {
+            Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+            logger.info("User with email " + email + " is trying to log in with password " + password + " at " + LocalDate.now() + " " + LocalDate.now().atTime(0, 0) + " UTC.");
             RegisteredUser registeredUser = userDAO.authenticate(email, password);
+            logger.info("User with email " + email + " has logged in successfully at " + LocalDate.now() + " " + LocalDate.now().atTime(0, 0) + " UTC.");
             if (registeredUser instanceof User user) {
                 user.setLists(personalListDAO.findByUser(user.getId(), true)
                         .stream()
                         .map(DtoToModelMapper::personalListDTOtoPersonalList)
                         .collect(Collectors.toCollection(ArrayList::new)));
+                logger.info("User with email " + email + " has " + user.getLists().size() + " lists.");
                 List<MediaContent> likedManga = mangaDAONeo4J.getLiked(user.getId()).stream()
                         .map(mangaDTO -> DtoToModelMapper.mangaDTOtoManga((MangaDTO) mangaDTO))
                         .collect(Collectors.toList());
+                logger.info("User with email " + email + " has " + likedManga.size() + " liked manga.");
                 List<MediaContent> likedAnime = animeDAONeo4J.getLiked(user.getId()).stream()
                         .map(animeDTO -> DtoToModelMapper.animeDTOtoAnime((AnimeDTO) animeDTO))
                         .collect(Collectors.toList());
+                logger.info("User with email " + email + " has " + likedAnime.size() + " liked anime.");
                 user.setLikedMediaContent(likedManga);
                 user.getLikedMediaContent().addAll(likedAnime);
             }
@@ -146,7 +154,7 @@ public class UserServiceImpl implements UserService {
 
     /**
      * Creates a node for a registered user in the Neo4j graph database.
-     * @param registeredUserDTO The registered user data.
+     * @param userSummaryDTO The user summary data.
      * @throws BusinessException If an error occurs during the node creation process.
      */
     @Override

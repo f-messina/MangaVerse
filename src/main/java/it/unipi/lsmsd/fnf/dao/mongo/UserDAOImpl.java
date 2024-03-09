@@ -158,7 +158,6 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
 
             Bson filter = eq("email", email);
             Bson projection = exclude("is_manager");
-
             RegisteredUser user = Optional.ofNullable(usersCollection.find(filter).projection(projection).first())
                     .map(this::documentToRegisteredUser)
                     .orElseThrow (() -> new AuthenticationException("User not found"));

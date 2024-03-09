@@ -8,12 +8,12 @@ import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 public interface ReviewDAO {
     //MongoDB queries
     public void createReview(ReviewDTO reviewDTO) throws DAOException;
-    public void updateReview(ReviewDTO reviewDTO) throws DAOException;
+    public void updateReview(String reviewId, String reviewComment, Integer reviewRating) throws DAOException;
     public void deleteReview(String reviewId) throws DAOException;
     public void deleteReviewsWithNoMedia() throws DAOException;
     public void deleteReviewsWithNoAuthor() throws DAOException;
-    public PageDTO<ReviewDTO> getReviewByUser(String userId, int page) throws DAOException;
-    public PageDTO<ReviewDTO> getReviewByMedia(String mediaId, MediaContentType type, int page) throws DAOException;
+    PageDTO<ReviewDTO> getReviewByUser(String userId, Integer page) throws DAOException;
+    public PageDTO<ReviewDTO> getReviewByMedia(String mediaId, MediaContentType type, Integer page) throws DAOException;
     int averageRatingUser(String userId) throws DAOException;
     int ratingAnimeYear(int year, String animeId) throws DAOException;
     int ratingAnimeMonth(int month, int year, String animeId) throws DAOException;

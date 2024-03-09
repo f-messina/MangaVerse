@@ -1,51 +1,81 @@
 package it.unipi.lsmsd.fnf.dao.mongo;
 
-import junit.framework.TestCase;
+import it.unipi.lsmsd.fnf.dao.exception.DAOException;
+import org.bson.types.ObjectId;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class PersonalListDAOImplTest extends TestCase {
+import static org.junit.jupiter.api.Assertions.*;
 
-    public void testInsert() {
+class PersonalListDAOImplTest {
+
+    @BeforeEach
+    public void setUp() throws Exception {
+        BaseMongoDBDAO.openConnection();
     }
 
-    public void testUpdate() {
+    @AfterEach
+    public void tearDown() throws DAOException {
+        BaseMongoDBDAO.closeConnection();
     }
 
-    public void testAddToList() {
+    @Test
+    void insert() {
     }
 
-    public void testRemoveFromList() {
+    @Test
+    void update() {
     }
 
-    public void testUpdateItem() {
+    @Test
+    void addToList() {
     }
 
-    public void testRemoveItem() {
+    @Test
+    void removeFromList() {
     }
 
-    public void testDelete() {
+    @Test
+    void updateItem() {
     }
 
-    public void testDeleteByUser() {
+    @Test
+    void removeItem() {
     }
 
-    public void testFindByUser() {
+    @Test
+    void delete() {
     }
 
-    public void testFindAll() {
+    @Test
+    void deleteByUser() {
     }
 
-    public void testFind() {
+    @Test
+    void findByUser() {
+        String userId = "6577877ce683762347607459";
+        PersonalListDAOImpl personalListDAO = new PersonalListDAOImpl();
+        try {
+            System.out.println(personalListDAO.findByUser(userId, true));
+        } catch (DAOException e) {
+            System.err.println(e.getMessage() + " " + e.getType());
+        }
     }
 
-    public void testFindPopularAnime() {
+    @Test
+    void findAll() {
     }
 
-    public void testTestFindPopularAnime() {
+    @Test
+    void find() {
     }
 
-    public void testFindPopularManga() {
+    @Test
+    void popularAnime() {
     }
 
-    public void testTestFindPopularManga() {
+    @Test
+    void popularManga() {
     }
 }

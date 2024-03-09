@@ -91,12 +91,12 @@ public class ReviewServiceImpl implements ReviewService {
      * @throws BusinessException If an error occurs during the operation.
      */
     @Override
-    public void updateReview(ReviewDTO review) throws BusinessException {
-        if (StringUtils.isEmpty(review.getComment()) && review.getRating() == null) {
+    public void updateReview(String reviewId, String reviewComment, Integer reviewRating) throws BusinessException {
+        if (StringUtils.isEmpty(reviewComment) && reviewRating == null) {
             throw new BusinessException("The review must have a comment or a rating");
         }
         try {
-            reviewDAO.updateReview(review);
+            reviewDAO.updateReview(reviewId, reviewComment, reviewRating);
         } catch (Exception e){
             throw new BusinessException("Error updating the review",e);
         }
