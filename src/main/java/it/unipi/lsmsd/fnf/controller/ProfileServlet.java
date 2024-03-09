@@ -83,7 +83,7 @@ public class ProfileServlet extends HttpServlet {
             return;
         } catch (BusinessException e) {
             BusinessExceptionType type = e.getType();
-            if (BusinessExceptionType.TAKEN_USERNAME.equals(type)) {
+            if (BusinessExceptionType.DUPLICATED_USERNAME.equals(type)) {
                 request.setAttribute("usernameError", "Username is already in use");
             } else {
                 handleUpdateError(request, "Invalid input. Please check your data.", e);

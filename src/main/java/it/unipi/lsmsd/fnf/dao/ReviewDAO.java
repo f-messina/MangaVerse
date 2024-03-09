@@ -1,18 +1,19 @@
 package it.unipi.lsmsd.fnf.dao;
 
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
+import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
-
-import java.util.List;
+import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 
 public interface ReviewDAO {
     //MongoDB queries
-    String insert(ReviewDTO review) throws DAOException;
-    void delete(String id) throws DAOException;
-    void deleteByMedia(String mediaId) throws DAOException;
-    void update(ReviewDTO review) throws DAOException;
-    List<ReviewDTO> findByUser(String userId) throws DAOException;
-    List<ReviewDTO> findByMedia(String mediaId) throws DAOException;
+    public void createReview(ReviewDTO reviewDTO) throws DAOException;
+    public void updateReview(ReviewDTO reviewDTO) throws DAOException;
+    public void deleteReview(String reviewId) throws DAOException;
+    public void deleteReviewsWithNoMedia() throws DAOException;
+    public void deleteReviewsWithNoAuthor() throws DAOException;
+    public PageDTO<ReviewDTO> getReviewByUser(String userId, int page) throws DAOException;
+    public PageDTO<ReviewDTO> getReviewByMedia(String mediaId, MediaContentType type, int page) throws DAOException;
     int averageRatingUser(String userId) throws DAOException;
     int ratingAnimeYear(int year, String animeId) throws DAOException;
     int ratingAnimeMonth(int month, int year, String animeId) throws DAOException;

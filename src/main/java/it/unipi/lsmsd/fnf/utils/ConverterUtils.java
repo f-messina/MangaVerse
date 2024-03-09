@@ -1,6 +1,6 @@
 package it.unipi.lsmsd.fnf.utils;
 
-import it.unipi.lsmsd.fnf.dto.RegisteredUserDTO;
+import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
 import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
@@ -47,19 +47,18 @@ public class ConverterUtils {
     }
 
     public static ReviewDTO fromRequestToReviewDTO(HttpServletRequest request, MediaContentType mediaType){
-        RegisteredUserDTO userDTO = new RegisteredUserDTO();
+        UserSummaryDTO userDTO = new UserSummaryDTO();
         userDTO.setId(SecurityUtils.getAuthenticatedUser(request).getId());
         userDTO.setUsername(SecurityUtils.getAuthenticatedUser(request).getUsername());
-        userDTO.setBirthday(SecurityUtils.getAuthenticatedUser(request).getBirthday());
         userDTO.setProfilePicUrl(SecurityUtils.getAuthenticatedUser(request).getProfilePicUrl());
-        userDTO.setLocation(SecurityUtils.getAuthenticatedUser(request).getLocation());
         MediaContentDTO mediaContentDTO = mediaType.equals(MediaContentType.MANGA) ? new MangaDTO(): new AnimeDTO();
         mediaContentDTO.setId(request.getParameter("mediaId"));
         mediaContentDTO.setTitle(request.getParameter("mediaTitle"));
-        mediaContentDTO.setImageUrl(request.getParameter("mediaImageUrl"));
         ReviewDTO reviewDTO = new ReviewDTO();
         reviewDTO.setComment(request.getParameter("comment"));
-        reviewDTO.setRating(Integer.parseInt(request.getParameter("rating")));
+        if (StringUtils.isNotBlank(request.getParameter("rating"))) {
+            reviewDTO.setRating(Integer.parseInt(request.getParameter("rating")));
+        }
         reviewDTO.setMediaContent(mediaContentDTO);
         reviewDTO.setUser(userDTO);
         return reviewDTO;

@@ -19,8 +19,22 @@ public class User extends RegisteredUser {
     private String location;
     private List<PersonalList> lists = new ArrayList<>();
     private List<Review> reviews = new ArrayList<>();
-
     private List<MediaContent> likedMediaContent = new ArrayList<>();
+
+    public User() {
+    }
+
+    public User(String id, String username, String profilePicUrl) {
+        this.id = id;
+        this.username = username;
+        this.profilePicUrl = profilePicUrl;
+    }
+
+    public User(String id, LocalDate birthday, String location) {
+        this.id = id;
+        this.birthday = birthday;
+        this.location = location;
+    }
 
     public String getUsername() {
         return username;

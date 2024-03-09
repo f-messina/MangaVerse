@@ -15,7 +15,7 @@ import java.util.List;
      List<PersonalListDTO> findAll() throws DAOException;
      PersonalListDTO find(String id) throws DAOException;
      String insert(PersonalListDTO list) throws DAOException;
-     void update(PersonalListDTO list) throws DAOException;
+     void update(String listId, String name, String userId) throws DAOException;
      void delete(String id) throws DAOException;
      void deleteByUser(String userId) throws DAOException;
      void addToList(String listId, MediaContentDTO anime) throws DAOException;

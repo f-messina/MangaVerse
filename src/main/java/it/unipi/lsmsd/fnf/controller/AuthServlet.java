@@ -1,5 +1,7 @@
 package it.unipi.lsmsd.fnf.controller;
 
+import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
+import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import it.unipi.lsmsd.fnf.service.ServiceLocator;
@@ -53,9 +55,11 @@ public class AuthServlet extends HttpServlet {
     private void handleSignUp(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         String targetJSP;
         try {
-            User user = userService.registerUserAndLogin(ConverterUtils.fromRequestToUserRegDTO(request));
+            UserRegistrationDTO user = ConverterUtils.fromRequestToUserRegDTO(request);
+            userService.registerUserAndLogin(ConverterUtils.fromRequestToUserRegDTO(request));
+
             HttpSession session = request.getSession(true);
-            session.setAttribute(Constants.AUTHENTICATED_USER_KEY, user);
+            session.setAttribute(Constants.AUTHENTICATED_USER_KEY, new UserSummaryDTO(user.getId(), user.getUsername(), user.getEmail()));
             response.sendRedirect("profile");
             return;
         } catch (BusinessException e) {
@@ -66,22 +70,19 @@ public class AuthServlet extends HttpServlet {
 
 
             switch (type) {
-                case BusinessExceptionType.TAKEN_EMAIL -> request.setAttribute("emailError", "Email already in use");
-                case BusinessExceptionType.TAKEN_USERNAME-> request.setAttribute("usernameError", "Password already in use");
-                case BusinessExceptionType.TAKEN_EMAIL_PSW-> {
+                case BusinessExceptionType.DUPLICATED_EMAIL -> request.setAttribute("emailError", "Email already in use");
+                case BusinessExceptionType.DUPLICATED_USERNAME-> request.setAttribute("usernameError", "Password already in use");
+                case BusinessExceptionType.DUPLICATED_KEY-> {
                     request.setAttribute("emailError", "Email already in use.");
                     request.setAttribute("usernameError", "Username already in use.");
                 }
-                case BusinessExceptionType.EMPTY_USERNAME_PSW_EMAIL ->
+                case BusinessExceptionType.EMPTY_FIELDS ->
                         request.setAttribute("errorMessage", "Username, password and email cannot be empty");
                 case null, default -> {
                     request.setAttribute("errorMessage", "Error during signup operation.");
                     targetJSP = "error.jsp";
                 }
             }
-        } catch (Exception e) {
-            logger.error("Error during signup operation.", e);
-            targetJSP = "error.jsp";
         }
         request.getRequestDispatcher(targetJSP).forward(request, response);
     }
@@ -99,20 +100,14 @@ public class AuthServlet extends HttpServlet {
             return;
         } catch (BusinessException e) {
             logger.error("BusinessException during login operation.", e);
-            targetJSP = "WEB-INF/jsp/auth.jsp";
 
-            BusinessExceptionType type = e.getType();
-            switch (type) {
-                case BusinessExceptionType.INVALID_EMAIL -> request.setAttribute("emailLoginError", "Invalid Email");
-                case BusinessExceptionType.WRONG_PSW -> request.setAttribute("passwordLoginError", "Wrong Pasword");
-                case null, default -> {
-                    request.setAttribute("errorMessage", "Error during login operation.");
-                    targetJSP = "error.jsp";
-                }
+            if (e.getType() == BusinessExceptionType.AUTHENTICATION_ERROR) {
+                request.setAttribute("Authentication Error", "Invalid email or password");
+                targetJSP = "WEB-INF/jsp/auth.jsp";
+            } else {
+                request.setAttribute("errorMessage", "Error during login operation.");
+                targetJSP = "error.jsp";
             }
-        } catch (Exception e) {
-            logger.error("Error during login operation.", e);
-            targetJSP = "error.jsp";
         }
 
         // Forward in case of error

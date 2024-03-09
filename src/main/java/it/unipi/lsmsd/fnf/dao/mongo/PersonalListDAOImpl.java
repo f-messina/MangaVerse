@@ -1,11 +1,9 @@
 package it.unipi.lsmsd.fnf.dao.mongo;
 
 import it.unipi.lsmsd.fnf.dao.PersonalListDAO;
-import it.unipi.lsmsd.fnf.dao.base.BaseMongoDBDAO;
 import it.unipi.lsmsd.fnf.dao.enums.SearchCriteriaEnum;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dto.PersonalListDTO;
-import it.unipi.lsmsd.fnf.dto.RegisteredUserDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
@@ -16,6 +14,7 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -52,22 +51,22 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
     }
 
     @Override
-    public void update(PersonalListDTO list) throws DAOException {
+    public void update(String listId, String name, String userId) throws DAOException {
         try {
             MongoCollection<Document> listsCollection = getCollection(COLLECTION_NAME);
 
-            Bson filter = eq("_id", new ObjectId(list.getId()));
+            Bson filter = and(eq("_id", new ObjectId(listId)), eq("user.id", new ObjectId(userId)));
             Bson update = combine();
-            if (list.getName() != null) {
-                Bson nameUpdate = set("name", list.getName());
+            if (name != null) {
+                Bson nameUpdate = set("name", name);
                 update = combine(update, nameUpdate);
-            }
-            if (list.getUser() != null) {
-                Bson userUpdate = set("user", userDTOToDocument(list.getUser()));
-                update = combine(update, userUpdate);
+            } else {
+                throw new DAOException("Error updating list: name is null");
             }
 
-            listsCollection.updateOne(filter, update);
+            if (listsCollection.updateOne(filter, update).getMatchedCount() == 0) {
+                throw new DAOException("Error updating list: list not found or user not authorized");
+            }
         } catch (Exception e) {
             throw new DAOException("Error updating list", e);
         }
@@ -239,14 +238,12 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
     }
 
     private PersonalListDTO documentToPersonalListDTO(Document document) {
+        PersonalListDTO personalListDTO = new PersonalListDTO();
         Document userDoc = document.get("user", Document.class);
-        RegisteredUserDTO user = null;
-        if (userDoc != null) {
-            user = new RegisteredUserDTO(
-                    userDoc.getObjectId("id").toString(),
-                    userDoc.getString("location"),
-                    ConverterUtils.dateToLocalDate(userDoc.getDate("birthday"))
-            );
+        if (userDoc.getObjectId("id") != null) {
+            personalListDTO.setUserId(userDoc.getObjectId("id").toString());
+            personalListDTO.setUserLocation(userDoc.getString("location"));
+            personalListDTO.setUserBirthDate(ConverterUtils.dateToLocalDate(userDoc.getDate("birthday")));
         }
 
         List<AnimeDTO> animeList = Optional.ofNullable(document.getList("anime_list", Document.class))
@@ -266,7 +263,9 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
         return new PersonalListDTO(
                 document.getObjectId("_id").toString(),
                 document.getString("name"),
-                user,
+                userDoc.getObjectId("id").toString(),
+                userDoc.getString("location"),
+                ConverterUtils.dateToLocalDate(userDoc.getDate("birthday")),
                 mangaList,
                 animeList
         );
@@ -284,19 +283,19 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
                 .append("picture", manga.getImageUrl());
     }
 
-    private Document userDTOToDocument(RegisteredUserDTO user) {
-        Document doc = new Document("id", new ObjectId(user.getId()));
-        appendIfNotNull(doc, "location", user.getLocation());
-        appendIfNotNull(doc, "birthday", ConverterUtils.localDateToDate(user.getBirthday()));
+    private Document userInfoToDocument(String userId, String location, LocalDate birthDate) {
+        Document doc = new Document("id", new ObjectId(userId));
+        appendIfNotNull(doc, "location", location);
+        appendIfNotNull(doc, "birthday", ConverterUtils.localDateToDate(birthDate));
         return doc;
     }
 
     private Document PersonalListDTOTODocument(PersonalListDTO list) {
         List<Document> animeDoc = list.getAnime().stream().map(this::animeDTOToDocument).collect(Collectors.toList());
         List<Document> mangaDoc = list.getManga().stream().map(this::mangaDTOToDocument).collect(Collectors.toList());
-
+        Document userDoc = userInfoToDocument(list.getUserId(), list.getUserLocation(), list.getUserBirthDate());
         return new Document("name", list.getName())
-                .append("user", userDTOToDocument(list.getUser()))
+                .append("user", userDoc)
                 .append("anime_list", animeDoc)
                 .append("manga_list", mangaDoc);
     }

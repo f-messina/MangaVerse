@@ -1,7 +1,6 @@
 package it.unipi.lsmsd.fnf.dto;
 
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
-import org.bson.types.ObjectId;
 
 import java.time.LocalDate;
 
@@ -11,19 +10,19 @@ public class ReviewDTO {
     private String comment;
     private Integer rating;
     private MediaContentDTO mediaContent;
-    private RegisteredUserDTO user;
+    private UserSummaryDTO user;
 
     public ReviewDTO() {
     }
 
-    public ReviewDTO(MediaContentDTO mediaContent, RegisteredUserDTO user, String comment, Integer rating) {
+    public ReviewDTO(MediaContentDTO mediaContent, UserSummaryDTO user, String comment, Integer rating) {
         this.mediaContent = mediaContent;
         this.user = user;
         this.comment = comment;
         this.rating = rating;
     }
 
-    public ReviewDTO(String id, LocalDate date, String comment, Integer rating, MediaContentDTO mediaContent, RegisteredUserDTO user) {
+    public ReviewDTO(String id, LocalDate date, String comment, Integer rating, MediaContentDTO mediaContent, UserSummaryDTO user) {
         this.id = id;
         this.date = date;
         this.comment = comment;
@@ -52,7 +51,7 @@ public class ReviewDTO {
         return mediaContent;
     }
 
-    public RegisteredUserDTO getUser() {
+    public UserSummaryDTO getUser() {
         return user;
     }
 
@@ -76,7 +75,7 @@ public class ReviewDTO {
         this.mediaContent = mediaContent;
     }
 
-    public void setUser(RegisteredUserDTO user) {
+    public void setUser(UserSummaryDTO user) {
         this.user = user;
     }
 

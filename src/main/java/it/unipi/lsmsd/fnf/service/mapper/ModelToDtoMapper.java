@@ -1,40 +1,28 @@
 package it.unipi.lsmsd.fnf.service.mapper;
 
 import it.unipi.lsmsd.fnf.dto.PersonalListDTO;
-import it.unipi.lsmsd.fnf.dto.RegisteredUserDTO;
+import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
+import it.unipi.lsmsd.fnf.dto.ReviewDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.PersonalList;
+import it.unipi.lsmsd.fnf.model.Review;
 import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
 import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
 import it.unipi.lsmsd.fnf.model.mediaContent.MediaContent;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
-import org.bson.types.ObjectId;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ModelToDtoMapper {
-    public static AnimeDTO animeToAnimeDTO(Anime anime) {
+    public static AnimeDTO convertToDTO(Anime anime) {
         return new AnimeDTO(anime.getId(), anime.getTitle(), anime.getImageUrl(), anime.getAverageRating(), anime.getYear(), anime.getSeason());
     }
 
-    public static MangaDTO mangaToMangaDTO(Manga manga) {
+    public static MangaDTO convertToDTO(Manga manga) {
         return new MangaDTO(manga.getId(), manga.getTitle(), manga.getImageUrl(), manga.getAverageRating(), manga.getStartDate(), manga.getEndDate());
-    }
-
-    public static RegisteredUserDTO convertToRegisteredUserDTO(User user) {
-        if(user == null) {
-            throw new IllegalArgumentException("The user can't be null.");
-        }
-
-        RegisteredUserDTO userDTO = new RegisteredUserDTO();
-        userDTO.setId(user.getId());
-        userDTO.setLocation(user.getLocation());
-        userDTO.setBirthday(user.getBirthday());
-
-        return userDTO;
     }
 
     public static PersonalListDTO convertToDTO(PersonalList list) {
@@ -48,11 +36,9 @@ public class ModelToDtoMapper {
 
         User user = list.getUser();
         if(user != null) {
-            RegisteredUserDTO userDTO = new RegisteredUserDTO();
-            userDTO.setId(user.getId());
-            userDTO.setLocation(user.getLocation());
-            userDTO.setBirthday(user.getBirthday());
-            dto.setUser(userDTO);
+            dto.setUserId(user.getId());
+            dto.setUserLocation(user.getLocation());
+            dto.setUserBirthDate(user.getBirthday());
         }
 
         List<Anime> animeList = list.getAnime();
@@ -119,60 +105,32 @@ public class ModelToDtoMapper {
         return dto;
     }
 
-    public static PersonalList convertToPersonalList(PersonalListDTO personalListDTO) {
-        PersonalList personalList = new PersonalList();
-        personalList.setId(String.valueOf(personalListDTO.getId()));
-        personalList.setName(personalListDTO.getName());
-        personalList.setUser(convertToUser(personalListDTO.getUser()));
-        List<Manga> manga = new ArrayList<>();
-        List<Anime> anime = new ArrayList<>();
-        for (AnimeDTO animeDTO : personalListDTO.getAnime()) {
-            anime.add(convertToAnime(animeDTO));
+    public static ReviewDTO convertToDTO(Review review) {
+        if(review == null) {
+            throw new IllegalArgumentException("The review can't be null.");
         }
-        for (MangaDTO mangaDTO : personalListDTO.getManga()) {
-            manga.add(convertToManga(mangaDTO));
-        }
-        personalList.setManga(manga);
-        personalList.setAnime(anime);
 
-        return personalList;
+        ReviewDTO dto = new ReviewDTO();
+        dto.setId(review.getId());
+        dto.setComment(review.getComment());
+        dto.setRating(review.getRating());
+        dto.setDate(review.getDate());
+        dto.setMediaContent(convertToDTO(review.getMediaContent()));
+        dto.setUser(convertToDTO(review.getUser()));
+
+        return dto;
     }
 
-    public static User convertToUser(RegisteredUserDTO userDTO) {
-        if(userDTO == null) {
-            throw new IllegalArgumentException("The RegisteredUserDTO can't be null.");
+    public static UserSummaryDTO convertToDTO(User user) {
+        if(user == null) {
+            throw new IllegalArgumentException("The user can't be null.");
         }
 
-        User user = new User();
-        user.setId(userDTO.getId());
-        user.setLocation(userDTO.getLocation());
-        user.setBirthday(userDTO.getBirthday());
+        UserSummaryDTO dto = new UserSummaryDTO();
+        dto.setId(user.getId());
+        dto.setUsername(user.getUsername());
+        dto.setProfilePicUrl(user.getProfilePicUrl());
 
-        return user;
-    }
-    public static Anime convertToAnime(AnimeDTO animeDTO) {
-        if(animeDTO == null) {
-            throw new IllegalArgumentException("The AnimeDTO can't be null.");
-        }
-
-        Anime anime = new Anime();
-        anime.setId(animeDTO.getId());
-        anime.setTitle(animeDTO.getTitle());
-        anime.setImageUrl(animeDTO.getImageUrl());
-
-        return anime;
-    }
-
-    public static Manga convertToManga(MangaDTO mangaDTO) {
-        if(mangaDTO == null) {
-            throw new IllegalArgumentException("The MangaDTO can't be null.");
-        }
-
-        Manga manga = new Manga();
-        manga.setId(mangaDTO.getId());
-        manga.setTitle(mangaDTO.getTitle());
-        manga.setImageUrl(mangaDTO.getImageUrl());
-
-        return manga;
+        return dto;
     }
 }

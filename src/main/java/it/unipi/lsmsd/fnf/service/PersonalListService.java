@@ -14,7 +14,7 @@ public interface PersonalListService {
     String insertList(PersonalList list) throws BusinessException;
 
     //Update list with id, name and user
-    void updateList(String id, String name, User user) throws BusinessException;
+    void updateList(String listId, String listName, String userId) throws BusinessException;
 
     void addToList(String listId, MediaContentDTO content) throws BusinessException;
 

@@ -1,17 +1,23 @@
 package it.unipi.lsmsd.fnf.dao.mongo;
 
+import com.mongodb.*;
+import com.mongodb.client.ClientSession;
+import com.mongodb.client.TransactionBody;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.result.UpdateResult;
 import com.mongodb.client.MongoCollection;
 
 import it.unipi.lsmsd.fnf.dao.ReviewDAO;
-import it.unipi.lsmsd.fnf.dao.base.BaseMongoDBDAO;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
-import it.unipi.lsmsd.fnf.dto.RegisteredUserDTO;
+import it.unipi.lsmsd.fnf.dao.exception.DAOExceptionType;
+import it.unipi.lsmsd.fnf.dto.PageDTO;
+import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
+import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
+import it.unipi.lsmsd.fnf.utils.Constants;
 import it.unipi.lsmsd.fnf.utils.ConverterUtils;
 
 import org.bson.Document;
@@ -24,131 +30,248 @@ import java.util.List;
 
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.exclude;
+import static com.mongodb.client.model.Sorts.descending;
 import static com.mongodb.client.model.Updates.*;
 
 public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
     private static final String COLLECTION_NAME = "reviews";
 
     @Override
-    public String insert(ReviewDTO review) throws DAOException {
+    public void createReview(ReviewDTO reviewDTO) throws DAOException {
         try {
             MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
+            MongoCollection<Document> mediaCollection;
+            Bson filter;
+            if (reviewDTO.getMediaContent() instanceof AnimeDTO) {
+                mediaCollection = getCollection("anime");
+                // Check if the media content exists
+                if (mediaCollection.find(eq("_id", new ObjectId(reviewDTO.getMediaContent().getId()))).first() == null) {
+                    throw new MongoException("Anime with id " + reviewDTO.getMediaContent().getId() + " does not exist");
+                }
+                // Create a filter based on anime.id/manga.id and user.id
+                filter = and(
+                        eq("anime.id", reviewDTO.getMediaContent().getId()),
+                        eq("user.id", reviewDTO.getUser().getId())
+                );
+            } else if (reviewDTO.getMediaContent() instanceof MangaDTO){
+                mediaCollection = getCollection("manga");
+                // Check if the media content exists
+                if (mediaCollection.find(eq("_id", new ObjectId(reviewDTO.getMediaContent().getId()))).first() == null) {
+                    throw new MongoException("Manga with id " + reviewDTO.getMediaContent().getId() + " does not exist");
+                }
+                // Create a filter based on anime.id/manga.id and user.id
+                filter = and(
+                        eq("manga.id", reviewDTO.getMediaContent().getId()),
+                        eq("user.id", reviewDTO.getUser().getId())
+                );
+            } else {
+                throw new DAOException("Invalid media content type");
+            }
+            Bson update = setOnInsert(reviewDTOToDocument(reviewDTO));
 
-            // Create a filter based on anime.id/manga.id and user.id
-            Bson filter = and(
-                    or(
-                            eq("anime.id", review.getMediaContent().getId()),
-                            eq("manga.id", review.getMediaContent().getId())
-                    ),
-                    eq("user.id", review.getUser().getId())
-            );
-            Bson update = setOnInsert(reviewDTOToDocument(review));
-
+            // Insert the reviewDTO if it does not exist
             UpdateResult result = reviewCollection.updateOne(filter, update, new UpdateOptions().upsert(true));
 
-            // Check if the document was inserted or updated
+            // Check if the document was inserted
             if (result.getUpsertedId() != null) {
-                return result.getUpsertedId().asObjectId().getValue().toString();
+                reviewDTO.setId(result.getUpsertedId().asObjectId().getValue().toHexString());
             } else {
                 // Document was not inserted or updated, indicating that a similar review already exists
-                return "The user have already reviewed this media content.";
+                throw new MongoException("The user have already reviewed this media content.");
             }
+
+        } catch (MongoException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
         } catch (Exception e) {
-            throw new DAOException("Error while inserting/updating review", e);
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+
         }
     }
 
     @Override
-    public void update(ReviewDTO review) throws DAOException {
+    public void updateReview(ReviewDTO reviewDTO) throws DAOException {
         try {
             MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
 
-            Bson filter = eq("_id", new ObjectId(review.getId()));
+            Bson filter = eq("_id", new ObjectId(reviewDTO.getId()));
             Bson updatedKeys = combine(set("date", ConverterUtils.localDateToDate(LocalDate.now())));
-            if (review.getComment() != null) {
-                updatedKeys = combine(updatedKeys, set("comment", review.getComment()));
+            if (reviewDTO.getComment() != null) {
+                updatedKeys = combine(updatedKeys, set("comment", reviewDTO.getComment()));
             } else {
                 updatedKeys = combine(updatedKeys, unset("comment"));
             }
-            if (review.getRating() != null) {
-                updatedKeys = combine(updatedKeys, set("rating", review.getRating()));
+            if (reviewDTO.getRating() != null) {
+                updatedKeys = combine(updatedKeys, set("rating", reviewDTO.getRating()));
             } else {
                 updatedKeys = combine(updatedKeys, unset("rating"));
             }
 
             reviewCollection.updateOne(filter, updatedKeys);
+
+        } catch (MongoException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
         } catch (Exception e) {
-            throw new DAOException("Error while updating review", e);
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+
         }
     }
 
     @Override
-    public void delete(String reviewId) throws DAOException {
+    public void deleteReview(String reviewId) throws DAOException {
         try {
             MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
 
             Bson filter = eq("_id", new ObjectId(reviewId));
 
             reviewCollection.deleteOne(filter);
+
+        } catch (MongoException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
         } catch (Exception e) {
-            throw new DAOException("Error while deleting review", e);
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+
         }
     }
 
-    public void deleteByMedia(String mediaId) throws DAOException {
+    public void deleteReviewsWithNoMedia() throws DAOException {
         try {
-            MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
+            MongoCollection<Document> animeCollection = getCollection("anime");
+            MongoCollection<Document> mangaCollection = getCollection("manga");
+            List<ObjectId> animeIds = animeCollection.find().projection(new Document("_id", 1)).into(new ArrayList<>()).stream()
+                    .map(document -> document.getObjectId("_id"))
+                    .toList();
+            List<ObjectId> mangaIds = mangaCollection.find().projection(new Document("_id", 1)).into(new ArrayList<>()).stream()
+                    .map(document -> document.getObjectId("_id"))
+                    .toList();
 
-            Bson filter = or(
-                    eq("anime.id", new ObjectId(mediaId)),
-                    eq("manga.id", new ObjectId(mediaId))
-            );
+            try (ClientSession session = getMongoClient().startSession()) {
 
-            reviewCollection.deleteMany(filter);
+                TransactionOptions txnOptions = TransactionOptions.builder()
+                        .readPreference(ReadPreference.primary()) //reading from primary data should be the most up to date
+                        .readConcern(ReadConcern.LOCAL) //read from local data
+                        .writeConcern(WriteConcern.MAJORITY) //write to the majority of replicas
+                        .build();
+
+                TransactionBody<String> txnBody = () -> {
+
+                    MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
+                    Bson filter = and(
+                            nin("anime.id", animeIds),
+                            nin("manga.id", mangaIds)
+                    );
+                    //update the recipe data in all the reviews
+                    reviewCollection.deleteMany(session, filter);
+                    return "Done";
+                };
+
+                session.withTransaction(txnBody, txnOptions);
+            }
+
+        } catch (MongoException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
         } catch (Exception e) {
-            throw new DAOException("Error while deleting review", e);
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+
         }
     }
 
     @Override
-    public List<ReviewDTO> findByUser(String userId) throws DAOException {
+    public void deleteReviewsWithNoAuthor() throws DAOException {
+        try {
+
+            MongoCollection<Document> userCollection = getCollection("user");
+
+            List<ObjectId> userIds = userCollection.find().projection(new Document("_id", 1)).into(new ArrayList<>()).stream()
+                    .map(document -> document.getObjectId("_id"))
+                    .toList();
+
+            try (ClientSession session = getMongoClient().startSession()) {
+
+                TransactionOptions txnOptions = TransactionOptions.builder()
+                        .readPreference(ReadPreference.primary()) //reading from primary data should be the most up to date
+                        .readConcern(ReadConcern.LOCAL) //read from local data
+                        .writeConcern(WriteConcern.MAJORITY) //write to the majority of replicas
+                        .build();
+
+                TransactionBody<String> txnBody = () -> {
+
+                    MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
+                    //update the recipe data in all the reviews
+                    reviewCollection.deleteMany(session, nin("user.id", userIds));
+
+                    return "Done";
+                };
+
+                session.withTransaction(txnBody, txnOptions);
+            }
+
+        } catch (MongoException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
+        } catch (Exception e) {
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+
+        }
+    }
+
+    @Override
+    public PageDTO<ReviewDTO> getReviewByUser(String userId, int page) throws DAOException {
         try {
             MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
 
             Bson filter = eq("user.id", new ObjectId(userId));
             Bson projection = exclude("user");
 
-            List<ReviewDTO> result = new ArrayList<>();
-            reviewCollection.find(filter).projection(projection).forEach(document -> {
-                ReviewDTO review = documentToReviewDTO(document);
-                result.add(review);
-            });
-            return result;
+            int offset = (page - 1) * Constants.PAGE_SIZE;
+            List<ReviewDTO> result = reviewCollection.find(filter).projection(projection)
+                    .sort(descending("date")).skip(offset).limit(Constants.PAGE_SIZE)
+                    .map(this::documentToReviewDTO).into(new ArrayList<>());
+            int totalCount = (int) reviewCollection.countDocuments(filter);
+            return new PageDTO<>(result, totalCount);
+
+        } catch (MongoException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
         } catch (Exception e) {
-            throw new DAOException("Error while finding reviews by user", e);
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+
         }
     }
 
     @Override
-    public List<ReviewDTO> findByMedia(String mediaId) throws DAOException {
+    public PageDTO<ReviewDTO> getReviewByMedia(String mediaId, MediaContentType type, int page) throws DAOException {
         try {
             MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
 
-            Bson filter = or(
-                    eq("anime.id", new ObjectId(mediaId)),
-                    eq("manga.id", new ObjectId(mediaId))
-            );
-            Bson projection = exclude("anime", "manga");
+            Bson filter;
+            Bson projection;
+            if (type == MediaContentType.ANIME) {
+                filter = eq("anime.id", new ObjectId(mediaId));
+                projection = exclude("anime");
+            } else if (type == MediaContentType.MANGA) {
+                filter = eq("manga.id", new ObjectId(mediaId));
+                projection = exclude("manga");
+            } else {
+                throw new DAOException("Invalid media content type");
+            }
 
-            List<ReviewDTO> result = new ArrayList<>();
-            reviewCollection.find(filter).projection(projection).forEach(document -> {
-                ReviewDTO review = documentToReviewDTO(document);
-                result.add(review);
-            });
+            int offset = (page - 1) * Constants.PAGE_SIZE;
+            List<ReviewDTO> result = reviewCollection.find(filter).projection(projection)
+                    .sort(descending("date")).skip(offset).limit(Constants.PAGE_SIZE)
+                    .map(this::documentToReviewDTO).into(new ArrayList<>());
+            int totalCount = (int) reviewCollection.countDocuments(filter);
+            return new PageDTO<>(result, totalCount);
 
-            return result;
+        } catch (MongoException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
         } catch (Exception e) {
-            throw new DAOException("Error while finding reviews by media", e);
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+
         }
     }
 
@@ -157,7 +280,7 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
     @Override
     public int averageRatingUser(String userId) throws DAOException {
         try {
-            MongoCollection<Document> reviewCollection = getCollection("review");
+            MongoCollection<Document> reviewCollection = getCollection("reviewDTO");
 
             List<Document> pipeline = new ArrayList<>();
             pipeline.add(Document.parse("{$match: { 'user.id': '" + new ObjectId(userId) + "' }}")); // Match reviews by user ID
@@ -356,29 +479,29 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
         }
     }
 
-    private Document reviewDTOToDocument(ReviewDTO review) {
+    private Document reviewDTOToDocument(ReviewDTO reviewDTO) {
         Document reviewDocument = new Document()
                 .append("user", new Document()
-                        .append("id", new ObjectId(review.getUser().getId()))
-                        .append("username", review.getUser().getUsername())
-                        .append("picture", review.getUser().getProfilePicUrl()))
+                        .append("id", new ObjectId(reviewDTO.getUser().getId()))
+                        .append("username", reviewDTO.getUser().getUsername())
+                        .append("picture", reviewDTO.getUser().getProfilePicUrl()))
                 .append("date", ConverterUtils.localDateToDate(LocalDate.now()));
-        if (review.getComment() != null) {
-            reviewDocument.append("comment", review.getComment());
+        if (reviewDTO.getComment() != null) {
+            reviewDocument.append("comment", reviewDTO.getComment());
         }
-        if (review.getRating() != null) {
-            reviewDocument.append("rating", review.getRating());
+        if (reviewDTO.getRating() != null) {
+            reviewDocument.append("rating", reviewDTO.getRating());
         }
-        if (review.getMediaContent() instanceof AnimeDTO) {
+        if (reviewDTO.getMediaContent() instanceof AnimeDTO) {
             reviewDocument.append("anime", new Document()
-                    .append("id", new ObjectId(review.getMediaContent().getId()))
-                    .append("title", review.getMediaContent().getTitle())
-                    .append("image", review.getMediaContent().getImageUrl()));
-        } else if (review.getMediaContent() instanceof MangaDTO) {
+                    .append("id", new ObjectId(reviewDTO.getMediaContent().getId()))
+                    .append("title", reviewDTO.getMediaContent().getTitle())
+                    .append("image", reviewDTO.getMediaContent().getImageUrl()));
+        } else if (reviewDTO.getMediaContent() instanceof MangaDTO) {
             reviewDocument.append("manga", new Document()
-                    .append("id", new ObjectId(review.getMediaContent().getId()))
-                    .append("title", review.getMediaContent().getTitle())
-                    .append("image", review.getMediaContent().getImageUrl()));
+                    .append("id", new ObjectId(reviewDTO.getMediaContent().getId()))
+                    .append("title", reviewDTO.getMediaContent().getTitle())
+                    .append("image", reviewDTO.getMediaContent().getImageUrl()));
         }
 
         return reviewDocument;
@@ -399,7 +522,7 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
         }
 
         Document userDoc = reviewDoc.get("user", Document.class);
-        RegisteredUserDTO userDTO = (userDoc != null) ? new RegisteredUserDTO(userDoc.getObjectId("id").toString(), userDoc.getString("username"), userDoc.getString("picture")) : null;
+        UserSummaryDTO userDTO = (userDoc != null) ? new UserSummaryDTO(userDoc.getObjectId("id").toString(), userDoc.getString("username"), userDoc.getString("picture")) : null;
 
         return new ReviewDTO(reviewId, date, comment, rating, mediaDTO, userDTO);
     }

@@ -18,8 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 import static it.unipi.lsmsd.fnf.dao.DAOLocator.*;
-import static it.unipi.lsmsd.fnf.service.mapper.ModelToDtoMapper.animeToAnimeDTO;
-import static it.unipi.lsmsd.fnf.service.mapper.ModelToDtoMapper.mangaToMangaDTO;
+import static it.unipi.lsmsd.fnf.service.mapper.ModelToDtoMapper.convertToDTO;
 
 public class MediaContentServiceImpl implements MediaContentService {
     private static final MediaContentDAO<Anime> animeDAO;
@@ -57,12 +56,12 @@ public class MediaContentServiceImpl implements MediaContentService {
             if (mediaContent instanceof Anime) {
                 animeDAO.update((Anime) mediaContent);
                 if (mediaContent.getTitle() != null || mediaContent.getImageUrl() != null) {
-                    personalListDAO.updateItem(animeToAnimeDTO((Anime) mediaContent));
+                    personalListDAO.updateItem(convertToDTO((Anime) mediaContent));
                 }
             } else if (mediaContent instanceof Manga) {
                 mangaDAO.update((Manga) mediaContent);
                 if (mediaContent.getTitle() != null || mediaContent.getImageUrl() != null) {
-                    personalListDAO.updateItem(mangaToMangaDTO((Manga) mediaContent));
+                    personalListDAO.updateItem(convertToDTO((Manga) mediaContent));
                 }
             }
         } catch (Exception e) {
@@ -81,7 +80,7 @@ public class MediaContentServiceImpl implements MediaContentService {
                 throw new BusinessException(BusinessExceptionType.INVALID_TYPE,"Invalid media content type");
             }
             personalListDAO.removeItem(mediaId);
-            reviewDAO.deleteByMedia(mediaId);
+            reviewDAO.deleteReview(mediaId);
         } catch (Exception e) {
             throw new BusinessException("Error removing the media content",e);
         }

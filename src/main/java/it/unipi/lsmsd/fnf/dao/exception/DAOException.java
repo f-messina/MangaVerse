@@ -11,9 +11,18 @@ public class DAOException extends Exception{
      */
     public DAOException(String message){
         super(message);
-        this.type = DAOExceptionType.GENERIC;
+        this.type = DAOExceptionType.GENERIC_ERROR;
     }
 
+    /**
+     * Constructs a new DAOException with a specified nested exception.
+     *
+     * @param e The nested exception.
+     */
+    public DAOException(Exception e) {
+        super(e);
+        this.type = DAOExceptionType.GENERIC_ERROR;
+    }
 
     /**
      * Constructs a new DAOException with a specified message and nested exception.
@@ -23,7 +32,7 @@ public class DAOException extends Exception{
      */
     public DAOException(String message, Exception ex){
         super(message, ex);
-        this.type = DAOExceptionType.GENERIC;
+        this.type = DAOExceptionType.GENERIC_ERROR;
     }
 
     /**
