@@ -2,6 +2,7 @@ package it.unipi.lsmsd.fnf.dao.neo4j;
 
 import it.unipi.lsmsd.fnf.dao.UserDAO;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
+import it.unipi.lsmsd.fnf.dao.exception.DAOExceptionType;
 import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
 import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
@@ -21,7 +22,7 @@ public class UserDAOImpl extends BaseNeo4JDAO implements UserDAO {
     /**
      * Creates a node for a RegisteredUser in the Neo4j database.
      *
-     * @param registeredUserDTO The RegisteredUserDTO object containing information about the user to be created.
+     * @param userSummaryDTO The RegisteredUserDTO object containing information about the user to be created.
      * @throws DAOException If an error occurs while creating the user node.
      */
     @Override
@@ -146,64 +147,64 @@ public class UserDAOImpl extends BaseNeo4JDAO implements UserDAO {
 
     @Override
     public void createUser(UserRegistrationDTO user) throws DAOException {
-        throw new DAOException("Method not available in Neo4j");
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
 
     @Override
     public void updateUser(User user) throws DAOException {
-        throw new DAOException("Method not available in Neo4j");
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
 
     @Override
     public void deleteUser(String userId) throws DAOException {
-        throw new DAOException("Method not available in Neo4j");
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
 
     @Override
     public RegisteredUser authenticate(String email, String password) throws DAOException {
-        throw new DAOException("Method not available in Neo4j");
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
 
     @Override
     public RegisteredUser getById(String userId) throws DAOException {
-        throw new DAOException("Method not available in Neo4j");
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
 
     @Override
     public List<UserSummaryDTO> searchFirstNUsers(String username, Integer n, String loggedUser) throws DAOException {
-        throw new DAOException("Method not available in Neo4j");
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
 
     @Override
     public List<Document> getGenderDistribution() throws DAOException {
-        throw new DAOException("Method not available in Neo4j");
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
     @Override
     public Integer averageAgeUsers() throws DAOException {
-        throw new DAOException("Method not available in Neo4j");
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
     @Override
     public List<Document> getLocationDistribution() throws DAOException {
-        throw new DAOException("Method not available in Neo4j");
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
     @Override
     public List<Document> getUsersByAgeRange() throws DAOException {
-        throw new DAOException("Method not available in Neo4j");
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
     @Override
     public List<Document> getUsersRegisteredByYear() throws DAOException {
-        throw new DAOException("Method not available in Neo4j");
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
     @Override
     public Integer averageAppRatingByAge(Integer yearOfBirth) throws DAOException {
-        throw new DAOException("Method not available in Neo4j");
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
     @Override
     public Integer averageAppRatingByLocation(String location) throws DAOException {
-        throw new DAOException("Method not available in Neo4j");
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
     @Override
     public List<Document> averageAppRatingByGender() throws DAOException {
-        throw new DAOException("Method not available in Neo4j");
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
 }
