@@ -1,4 +1,4 @@
-package it.unipi.lsmsd.fnf.dao.base;
+package it.unipi.lsmsd.fnf.dao.mongo;
 
 import com.mongodb.*;
 import com.mongodb.client.*;
@@ -61,7 +61,17 @@ public abstract class BaseMongoDBDAO {
         }
     }
 
-    public MongoCollection<Document> getCollection(String collectionName) {
+    public static MongoClient getMongoClient() {
+        return mongoClient;
+    }
+
+    /**
+     * Returns the collection with the specified name from the database
+     *
+     * @param collectionName Name of the collection to retrieve
+     * @return MongoCollection object representing the specified collection
+     */
+    public static MongoCollection<Document> getCollection(String collectionName) {
         return mongoClient.getDatabase(MONGO_DB).getCollection(collectionName);
     }
 

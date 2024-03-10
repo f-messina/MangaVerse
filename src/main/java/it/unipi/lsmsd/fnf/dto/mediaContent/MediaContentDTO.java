@@ -20,6 +20,11 @@ public abstract class MediaContentDTO {
     public MediaContentDTO() {
     }
 
+    public MediaContentDTO(String id, String title) {
+        this.id = id;
+        this.title = title;
+    }
+
     public MediaContentDTO(String id, String title, String imageUrl, Double averageRating) {
         this.id = id;
         this.title = title;

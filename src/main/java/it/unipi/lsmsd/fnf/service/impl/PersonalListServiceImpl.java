@@ -4,7 +4,7 @@ import it.unipi.lsmsd.fnf.dao.*;
 import it.unipi.lsmsd.fnf.dao.enums.DataRepositoryEnum;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dto.PersonalListDTO;
-import it.unipi.lsmsd.fnf.dto.RegisteredUserDTO;
+import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.PersonalList;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
@@ -34,22 +34,19 @@ public class PersonalListServiceImpl implements PersonalListService {
 
     /**
      * Inserts a new personal list into the data repository.
-     * @param list The personal list to be inserted.
+     * @param userId The ID of the user associated with the list.
+     * @param name The name of the list.
      * @return The ID of the inserted list.
      * @throws BusinessException If an error occurs during the operation.
      */
     @Override
-    public String insertList(PersonalList list) throws BusinessException {
-        if (list.getName() == null) {
+    public String insertList(String userId, String name) throws BusinessException {
+        if (name == null) {
             throw new BusinessException(BusinessExceptionType.NO_NAME, "The list must have a name.");
-        }
-        if (list.getUser() == null) {
-            throw new BusinessException(BusinessExceptionType.NO_USER, "The list must have a user.");
         }
 
         try {
-            PersonalListDTO dto = ModelToDtoMapper.convertToDTO(list);
-            return personalListDAO.insert(dto);
+            return personalListDAO.insert(userId, name);
         } catch(DAOException e) {
             throw new BusinessException("Error while inserting list",e);
         }
@@ -59,24 +56,18 @@ public class PersonalListServiceImpl implements PersonalListService {
      * Updates an existing personal list in the data repository.
      * @param listId The ID of the list to be updated.
      * @param listName The new name for the list.
-     * @param user The user associated with the list.
+     * @param userId The ID of the user to check if the list belongs to him.
      * @throws BusinessException If an error occurs during the operation.
      */
     @Override
-    public void updateList(String listId, String listName, User user) throws BusinessException {
+    public void updateList(String listId, String listName, String userId) throws BusinessException {
         Objects.requireNonNull(listId, "The id can't be null.");
 
-        if (listName == null && user == null) {
+        if (listName == null || userId == null) {
             throw new BusinessException("At least the name or the user must be defined");
         }
         try {
-            List<PersonalListDTO> listDTOs = personalListDAO.findByUser(listId, false);
-            for (PersonalListDTO listDTO : listDTOs) {
-                listDTO.setName(listName);
-                RegisteredUserDTO userDTO = ModelToDtoMapper.convertToRegisteredUserDTO(user);
-                listDTO.setUser(userDTO);
-                personalListDAO.update(listDTO);
-            }
+            personalListDAO.update(listId, listName);
         } catch (DAOException e) {
             throw new BusinessException("Error while updating the list",e);
         }
@@ -201,7 +192,7 @@ public class PersonalListServiceImpl implements PersonalListService {
             List<PersonalListDTO> personalListDTOS = personalListDAO.findAll();
             List<PersonalList> personalLists = new ArrayList<>();
             for(PersonalListDTO personalListDTO : personalListDTOS) {
-                personalLists.add(ModelToDtoMapper.convertToPersonalList(personalListDTO));
+                personalLists.add(DtoToModelMapper.personalListDTOtoPersonalList(personalListDTO));
             }
             return personalLists;
         } catch (DAOException e) {
@@ -219,7 +210,7 @@ public class PersonalListServiceImpl implements PersonalListService {
     public PersonalList findList(String id) throws BusinessException {
         try {
             PersonalListDTO personalListDTO = personalListDAO.find(id);
-            return ModelToDtoMapper.convertToPersonalList(personalListDTO);
+            return DtoToModelMapper.personalListDTOtoPersonalList(personalListDTO);
         } catch (DAOException e) {
             throw new BusinessException("Error finding the lists",e);
         }

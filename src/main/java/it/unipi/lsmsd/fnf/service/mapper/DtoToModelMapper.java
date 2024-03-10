@@ -1,7 +1,7 @@
 package it.unipi.lsmsd.fnf.service.mapper;
 
 import it.unipi.lsmsd.fnf.dto.PersonalListDTO;
-import it.unipi.lsmsd.fnf.dto.RegisteredUserDTO;
+import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
 import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
@@ -42,16 +42,14 @@ public class DtoToModelMapper {
 
     /**
      * Converts a RegisteredUserDTO object to a User object.
-     * @param registeredUserDTO The RegisteredUserDTO object to convert.
+     * @param userSummaryDTO The userSummaryDTO object to convert.
      * @return The converted User object.
      */
-    public static User registeredUserDTOtoUser(RegisteredUserDTO registeredUserDTO) {
+    public static User registeredUserDTOtoUser(UserSummaryDTO userSummaryDTO) {
         User user = new User();
-        user.setId(registeredUserDTO.getId());
-        user.setUsername(registeredUserDTO.getUsername());
-        user.setProfilePicUrl(registeredUserDTO.getProfilePicUrl());
-        user.setLocation(registeredUserDTO.getLocation());
-        user.setBirthday(registeredUserDTO.getBirthday());
+        user.setId(userSummaryDTO.getId());
+        user.setUsername(userSummaryDTO.getUsername());
+        user.setProfilePicUrl(userSummaryDTO.getProfilePicUrl());
         return user;
     }
 
@@ -64,14 +62,17 @@ public class DtoToModelMapper {
         PersonalList personalList = new PersonalList();
         personalList.setId(personalListDTO.getId());
         personalList.setName(personalListDTO.getName());
-        if (personalListDTO.getUser() != null)
-            personalList.setUser(registeredUserDTOtoUser(personalListDTO.getUser()));
-        personalList.setManga(personalListDTO.getManga().stream()
-                .map(DtoToModelMapper::mangaDTOtoManga)
-                .collect(Collectors.toCollection(ArrayList::new)));
-        personalList.setAnime(personalListDTO.getAnime().stream()
-                .map(DtoToModelMapper::animeDTOtoAnime)
-                .collect(Collectors.toCollection(ArrayList::new)));
+        User user = new User();
+        user.setId(personalListDTO.getUserId());
+        personalList.setUser(user);
+        if (personalListDTO.getManga() != null)
+            personalList.setManga(personalListDTO.getManga().stream()
+                    .map(DtoToModelMapper::mangaDTOtoManga)
+                    .collect(Collectors.toCollection(ArrayList::new)));
+        if (personalListDTO.getAnime() != null)
+            personalList.setAnime(personalListDTO.getAnime().stream()
+                    .map(DtoToModelMapper::animeDTOtoAnime)
+                    .collect(Collectors.toCollection(ArrayList::new)));
         return personalList;
     }
 
@@ -132,5 +133,62 @@ public class DtoToModelMapper {
         if (reviewDTO.getUser() != null)
             review.setUser(registeredUserDTOtoUser(reviewDTO.getUser()));
         return review;
+    }
+
+    /**
+     * Converts an AnimeDTO object to an Anime object.
+     * @param animeDTO The AnimeDTO object to convert.
+     * @return The converted Anime object.
+     * @throws IllegalArgumentException If the animeDTO object is null.
+     */
+    public static Anime convertToAnime(AnimeDTO animeDTO) {
+        if(animeDTO == null) {
+            throw new IllegalArgumentException("The AnimeDTO can't be null.");
+        }
+
+        Anime anime = new Anime();
+        anime.setId(animeDTO.getId());
+        anime.setTitle(animeDTO.getTitle());
+        anime.setImageUrl(animeDTO.getImageUrl());
+
+        return anime;
+    }
+
+    /**
+     * Converts a MangaDTO object to a Manga object.
+     * @param mangaDTO The MangaDTO object to convert.
+     * @return The converted Manga object.
+     * @throws IllegalArgumentException If the mangaDTO object is null.
+     */
+    public static Manga convertToManga(MangaDTO mangaDTO) {
+        if(mangaDTO == null) {
+            throw new IllegalArgumentException("The MangaDTO can't be null.");
+        }
+
+        Manga manga = new Manga();
+        manga.setId(mangaDTO.getId());
+        manga.setTitle(mangaDTO.getTitle());
+        manga.setImageUrl(mangaDTO.getImageUrl());
+
+        return manga;
+    }
+
+    /**
+     * Converts a UserSummaryDTO object to a User object.
+     * @param userDTO The UserSummaryDTO object to convert.
+     * @return The converted User object.
+     * @throws IllegalArgumentException If the userDTO object is null.
+     */
+    public static User convertToUser(UserSummaryDTO userDTO) {
+        if (userDTO == null) {
+            throw new IllegalArgumentException("The RegisteredUserDTO can't be null.");
+        }
+
+        User user = new User();
+        user.setId(userDTO.getId());
+        user.setUsername(userDTO.getUsername());
+        user.setProfilePicUrl(userDTO.getProfilePicUrl());
+
+        return user;
     }
 }

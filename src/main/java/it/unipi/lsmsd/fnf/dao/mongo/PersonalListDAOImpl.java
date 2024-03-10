@@ -1,11 +1,8 @@
 package it.unipi.lsmsd.fnf.dao.mongo;
 
 import it.unipi.lsmsd.fnf.dao.PersonalListDAO;
-import it.unipi.lsmsd.fnf.dao.base.BaseMongoDBDAO;
-import it.unipi.lsmsd.fnf.dao.enums.SearchCriteriaEnum;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dto.PersonalListDTO;
-import it.unipi.lsmsd.fnf.dto.RegisteredUserDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
@@ -16,9 +13,11 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import com.mongodb.client.result.InsertOneResult;
@@ -41,16 +40,18 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
     /**
      * Inserts a new personal list into the database.
      *
-     * @param list The PersonalListDTO object representing the list to be inserted.
+     * @param userId The ID of the user who owns the list.
+     * @param name   The name of the list.
      * @return The ID of the inserted list.
      * @throws DAOException If an error occurs during the insertion process.
      */
     @Override
-    public String insert(PersonalListDTO list) throws DAOException {
+    public String insert(String userId, String name) throws DAOException {
         try {
             MongoCollection<Document> listsCollection = getCollection(COLLECTION_NAME);
 
-            Document listDoc = PersonalListDTOTODocument(list);
+            Document listDoc = new Document("name", name)
+                    .append("user", userInfoToDocument(userId, null, null));
 
             InsertOneResult result = listsCollection.insertOne(listDoc);
             if (result.getInsertedId() == null) {
@@ -64,28 +65,23 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
     }
 
     /**
-     * Updates an existing personal list in the database.
+     * Updates a personal list in the database.
      *
-     * @param list The PersonalListDTO object representing the updated list.
+     * @param listId The ID of the list to be updated.
+     * @param name   The new name of the list.
      * @throws DAOException If an error occurs during the update process.
      */
     @Override
-    public void update(PersonalListDTO list) throws DAOException {
+    public void update(String listId, String name) throws DAOException {
         try {
             MongoCollection<Document> listsCollection = getCollection(COLLECTION_NAME);
 
-            Bson filter = eq("_id", new ObjectId(list.getId()));
-            Bson update = combine();
-            if (list.getName() != null) {
-                Bson nameUpdate = set("name", list.getName());
-                update = combine(update, nameUpdate);
-            }
-            if (list.getUser() != null) {
-                Bson userUpdate = set("user", userDTOToDocument(list.getUser()));
-                update = combine(update, userUpdate);
-            }
+            Bson filter = eq("_id", new ObjectId(listId));
+            Bson update = set("name", name);
 
-            listsCollection.updateOne(filter, update);
+            if (listsCollection.updateOne(filter, update).getMatchedCount() == 0) {
+                throw new DAOException("Error updating list: list not found");
+            }
         } catch (Exception e) {
             throw new DAOException("Error updating list", e);
         }
@@ -297,27 +293,6 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
         }
     }
 
-    @Override
-    public List<AnimeDTO> findPopularAnime(SearchCriteriaEnum criteria) throws DAOException {
-        return null;
-    }
-
-    @Override
-    public List<AnimeDTO> findPopularAnime(SearchCriteriaEnum criteria, String value) throws DAOException {
-        return null;
-    }
-
-    @Override
-    public List<MangaDTO> findPopularManga(SearchCriteriaEnum criteria) throws DAOException {
-        return null;
-    }
-
-    @Override
-    public List<MangaDTO> findPopularManga(SearchCriteriaEnum criteria, String value) throws DAOException {
-        return null;
-    }
-
-
     /**
      * Converts a MongoDB document representing a personal list to a PersonalListDTO object.
      *
@@ -325,14 +300,12 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
      * @return The PersonalListDTO object.
      */
     private PersonalListDTO documentToPersonalListDTO(Document document) {
+        String userId;
         Document userDoc = document.get("user", Document.class);
-        RegisteredUserDTO user = null;
-        if (userDoc != null) {
-            user = new RegisteredUserDTO(
-                    userDoc.getObjectId("id").toString(),
-                    userDoc.getString("location"),
-                    ConverterUtils.dateToLocalDate(userDoc.getDate("birthday"))
-            );
+        if (userDoc != null && userDoc.getObjectId("id") != null) {
+            userId = userDoc.getObjectId("id").toString();
+        } else {
+            userId = null;
         }
 
         List<AnimeDTO> animeList = Optional.ofNullable(document.getList("anime_list", Document.class))
@@ -341,18 +314,16 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
                 .map(doc -> new AnimeDTO(doc.getObjectId("id").toString(), doc.getString("title"), doc.getString("picture")))
                 .toList();
 
-
         List<MangaDTO> mangaList = Optional.ofNullable(document.getList("manga_list", Document.class))
                 .orElse(new ArrayList<>())
                 .stream()
                 .map(doc -> new MangaDTO(doc.getObjectId("id").toString(), doc.getString("title"), doc.getString("picture")))
                 .toList();
 
-
         return new PersonalListDTO(
                 document.getObjectId("_id").toString(),
                 document.getString("name"),
-                user,
+                userId,
                 mangaList,
                 animeList
         );
@@ -382,19 +353,19 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
                 .append("picture", manga.getImageUrl());
     }
 
-    private Document userDTOToDocument(RegisteredUserDTO user) {
-        Document doc = new Document("id", new ObjectId(user.getId()));
-        appendIfNotNull(doc, "location", user.getLocation());
-        appendIfNotNull(doc, "birthday", ConverterUtils.localDateToDate(user.getBirthday()));
+    private Document userInfoToDocument(String userId, String location, LocalDate birthDate) {
+        Document doc = new Document("id", new ObjectId(userId));
+        appendIfNotNull(doc, "location", location);
+        appendIfNotNull(doc, "birthday", ConverterUtils.localDateToDate(birthDate));
         return doc;
     }
 
     private Document PersonalListDTOTODocument(PersonalListDTO list) {
         List<Document> animeDoc = list.getAnime().stream().map(this::animeDTOToDocument).collect(Collectors.toList());
         List<Document> mangaDoc = list.getManga().stream().map(this::mangaDTOToDocument).collect(Collectors.toList());
-
+        Document userDoc = userInfoToDocument(list.getUserId(), null, null);
         return new Document("name", list.getName())
-                .append("user", userDTOToDocument(list.getUser()))
+                .append("user", userDoc)
                 .append("anime_list", animeDoc)
                 .append("manga_list", mangaDoc);
     }

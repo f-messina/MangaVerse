@@ -3,10 +3,7 @@ package it.unipi.lsmsd.fnf.controller;
 import it.unipi.lsmsd.fnf.model.PersonalList;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
-import it.unipi.lsmsd.fnf.service.MediaContentService;
-import it.unipi.lsmsd.fnf.service.PersonalListService;
-import it.unipi.lsmsd.fnf.service.ServiceLocator;
-import it.unipi.lsmsd.fnf.service.UserService;
+import it.unipi.lsmsd.fnf.service.*;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 import it.unipi.lsmsd.fnf.service.exception.BusinessExceptionType;
 import it.unipi.lsmsd.fnf.utils.Constants;
@@ -30,6 +27,7 @@ public class ProfileServlet extends HttpServlet {
     private static final UserService userService = ServiceLocator.getUserService();
     private static final PersonalListService personalListService = ServiceLocator.getPersonalListService();
     private static final MediaContentService mediaContentService = ServiceLocator.getMediaContentService();
+    private static final ReviewService reviewService = ServiceLocator.getReviewService();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -58,6 +56,8 @@ public class ProfileServlet extends HttpServlet {
             case null, default -> {
                 try {
                     request.setAttribute("lists", personalListService.findListsByUser(authUser.getId(), false));
+                    request.setAttribute("reviews", reviewService.findByUser(authUser.getId(), 1));
+                    logger.info("User reviews: " + reviewService.findByUser(authUser.getId(), 1));
                     request.setAttribute("likedAnime", mediaContentService.getLikedMediaContent(authUser.getId(), MediaContentType.ANIME));
                     request.setAttribute("likedManga", mediaContentService.getLikedMediaContent(authUser.getId(), MediaContentType.MANGA));
                 } catch (BusinessException e) {
@@ -83,7 +83,7 @@ public class ProfileServlet extends HttpServlet {
             return;
         } catch (BusinessException e) {
             BusinessExceptionType type = e.getType();
-            if (BusinessExceptionType.TAKEN_USERNAME.equals(type)) {
+            if (BusinessExceptionType.DUPLICATED_USERNAME.equals(type)) {
                 request.setAttribute("usernameError", "Username is already in use");
             } else {
                 handleUpdateError(request, "Invalid input. Please check your data.", e);
@@ -125,20 +125,18 @@ String targetJSP = "homepage.jsp";
 
     private void handleAddList(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         try {
-            String listName = request.getParameter("listName");
             User authUser = SecurityUtils.getAuthenticatedUser(request);
+            String listName = request.getParameter("listName");
 
+            String id = personalListService.insertList(authUser.getId(), listName);
             PersonalList list = new PersonalList();
-            list.setName(listName);
-            list.setUser(authUser);
-
-            String id = personalListService.insertList(list);
             list.setId(id);
-            list.setUser(null); // Avoid storing the user in the list; it's already stored in the user's lists
+            list.setName(listName);
             authUser.addList(list);
 
             request.getSession().setAttribute(Constants.AUTHENTICATED_USER_KEY, authUser);
             response.sendRedirect("profile");
+
         } catch (BusinessException e) {
             logger.error("Error during add list operation.", e);
             request.setAttribute("errorMessage", "Error during add list operation.");

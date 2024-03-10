@@ -1,4 +1,4 @@
-package it.unipi.lsmsd.fnf.dao.base;
+package it.unipi.lsmsd.fnf.dao.neo4j;
 
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import org.neo4j.driver.*;

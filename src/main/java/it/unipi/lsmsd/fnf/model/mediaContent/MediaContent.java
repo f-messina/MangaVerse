@@ -4,12 +4,12 @@ import it.unipi.lsmsd.fnf.model.enums.Status;
 import org.bson.types.ObjectId;
 
 public abstract class MediaContent {
-    private String id;
-    private String title;
-    private String imageUrl;
-    private Double averageRating;
-    private String synopsis;
-    private Status status;
+    protected String id;
+    protected String title;
+    protected String imageUrl;
+    protected Double averageRating;
+    protected String synopsis;
+    protected Status status;
 
     public String getId() {
         return id;

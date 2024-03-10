@@ -155,7 +155,7 @@ function showListPopup(media) {
     const popup = $("<div>").addClass("list-popup");
 
     // Add list option buttons
-    lists.forEach(list => popup.append($("<button>").addClass("list-option-button").text(list).on("click", () => addElementToList(media, list[0]).then(() => {
+    lists.forEach(list => popup.append($("<button>").addClass("list-option-button").text(list[1]).on("click", () => addElementToList(media, list[0]).then(() => {
         console.log("Element added to the list:", list);
         popupContainer.empty().hide();
     }).catch(error => console.error("Error adding element to the list:", error)))));
@@ -163,7 +163,7 @@ function showListPopup(media) {
     popupContainer.empty().append(popup).appendTo("body").show();
 
     // Close the popup when clicking outside of it
-    popupContainer.on("click", e => e.target === popupContainer && popupContainer.empty().hide());
+    popupContainer.on("click", e => e.target === popupContainer[0] && popupContainer.empty().hide());
 }
 
 // Add a media element to a specified list

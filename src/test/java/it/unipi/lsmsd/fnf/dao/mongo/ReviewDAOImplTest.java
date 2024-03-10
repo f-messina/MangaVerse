@@ -1,27 +1,92 @@
 package it.unipi.lsmsd.fnf.dao.mongo;
 
-import junit.framework.TestCase;
+import it.unipi.lsmsd.fnf.dao.exception.DAOException;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class ReviewDAOImplTest extends TestCase {
+import static org.junit.jupiter.api.Assertions.*;
 
-    public void testInsert() {
+class ReviewDAOImplTest {
+
+    @BeforeEach
+    public void setUp() throws Exception {
+        BaseMongoDBDAO.openConnection();
     }
 
-    public void testUpdate() {
+    @AfterEach
+    public void tearDown() throws DAOException {
+        BaseMongoDBDAO.closeConnection();
     }
 
-    public void testDelete() {
+    @Test
+    void createReview() {
     }
 
-    public void testDeleteByMedia() {
+    @Test
+    void updateReview() {
     }
 
-    public void testFindByUser() {
+    @Test
+    void updateMediaRedundancy() {
     }
 
-    public void testFindByMedia() {
+    @Test
+    void updateUserRedundancy() {
     }
 
-    public void testFindByUserAndMedia() {
+    @Test
+    void deleteReview() {
+    }
+
+    @Test
+    void deleteReviewsWithNoMedia() {
+    }
+
+    @Test
+    void deleteReviewsWithNoAuthor() {
+    }
+
+    @Test
+    void getReviewByUser() {
+        String userId = "6577877be68376234760596d";
+        ReviewDAOImpl reviewDAO = new ReviewDAOImpl();
+        try {
+            System.out.println(reviewDAO.getReviewByUser(userId, 1));
+        } catch (DAOException e) {
+            System.err.println(e.getMessage() + " " + e.getType());
+        }
+    }
+
+    @Test
+    void getReviewByMedia() {
+    }
+
+    @Test
+    void averageRatingUser() {
+    }
+
+    @Test
+    void ratingAnimeYear() {
+    }
+
+    @Test
+    void ratingAnimeMonth() {
+    }
+
+    @Test
+    void ratingMangaYear() {
+    }
+
+    @Test
+    void ratingMangaMonth() {
+    }
+
+    @Test
+    void averageRatingByAge() {
+    }
+
+    @Test
+    void averageRatingByLocation() {
     }
 }

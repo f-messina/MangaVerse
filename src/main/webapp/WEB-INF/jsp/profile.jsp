@@ -28,8 +28,8 @@
             referrerpolicy="no-referrer"
     />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/profile_test.css">
-    <script src="${pageContext.request.contextPath}/js/profile_test.js" defer></script>
     <script src="https://code.jquery.com/jquery-3.6.4.min.js" defer></script>
+    <script src="${pageContext.request.contextPath}/js/profile_test.js" defer></script>
     <script src="${pageContext.request.contextPath}/js/country_dropdown.js" defer></script>
     <script src="${pageContext.request.contextPath}/js/logout.js" defer></script>
     <title>PROFILE</title>
@@ -225,10 +225,10 @@
     </section>
     <section class="reviews">
         <h1>Reviews</h1>
-        <c:set var="reviews" value="${sessionScope[Constants.AUTHENTICATED_USER_KEY].getReviews()}" />
+        <c:set var="reviews" value="${requestScope.reviews}" />
         <c:choose>
             <c:when test="${not empty reviews}">
-                <c:forEach var="review" items="${reviews}">
+                <c:forEach var="review" items="${reviews.getEntries()}">
                     <div class="review ">
                         <h2>
                             <c:out value="${review.getMediaContent().getTitle()}" />

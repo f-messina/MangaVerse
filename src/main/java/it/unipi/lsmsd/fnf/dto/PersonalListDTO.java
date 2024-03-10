@@ -2,25 +2,31 @@ package it.unipi.lsmsd.fnf.dto;
 
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
-import org.bson.types.ObjectId;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 public class PersonalListDTO {
     private String id;
     private String name;
-    private RegisteredUserDTO user;
+    private String userId;
     private List<MangaDTO> manga = new ArrayList<>();
     private List<AnimeDTO> anime = new ArrayList<>();
 
     public PersonalListDTO() {
     }
 
-    public PersonalListDTO(String id, String name, RegisteredUserDTO user, List<MangaDTO> manga, List<AnimeDTO> anime) {
+    public PersonalListDTO(String id, String name, String userId) {
         this.id = id;
         this.name = name;
-        this.user = user;
+        this.userId = userId;
+    }
+
+    public PersonalListDTO(String id, String name, String userId, List<MangaDTO> manga, List<AnimeDTO> anime) {
+        this.id = id;
+        this.name = name;
+        this.userId = userId;
         this.manga = manga;
         this.anime = anime;
     }
@@ -33,8 +39,8 @@ public class PersonalListDTO {
         return name;
     }
 
-    public RegisteredUserDTO getUser() {
-        return user;
+    public String getUserId() {
+        return userId;
     }
 
     public List<MangaDTO> getManga() {
@@ -53,8 +59,8 @@ public class PersonalListDTO {
         this.name= name;
     }
 
-    public void setUser(RegisteredUserDTO user) {
-        this.user = user;
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     public void setManga(List<MangaDTO> manga) {
@@ -83,10 +89,10 @@ public class PersonalListDTO {
 
     @Override
     public String toString() {
-        return "PersonalList{" +
-                "id=" + id +
-                "name='" + name + '\'' +
-                ", user='" + user + '\'' +
+        return "PersonalListDTO{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", userId='" + userId + '\'' +
                 ", manga=" + manga +
                 ", anime=" + anime +
                 '}';

@@ -2,7 +2,6 @@ package it.unipi.lsmsd.fnf.dao.mongo;
 
 import com.mongodb.client.result.UpdateResult;
 import it.unipi.lsmsd.fnf.dao.MediaContentDAO;
-import it.unipi.lsmsd.fnf.dao.base.BaseMongoDBDAO;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dao.exception.DAOExceptionType;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
@@ -14,6 +13,7 @@ import it.unipi.lsmsd.fnf.model.enums.AnimeType;
 import it.unipi.lsmsd.fnf.model.enums.Status;
 import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
+import it.unipi.lsmsd.fnf.service.mapper.ModelToDtoMapper;
 import it.unipi.lsmsd.fnf.utils.Constants;
 import it.unipi.lsmsd.fnf.utils.ConverterUtils;
 
@@ -51,7 +51,7 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
 
             UpdateResult result = animeCollection.updateOne(filter, update, new UpdateOptions().upsert(true));
             if (result.getUpsertedId() == null) {
-                throw new DAOException(DAOExceptionType.EXIST_ANIME,"The anime already exists");
+                throw new DAOException(DAOExceptionType.DUPLICATED_KEY,"The anime already exists");
             } else {
                 return result.getUpsertedId().asObjectId().getValue().toString();
             }
@@ -59,7 +59,6 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
             throw new DAOException("Error while inserting anime", e);
         }
     }
-
 
     /**
      * Updates an existing Anime object in the MongoDB database.
@@ -103,7 +102,7 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
     /**
      * Finds an Anime object in the MongoDB database based on its ObjectId.
      *
-     * @param id The ObjectId of the Anime to find.
+     * @param animeId The ObjectId of the Anime to find.
      * @return The found Anime object, or null if not found.
      * @throws DAOException If an error occurs during the search process.
      */
@@ -196,39 +195,41 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
         try {
             MongoCollection<Document> animeCollection = getCollection(COLLECTION_NAME);
 
-            // Check if the review already exists in the database
-            Bson filter = Filters.eq("_id", new ObjectId(reviewDTO.getMediaContent().getId()));
-            Bson reviewFilter = Filters.eq("latest_reviews.id", reviewDTO.getId());
-            Document existingAnime = animeCollection.find(filter).first();
+            // Convert ReviewDTO to Document
+            Document reviewDocument = reviewDTOtoDocument(reviewDTO);
 
-            if (existingAnime != null) {
-                // If the review exists, update it
-                if (animeCollection.countDocuments(reviewFilter) > 0) {
-                    Bson update = Updates.pull("latest_reviews", Filters.eq("id", reviewDTO.getId()));
-                    animeCollection.updateOne(filter, update);
-                }
+            // Create a filter to check if the review with the given ID already exists in the array
+            Document filter = new Document("latestReviews._id", reviewDTO.getId());
 
-                // Add the new review
-                Bson update = Updates.push("latest_reviews", reviewToDocument(reviewDTO));
-                animeCollection.updateOne(filter, update);
+            // Create a projection to include only the necessary fields
+            Document projection = new Document("latestReviews.$", 1);
 
-                // Remove the oldest review if the number of reviews exceeds a certain limit
-                int maxReviews = 10; // Define your maximum number of reviews here
-                if (existingAnime.getList("latest_reviews", Document.class).size() > maxReviews) {
-                    Bson oldestReview = Updates.pull("latest_reviews", Filters.eq("_id", existingAnime.getList("latest_reviews", Document.class).get(0).getObjectId("_id")));
-                    animeCollection.updateOne(filter, oldestReview);
-                }
+            // Execute the query to find the matching review
+            Document existingReview = animeCollection.find(filter)
+                    .projection(projection)
+                    .first();
+
+            // Combine all update operations into a single update statement
+            Document updateOperations = new Document();
+
+            if (existingReview != null) {
+                // Review already exists, move it to the first position
+                updateOperations.append("$pull", new Document("latestReviews", new Document("_id", reviewDTO.getId())));
+                updateOperations.append("$push", new Document("latestReviews", new Document("$each", List.of(reviewDocument)).append("$position", 0)));
             } else {
-                throw new DAOException("Media content not found with ID: " + reviewDTO.getMediaContent().getId());
+                // Review doesn't exist, add it to the first position
+                updateOperations.append("$push", new Document("latestReviews", new Document("$each", List.of(reviewDocument)).append("$position", 0)));
             }
+
+            // Ensure the array has at most 5 reviews
+            updateOperations.append("$push", new Document("latestReviews", new Document("$each", List.of()).append("$slice", -5)));
+
+            // Apply the combined update operations
+            animeCollection.updateOne(filter, updateOperations);
+
         } catch (Exception e) {
-            throw new DAOException("Error while updating latest review", e);
+            throw new DAOException("Error updating latest review", e);
         }
-        //do it later
-        // if the review id is already inside just change the review, if it doesnt exist it measn it is new so oush the new one and pull the oldest one
-        //check if checking the date or the id is better according to the performance
-        // sonra  bu methodu reviewservice de insert kısmında kullan ki yeni review eklendiğinde latest review da değişmiş olsun
-        //mangaya da koy aynısından
     }
 
     /**
@@ -278,16 +279,8 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
                 .orElse(Collections.emptyList())
                 .stream()
                 .map(review -> {
-                    Document reviewDocument = new Document();
-                    appendIfNotNull(reviewDocument, "id", review.getId());
-                    appendIfNotNull(reviewDocument, "comment", review.getComment());
-                    appendIfNotNull(reviewDocument, "date", ConverterUtils.localDateToDate(review.getDate()));
-                    Document userDocument = new Document();
-                    appendIfNotNull(userDocument, "id", review.getUser().getId());
-                    appendIfNotNull(userDocument, "username", review.getUser().getUsername());
-                    appendIfNotNull(userDocument, "picture", review.getUser().getProfilePicUrl());
-                    appendIfNotNull(reviewDocument, "user", userDocument);
-                    return reviewDocument;
+                    ReviewDTO reviewDTO = ModelToDtoMapper.convertToDTO(review);
+                    return reviewDTOtoDocument(reviewDTO);
                 })
                 .toList();
 
@@ -373,47 +366,63 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
         return anime;
     }
 
+    private Document reviewDTOtoDocument(ReviewDTO reviewDTO) {
+        Document reviewDocument = new Document();
+        appendIfNotNull(reviewDocument, "id", reviewDTO.getId());
+        appendIfNotNull(reviewDocument, "comment", reviewDTO.getComment());
+        appendIfNotNull(reviewDocument, "date", ConverterUtils.localDateToDate(reviewDTO.getDate()));
+        Document userDocument = new Document();
+        appendIfNotNull(userDocument, "id", reviewDTO.getUser().getId());
+        appendIfNotNull(userDocument, "username", reviewDTO.getUser().getUsername());
+        appendIfNotNull(userDocument, "picture", reviewDTO.getUser().getProfilePicUrl());
+        appendIfNotNull(reviewDocument, "user", userDocument);
+        return reviewDocument;
+    }
+
     // Neo4J specific methods
     @Override
     public void createNode(MediaContentDTO animeDTO) throws DAOException {
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override
     public void like(String userId, String mediaContentId) throws DAOException {
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override
     public void unlike(String userId, String mediaContentId) throws DAOException {
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override
     public boolean isLiked(String userId, String mediaId) throws DAOException {
-        return false;
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override
     public List<? extends MediaContentDTO> getLiked(String userId) throws DAOException {
-        return null;
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override
     public List<? extends MediaContentDTO> getSuggested(String userId) throws DAOException {
-        return null;
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override
     public List<? extends MediaContentDTO> getTrendMediaContentByYear(int year) throws DAOException {
-        return null;
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override
     public List<String> getMediaContentGenresTrendByYear(int year) throws DAOException {
-        return null;
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override
     public List<? extends MediaContentDTO> getMediaContentTrendByGenre() throws DAOException {
-        return null;
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override
     public List<? extends MediaContentDTO> getMediaContentTrendByLikes() throws DAOException {
-        return null;
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override
     public List<String> getMediaContentGenresTrend() throws DAOException {
-        return null;
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
 }
 

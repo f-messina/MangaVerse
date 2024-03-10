@@ -1,7 +1,7 @@
 package it.unipi.lsmsd.fnf.dao.neo4j;
 
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
-import it.unipi.lsmsd.fnf.dto.RegisteredUserDTO;
+import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
 import  org.junit.Test;
@@ -59,8 +59,8 @@ public class Neo4JDAOImplTest extends TestCase {
     @Test
     public void testGetFollowing() throws DAOException {
         UserDAOImpl neo4JDAO = new UserDAOImpl();
-        List<RegisteredUserDTO> followingUsers = neo4JDAO.getFollowing("6577877be68376234760585d");
-        for (RegisteredUserDTO user : followingUsers)
+        List<UserSummaryDTO> followingUsers = neo4JDAO.getFollowing("6577877be68376234760585d");
+        for (UserSummaryDTO user : followingUsers)
             System.out.println(user);
 
     }
@@ -68,8 +68,8 @@ public class Neo4JDAOImplTest extends TestCase {
     @Test
     public void testGetFollowers() throws DAOException {
         UserDAOImpl neo4JDAO = new UserDAOImpl();
-        List<RegisteredUserDTO> followerUsers = neo4JDAO.getFollowers("6577877be68376234760585d");
-        for(RegisteredUserDTO user : followerUsers)
+        List<UserSummaryDTO> followerUsers = neo4JDAO.getFollowers("6577877be68376234760585d");
+        for(UserSummaryDTO user : followerUsers)
             System.out.println(user);
     }
 

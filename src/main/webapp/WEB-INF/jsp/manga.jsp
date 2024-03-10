@@ -25,8 +25,8 @@
             referrerpolicy="no-referrer"
     />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/media_content_test.css">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script src="${pageContext.request.contextPath}/js/media_content_test.js" defer></script>
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js" defer></script>
     <script src="${pageContext.request.contextPath}/js/logout.js" defer></script>
 </head>
 <body>
@@ -51,8 +51,8 @@
             </nav>
     </div>
 
-    <div class="info">
-        <section class="mediaContent-info">
+    <section class="info">
+        <div class="mediaContent-info">
             <div class="mediaContent-img">
                 <img alt="profile image" src=${empty requestScope.media.imageUrl ? '${pageContext.request.contextPath}/images/logo-with-name.png' : requestScope.media.imageUrl}>
             </div>
@@ -160,7 +160,140 @@
                     </div>
                 </div>
             </form>
-        </section>
-    </div>
+        </div>
+    </section>
+    <section id="reviews">
+        <c:if test="${not empty sessionScope[Constants.AUTHENTICATED_USER_KEY]}">
+            <div id="review-form-container" class="review-form">
+                <c:set var="found" value="false"/>
+                <c:forEach var="review" items="${requestScope.reviews.getEntries()}">
+                    <c:if test="${review.user.id == sessionScope[Constants.AUTHENTICATED_USER_KEY].getId()}">
+                        <c:set var="found" value="true"/>
+                        <button id="enable-modify-review" type="submit">Modify</button>
+                        <button id="delete-review" type="submit">Delete</button>
+                        <div id="modify-review-container" class="popup-container hidden">
+                            <div class="list-popup">
+                                <div class="popup-content">
+                                    <form id="modify-review-form" method="post" action="${pageContext.request.contextPath}/manga" autocomplete="off" class="forms">
+                                        <input type="hidden" name="mediaId" value="${requestScope.media.id}">
+                                        <input type="hidden" name="action" value="addReview">
+                                        <input type="hidden" name="reviewId" value="${review.id}">
+                                        <div class="form-group">
+                                            <label>Change the review:</label>
+                                            <textarea id="modify-comment" name="comment" rows="4" cols="50" placeholder="Write a comment" >${review.comment}</textarea>
+                                            <input id="modify-rating" type="number" name="rating" step="1" min="0" max = "10" placeholder="Rating" value="${review.rating}">
+                                        </div>
+                                        <button id="submit-modify-review" type="submit">Send</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </c:if>
+                </c:forEach>
+                <c:if test="${found == false}">
+                    <button id="enable-add-review" type="submit">Write a comment</button>
+                    <div id="add-review-container" class="popup-container hidden">
+                        <div class="list-popup">
+                            <div class="popup-content">
+                                <form id="add-review-form" method="post" action="${pageContext.request.contextPath}/manga" autocomplete="off" class="forms">
+                                    <input type="hidden" name="mediaId" value="${requestScope.media.id}">
+                                    <input type="hidden" name="action" value="addReview">
+                                    <div class="form-group">
+                                        <label>Change the review:</label>
+                                        <textarea id="add-comment" name="comment" rows="4" cols="50" placeholder="Write a comment"></textarea>
+                                        <input id="add-rating" type="number" name="rating" step="1" min="0" max = "10" placeholder="Rating">
+                                    </div>
+                                    <button id="submit-add-review" type="submit">Send</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </c:if>
+            </div>
+        </c:if>
+
+        <div class="review-list">
+            <h2>Reviews</h2>
+            <c:choose>
+                <c:when test="${not empty requestScope.reviews}">
+                    <c:forEach var="review" items="${requestScope.reviews.getEntries()}">
+                        <div class="review">
+                            <p>${review.user.username}</p>
+                            <img src="${review.user.profilePicUrl}" alt="profile image" />
+                            <p>${review.date}</p>
+                            <p>${review.comment}</p>
+                            <p>${review.rating}</p>
+                        </div>
+                    </c:forEach>
+                </c:when>
+                <c:otherwise>
+                    <div class="review">
+                        <p>No reviews yet</p>
+                    </div>
+                </c:otherwise>
+            </c:choose>
+        </div>
+    </section>
+
+    <script>
+        <c:set var="mediaId" value="${requestScope.media.id}"/>
+        <c:set var="mediaTitle" value="${requestScope.media.title}"/>
+        const servletURI = "${pageContext.request.contextPath}/manga";
+        const mediaId = "<c:out value="${mediaId}"/>";
+        const mediaTitle = "<c:out value="${mediaTitle}"/>";
+
+        const popupContainer = $('.popup-container');
+        popupContainer.on('click', (e) => {
+            if (e.target === popupContainer[0]) {
+                // Your code to handle the click on the popupContainer
+                popupContainer.addClass('hidden');
+            }
+        });
+
+        const enableAddReview = $('#enable-add-review');
+        const addReviewContainer = $('#add-review-container');
+        enableAddReview.on('click', () => {
+            addReviewContainer.removeClass('hidden');
+        });
+        const enableModifyReview = $('#enable-modify-review');
+        const modifyReviewContainer = $('#modify-review-container');
+        enableModifyReview.on('click', () => {
+            modifyReviewContainer.removeClass('hidden');
+        });
+
+        $(document).ready(function() {
+            // Function to submit form asynchronously
+            function submitFormAsync(formId) {
+                // Get form data
+                const formData = $('#' + formId).serialize();
+
+                // Make an AJAX request using $.post
+                $.post('${pageContext.request.contextPath}/manga', formData, function(response) {
+                    // Handle the success response
+                    console.log('Form submitted successfully:', response);
+                    // You can update the page or perform other actions here
+                    $('.popup-container').addClass('hidden');
+                })
+                    .fail(function(error) {
+                        // Handle the error response
+                        console.error('Error submitting form:', error);
+                    });
+            }
+
+            // Event handler for modify-review-form
+            $('#modify-review-form').on('submit', function(event) {
+                event.preventDefault();
+                submitFormAsync('modify-review-form');
+            });
+
+            // Event handler for add-review-form
+            $('#add-review-form').on('submit', function(event) {
+                event.preventDefault();
+                submitFormAsync('add-review-form');
+            });
+
+            // Add other event handlers as needed for different forms
+        });
+    </script>
 </body>
 </html>

@@ -1,9 +1,10 @@
 package it.unipi.lsmsd.fnf.dao.neo4j;
 
 import it.unipi.lsmsd.fnf.dao.UserDAO;
-import it.unipi.lsmsd.fnf.dao.base.BaseNeo4JDAO;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
-import it.unipi.lsmsd.fnf.dto.RegisteredUserDTO;
+import it.unipi.lsmsd.fnf.dao.exception.DAOExceptionType;
+import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
+import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
 import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import org.bson.Document;
@@ -21,15 +22,15 @@ public class UserDAOImpl extends BaseNeo4JDAO implements UserDAO {
     /**
      * Creates a node for a RegisteredUser in the Neo4j database.
      *
-     * @param registeredUserDTO The RegisteredUserDTO object containing information about the user to be created.
+     * @param userSummaryDTO The RegisteredUserDTO object containing information about the user to be created.
      * @throws DAOException If an error occurs while creating the user node.
      */
     @Override
-    public void createNode(RegisteredUserDTO registeredUserDTO) throws DAOException {
+    public void createNode(UserSummaryDTO userSummaryDTO) throws DAOException {
         try (Session session = getSession()) {
 
             String query = "CREATE (u:User {id: $id, username: $username, picture: $picture})";
-            session.run(query, Map.of("id", registeredUserDTO.getId(), "title", registeredUserDTO.getUsername(), "picture", registeredUserDTO.getProfilePicUrl()));
+            session.run(query, Map.of("id", userSummaryDTO.getId(), "title", userSummaryDTO.getUsername(), "picture", userSummaryDTO.getProfilePicUrl()));
 
         } catch (Exception e) {
             throw new DAOException("Error while creating user node", e);
@@ -79,7 +80,7 @@ public class UserDAOImpl extends BaseNeo4JDAO implements UserDAO {
      * @throws DAOException If an error occurs while retrieving the followed users list.
      */
     @Override
-    public List<RegisteredUserDTO> getFollowing(String userId) throws DAOException {
+    public List<UserSummaryDTO> getFollowing(String userId) throws DAOException {
         try (Session session = getSession()) {
             String query = "MATCH (follower:User {id: $userId})-[:FOLLOWS]-(f:User) RETURN f.id as id, f.username as username, f.picture as picture";
             List<Record> records = session.run(query, Map.of("userId", userId)).list();
@@ -91,13 +92,13 @@ public class UserDAOImpl extends BaseNeo4JDAO implements UserDAO {
         }
     }
 
-    private RegisteredUserDTO recordToRegisteredUserDTO(Record record) {
+    private UserSummaryDTO recordToRegisteredUserDTO(Record record) {
         Map<String, Object> map = record.asMap();
-        RegisteredUserDTO registeredUserDTO = new RegisteredUserDTO();
-        registeredUserDTO.setId(String.valueOf(map.get("id")));
-        registeredUserDTO.setUsername((String) map.get("username"));
-        registeredUserDTO.setProfilePicUrl((String) map.get("picture"));
-        return registeredUserDTO;
+        UserSummaryDTO userSummaryDTO = new UserSummaryDTO();
+        userSummaryDTO.setId(String.valueOf(map.get("id")));
+        userSummaryDTO.setUsername((String) map.get("username"));
+        userSummaryDTO.setProfilePicUrl((String) map.get("picture"));
+        return userSummaryDTO;
     }
 
     /**
@@ -108,7 +109,7 @@ public class UserDAOImpl extends BaseNeo4JDAO implements UserDAO {
      * @throws DAOException If an error occurs while retrieving the followers list.
      */
     @Override
-    public List<RegisteredUserDTO> getFollowers(String userId) throws DAOException {
+    public List<UserSummaryDTO> getFollowers(String userId) throws DAOException {
         try (Session session = getSession()) {
             String query = "MATCH (f:User)-[:FOLLOWS]->(following:User {id: $userId}) RETURN f.id as id, f.username as username, f.picture as picture";
             List<Record> records = session.run(query, Map.of("userId", userId)).list();
@@ -126,7 +127,7 @@ public class UserDAOImpl extends BaseNeo4JDAO implements UserDAO {
      * @throws DAOException If an error occurs while retrieving suggested users.
      */
     @Override
-    public List<RegisteredUserDTO> suggestUsers(String userId) throws DAOException {
+    public List<UserSummaryDTO> suggestUsers(String userId) throws DAOException {
         try (Session session = getSession()) {
             String query = "MATCH (:User {id: $userId})-[:FOLLOWS]->(following:User)-[:FOLLOWS]->(suggested:User) " +
                     "WHERE NOT (:User{id: $userId})-[:FOLLOWS]->(suggested) " +
@@ -143,65 +144,67 @@ public class UserDAOImpl extends BaseNeo4JDAO implements UserDAO {
     }
 
     // Methods available only in MongoDB
+
     @Override
-    public String register(User user) throws DAOException {
-        return null;
+    public void createUser(UserRegistrationDTO user) throws DAOException {
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
+
     @Override
-    public void remove(String id) throws DAOException {
+    public void updateUser(User user) throws DAOException {
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
+
+    @Override
+    public void deleteUser(String userId) throws DAOException {
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
+    }
+
     @Override
     public RegisteredUser authenticate(String email, String password) throws DAOException {
-        return null;
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
+
     @Override
-    public RegisteredUser find(String id) throws DAOException {
-        return null;
+    public RegisteredUser getById(String userId) throws DAOException {
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
+
     @Override
-    public List<RegisteredUserDTO> search(String username) throws DAOException {
-        return null;
+    public List<UserSummaryDTO> searchFirstNUsers(String username, Integer n, String loggedUser) throws DAOException {
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
-    @Override
-    public List<RegisteredUserDTO> findAll() throws DAOException {
-        return null;
-    }
-    @Override
-    public void update(User user) throws DAOException {
-    }
-    @Override
-    public void update(RegisteredUser user) throws DAOException {
-    }
+
     @Override
     public List<Document> getGenderDistribution() throws DAOException {
-        return null;
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
     @Override
     public Integer averageAgeUsers() throws DAOException {
-        return 0;
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
     @Override
     public List<Document> getLocationDistribution() throws DAOException {
-        return null;
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
     @Override
     public List<Document> getUsersByAgeRange() throws DAOException {
-        return null;
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
     @Override
     public List<Document> getUsersRegisteredByYear() throws DAOException {
-        return null;
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
     @Override
     public Integer averageAppRatingByAge(Integer yearOfBirth) throws DAOException {
-        return 0;
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
     @Override
     public Integer averageAppRatingByLocation(String location) throws DAOException {
-        return 0;
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
     @Override
     public List<Document> averageAppRatingByGender() throws DAOException {
-        return null;
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
 }

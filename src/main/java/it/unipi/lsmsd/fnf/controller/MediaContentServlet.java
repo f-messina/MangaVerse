@@ -1,5 +1,8 @@
 package it.unipi.lsmsd.fnf.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.model.mediaContent.MediaContent;
@@ -8,6 +11,7 @@ import it.unipi.lsmsd.fnf.service.PersonalListService;
 import it.unipi.lsmsd.fnf.service.ReviewService;
 import it.unipi.lsmsd.fnf.service.ServiceLocator;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
+import it.unipi.lsmsd.fnf.service.exception.BusinessExceptionType;
 import it.unipi.lsmsd.fnf.utils.ConverterUtils;
 import it.unipi.lsmsd.fnf.utils.SecurityUtils;
 import it.unipi.lsmsd.fnf.utils.UserUtils;
@@ -43,7 +47,7 @@ public class MediaContentServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String mediaId = request.getParameter("mediaId");
         if (mediaId == null) {
-            response.sendRedirect("/mainPage");
+            response.sendRedirect("mainPage");
             return;
         }
 
@@ -58,7 +62,11 @@ public class MediaContentServlet extends HttpServlet {
                 request.getRequestDispatcher(targetJSP).forward(request, response);
             }
             request.setAttribute("media", mediaContentService.getMediaContentById(mediaId, mediaType));
-            request.setAttribute("lists", (SecurityUtils.getAuthenticatedUser(request).getLists()));
+            request.setAttribute("reviews", reviewService.findByMedia(mediaId, mediaType, 1));
+            if (SecurityUtils.getAuthenticatedUser(request) != null) {
+                request.setAttribute("isLiked", mediaContentService.isLiked(SecurityUtils.getAuthenticatedUser(request).getId(), mediaId, mediaType));
+                request.setAttribute("lists", (SecurityUtils.getAuthenticatedUser(request).getLists()));
+            }
         } catch (Exception e) {
             logger.error("Error while processing request", e);
             targetJSP = "error.jsp";
@@ -119,63 +127,68 @@ public class MediaContentServlet extends HttpServlet {
 
     private void handleAddReview(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         MediaContentType mediaType = MediaContentType.valueOf(request.getServletPath().substring(1).toUpperCase());
-        String targetJSP = mediaType.equals(MediaContentType.ANIME) ? "WEB-INF/jsp/anime.jsp" : "WEB-INF/jsp/manga.jsp";
+        String result;
         try {
             reviewService.addReview(ConverterUtils.fromRequestToReviewDTO(request, mediaType));
-            request.setAttribute("success", "Review added");
-        } catch (Exception e) {
-            logger.error("Error while processing request", e);
-            request.setAttribute("error", "Error while adding review");
-            targetJSP = "error.jsp";
+            result = "{\"success\": \"Review added\"}";
+        } catch (BusinessException e) {
+            if (e.getType() == BusinessExceptionType.EMPTY_FIELDS) {
+                result = "{\"error\": \"The review must have a comment or a rating\"}";
+            } else {
+                result = "{\"error\": \"Error while adding review\"}";
+            }
         }
 
-        request.getRequestDispatcher(targetJSP).forward(request, response);
+        // Set content type and write the JSON response
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(result);
     }
 
     private void handleDeleteReview(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String reviewId = request.getParameter("reviewId");
 
-        MediaContentType mediaType = MediaContentType.valueOf(request.getServletPath().substring(1).toUpperCase());
-        String targetJSP = mediaType.equals(MediaContentType.ANIME) ? "WEB-INF/jsp/anime.jsp" : "WEB-INF/jsp/manga.jsp";
-
         if (!request.getParameter("reviewUserId").equals(SecurityUtils.getAuthenticatedUser(request).getId())) {
             request.setAttribute("error", "You can't delete other user's reviews");
-            targetJSP = "error.jsp";
-            request.getRequestDispatcher(targetJSP).forward(request, response);
+            request.getRequestDispatcher("error.jsp").forward(request, response);
             return;
         }
+
+        String result;
         try {
             reviewService.deleteReview(reviewId);
-            request.setAttribute("success", "Review deleted");
+            result = "{\"success\": \"Review deleted\"}";
         } catch (Exception e) {
-            logger.error("Error while processing request", e);
-            request.setAttribute("error", "Error while deleting review");
-            targetJSP = "error.jsp";
+            result = "{\"error\": \"Error while deleting review, try again later\"}";
         }
 
-        request.getRequestDispatcher(targetJSP).forward(request, response);
+        // Set content type and write the JSON response
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(result);
     }
 
     private void handleEditReview(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         MediaContentType mediaType = MediaContentType.valueOf(request.getServletPath().substring(1).toUpperCase());
-        String targetJSP = mediaType.equals(MediaContentType.ANIME) ? "WEB-INF/jsp/anime.jsp" : "WEB-INF/jsp/manga.jsp";
 
         if (!request.getParameter("reviewUserId").equals(SecurityUtils.getAuthenticatedUser(request).getId())) {
             request.setAttribute("error", "You can't edit other user's reviews");
-            targetJSP = "error.jsp";
-            request.getRequestDispatcher(targetJSP).forward(request, response);
+            request.getRequestDispatcher("error.jsp").forward(request, response);
             return;
         }
 
+        String result;
         try {
-            reviewService.updateReview(ConverterUtils.fromRequestToReviewDTO(request, mediaType));
-            request.setAttribute("success", "Review updated");
+            reviewService.updateReview(request.getParameter("reviewId"), request.getParameter("reviewText"), Integer.parseInt(request.getParameter("reviewRating")));
+            result = "{\"success\": \"Review updated\"}";
         } catch (Exception e) {
             logger.error("Error while processing request", e);
-            request.setAttribute("error", "Error while updating review");
-            targetJSP = "error.jsp";
+            result = "{\"error\": \"Error while updating review, try again later\"}";
         }
 
-        request.getRequestDispatcher(targetJSP).forward(request, response);
+        // Set content type and write the JSON response
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(result);
     }
 }
