@@ -33,7 +33,6 @@
     <div class="nav-bar">
             <nav>
                 <a href="${pageContext.request.contextPath}/mainPage"><img src="${pageContext.request.contextPath}/images/logo-with-initial.png" alt="logo" /></a>
-                <h1>Profile Page</h1>
                 <div class="nav-items">
                     <a href="${pageContext.request.contextPath}/mainPage/anime" class="anime">Anime</a>
                     <a href="${pageContext.request.contextPath}/mainPage/manga" class="manga">Manga</a>
@@ -191,7 +190,7 @@
                     </c:if>
                 </c:forEach>
                 <c:if test="${found == false}">
-                    <button id="enable-add-review" type="submit">Send</button>
+                    <button id="enable-add-review" type="submit">Write a comment</button>
                     <div id="add-review-container" class="popup-container hidden">
                         <div class="list-popup">
                             <div class="popup-content">
@@ -218,11 +217,17 @@
                 <c:when test="${not empty requestScope.reviews}">
                     <c:forEach var="review" items="${requestScope.reviews.getEntries()}">
                         <div class="review">
-                            <p>${review.user.username}</p>
-                            <img src="${review.user.profilePicUrl}" alt="profile image" />
-                            <p>${review.date}</p>
-                            <p>${review.comment}</p>
-                            <p>${review.rating}</p>
+                            <p class="username-review">${review.user.username}</p>
+                            <div class="inside-review">
+                                <div>
+                                    <img src="${review.user.profilePicUrl}" alt="profile image" />
+                                </div>
+                                <div class="review-text">
+                                    <p>${review.date}</p>
+                                    <p>${review.comment}</p>
+                                    <p>${review.rating}</p>
+                                </div>
+                            </div>
                         </div>
                     </c:forEach>
                 </c:when>

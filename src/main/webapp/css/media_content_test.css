@@ -142,4 +142,37 @@ nav img {
     font-size: 20px;
     color: grey;
 }
-
+.review-list{
+    margin: 80px;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+.review{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 8px;
+    border: transparent;
+    box-shadow: 5px 5px 23px -7px rgba(0,0,0,0.84);
+    -webkit-box-shadow: 5px 5px 23px -7px rgba(0,0,0,0.84);
+    -moz-box-shadow: 5px 5px 23px -7px rgba(0,0,0,0.84);
+    border-radius: 7px;
+}
+.review img{
+    width: 100px;
+    height: auto;
+}
+.username-review{
+    font-weight: bold;
+    font-size: 18px;
+}
+.inside-review{
+    display: flex;
+    gap: 20px;
+}
+.review-text{
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
