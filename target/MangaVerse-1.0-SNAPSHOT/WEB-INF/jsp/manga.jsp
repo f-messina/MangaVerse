@@ -191,7 +191,7 @@
                     </c:if>
                 </c:forEach>
                 <c:if test="${found == false}">
-                    <button id="enable-add-review" type="submit">Send</button>
+                    <button id="enable-add-review" type="submit">Write a comment</button>
                     <div id="add-review-container" class="popup-container hidden">
                         <div class="list-popup">
                             <div class="popup-content">

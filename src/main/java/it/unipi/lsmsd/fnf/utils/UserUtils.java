@@ -55,8 +55,8 @@ public class UserUtils {
                 .filter(list -> list.getId().equals(listId))
                 .findFirst()
                 .ifPresent(list -> {
-                    Optional.ofNullable(request.getParameter("mangaIdToRemove")).map(ObjectId::new).ifPresent(list::removeManga);
-                    Optional.ofNullable(request.getParameter("animeIdToRemove")).map(ObjectId::new).ifPresent(list::removeAnime);
+                    Optional.ofNullable(request.getParameter("mangaIdToRemove")).ifPresent(list::removeManga);
+                    Optional.ofNullable(request.getParameter("animeIdToRemove")).ifPresent(list::removeAnime);
                 });
     }
 

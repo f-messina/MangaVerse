@@ -3,6 +3,7 @@ package it.unipi.lsmsd.fnf.dao;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
+import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 
@@ -15,7 +16,7 @@ public interface UserDAO {
     public void updateUser(User user) throws DAOException;
     public void deleteUser(String userId) throws DAOException;
     public RegisteredUser authenticate(String email, String password) throws DAOException;
-    public RegisteredUser getById(String userId) throws DAOException;
+    public RegisteredUser readUser(String userId) throws DAOException;
     public List<UserSummaryDTO> searchFirstNUsers(String username, Integer n, String loggedUser) throws DAOException;
     List<Document> getGenderDistribution() throws DAOException;
     Integer averageAgeUsers() throws DAOException;
@@ -33,5 +34,4 @@ public interface UserDAO {
     List<UserSummaryDTO> getFollowing(String userId) throws DAOException;
     List<UserSummaryDTO> getFollowers(String userId) throws DAOException;
     List<UserSummaryDTO> suggestUsers(String userId) throws DAOException;
-
 }

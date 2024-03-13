@@ -63,11 +63,11 @@ public class PersonalList {
         this.anime.add(anime);
     }
 
-    public void removeManga(ObjectId mangaId) {
+    public void removeManga(String mangaId) {
         this.manga.removeIf(manga -> manga.getId().equals(mangaId));
     }
 
-    public void removeAnime(ObjectId animeId) {
+    public void removeAnime(String animeId) {
         this.anime.removeIf(anime -> anime.getId().equals(animeId));
     }
 
@@ -81,7 +81,7 @@ public class PersonalList {
         return "PersonalList{" +
                 "id=" + id +
                 "name='" + name + '\'' +
-                ", user='" + user + '\'' +
+                ", user=" + user +
                 ", manga=" + manga +
                 ", anime=" + anime +
                 '}';

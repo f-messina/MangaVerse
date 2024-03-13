@@ -2,11 +2,14 @@ package it.unipi.lsmsd.fnf.dao.mongo;
 
 import com.mongodb.MongoException;
 import com.mongodb.client.AggregateIterable;
+import com.mongodb.client.model.UpdateOptions;
+import com.mongodb.client.result.UpdateResult;
 import it.unipi.lsmsd.fnf.dao.UserDAO;
 import it.unipi.lsmsd.fnf.dao.exception.*;
 import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
 import it.unipi.lsmsd.fnf.model.enums.Gender;
+import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.model.registeredUser.Manager;
 import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
@@ -27,6 +30,7 @@ import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.exclude;
 import static com.mongodb.client.model.Projections.include;
 import static com.mongodb.client.model.Sorts.ascending;
+import static com.mongodb.client.model.Updates.*;
 
 /**
  * Implementation of UserDAO interface for MongoDB data access.
@@ -53,7 +57,7 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
             if(usernameExists && emailExists)
                 throw new DuplicatedException(DuplicatedExceptionType.DUPLICATED_KEY, "Username and email already in use");
             else if(usernameExists)
-                throw new DuplicatedException(DuplicatedExceptionType.DUPLICATED_USERNAME, "Username already in use");
+                throw new DuplicatedException(DuplicatedExceptionType.DUPLICATED_NAME, "Username already in use");
             else if(emailExists)
                 throw new DuplicatedException(DuplicatedExceptionType.DUPLICATED_EMAIL, "Email already in use");
 
@@ -68,7 +72,7 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
 
         } catch (DuplicatedException e) {
             switch (e.getType()) {
-                case DUPLICATED_USERNAME:
+                case DUPLICATED_NAME:
                     throw new DAOException(DAOExceptionType.DUPLICATED_USERNAME, e.getMessage());
                 case DUPLICATED_EMAIL:
                     throw new DAOException(DAOExceptionType.DUPLICATED_EMAIL, e.getMessage());
@@ -117,6 +121,7 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
 
         } catch (Exception e) {
             throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+
         }
     }
 
@@ -131,7 +136,9 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
         try {
             MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
 
-            if (usersCollection.deleteOne(eq("_id", new ObjectId(userId))).getDeletedCount() == 0) {
+            Bson filter = eq("_id", new ObjectId(userId));
+
+            if (usersCollection.deleteOne(filter).getDeletedCount() == 0) {
                 throw new MongoException("No user was deleted");
             }
 
@@ -140,6 +147,31 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
 
         } catch (Exception e) {
             throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+
+        }
+    }
+
+    /**
+     * Retrieves a user from the system based on their ID.
+     *
+     * @param userId The ID of the user to retrieve.
+     * @return The retrieved user, or null if not found.
+     * @throws DAOException If an error occurs while retrieving the user.
+     */
+    @Override
+    public RegisteredUser readUser(String userId) throws DAOException {
+        try {
+            MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
+
+            Bson filter = eq("_id", new ObjectId(userId));
+            Bson projection = exclude("is_manager", "password");
+
+            return Optional.ofNullable(usersCollection.find(filter).projection(projection).first())
+                    .map(this::documentToRegisteredUser)
+                    .orElseThrow(() -> new MongoException("User not found"));
+        }
+        catch (Exception e){
+            throw new DAOException("Error searching user by id: "+ userId, e);
         }
     }
 
@@ -175,29 +207,6 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
 
         } catch (Exception e) {
             throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
-        }
-    }
-
-    /**
-     * Retrieves a user from the system based on their ID.
-     *
-     * @param userId The ID of the user to retrieve.
-     * @return The retrieved user, or null if not found.
-     * @throws DAOException If an error occurs while retrieving the user.
-     */
-    @Override
-    public RegisteredUser getById(String userId) throws DAOException {
-        try {
-            MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
-
-            Bson filter = eq("_id", new ObjectId(userId));
-            Bson projection = exclude("is_manager", "password");
-
-            Document userDocument = usersCollection.find(filter).projection(projection).first();
-            return (userDocument != null)? documentToRegisteredUser(userDocument) : null;
-        }
-        catch (Exception e){
-            throw new DAOException("Error searching user by id: "+ userId, e);
         }
     }
 
@@ -433,6 +442,7 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
         }
 
     }
+
     //Find average app_rating based on the gender of users
     /**
      * Calculates the average app rating based on the gender of users.

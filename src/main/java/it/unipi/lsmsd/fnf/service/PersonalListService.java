@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface PersonalListService {
     //Insert list
-    String insertList(String userId, String name) throws BusinessException;
+    void insertList(String userId, String name) throws BusinessException;
 
     //Update list with id, name and user
     void updateList(String listId, String listName, String userId) throws BusinessException;

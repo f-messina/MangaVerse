@@ -58,7 +58,7 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
             Bson filter;
             if (reviewDTO.getMediaContent() instanceof AnimeDTO) {
                 mediaCollection = getCollection("anime");
-                // Check if the media content exists
+                // Check if the anime exists
                 if (mediaCollection.find(eq("_id", new ObjectId(reviewDTO.getMediaContent().getId()))).first() == null) {
                     throw new MongoException("Anime with id " + reviewDTO.getMediaContent().getId() + " does not exist");
                 }
@@ -69,7 +69,7 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
                 );
             } else if (reviewDTO.getMediaContent() instanceof MangaDTO) {
                 mediaCollection = getCollection("manga");
-                // Check if the media content exists
+                // Check if the manga exists
                 if (mediaCollection.find(eq("_id", new ObjectId(reviewDTO.getMediaContent().getId()))).first() == null) {
                     throw new MongoException("Manga with id " + reviewDTO.getMediaContent().getId() + " does not exist");
                 }
@@ -81,6 +81,7 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
             } else {
                 throw new DAOException("Invalid media content type");
             }
+
             Bson update = setOnInsert(reviewDTOToDocument(reviewDTO));
 
             // Insert the reviewDTO if it does not exist
@@ -143,8 +144,25 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
         }
     }
 
-    public void updateMediaRedundancy(MediaContentDTO mediaContentDTO, MediaContentType mediaType) throws DAOException {
+    @Override
+    public void updateMediaRedundancy(MediaContentDTO mediaContentDTO) throws DAOException {
+//create media embedded Document
+        boolean isAnime = mediaContentDTO instanceof AnimeDTO;
+        Document mediaDoc = new Document(isAnime ? "anime" : "manga", new Document()
+                .append("id", new ObjectId(mediaContentDTO.getId()))
+                .append("title", mediaContentDTO.getTitle()));
 
+
+        //update the recipe data in all the reviews
+        try {
+            MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
+            if (reviewCollection.updateMany(eq(isAnime ? "anime.id" : "manga.id",
+                    new ObjectId(mediaContentDTO.getId())), new Document("$set", mediaDoc)).getModifiedCount() == 0) {
+                throw new MongoException("No reviews found for the media content");
+            }
+
+
+        /*
         try (ClientSession session = getMongoClient().startSession()) {
 
             TransactionOptions txnOptions = TransactionOptions.builder()
@@ -170,6 +188,8 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
             //start the transaction
             session.withTransaction(txnBody, txnOptions);
 
+         */
+
         } catch (MongoException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
 
@@ -178,9 +198,26 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
         }
     }
 
-    public void updateUserRedundancy(User user) throws DAOException {
+    @Override
+    public void updateUserRedundancy(UserSummaryDTO userSummaryDTO) throws DAOException {
 
-        try (ClientSession session = getMongoClient().startSession()) {
+        //create user embedded Document
+        Document userInfo = new Document();
+        appendIfNotNull(userInfo, "id", new ObjectId(userSummaryDTO.getId()));
+        appendIfNotNull(userInfo, "username", userSummaryDTO.getUsername());
+        appendIfNotNull(userInfo, "picture", userSummaryDTO.getProfilePicUrl());
+        appendIfNotNull(userInfo, "location", userSummaryDTO.getLocation());
+        appendIfNotNull(userInfo, "birthday", ConverterUtils.localDateToDate(userSummaryDTO.getBirthDate()));
+        Document userDoc = new Document("user", userInfo);
+
+        try {
+            MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
+            if (reviewCollection.updateMany(eq("user.id",
+                    new ObjectId(userSummaryDTO.getId())), new Document("$set", userDoc)).getModifiedCount() == 0) {
+                throw new MongoException("No reviews found for the user");
+            }
+
+        /*try (ClientSession session = getMongoClient().startSession()) {
 
             TransactionOptions txnOptions = TransactionOptions.builder()
                     .readPreference(ReadPreference.primary()) //reading from primary data should be the most up to date
@@ -190,23 +227,25 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
 
             //create user emebedded embedded Document
             Document userDoc = new Document("user", new Document()
-                    .append("username", user.getUsername())
-                    .append("picture", user.getProfilePicUrl()))
-                    .append("location", user.getLocation())
-                    .append("birthday", ConverterUtils.localDateToDate(user.getBirthday()));
+                    .append("username", userSummaryDTO.getUsername())
+                    .append("picture", userSummaryDTO.getProfilePicUrl()))
+                    .append("location", userSummaryDTO.getLocation())
+                    .append("birthday", ConverterUtils.localDateToDate(userSummaryDTO.getBirthDate()));
 
             TransactionBody<String> txnBody = () -> {
 
                 MongoCollection<Document> reviewCollection = getCollection("review");
 
                 //update the recipe data in all the reviews
-                reviewCollection.updateMany(session, eq("user", new ObjectId(user.getId())), new Document("$set", userDoc));
+                reviewCollection.updateMany(session, eq("user", new ObjectId(userSummaryDTO.getId())), new Document("$set", userDoc));
 
                 return "Done";
             };
 
             //start the transaction
             session.withTransaction(txnBody, txnOptions);
+
+         */
 
         } catch (MongoException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
@@ -256,6 +295,17 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
                     .map(document -> document.getObjectId("_id"))
                     .toList();
 
+            MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
+            Bson filter = and(
+                    nin("anime.id", animeIds),
+                    nin("manga.id", mangaIds)
+            );
+            //update the recipe data in all the reviews
+            if (reviewCollection.deleteMany(filter).getDeletedCount() == 0) {
+                throw new MongoException("No reviews found without media content");
+            }
+
+            /*
             try (ClientSession session = getMongoClient().startSession()) {
 
                 TransactionOptions txnOptions = TransactionOptions.builder()
@@ -278,6 +328,7 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
 
                 session.withTransaction(txnBody, txnOptions);
             }
+             */
         } catch (MongoException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
 
@@ -296,12 +347,19 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
     public void deleteReviewsWithNoAuthor() throws DAOException {
         try {
 
-            MongoCollection<Document> userCollection = getCollection("user");
+            MongoCollection<Document> userCollection = getCollection("users");
 
             List<ObjectId> userIds = userCollection.find().projection(new Document("_id", 1)).into(new ArrayList<>()).stream()
                     .map(document -> document.getObjectId("_id"))
                     .toList();
 
+            MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
+            //update the recipe data in all the reviews
+            if (reviewCollection.deleteMany(nin("user.id", userIds)).getDeletedCount() == 0) {
+                throw new MongoException("No reviews without author found");
+            }
+
+            /*
             try (ClientSession session = getMongoClient().startSession()) {
 
                 TransactionOptions txnOptions = TransactionOptions.builder()
@@ -321,6 +379,8 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
 
                 session.withTransaction(txnBody, txnOptions);
             }
+
+             */
 
         } catch (MongoException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());

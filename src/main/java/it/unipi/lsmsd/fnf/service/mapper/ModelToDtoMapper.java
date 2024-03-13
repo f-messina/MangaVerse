@@ -1,6 +1,7 @@
 package it.unipi.lsmsd.fnf.service.mapper;
 
 import it.unipi.lsmsd.fnf.dto.PersonalListDTO;
+import it.unipi.lsmsd.fnf.dto.PersonalListSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
@@ -45,46 +46,14 @@ public class ModelToDtoMapper {
      * @return The converted PersonalListDTO object.
      * @throws IllegalArgumentException If the list object is null.
      */
-    public static PersonalListDTO convertToDTO(PersonalList list) {
+    public static PersonalListSummaryDTO convertToDTO(PersonalList list) {
         if(list == null) {
             throw new IllegalArgumentException("The list can't be null.");
         }
 
-        PersonalListDTO dto = new PersonalListDTO();
-        dto.setId(list.getId());
-        dto.setName(list.getName());
+        PersonalListSummaryDTO dto = new PersonalListSummaryDTO();
 
-        User user = list.getUser();
-        if(user != null) {
-            dto.setUserId(user.getId());
-        }
-
-        List<Anime> animeList = list.getAnime();
-        if(animeList != null) {
-            List<AnimeDTO> animeDTOs = new ArrayList<>();
-            for(Anime anime : animeList) {
-                AnimeDTO animeDTO = new AnimeDTO();
-                animeDTO.setId(anime.getId());
-                animeDTO.setTitle(anime.getTitle());
-                animeDTO.setImageUrl(anime.getImageUrl());
-                animeDTOs.add(animeDTO);
-            }
-            dto.setAnime(animeDTOs);
-        }
-
-        List<Manga> mangaList = list.getManga();
-        if(mangaList != null) {
-            List<MangaDTO> mangaDTOs = new ArrayList<>();
-            for(Manga manga : mangaList) {
-                MangaDTO mangaDTO = new MangaDTO();
-                mangaDTO.setId(manga.getId());
-                mangaDTO.setTitle(manga.getTitle());
-                mangaDTO.setImageUrl(manga.getImageUrl());
-                mangaDTOs.add(mangaDTO);
-            }
-            dto.setManga(mangaDTOs);
-        }
-
+        // TODO: Implement the conversion of the PersonalList object to a PersonalListDTO object.
         return dto;
     }
 

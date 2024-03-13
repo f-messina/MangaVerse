@@ -128,9 +128,8 @@ String targetJSP = "homepage.jsp";
             User authUser = SecurityUtils.getAuthenticatedUser(request);
             String listName = request.getParameter("listName");
 
-            String id = personalListService.insertList(authUser.getId(), listName);
+            personalListService.insertList(authUser.getId(), listName);
             PersonalList list = new PersonalList();
-            list.setId(id);
             list.setName(listName);
             authUser.addList(list);
 

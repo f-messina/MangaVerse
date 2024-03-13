@@ -39,8 +39,8 @@ import static it.unipi.lsmsd.fnf.dao.DAOLocator.*;
 public class UserServiceImpl implements UserService {
 
     private static final UserDAO userDAO;
-    private static final PersonalListDAO personalListDAO;
     private static final UserDAO userDAONeo4J;
+    private static final PersonalListDAO personalListDAO;
     private static final MediaContentDAO<Anime> animeDAONeo4J;
     private static final MediaContentDAO<Manga> mangaDAONeo4J;
 
@@ -103,10 +103,6 @@ public class UserServiceImpl implements UserService {
             RegisteredUser registeredUser = userDAO.authenticate(email, password);
             logger.info("User with email " + email + " has logged in successfully at " + LocalDate.now() + " " + LocalDate.now().atTime(0, 0) + " UTC.");
             if (registeredUser instanceof User user) {
-                user.setLists(personalListDAO.findByUser(user.getId(), true)
-                        .stream()
-                        .map(DtoToModelMapper::personalListDTOtoPersonalList)
-                        .collect(Collectors.toCollection(ArrayList::new)));
                 logger.info("User with email " + email + " has " + user.getLists().size() + " lists.");
                 List<MediaContent> likedManga = mangaDAONeo4J.getLiked(user.getId()).stream()
                         .map(mangaDTO -> DtoToModelMapper.mangaDTOtoManga((MangaDTO) mangaDTO))

@@ -294,19 +294,19 @@ public class MangaDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Manga>
 
     // Methods available only in MongoDB
     @Override
-    public String insert(Manga mediaContent) throws DAOException {
+    public void createMediaContent(Manga mediaContent) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
     @Override
-    public void update(Manga mediaContent) throws DAOException {
+    public void updateMediaContent(Manga mediaContent) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
     @Override
-    public Manga find(String id) throws DAOException {
+    public Manga readMediaContent(String id) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
     @Override
-    public void delete(String id) throws DAOException {
+    public void deleteMediaContent(String id) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
     @Override

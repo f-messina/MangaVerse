@@ -1,30 +1,20 @@
 package it.unipi.lsmsd.fnf.dao;
 
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
-import it.unipi.lsmsd.fnf.dto.PersonalListDTO;
-import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
-import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
-import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
+import it.unipi.lsmsd.fnf.dto.PersonalListSummaryDTO;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 
-import java.util.List;
+public interface PersonalListDAO {
 
- public interface PersonalListDAO {
-     List<PersonalListDTO> findByUser(String userId, boolean reducedInfo) throws DAOException;
-     List<PersonalListDTO> findAll() throws DAOException;
-     PersonalListDTO find(String id) throws DAOException;
-     String insert(String userId, String name) throws DAOException;
-     void update(String listId, String name) throws DAOException;
-     void delete(String id) throws DAOException;
-     void deleteByUser(String userId) throws DAOException;
-     void addToList(String listId, MediaContentDTO anime) throws DAOException;
-     void removeFromList(String listId, String animeId, MediaContentType type) throws DAOException;
-     void updateItem(MediaContentDTO anime) throws DAOException;
-     void removeItem(String animeId) throws DAOException;
+    void insertList(PersonalListSummaryDTO listSummaryDTO) throws DAOException;
 
-     //MongoDB queries
-     //Find tha anime most present in all of the lists
-     List<AnimeDTO> popularAnime() throws DAOException;
-     //Find tha anime most present in all of the lists
-     List<MangaDTO> popularManga() throws DAOException;
- }
+    void updateList(PersonalListSummaryDTO listSummaryDTO) throws DAOException;
+
+    void deleteList(String userId, String listId) throws DAOException;
+
+    void addToList(String userId, String listId, String mediaId, MediaContentType mediaType) throws DAOException;
+
+    void removeFromList(String userId, String listId, String mediaId, MediaContentType mediaType) throws DAOException;
+
+    void removeElementInListWithoutMedia() throws DAOException;
+}

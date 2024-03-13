@@ -1,9 +1,13 @@
 package it.unipi.lsmsd.fnf.dao.mongo;
 
+import com.mongodb.DuplicateKeyException;
+import com.mongodb.MongoException;
 import com.mongodb.client.result.UpdateResult;
 import it.unipi.lsmsd.fnf.dao.MediaContentDAO;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dao.exception.DAOExceptionType;
+import it.unipi.lsmsd.fnf.dao.exception.DuplicatedException;
+import it.unipi.lsmsd.fnf.dao.exception.DuplicatedExceptionType;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
@@ -25,7 +29,7 @@ import org.bson.types.ObjectId;
 import java.util.*;
 
 import static com.mongodb.client.model.Aggregates.*;
-import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Updates.setOnInsert;
 
 /**
@@ -38,25 +42,32 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
      * Inserts an Anime object into the MongoDB database.
      *
      * @param anime The Anime object to insert.
-     * @return The ObjectId of the inserted Anime.
      * @throws DAOException If an error occurs during the insertion process.
      */
     @Override
-    public String insert(Anime anime) throws DAOException {
+    public void createMediaContent(Anime anime) throws DAOException {
         try {
             MongoCollection<Document> animeCollection = getCollection(COLLECTION_NAME);
 
             Bson filter = eq("title", anime.getTitle());
-            Bson update = setOnInsert(animeToDocument(anime));
+            Document animeDocument = animeToDocument(anime);
+            Bson doc = setOnInsert(animeDocument);
+            UpdateOptions options = new UpdateOptions().upsert(true);
 
-            UpdateResult result = animeCollection.updateOne(filter, update, new UpdateOptions().upsert(true));
-            if (result.getUpsertedId() == null) {
-                throw new DAOException(DAOExceptionType.DUPLICATED_KEY,"The anime already exists");
-            } else {
-                return result.getUpsertedId().asObjectId().getValue().toString();
-            }
+            Optional.ofNullable(animeCollection.updateOne(filter,doc, options).getUpsertedId())
+                    .map(result -> result.asObjectId().getValue().toHexString())
+                    .map(id -> { anime.setId(id); return id; })
+                    .orElseThrow(() -> new DuplicatedException(DuplicatedExceptionType.DUPLICATED_KEY, "An anime with the same title already exists"));
+
+        } catch (DuplicateKeyException e) {
+            throw new DAOException(DAOExceptionType.DUPLICATED_KEY, e.getMessage());
+
+        } catch (MongoException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
         } catch (Exception e) {
-            throw new DAOException("Error while inserting anime", e);
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+
         }
     }
 
@@ -67,16 +78,31 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
      * @throws DAOException If an error occurs during the update process.
      */
     @Override
-    public void update(Anime anime) throws DAOException {
+    public void updateMediaContent(Anime anime) throws DAOException {
         try {
             MongoCollection<Document> animeCollection = getCollection(COLLECTION_NAME);
+
+            Bson filterTitle = and(eq("title", anime.getTitle()), ne("_id", new ObjectId(anime.getId())));
+            if (animeCollection.countDocuments(filterTitle) > 0) {
+                throw new DAOException(DAOExceptionType.DUPLICATED_KEY, "An anime with the same name already exists");
+            }
 
             Bson filter = Filters.eq("_id", new ObjectId(anime.getId()));
             Bson update = new Document("$set", animeToDocument(anime));
 
-            animeCollection.updateOne(filter, update);
+            if (animeCollection.updateOne(filter, update).getModifiedCount() == 0) {
+                throw new MongoException("No anime was updated");
+            }
+
+        } catch (DuplicateKeyException e) {
+            throw new DAOException(DAOExceptionType.DUPLICATED_KEY, e.getMessage());
+
+        } catch (MongoException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
         } catch (Exception e) {
-            throw new DAOException("Error while updating anime", e);
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+
         }
     }
 
@@ -87,15 +113,22 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
      * @throws DAOException If an error occurs during the deletion process.
      */
     @Override
-    public void delete(String animeId) throws DAOException {
+    public void deleteMediaContent(String animeId) throws DAOException {
         try {
             MongoCollection<Document> animeCollection = getCollection(COLLECTION_NAME);
 
             Bson filter = Filters.eq("_id", new ObjectId(animeId));
 
-            animeCollection.deleteOne(filter);
+            if (animeCollection.deleteOne(filter).getDeletedCount() == 0) {
+                throw new MongoException("No anime was deleted");
+            }
+
+        } catch (MongoException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
         } catch (Exception e) {
-            throw new DAOException("Error while removing anime", e);
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+
         }
     }
 
@@ -107,7 +140,7 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
      * @throws DAOException If an error occurs during the search process.
      */
     @Override
-    public Anime find(String animeId) throws DAOException {
+    public Anime readMediaContent(String animeId) throws DAOException {
         try {
             MongoCollection<Document> animeCollection = getCollection(COLLECTION_NAME);
 
@@ -116,8 +149,13 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
             Document result = animeCollection.find(filter).first();
 
             return (result != null)? documentToAnime(result) : null;
+
+        } catch (MongoException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
         } catch (Exception e) {
-            throw new DAOException("Error while searching anime", e);
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+
         }
     }
 
@@ -178,9 +216,18 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
                     .map(doc -> doc.getInteger("total"))
                     .orElse(0);
 
-            return new PageDTO<>(animeList, totalCount);
+            if (totalCount > 0) {
+                return new PageDTO<>(animeList, totalCount);
+            } else {
+                throw new MongoException("No anime found matching the search criteria");
+            }
+
+        } catch (MongoException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
         } catch (Exception e) {
-            throw new DAOException("Error while searching anime", e);
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+
         }
     }
 

@@ -10,38 +10,40 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7526b11c-d57e-42b1-96ad-0eaf1f2db0d2" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/test/java/it/unipi/lsmsd/fnf/service/impl/UserServiceImplTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dto/PersonalListSummaryDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/java/it/unipi/lsmsd/fnf/dao/mongo/test" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/copilot/chatSessions/00000000000.xd" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/copilot/chatSessions/00000000000.xd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/copilot/chatSessions/xd.lck" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/copilot/chatSessions/xd.lck" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/controller/MediaContentServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/controller/MediaContentServlet.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/controller/ProfileServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/controller/ProfileServlet.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/DAOLocator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/DAOLocator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/MediaContentDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/MediaContentDAO.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/PersonalListDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/PersonalListDAO.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/ReviewDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/ReviewDAO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/enums/DataRepositoryEnum.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/enums/DataRepositoryEnum.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/UserDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/UserDAO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/exception/DuplicatedExceptionType.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/exception/DuplicatedExceptionType.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/mongo/AnimeDAOImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/mongo/AnimeDAOImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/mongo/MangaDAOImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/mongo/MangaDAOImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/mongo/PersonalListDAOImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/mongo/PersonalListDAOImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/mongo/ReviewDAOImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/mongo/ReviewDAOImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/mongo/UserDAOImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/mongo/UserDAOImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/neo4j/AnimeDAOImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/neo4j/AnimeDAOImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/neo4j/MangaDAOImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/neo4j/MangaDAOImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/neo4j/UserDAOImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/neo4j/UserDAOImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dto/PersonalListDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dto/PersonalListDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dto/UserSummaryDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dto/UserSummaryDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dto/mediaContent/AnimeDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dto/mediaContent/AnimeDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dto/mediaContent/MangaDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dto/mediaContent/MangaDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dto/mediaContent/MediaContentDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dto/mediaContent/MediaContentDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/model/PersonalList.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/model/PersonalList.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/PersonalListService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/PersonalListService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/ReviewService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/ReviewService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/impl/MediaContentServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/impl/MediaContentServiceImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/impl/PersonalListServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/impl/PersonalListServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/impl/ReviewServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/impl/ReviewServiceImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/impl/UserServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/impl/UserServiceImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/mapper/DtoToModelMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/mapper/DtoToModelMapper.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/mapper/ModelToDtoMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/mapper/ModelToDtoMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/webapp/WEB-INF/jsp/manga.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/WEB-INF/jsp/manga.jsp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/webapp/WEB-INF/jsp/profile.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/WEB-INF/jsp/profile.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/utils/UserUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/utils/UserUtils.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/it/unipi/lsmsd/fnf/dao/mongo/AnimeDAOImplTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/it/unipi/lsmsd/fnf/dao/mongo/AnimeDAOImplTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/it/unipi/lsmsd/fnf/dao/mongo/MangaDAOImplTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/it/unipi/lsmsd/fnf/dao/mongo/MangaDAOImplTest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/java/it/unipi/lsmsd/fnf/dao/mongo/PersonalListDAOImplTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/it/unipi/lsmsd/fnf/dao/mongo/PersonalListDAOImplTest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/java/it/unipi/lsmsd/fnf/dao/mongo/ReviewDAOImplTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/it/unipi/lsmsd/fnf/dao/mongo/ReviewDAOImplTest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/java/it/unipi/lsmsd/fnf/dao/mongo/UserDAOImplTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/it/unipi/lsmsd/fnf/dao/mongo/UserDAOImplTest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/MangaVerse-1.0-SNAPSHOT/WEB-INF/jsp/manga.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaVerse-1.0-SNAPSHOT/WEB-INF/jsp/manga.jsp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/MangaVerse-1.0-SNAPSHOT/WEB-INF/jsp/manga_main_page.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaVerse-1.0-SNAPSHOT/WEB-INF/jsp/manga_main_page.jsp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/MangaVerse-1.0-SNAPSHOT/css/media_content_test.css" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaVerse-1.0-SNAPSHOT/css/media_content_test.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/MangaVerse-1.0-SNAPSHOT/js/main_page_test.js" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaVerse-1.0-SNAPSHOT/js/main_page_test.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -57,8 +59,9 @@
         <option value="CSS File" />
         <option value="Jsp File" />
         <option value="JavaScript File" />
-        <option value="Class" />
         <option value="JUnit5 Test Class" />
+        <option value="Interface" />
+        <option value="Class" />
       </list>
     </option>
   </component>
@@ -99,11 +102,42 @@
     "Application.UserDAOTest.executor": "Run",
     "Application.test.executor": "Run",
     "DefaultHtmlFileTemplate": "HTML File",
+    "JUnit.AnimeDAOImplTest.createMediaContent.executor": "Run",
+    "JUnit.AnimeDAOImplTest.deleteMediaContent.executor": "Run",
+    "JUnit.AnimeDAOImplTest.readMediaContent.executor": "Run",
+    "JUnit.AnimeDAOImplTest.search.executor": "Run",
+    "JUnit.AnimeDAOImplTest.updateMediaContent.executor": "Run",
+    "JUnit.MangaDAOImplTest.createMediaContent.executor": "Run",
+    "JUnit.MangaDAOImplTest.deleteMediaContent.executor": "Run",
+    "JUnit.MangaDAOImplTest.readMediaContent.executor": "Run",
+    "JUnit.MangaDAOImplTest.search.executor": "Run",
+    "JUnit.MangaDAOImplTest.updateMediaContent.executor": "Run",
     "JUnit.Neo4JDAOImplTest.testGetLikedAnime.executor": "Run",
     "JUnit.Neo4JDAOImplTest.testLikeAnime.executor": "Run",
     "JUnit.PersonalListDAOImplTest.findByUser.executor": "Run",
+    "JUnit.PersonalListDAOImplTest.insert.executor": "Run",
+    "JUnit.PersonalListDAOImplTest.insertList.executor": "Run",
+    "JUnit.PersonalListDAOImplTest.removeElementWithNoMedia.executor": "Run",
+    "JUnit.PersonalListDAOImplTest.removeElementWithNoMediaTest.executor": "Run",
+    "JUnit.PersonalListDAOImplTest.removeFromList.executor": "Run",
+    "JUnit.ReviewDAOImplTest.createReview.executor": "Run",
+    "JUnit.ReviewDAOImplTest.deleteReview.executor": "Run",
+    "JUnit.ReviewDAOImplTest.deleteReviewsWithNoAuthor.executor": "Run",
+    "JUnit.ReviewDAOImplTest.deleteReviewsWithNoMedia.executor": "Run",
     "JUnit.ReviewDAOImplTest.getReviewByUser.executor": "Run",
+    "JUnit.ReviewDAOImplTest.updateMediaRedundancy.executor": "Run",
+    "JUnit.ReviewDAOImplTest.updateReview.executor": "Run",
+    "JUnit.ReviewDAOImplTest.updateUserRedundancy.executor": "Run",
+    "JUnit.UserDAOImplTest.addToList.executor": "Run",
+    "JUnit.UserDAOImplTest.deleteList.executor": "Run",
+    "JUnit.UserDAOImplTest.insertList.executor": "Run",
+    "JUnit.UserDAOImplTest.removeFromList.executor": "Run",
     "JUnit.UserDAOImplTest.testAuthenticate.executor": "Run",
+    "JUnit.UserDAOImplTest.testCreateUser.executor": "Run",
+    "JUnit.UserDAOImplTest.testRead.executor": "Run",
+    "JUnit.UserDAOImplTest.testRemove.executor": "Run",
+    "JUnit.UserDAOImplTest.testUpdate.executor": "Run",
+    "JUnit.UserDAOImplTest.updateList.executor": "Run",
     "JUnit.UserServiceImplTest.login.executor": "Run",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
@@ -121,7 +155,7 @@
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "preferences.general",
+    "settings.editor.selected.configurable": "preferences.lookFeel",
     "vue.rearranger.settings.migration": "true"
   },
   "keyToStringList": {
@@ -129,13 +163,19 @@
     ]
   }
 }]]></component>
+  <component name="ReactorSettings">
+    <option name="notificationShown" value="true" />
+  </component>
   <component name="RecentsManager">
+    <key name="CreateClassDialog.RecentsKey">
+      <recent name="it.unipi.lsmsd.fnf.dao" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\messi\Documents\GitHub\MangaUniverse\src\main\java\it\unipi\lsmsd\fnf\dao\mongo" />
       <recent name="C:\Users\messi\Documents\GitHub\MangaUniverse\src\main\webapp" />
       <recent name="C:\Users\messi\Documents\GitHub\MangaUniverse\src\main\webapp\WEB-INF" />
       <recent name="C:\Users\messi\Documents\GitHub\MangaUniverse\src\main\webapp\tests" />
       <recent name="C:\Users\messi\Desktop\MangaUniverseTestController\src\main\webapp" />
-      <recent name="C:\Users\messi\Documents\GitHub\MangaUniverse\src\main\webapp\images" />
     </key>
     <key name="CreateTestDialog.Recents.Supers">
       <recent name="" />
@@ -145,24 +185,40 @@
       <recent name="it.unipi.lsmsd.fnf.service.impl" />
     </key>
   </component>
-  <component name="RunManager" selected="Tomcat Server.Tomcat 10.1.16">
-    <configuration name="Neo4JDAOImplTest.testGetLikedAnime" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="JUnit.PersonalListDAOImplTest.insertList">
+    <configuration name="AnimeDAOImplTest.createMediaContent" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="MangaVerse" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="it.unipi.lsmsd.fnf.dao.neo4j.*" />
+          <option name="PATTERN" value="it.unipi.lsmsd.fnf.dao.mongo.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
-      <option name="PACKAGE_NAME" value="it.unipi.lsmsd.fnf.dao.neo4j" />
-      <option name="MAIN_CLASS_NAME" value="it.unipi.lsmsd.fnf.dao.neo4j.Neo4JDAOImplTest" />
-      <option name="METHOD_NAME" value="testGetLikedAnime" />
+      <option name="PACKAGE_NAME" value="it.unipi.lsmsd.fnf.dao.mongo" />
+      <option name="MAIN_CLASS_NAME" value="it.unipi.lsmsd.fnf.dao.mongo.AnimeDAOImplTest" />
+      <option name="METHOD_NAME" value="createMediaContent" />
       <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="PersonalListDAOImplTest.findByUser" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="MangaDAOImplTest.createMediaContent" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="MangaVerse" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="it.unipi.lsmsd.fnf.dao.mongo.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="it.unipi.lsmsd.fnf.dao.mongo" />
+      <option name="MAIN_CLASS_NAME" value="it.unipi.lsmsd.fnf.dao.mongo.MangaDAOImplTest" />
+      <option name="METHOD_NAME" value="createMediaContent" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="PersonalListDAOImplTest.insertList" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="MangaVerse" />
       <extension name="coverage">
         <pattern>
@@ -172,29 +228,13 @@
       </extension>
       <option name="PACKAGE_NAME" value="it.unipi.lsmsd.fnf.dao.mongo" />
       <option name="MAIN_CLASS_NAME" value="it.unipi.lsmsd.fnf.dao.mongo.PersonalListDAOImplTest" />
-      <option name="METHOD_NAME" value="findByUser" />
+      <option name="METHOD_NAME" value="insertList" />
       <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="ReviewDAOImplTest.getReviewByUser" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="MangaVerse" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="it.unipi.lsmsd.fnf.dao.mongo.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="it.unipi.lsmsd.fnf.dao.mongo" />
-      <option name="MAIN_CLASS_NAME" value="it.unipi.lsmsd.fnf.dao.mongo.ReviewDAOImplTest" />
-      <option name="METHOD_NAME" value="getReviewByUser" />
-      <option name="TEST_OBJECT" value="method" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="UserDAOImplTest.testAuthenticate" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="UserDAOImplTest.addToList" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="MangaVerse" />
       <extension name="coverage">
         <pattern>
@@ -204,23 +244,23 @@
       </extension>
       <option name="PACKAGE_NAME" value="it.unipi.lsmsd.fnf.dao.mongo" />
       <option name="MAIN_CLASS_NAME" value="it.unipi.lsmsd.fnf.dao.mongo.UserDAOImplTest" />
-      <option name="METHOD_NAME" value="testAuthenticate" />
+      <option name="METHOD_NAME" value="addToList" />
       <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="UserServiceImplTest.login" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="UserDAOImplTest.updateList" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="MangaVerse" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="it.unipi.lsmsd.fnf.service.impl.*" />
+          <option name="PATTERN" value="it.unipi.lsmsd.fnf.dao.mongo.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
-      <option name="PACKAGE_NAME" value="it.unipi.lsmsd.fnf.service.impl" />
-      <option name="MAIN_CLASS_NAME" value="it.unipi.lsmsd.fnf.service.impl.UserServiceImplTest" />
-      <option name="METHOD_NAME" value="login" />
+      <option name="PACKAGE_NAME" value="it.unipi.lsmsd.fnf.dao.mongo" />
+      <option name="MAIN_CLASS_NAME" value="it.unipi.lsmsd.fnf.dao.mongo.UserDAOImplTest" />
+      <option name="METHOD_NAME" value="updateList" />
       <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -316,20 +356,20 @@
       </method>
     </configuration>
     <list>
-      <item itemvalue="JUnit.PersonalListDAOImplTest.findByUser" />
-      <item itemvalue="JUnit.ReviewDAOImplTest.getReviewByUser" />
-      <item itemvalue="JUnit.UserDAOImplTest.testAuthenticate" />
-      <item itemvalue="JUnit.UserServiceImplTest.login" />
-      <item itemvalue="JUnit.Neo4JDAOImplTest.testGetLikedAnime" />
+      <item itemvalue="JUnit.PersonalListDAOImplTest.insertList" />
+      <item itemvalue="JUnit.AnimeDAOImplTest.createMediaContent" />
+      <item itemvalue="JUnit.MangaDAOImplTest.createMediaContent" />
+      <item itemvalue="JUnit.UserDAOImplTest.addToList" />
+      <item itemvalue="JUnit.UserDAOImplTest.updateList" />
       <item itemvalue="Tomcat Server.Tomcat 10.1.16" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="JUnit.ReviewDAOImplTest.getReviewByUser" />
-        <item itemvalue="JUnit.UserServiceImplTest.login" />
-        <item itemvalue="JUnit.PersonalListDAOImplTest.findByUser" />
-        <item itemvalue="JUnit.UserDAOImplTest.testAuthenticate" />
-        <item itemvalue="JUnit.Neo4JDAOImplTest.testGetLikedAnime" />
+        <item itemvalue="JUnit.PersonalListDAOImplTest.insertList" />
+        <item itemvalue="JUnit.MangaDAOImplTest.createMediaContent" />
+        <item itemvalue="JUnit.AnimeDAOImplTest.createMediaContent" />
+        <item itemvalue="JUnit.UserDAOImplTest.addToList" />
+        <item itemvalue="JUnit.UserDAOImplTest.updateList" />
       </list>
     </recent_temporary>
   </component>
@@ -394,6 +434,10 @@
       <workItem from="1709913178050" duration="5989000" />
       <workItem from="1709947775514" duration="1979000" />
       <workItem from="1709996141090" duration="14546000" />
+      <workItem from="1710090901039" duration="22758000" />
+      <workItem from="1710164024221" duration="16692000" />
+      <workItem from="1710239761551" duration="1669000" />
+      <workItem from="1710241468170" duration="3661000" />
     </task>
     <servers />
   </component>

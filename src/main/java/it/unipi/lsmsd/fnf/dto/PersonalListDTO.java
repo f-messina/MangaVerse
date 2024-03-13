@@ -10,25 +10,22 @@ import java.util.List;
 public class PersonalListDTO {
     private String id;
     private String name;
-    private String userId;
-    private List<MangaDTO> manga = new ArrayList<>();
-    private List<AnimeDTO> anime = new ArrayList<>();
+    private List<String> mangaIds = new ArrayList<>();
+    private List<String> animeIds = new ArrayList<>();
 
     public PersonalListDTO() {
     }
 
-    public PersonalListDTO(String id, String name, String userId) {
+    public PersonalListDTO(String id, String name) {
         this.id = id;
         this.name = name;
-        this.userId = userId;
     }
 
-    public PersonalListDTO(String id, String name, String userId, List<MangaDTO> manga, List<AnimeDTO> anime) {
+    public PersonalListDTO(String id, String name, List<String> mangaIds, List<String> animeIds) {
         this.id = id;
         this.name = name;
-        this.userId = userId;
-        this.manga = manga;
-        this.anime = anime;
+        this.mangaIds = mangaIds;
+        this.animeIds = animeIds;
     }
 
     public String getId() {
@@ -39,16 +36,12 @@ public class PersonalListDTO {
         return name;
     }
 
-    public String getUserId() {
-        return userId;
+    public List<String> getMangaIds() {
+        return mangaIds;
     }
 
-    public List<MangaDTO> getManga() {
-        return manga;
-    }
-
-    public List<AnimeDTO> getAnime() {
-        return anime;
+    public List<String> getAnimeIds() {
+        return animeIds;
     }
 
     public void setId(String id) {
@@ -59,32 +52,28 @@ public class PersonalListDTO {
         this.name= name;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setMangaIds(List<String> mangaIds) {
+        this.mangaIds = mangaIds;
     }
 
-    public void setManga(List<MangaDTO> manga) {
-        this.manga = manga;
+    public void setAnimeIds(List<String> animeIds) {
+        this.animeIds = animeIds;
     }
 
-    public void setAnime(List<AnimeDTO> anime) {
-        this.anime = anime;
+    public void addMangaId(String mangaId) {
+        this.mangaIds.add(mangaId);
     }
 
-    public void addManga(MangaDTO manga) {
-        this.manga.add(manga);
+    public void addAnimeId(String animeId) {
+        this.animeIds.add(animeId);
     }
 
-    public void addAnime(AnimeDTO anime) {
-        this.anime.add(anime);
+    public void removeMangaId(String mangaId) {
+        this.mangaIds.remove(mangaId);
     }
 
-    public void removeManga(MangaDTO manga) {
-        this.manga.remove(manga);
-    }
-
-    public void removeAnime(AnimeDTO anime) {
-        this.anime.remove(anime);
+    public void removeAnimeId(String animeId) {
+        this.animeIds.remove(animeId);
     }
 
     @Override
@@ -92,9 +81,8 @@ public class PersonalListDTO {
         return "PersonalListDTO{" +
                 "id='" + id + '\'' +
                 ", name='" + name + '\'' +
-                ", userId='" + userId + '\'' +
-                ", manga=" + manga +
-                ", anime=" + anime +
+                ", mangaIds=" + mangaIds +
+                ", animeIds=" + animeIds +
                 '}';
     }
 }

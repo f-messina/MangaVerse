@@ -289,19 +289,19 @@ public class AnimeDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Anime>
 
     // Methods available only in MongoDB
     @Override
-    public String insert(Anime mediaContent) throws DAOException {
+    public void createMediaContent(Anime mediaContent) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
     @Override
-    public void update(Anime mediaContent) throws DAOException {
+    public void updateMediaContent(Anime mediaContent) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
     @Override
-    public Anime find(String id) throws DAOException {
+    public Anime readMediaContent(String id) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
     @Override
-    public void delete(String id) throws DAOException {
+    public void deleteMediaContent(String id) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
     @Override
