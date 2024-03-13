@@ -17,13 +17,16 @@ public interface ReviewDAO {
     void update(ReviewDTO review) throws DAOException;
     List<ReviewDTO> findByUser(String userId) throws DAOException;
     List<ReviewDTO> findByMedia(String mediaId) throws DAOException;
-    int averageRatingUser(String userId) throws DAOException;
+    Double averageRatingUser(String userId) throws DAOException;
 
-    Map<String, Double> ratingMediaContentByPeriod(MediaContentType type, String mediaContentId, String period) throws  DAOException;
+    Map<String, Double> getMediaContentRatingByYear(MediaContentType type, String mediaContentId, int startYear, int endYear) throws  DAOException;
+
+    Map<String, Double> getMediaContentRatingByMonth (MediaContentType type, String mediaContentId, int year) throws DAOException;
 
     //For users: suggestions based on age and location. For example: show the 25 anime or manga with highest average rating in Italy.
-    PageDTO< MediaContentDTO> suggestTopMediaContent(MediaContentType mediaContentType, String criteria, String type) throws DAOException;
+    PageDTO<MediaContentDTO> suggestTopMediaContent(MediaContentType mediaContentType, String criteria, String type) throws DAOException;
 
-    Map<String, Double> averageRatingByCriteria(String type) throws DAOException;
+
+    //Map<String, Double> averageRatingByCriteria(String type) throws DAOException;
 }
 

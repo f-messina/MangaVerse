@@ -22,7 +22,6 @@ import org.bson.types.ObjectId;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import com.mongodb.client.result.InsertOneResult;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.UpdateOptions;
 
@@ -306,43 +305,61 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
     //MongoDB queries
     //Find the manga or anime which is more present in the lists
     @Override
-    public PageDTO<? extends MediaContentDTO> popularMediaContentList(MediaContentType mediaContentType) throws DAOException {
-        try (MongoClient mongoClient = getConnection()) {
-            MongoCollection<Document> listsCollection = mongoClient.getDatabase("mangaVerse" ).getCollection("lists" );
+    public Map<PageDTO<? extends MediaContentDTO>, Integer> popularMediaContentList(MediaContentType mediaContentType) throws DAOException {
+        try {
+            MongoCollection<Document> listsCollection = getCollection(COLLECTION_NAME);
 
             String nodeType = mediaContentType.equals(MediaContentType.ANIME) ? "anime" : "manga";
 
             //N.B.: use of unwind (I have arrays). Is it worth it?
             List<Document> pipeline = new ArrayList<>();
-            pipeline.add(Document.parse("{$project: { items: { $concatArrays: ['" + nodeType + "_list'] } }}" ));
+            pipeline.add(Document.parse("{$project: { items: { $concatArrays: ['$" + nodeType + "_list'] } }}" ));
             pipeline.add(Document.parse("{$unwind: '$items'}" ));
             pipeline.add(Document.parse("{$group: { _id: '$items.id', title: { $first: '$items.title' }, totalLists: { $sum: 1 } }}" ));
             pipeline.add(Document.parse("{$sort: { totalLists: -1 }}" ));
             pipeline.add(Document.parse("{$limit: 25 }" ));
 
 
+
             List<Document> result = listsCollection.aggregate(pipeline).into(new ArrayList<>());
 
-            List<MediaContentDTO> mediaContentDTOs = new ArrayList<>();
+            Map<PageDTO<? extends MediaContentDTO>, Integer> popularMediaContentMap = new HashMap<>();
+
+            System.out.println("map ok");
+            for (Document document : result) {
+                String contentId = document.getString("_id");
+                MediaContentDTO mediaContentDTO;
+                if (nodeType.equals("anime")) {
+                    mediaContentDTO = documentToAnimeDTO(Objects.requireNonNull(listsCollection.find(eq("_id", new ObjectId(contentId))).first()));
+                } else { // Assume manga for other cases
+                    mediaContentDTO = documentToMangaDTO(Objects.requireNonNull(listsCollection.find(eq("_id", new ObjectId(contentId))).first()));
+                }
+                PageDTO<MediaContentDTO> pageDTO = new PageDTO<>(Collections.singletonList(mediaContentDTO), 1);
+                popularMediaContentMap.put(pageDTO, document.getInteger("totalLists"));
+            }
+            System.out.println(popularMediaContentMap.size());
+
+            return popularMediaContentMap;
+
+            /*List<MediaContentDTO> mediaContentDTOs = new ArrayList<>();
+
 
             for (Document document : result) {
                 String contentId = document.getString("_id");
                 MediaContentDTO mediaContentDTO;
                 if (nodeType.equals("anime")) {
-                    mediaContentDTO = documentToAnimeDTO(listsCollection.find(Filters.eq("_id", new ObjectId(contentId))).first());
+                    mediaContentDTO = documentToAnimeDTO(Objects.requireNonNull(listsCollection.find(eq("_id", new ObjectId(contentId))).first()));
                 } else { // Assume manga for other cases
-                    mediaContentDTO = documentToMangaDTO(listsCollection.find(Filters.eq("_id", new ObjectId(contentId))).first());
+                    mediaContentDTO = documentToMangaDTO(Objects.requireNonNull(listsCollection.find(eq("_id", new ObjectId(contentId))).first()));
                 }
                 mediaContentDTOs.add(mediaContentDTO);
             }
+            System.out.println(mediaContentDTOs.size());
 
-            return new PageDTO<>(mediaContentDTOs, mediaContentDTOs.size());
+            return new PageDTO<>(mediaContentDTOs, mediaContentDTOs.size());*/
         } catch (Exception e) {
             throw new DAOException("Error finding popular media content", e);
-
         }
-
-
     }
 
     private AnimeDTO documentToAnimeDTO(Document doc) {
@@ -358,6 +375,7 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
         if ((doc.get("anime_season", Document.class) != null)) {
             anime.setYear(doc.get("anime_season", Document.class).getInteger("year"));
             anime.setSeason(doc.get("anime_season", Document.class).getString("season"));
+        }
         return anime;
     }
 

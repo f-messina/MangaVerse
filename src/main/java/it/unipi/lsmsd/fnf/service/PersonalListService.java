@@ -9,6 +9,7 @@ import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 
 import java.util.List;
+import java.util.Map;
 
 public interface PersonalListService {
     //Insert list
@@ -43,5 +44,5 @@ public interface PersonalListService {
     PersonalList findList(String id) throws BusinessException;
 
     //Service for mongoDB queries
-    PageDTO<? extends MediaContentDTO> popularMediaContentList(MediaContentType mediaContentType) throws BusinessException;
+    Map<PageDTO<? extends MediaContentDTO>, Integer> popularMediaContentList(MediaContentType mediaContentType) throws BusinessException;
 }

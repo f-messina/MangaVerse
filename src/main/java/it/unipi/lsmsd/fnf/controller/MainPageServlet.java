@@ -93,7 +93,7 @@ public class MainPageServlet extends HttpServlet {
         objectMapper.registerModule(new JavaTimeModule());
         ObjectNode jsonResponse = objectMapper.createObjectNode();
 
-        PageDTO<?> mediaContentList;
+        PageDTO<? extends MediaContentDTO> mediaContentList;
         if (isManga) {
             mediaContentList = new PageDTO<MangaDTO>();
         } else {

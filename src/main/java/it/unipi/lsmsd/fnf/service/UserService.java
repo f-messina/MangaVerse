@@ -29,6 +29,6 @@ public interface UserService {
 
     Map<String, Double> averageAppRating(String criteria) throws BusinessException;
 
-    List<Integer> averageAppRatingByAgeRange() throws BusinessException;
+    Map<String, Double> averageAppRatingByAgeRange() throws BusinessException;
 
 }

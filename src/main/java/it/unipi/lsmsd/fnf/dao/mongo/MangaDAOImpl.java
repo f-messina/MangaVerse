@@ -287,9 +287,10 @@ public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Mang
     //MongoDB queries
     //Best genres/themes/demographics/authors based on the average rating
     @Override
-    public List<String> getBestCriteria (String criteria, boolean isArray) throws DAOException {
-        try (MongoClient mongoClient = getConnection()) {
-            MongoCollection<Document> mangaCollection = mongoClient.getDatabase("mangaVerse").getCollection("manga");
+    public Map<String, Double> getBestCriteria (String criteria, boolean isArray, int page) throws DAOException {
+        try  {
+            MongoCollection<Document> mangaCollection = getCollection(COLLECTION_NAME);
+            int pageOffset = (page-1)*Constants.PAGE_SIZE;
 
             //criteria can be genres, themes, demographics, authors
             //I have to use unwind, I don't have another way to do the query
@@ -297,15 +298,36 @@ public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Mang
             List<Document> pipeline = new ArrayList<>();
             pipeline.add(Document.parse("{$match:{" + criteria + ": { $exists: true } } }"));
             if (isArray) {
-                pipeline.add(Document.parse("{$unwind: \"$" + criteria + "}"));
+                pipeline.add(Document.parse("{$unwind: \"$" + criteria + "\"}"));
             }
 
-            pipeline.add(Document.parse("{$group: {_id: \"$" + criteria + "\", max_average_rating: {$max: \"$average_rating\"} } }"));
-            pipeline.add(Document.parse("{$sort: {max_average_rating: -1}}"));
+            if (criteria.equals("authors")) {
+                pipeline.add(Document.parse("{$group: {_id: \"$" + criteria + ".name\", max_average_rating: {$max: \"$average_rating\"} } }"));
 
-            return mangaCollection.aggregate(pipeline).into(new ArrayList<>()).stream()
-                    .map(doc -> doc.getString(criteria))
-                    .collect(Collectors.toList());
+            } else {
+                pipeline.add(Document.parse("{$group: {_id: \"$" + criteria + "\", max_average_rating: {$max: \"$average_rating\"} } }"));
+
+
+            }
+            pipeline.add(Document.parse("{$sort: {max_average_rating: -1}}"));
+            pipeline.add(Document.parse("{$skip: " + pageOffset + "}"));
+
+            //Limit to 25 results
+            pipeline.add(Document.parse("{$limit: 25}"));
+
+
+            List <Document> document = mangaCollection.aggregate(pipeline).into(new ArrayList<>());
+            System.out.println("document: " + document);
+            Map<String, Double> bestCriteria = new LinkedHashMap<>();
+            for (Document doc : document) {
+                if (doc.get("max_average_rating") instanceof Integer) {
+                    bestCriteria.put(doc.get("_id").toString(), ((Integer) doc.get("max_average_rating")).doubleValue());
+                } else
+                    bestCriteria.put(doc.get("_id").toString(), doc.getDouble("max_average_rating"));
+            }
+
+            return bestCriteria;
+
         } catch (Exception e) {
             throw new DAOException("Error while searching manga", e);
         }

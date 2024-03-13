@@ -2,7 +2,7 @@ package it.unipi.lsmsd.fnf.dao.mongo;
 
 import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.FindIterable;
-import com.mongodb.client.model.UpdateOptions;
+import com.mongodb.client.model.*;
 import com.mongodb.client.result.UpdateResult;
 import it.unipi.lsmsd.fnf.dao.UserDAO;
 import it.unipi.lsmsd.fnf.dao.base.BaseMongoDBDAO;
@@ -22,10 +22,7 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.exclude;
@@ -259,6 +256,7 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
             appendIfNotNull(doc, "username", regularUser.getUsername());
             appendIfNotNull(doc, "birthday", ConverterUtils.localDateToDate(regularUser.getBirthday()));
             appendIfNotNull(doc, "description", regularUser.getDescription());
+            // TODO: change gender name() to ToString()
             appendIfNotNull(doc, "gender", regularUser.getGender() != null ? regularUser.getGender().name() : null);
             appendIfNotNull(doc, "location", regularUser.getLocation());
         }
@@ -292,20 +290,29 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
 
             List<Document> pipeline = new ArrayList<>();
             if (criteria.equals("birthday") || criteria.equals("joined_on")) {
-                pipeline.add(Document.parse("{$project: {year: {$year:  \"$" + criteria + "\" }}, {app_rating: 1}}"));
+                pipeline.add(Document.parse("{$project: { year: { $year: \"$" + criteria +"\" },  app_rating: 1 }}"));
                 pipeline.add(Document.parse("{$group: {_id: \"$year\", count: { $sum: 1 }}}"));
-            } else {
+                pipeline.add(Document.parse("{$sort: {count: -1}}"));
+            } else if (criteria.equals("location") || criteria.equals("gender")) {
                 pipeline.add(Document.parse("{$group: {_id: \"$" + criteria + "\", count: { $sum: 1 }}}"));
+                pipeline.add(Document.parse("{$sort: {count: -1}}"));
 
 
-            }
-            AggregateIterable<Document> aggregationResult = users.aggregate(pipeline);
+            } else
+                System.out.println("Criteria not valid");
 
-            List<Document> result = new ArrayList<>();
-            aggregationResult.into(result);
-            Map<String,Integer> map = new HashMap<>();
-            for (Document doc : result) {
-                map.put(doc.getString("_id"), doc.getInteger("averageAppRating"));
+
+            List<Document> aggregationResult = usersCollection.aggregate(pipeline).into(new ArrayList<>());
+
+            System.out.println(aggregationResult);
+
+            Map<String,Integer> map = new LinkedHashMap<>();
+            for (Document doc : aggregationResult) {
+                if (criteria.equals("birthday") || criteria.equals("joined_on"))
+                    map.put(String.valueOf(doc.getInteger("_id")), doc.getInteger("count"));
+
+                else if (criteria.equals("location") || criteria.equals("gender"))
+                    map.put(doc.getString("_id"), doc.getInteger("count"));
             }
             return map;
         }
@@ -321,14 +328,25 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
         try {
             MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
 
-            List<Document> pipeline = new ArrayList<>();
-            pipeline.add(Document.parse("{$project: {age: {$divide: [{ $subtract: [new Date(), $birthday] }, 1000 * 60 * 60 * 24 * 365 ]}}"));
-            pipeline.add(Document.parse("{ $group: {_id: null, averageAge: { $avg: \"$age\" }}}"));
-            AggregateIterable<Document> aggregationResult = usersCollection.aggregate(pipeline);
+            List<Bson> pipeline = new ArrayList<>();
 
-            List<Document> result = new ArrayList<>();
-            aggregationResult.into(result);
-            return result.getFirst().getDouble("averageAge");
+            pipeline.add(Aggregates.match(Filters.exists("birthday")));
+
+            pipeline.add(Aggregates.project(Projections.computed("age",
+                    new Document("$let", new Document("vars", new Document("dob", "$birthday"))
+                            .append("in", new Document("$floor", new Document("$divide",
+                                    Arrays.asList(new Document("$subtract", Arrays.asList(new Date(), "$$dob")),
+                                            1000L * 60 * 60 * 24 * 365))))))));
+
+            pipeline.add(Aggregates.group(null, Accumulators.avg("averageAge", "$age")));
+
+            List<Document> aggregationResult = usersCollection.aggregate(pipeline).into(new ArrayList<>());
+
+            if (!aggregationResult.isEmpty()) {
+                return aggregationResult.get(0).getDouble("averageAge");
+            } else {
+                return null; // o un valore predefinito a tua scelta
+            }
         }
         catch (Exception e){
             throw new DAOException("Error getting average age of usersCollection", e);
@@ -342,27 +360,26 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
         try {
             MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
 
-            //criteria can be: birthday, location and gender
+            //criteria can be: location and gender
 
             List<Document> pipeline = new ArrayList<>();
             pipeline.add(Document.parse("{$match: {\"" + criteria + "\": { $exists: true }}}"));
-            if (criteria.equals("birthday")) {
-                pipeline.add(Document.parse("{$project: {year: {$year:  \"$birthday\" }}, {app_rating: 1}}"));
-                pipeline.add(Document.parse("{$group: {_id: \"$year\", averageAppRating: { $avg: \"$app_rating\" }}}"));
-            }
-            else {
-                pipeline.add(Document.parse("{$group: {_id: \"$" + criteria + "\", averageAppRating: { $avg: \"$app_rating\" }}}"));
-            }
 
-            AggregateIterable<Document> aggregationResult = users.aggregate(pipeline);
+            pipeline.add(Document.parse("{$group: {_id: \"$" + criteria + "\", averageAppRating: { $avg: \"$app_rating\" }}}"));
 
-            List<Document> result = new ArrayList<>();
-            aggregationResult.into(result);
-            Map<String,Double> map = new HashMap<>();
-            for (Document doc : result) {
+            pipeline.add(Document.parse("{$sort: {averageAppRating: -1}}"));
+
+            List<Document> aggregationResult = usersCollection.aggregate(pipeline).into(new ArrayList<>());
+
+            Map<String,Double> map = new LinkedHashMap<>();
+            for (Document doc : aggregationResult) {
+
                 map.put(doc.getString("_id"), doc.getDouble("averageAppRating"));
+
             }
             return map;
+
+
         }
         catch (Exception e){
             throw new DAOException("Error getting average app rating", e);
@@ -371,26 +388,72 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
 
     //Find the average app_rating of users based on group af ages
     @Override
-    public List<Integer> averageAppRatingByAgeRange () throws DAOException {
+    public Map<String, Double> averageAppRatingByAgeRange () throws DAOException {
         try {
             MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
 
-            List<Document> pipeline = new ArrayList<>();
-            pipeline.add(Document.parse("{$project: {age: {$divide: [{ $subtract: [new Date(), $birthday] }, 1000 * 60 * 60 * 24 * 365 ] }} "));
-            pipeline.add(Document.parse("{$bucket: {groupBy: \"$age\", boundaries: [13, 20, 40, 50], default: \"Other\", output: { averageAppRating: { $avg: \"$app_rating\" } }}}"));
-            AggregateIterable<Document> aggregationResult = users.aggregate(pipeline);
+            List<Bson> pipeline = new ArrayList<>();
 
-            List<Document> result = new ArrayList<>();
-            aggregationResult.into(result);
-            List<Integer> averageAppRating = new ArrayList<>();
-            for (Document doc : result) {
-                averageAppRating.add(doc.getInteger("averageAppRating"));
+            Bson projectStage = Aggregates.project(
+                    Projections.fields(
+                            Projections.computed("age", new Document("$divide",
+                                    Arrays.asList(
+                                            new Document("$subtract", Arrays.asList(new Date(), "$birthday")),
+                                            1000L * 60 * 60 * 24 * 365
+                                    )
+                            )),
+                            Projections.include("app_rating")
+                    )
+            );
+            pipeline.add(projectStage);
+
+            List<Long> boundaries = Arrays.asList(0L, 13L, 20L, 40L, 50L);
+            BsonField[] outputFields = {
+                    new BsonField("averageAppRating", new Document("$avg", "$app_rating"))
+            };
+
+            BucketOptions options = new BucketOptions()
+                    .defaultBucket(50L)
+                    .output(outputFields);
+
+            Bson bucketStage = Aggregates.bucket("$age", boundaries, options);
+            pipeline.add(bucketStage);
+
+
+            List<Document> aggregationResult = usersCollection.aggregate(pipeline).into(new ArrayList<>());
+
+            Map<String, Double> map = new LinkedHashMap<>();
+
+            for (Document doc : aggregationResult) {
+
+                String ageRange = convertIntegerToAgeRange(doc.getLong("_id"));
+                map.put(ageRange, doc.getDouble("averageAppRating"));
+
+
+
             }
-            return averageAppRating;
+
+            return map;
+
         }
         catch (Exception e){
             throw new DAOException("Error getting average app rating by age range", e);
         }
+    }
+
+    private String convertIntegerToAgeRange(Long age) {
+        if (age == 0) {
+            return("0-13");
+        } else if (age == 13) {
+            return("13-20");
+        } else if (age == 20) {
+            return ("20-40");
+        } else if (age == 40) {
+            return("40-50");
+        } else {
+            return("50+");
+        }
+
     }
 
     // Methods available only in Neo4J

@@ -8,69 +8,143 @@ import  org.junit.Test;
 import junit.framework.TestCase;
 import java.util.List;
 
+import static it.unipi.lsmsd.fnf.dao.base.BaseNeo4JDAO.closeConnection;
+import static it.unipi.lsmsd.fnf.dao.base.BaseNeo4JDAO.openConnection;
+
 public class Neo4JDAOImplTest extends TestCase {
 
     public void testLikeAnime() throws DAOException {
-        AnimeDAOImpl dao = new AnimeDAOImpl();
-        dao.like("6577877be68376234760585f","65789bb52f5d29465d0abd09");
+        try {
+            openConnection();
+            AnimeDAOImpl dao = new AnimeDAOImpl();
+            dao.like("6577877be68376234760585f","65789bb52f5d29465d0abd09");
+            closeConnection();
+        } catch (DAOException e) {
+            fail("Exception not expected: " + e.getMessage());
+        }
+
     }
 
     public void testLikeManga() throws DAOException {
-        MangaDAOImpl dao = new MangaDAOImpl();
-        dao.like("6577877be68376234760585f","657ac61bb34f5514b91ea235");
+        try {
+            openConnection();
+            MangaDAOImpl dao = new MangaDAOImpl();
+            dao.like("6577877be68376234760585f","657ac61bb34f5514b91ea235");
+            closeConnection();
+        }   catch (DAOException e) {
+            fail("Exception not expected: " + e.getMessage());
+        }
+
     }
 
     public void testFollowUser() throws DAOException {
-        UserDAOImpl neo4JDAO = new UserDAOImpl();
-        neo4JDAO.follow("6577877be68376234760585a", "6577877be683762347605859");
+        try {
+            openConnection();
+            UserDAOImpl neo4JDAO = new UserDAOImpl();
+            neo4JDAO.follow("6577877be68376234760585a", "6577877be683762347605859");
+            closeConnection();
+        } catch (DAOException e) {
+            fail("Exception not expected: " + e.getMessage());
+        }
+
     }
 
     public void testUnlikeAnime() throws DAOException {
-        AnimeDAOImpl dao = new AnimeDAOImpl();
-        dao.unlike("6577877be68376234760585f","65789bb52f5d29465d0abd09");
+        try {
+            openConnection();
+            AnimeDAOImpl dao = new AnimeDAOImpl();
+            dao.unlike("6577877be68376234760585f","65789bb52f5d29465d0abd09");
+            closeConnection();
+        } catch (DAOException e) {
+            fail("Exception not expected: " + e.getMessage());
+        }
+
     }
 
     public void testUnlikeManga() throws DAOException {
-        MangaDAOImpl dao = new MangaDAOImpl();
-        dao.unlike("6577877be68376234760585f","657ac61bb34f5514b91ea233");
+        try {
+            openConnection();
+            MangaDAOImpl dao = new MangaDAOImpl();
+            dao.unlike("6577877be68376234760585f","657ac61bb34f5514b91ea233");
+            closeConnection();
+        } catch (DAOException e) {
+            fail("Exception not expected: " + e.getMessage());
+        }
+
     }
 
     public void testUnfollowUser() throws DAOException {
-        UserDAOImpl neo4JDAO = new UserDAOImpl();
-        neo4JDAO.unfollow("6577877be68376234760585a", "6577877be683762347605859");
+        try {
+            openConnection();
+            UserDAOImpl neo4JDAO = new UserDAOImpl();
+            neo4JDAO.unfollow("6577877be68376234760585a", "6577877be683762347605859");
+            closeConnection();
+        } catch (DAOException e) {
+            fail("Exception not expected: " + e.getMessage());
+        }
+
     }
 
     public void testGetLikedAnime() throws DAOException {
-        AnimeDAOImpl neo4JDAO = new AnimeDAOImpl();
-        List<AnimeDTO> anime = neo4JDAO.getLiked("6577877be68376234760585f");
-        for (AnimeDTO animeDTO : anime) {
-            System.out.println("id: " + animeDTO.getId() + ", title: " + animeDTO.getTitle() + ", picture: " + animeDTO.getImageUrl());
+        try {
+            openConnection();
+            AnimeDAOImpl neo4JDAO = new AnimeDAOImpl();
+            List<AnimeDTO> anime = neo4JDAO.getLiked("6577877be68376234760585f");
+            for (AnimeDTO animeDTO : anime) {
+                System.out.println("id: " + animeDTO.getId() + ", title: " + animeDTO.getTitle() + ", picture: " + animeDTO.getImageUrl());
+            }
+            closeConnection();
+
+        } catch (DAOException e) {
+            fail("Exception not expected: " + e.getMessage());
         }
+
     }
 
     public void testGetLikedManga() throws DAOException{
-        MangaDAOImpl neo4JDAO = new MangaDAOImpl();
-        List<MangaDTO> manga = neo4JDAO.getLiked("6577877be68376234760585f");
-        for (MangaDTO mangaDTO : manga) {
-            System.out.println("id: " + mangaDTO.getId() + ", title: " + mangaDTO.getTitle() + ", picture: " + mangaDTO.getImageUrl());
+        try {
+            openConnection();
+            MangaDAOImpl neo4JDAO = new MangaDAOImpl();
+            List<MangaDTO> manga = neo4JDAO.getLiked("6577877be68376234760585f");
+            for (MangaDTO mangaDTO : manga) {
+                System.out.println("id: " + mangaDTO.getId() + ", title: " + mangaDTO.getTitle() + ", picture: " + mangaDTO.getImageUrl());
+            }
+            closeConnection();
+        } catch (DAOException e) {
+            fail("Exception not expected: " + e.getMessage());
         }
+
     }
 
-    @Test
+
     public void testGetFollowing() throws DAOException {
-        UserDAOImpl neo4JDAO = new UserDAOImpl();
-        List<RegisteredUserDTO> followingUsers = neo4JDAO.getFollowing("6577877be68376234760585d");
-        for (RegisteredUserDTO user : followingUsers)
-            System.out.println(user);
+        try {
+            openConnection();
+            UserDAOImpl neo4JDAO = new UserDAOImpl();
+            List<RegisteredUserDTO> followingUsers = neo4JDAO.getFollowing("6577877be68376234760585d");
+            for (RegisteredUserDTO user : followingUsers)
+                System.out.println(user);
+            closeConnection();
+        }   catch (DAOException e) {
+            fail("Exception not expected: " + e.getMessage());
+        }
+
 
     }
 
-    @Test
+
     public void testGetFollowers() throws DAOException {
-        UserDAOImpl neo4JDAO = new UserDAOImpl();
-        List<RegisteredUserDTO> followerUsers = neo4JDAO.getFollowers("6577877be68376234760585d");
-        for(RegisteredUserDTO user : followerUsers)
-            System.out.println(user);
+        try {
+            openConnection();
+            UserDAOImpl neo4JDAO = new UserDAOImpl();
+            List<RegisteredUserDTO> followerUsers = neo4JDAO.getFollowers("6577877be68376234760585d");
+            for(RegisteredUserDTO user : followerUsers)
+                System.out.println(user);
+            closeConnection();
+        }  catch (DAOException e) {
+            fail("Exception not expected: " + e.getMessage());
+        }
+
     }
 
     /*

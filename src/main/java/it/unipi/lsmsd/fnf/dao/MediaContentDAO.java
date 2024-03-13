@@ -21,7 +21,7 @@ public interface MediaContentDAO<T extends MediaContent> {
 
     //MongoDB queries
     //Best tags based on the average rating
-    List<String> getBestCriteria(String criteria, boolean isArray) throws DAOException;
+    Map<String, Double> getBestCriteria(String criteria, boolean isArray, int page) throws DAOException;
 
     // Neo4J specific methods
     <E extends MediaContentDTO> void createNode(E mediaContentDTO) throws DAOException;

@@ -18,11 +18,13 @@ public interface ReviewService {
     List<ReviewDTO> findByMedia(String mediaId) throws BusinessException;
 
     //Service for mongoDB queries
-    int averageRatingUser(String userId) throws BusinessException;
+    Double averageRatingUser(String userId) throws BusinessException;
 
-    Map<String, Double> ratingMediaContentByPeriod(MediaContentType type, String mediaContentId, String period) throws BusinessException;
+    Map<String, Double> ratingMediaContentByYear(MediaContentType type, String mediaContentId, int startYear, int endYear) throws BusinessException;
+
+    Map<String, Double> ratingMediaContentByMonth(MediaContentType type, String mediaContentId, int year) throws BusinessException;
 
     PageDTO<MediaContentDTO> suggestTopMediaContent(MediaContentType mediaContentType, String criteria, String type) throws BusinessException;
 
-    Map<String, Double> averageRatingByCriteria(String type) throws BusinessException;
+    //Map<String, Double> averageRatingByCriteria(String type) throws BusinessException;
 }

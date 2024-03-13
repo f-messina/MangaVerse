@@ -196,6 +196,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public Map<String, Integer> getDistribution (String criteria) throws BusinessException {
         try {
+            if(!(criteria.equals("location") || (criteria.equals("gender")) || (criteria.equals("birthday") || (criteria.equals("joined_on"))))) {
+                throw new BusinessException("Invalid criteria");
+            }
             return userDAO.getDistribution(criteria);
         } catch (Exception e) {
             throw new BusinessException("Error while retrieving the distribution.", e);
@@ -214,6 +217,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public Map<String, Double> averageAppRating (String criteria) throws BusinessException {
         try {
+            if(!(criteria.equals("location") || (criteria.equals("gender")))) {
+                throw new BusinessException("Invalid criteria");
+            }
             return userDAO.averageAppRating(criteria);
         } catch (Exception e) {
             throw new BusinessException("Error while retrieving the average app rating.", e);
@@ -221,7 +227,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<Integer> averageAppRatingByAgeRange () throws BusinessException {
+    public Map<String, Double> averageAppRatingByAgeRange () throws BusinessException {
         try {
             return userDAO.averageAppRatingByAgeRange();
         } catch (Exception e) {

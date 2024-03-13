@@ -4,8 +4,14 @@ import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.model.enums.Status;
 import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
 import junit.framework.TestCase;
+import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+
+import static it.unipi.lsmsd.fnf.dao.base.BaseMongoDBDAO.closeConnection;
+import static it.unipi.lsmsd.fnf.dao.base.BaseMongoDBDAO.openConnection;
 
 public class AnimeDAOImplTest extends TestCase {
 
@@ -51,5 +57,22 @@ public class AnimeDAOImplTest extends TestCase {
     }
 
     public void testSearch() {
+    }
+
+    //OK for tags
+    public void testGetBestCriteriaAnime() {
+
+        AnimeDAOImpl animeDAO = new AnimeDAOImpl();
+        try {
+            openConnection();
+            Map<String, Double> bestAnime = animeDAO.getBestCriteria("tags", true, 2);
+            for (Map.Entry<String, Double> entry : bestAnime.entrySet()) {
+                System.out.println("Tag: " + entry.getKey() + ", Average rating: " + entry.getValue());
+            }
+
+            closeConnection();
+        } catch (DAOException e) {
+            fail("Exception not expected: " + e.getMessage());
+        }
     }
 }

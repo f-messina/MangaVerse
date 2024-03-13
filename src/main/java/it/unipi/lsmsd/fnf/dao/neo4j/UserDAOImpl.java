@@ -148,7 +148,7 @@ public class UserDAOImpl extends BaseNeo4JDAO implements UserDAO {
     }
 
     @Override
-    public List<Integer> averageAppRatingByAgeRange() throws DAOException {
+    public Map<String, Double> averageAppRatingByAgeRange() throws DAOException {
         return null;
     }
 

@@ -18,6 +18,7 @@ import it.unipi.lsmsd.fnf.service.mapper.DtoToModelMapper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -159,7 +160,7 @@ public class PersonalListServiceImpl implements PersonalListService {
 
     //Service for mongoDB queries
     @Override
-    public PageDTO<? extends MediaContentDTO> popularMediaContentList(MediaContentType mediaContentType) throws BusinessException {
+    public Map<PageDTO<? extends MediaContentDTO>, Integer> popularMediaContentList(MediaContentType mediaContentType) throws BusinessException {
         try {
             return personalListDAO.popularMediaContentList(mediaContentType);
         } catch (DAOException e) {

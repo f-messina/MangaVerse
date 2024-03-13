@@ -25,6 +25,11 @@ public interface MediaContentService {
     List<? extends MediaContentDTO> getTrendMediaContentByYear(int year, MediaContentType type) throws BusinessException;
 
     //Service for mongoDB queries
-    List<String> getBestCriteria(String criteria, MediaContentType mediaContentType) throws BusinessException;
+    Map<String, Double> getBestAnimeCriteria(String criteria, int page) throws BusinessException;
+
+    //Service for mongoDB queries
+    Map<String, Double> getBestMangaCriteria(String criteria, int page) throws BusinessException;
+
+    //Service for mongoDB queries
 
 }

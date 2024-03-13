@@ -10,8 +10,9 @@ import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 
 import java.util.List;
+import java.util.Map;
 
- public interface PersonalListDAO {
+public interface PersonalListDAO {
      List<PersonalListDTO> findByUser(String userId, boolean reducedInfo) throws DAOException;
      List<PersonalListDTO> findAll() throws DAOException;
      PersonalListDTO find(String id) throws DAOException;
@@ -30,6 +31,6 @@ import java.util.List;
 
      //MongoDB queries
      //Find tha anime/manga most present in all of the lists
-     PageDTO<? extends MediaContentDTO> popularMediaContentList(MediaContentType mediaContentType) throws DAOException;
+     Map<PageDTO<? extends MediaContentDTO>, Integer> popularMediaContentList(MediaContentType mediaContentType) throws DAOException;
 
  }

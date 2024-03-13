@@ -25,7 +25,7 @@ public interface UserDAO {
     Map<String, Integer> getDistribution(String criteria) throws DAOException;
     Double averageAgeUsers() throws DAOException;
     Map<String, Double> averageAppRating(String criteria) throws DAOException;
-    List<Integer> averageAppRatingByAgeRange() throws DAOException;
+    Map<String, Double> averageAppRatingByAgeRange() throws DAOException;
 
     //Neo4J queries
     void createNode(RegisteredUserDTO registeredUserDTO) throws DAOException;

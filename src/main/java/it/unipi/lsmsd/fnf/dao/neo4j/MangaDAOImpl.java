@@ -238,7 +238,7 @@ public class MangaDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Manga>
     }
 
     @Override
-    public List<String> getBestCriteria(String criteria, boolean isArray) throws DAOException {
+    public Map<String, Double> getBestCriteria(String criteria, boolean isArray, int page) throws DAOException {
         return null;
     }
 }

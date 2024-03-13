@@ -105,7 +105,7 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
     /**
      * Finds an Anime object in the MongoDB database based on its ObjectId.
      *
-     * @param id The ObjectId of the Anime to find.
+     * @param animeId The ObjectId of the Anime to find.
      * @return The found Anime object, or null if not found.
      * @throws DAOException If an error occurs during the search process.
      */
@@ -298,25 +298,36 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
     //MongoDB queries
     //Best tags based on the average rating
     @Override
-    public List<String> getBestCriteria (String criteria, boolean isArray) throws DAOException {
-        try (MongoClient mongoClient = getConnection()) {
-            MongoCollection<Document> animeCollection = mongoClient.getDatabase("mangaVerse").getCollection("anime");
-
+    public Map<String, Double> getBestCriteria (String criteria, boolean isArray, int page) throws DAOException {
+        try {
+            MongoCollection<Document> animeCollection = getCollection(COLLECTION_NAME);
+            int pageOffset = (page-1)*Constants.PAGE_SIZE;
             //criteria can be tags
             //I have to use unwind, I don't have another way to do the query
-
             List<Document> pipeline = new ArrayList<>();
+
             pipeline.add(Document.parse("{$match:{" + criteria + ": { $exists: true } } }"));
             if (isArray) {
-                pipeline.add(Document.parse("{$unwind: \"$" + criteria + "}"));
+                pipeline.add(Document.parse("{$unwind: \"$" + criteria + "\"}"));
             }
 
             pipeline.add(Document.parse("{$group: {_id: \"$" + criteria + "\", max_average_rating: {$max: \"$average_rating\"} } }"));
             pipeline.add(Document.parse("{$sort: {max_average_rating: -1}}"));
+            pipeline.add(Document.parse("{$skip: " + pageOffset + "}"));
+            //Limit to 25 results
+            pipeline.add(Document.parse("{$limit: 25}"));
 
-            return animeCollection.aggregate(pipeline).into(new ArrayList<>()).stream()
-                    .map(doc -> doc.getString(criteria))
-                    .collect(Collectors.toList());
+            List <Document> document = animeCollection.aggregate(pipeline).into(new ArrayList<>());
+            Map<String, Double> bestCriteria = new LinkedHashMap<>();
+            for (Document doc : document) {
+                if (doc.get("max_average_rating") instanceof Integer) {
+                    bestCriteria.put(doc.get("_id").toString(), ((Integer) doc.get("max_average_rating")).doubleValue());
+                } else
+                    bestCriteria.put(doc.get("_id").toString(), doc.getDouble("max_average_rating"));
+            }
+
+            return bestCriteria;
+
         } catch (Exception e) {
             throw new DAOException("Error while searching anime", e);
         }
