@@ -10,11 +10,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7526b11c-d57e-42b1-96ad-0eaf1f2db0d2" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/webapp/css/manager.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/webapp/js/manager.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/webapp/manager_animePage.jsp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/webapp/manager_mangaPage.jsp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/webapp/manager_userPage.jsp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/webapp/WEB-INF/jsp/manga.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/WEB-INF/jsp/manga.jsp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/webapp/css/media_content_test.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/css/media_content_test.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/MangaVerse-1.0-SNAPSHOT/WEB-INF/jsp/manga.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaVerse-1.0-SNAPSHOT/WEB-INF/jsp/manga.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/webapp/WEB-INF/jsp/auth.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/WEB-INF/jsp/auth.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/webapp/css/auth_test.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/css/auth_test.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/MangaVerse-1.0-SNAPSHOT/WEB-INF/jsp/auth.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaVerse-1.0-SNAPSHOT/WEB-INF/jsp/auth.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/MangaVerse-1.0-SNAPSHOT/css/auth_test.css" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaVerse-1.0-SNAPSHOT/css/auth_test.css" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -27,11 +32,11 @@
         <option value="HTML File" />
         <option value="SCSS File" />
         <option value="Enum" />
+        <option value="Class" />
+        <option value="JUnit5 Test Class" />
         <option value="CSS File" />
         <option value="Jsp File" />
         <option value="JavaScript File" />
-        <option value="Class" />
-        <option value="JUnit5 Test Class" />
       </list>
     </option>
   </component>
@@ -104,11 +109,11 @@
 }</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\lenovo\Documents\GitHub\MangaUniverse\src\main\webapp" />
       <recent name="C:\Users\messi\Documents\GitHub\MangaUniverse\src\main\webapp" />
       <recent name="C:\Users\messi\Documents\GitHub\MangaUniverse\src\main\webapp\WEB-INF" />
       <recent name="C:\Users\messi\Documents\GitHub\MangaUniverse\src\main\webapp\tests" />
       <recent name="C:\Users\messi\Desktop\MangaUniverseTestController\src\main\webapp" />
-      <recent name="C:\Users\messi\Documents\GitHub\MangaUniverse\src\main\webapp\images" />
     </key>
     <key name="CreateTestDialog.Recents.Supers">
       <recent name="" />
@@ -368,7 +373,8 @@
       <workItem from="1709947775514" duration="1979000" />
       <workItem from="1709996141090" duration="14546000" />
       <workItem from="1710092912531" duration="177000" />
-      <workItem from="1710093117010" duration="1015000" />
+      <workItem from="1710093117010" duration="2091000" />
+      <workItem from="1710343287844" duration="7281000" />
     </task>
     <servers />
   </component>

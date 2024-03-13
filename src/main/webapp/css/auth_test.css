@@ -8,6 +8,52 @@ html {
     box-sizing: border-box;
     font-family: "Fira Sans Condensed", sans-serif;
 }
+nav{
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 50px 40px;
+    width: 100%;
+    height: 60px;
+    background-color: white;
+    z-index: 999;
+}
+
+nav img {
+    width: 60px;
+    height: auto;
+}
+
+nav .nav-items {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    font-size: 1.25em;
+}
+
+nav .nav-items a {
+    text-decoration: none;
+    color: black;
+}
+
+nav h1{
+    font-weight: 300;
+    font-size: 40px;
+}
+.small-pic{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+nav img {
+    width: 60px;
+    height: auto;
+}
 
 .dropdown-content {
     position: absolute;
@@ -29,7 +75,7 @@ html {
     gap: 25px;
     justify-content: center;
     align-items: center;
-    margin-top: 50px;
+    margin-top: 150px;
 }
 .signup-form {
     border: transparent;
