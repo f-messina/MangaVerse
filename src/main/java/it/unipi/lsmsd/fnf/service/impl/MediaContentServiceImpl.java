@@ -2,6 +2,7 @@ package it.unipi.lsmsd.fnf.service.impl;
 
 import it.unipi.lsmsd.fnf.dao.*;
 import it.unipi.lsmsd.fnf.dao.enums.DataRepositoryEnum;
+import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
@@ -340,50 +341,38 @@ public class MediaContentServiceImpl implements MediaContentService {
         }
     }
 
-   /*
+
+    //Service for mongoDB queries
     @Override
-    public List<? extends MediaContentDTO> getMediaContentTrendByGenre(MediaContentType type) throws BusinessException {
+    public Map<String, Double> getBestAnimeCriteria (String criteria, int page) throws BusinessException {
         try {
-            if (MediaContentType.ANIME.equals(type)) {
-                return animeDAONeo4J.getMediaContentTrendByGenre();
-            } else if (MediaContentType.MANGA.equals(type)) {
-                return mangaDAONeo4J.getMediaContentTrendByGenre();
-            } else {
-                throw new BusinessException("Invalid media content type");
-            }
-        } catch(Exception e) {
-            throw new BusinessException("Error while retrieving the trend.", e);
+            if (!(criteria.equals("tags")|| criteria.equals("producers") || criteria.equals("studios")))
+                throw new BusinessException("Invalid criteria");
+            return animeDAO.getBestCriteria(criteria, criteria.equals("tags"), page);
+        } catch (DAOException e) {
+            throw new BusinessException("Error while retrieving the best criteria.", e);
         }
     }
 
+    //Service for mongoDB queries
     @Override
-    public List<? extends MediaContentDTO> getMediaContentTrendByLikes(MediaContentType type) throws BusinessException {
+    public Map<String, Double> getBestMangaCriteria (String criteria, int page) throws BusinessException {
         try {
-            if (MediaContentType.ANIME.equals(type)) {
-                return animeDAONeo4J.getMediaContentTrendByLikes();
-            } else if (MediaContentType.MANGA.equals(type)) {
-                return mangaDAONeo4J.getMediaContentTrendByLikes();
-            } else {
-                throw new BusinessException("Invalid media content type");
-            }
-        } catch(Exception e) {
-            throw new BusinessException("Error while retrieving the trend.", e);
-        }
-    }
+            if (!(criteria.equals("genres") || criteria.equals("demographics") ||
+                    criteria.equals("themes") || criteria.equals("authors") || criteria.equals("serializations")))
+                throw new BusinessException("Invalid criteria");
 
-    @Override
-    public List<String> getMediaContentGenresTrend(MediaContentType type) throws BusinessException {
-        try {
-            if (MediaContentType.ANIME.equals(type)) {
-                return animeDAONeo4J.getMediaContentGenresTrend();
-            } else if (MediaContentType.MANGA.equals(type)) {
-                return mangaDAONeo4J.getMediaContentGenresTrend();
-            } else {
-                throw new BusinessException("Invalid media content type");
-            }
-        } catch (Exception e) {
-            throw new BusinessException("Error while retrieving the trend.", e);
+            boolean isArray = criteria.equals("genres") || criteria.equals("demographics") ||
+                    criteria.equals("themes") || criteria.equals("authors");
+
+            return mangaDAO.getBestCriteria(criteria, isArray, page);
+        } catch (DAOException e) {
+            throw new BusinessException("Error while retrieving the best criteria.", e);
         }
     }
+<<<<<<< HEAD
     */
 }
+=======
+}
+>>>>>>> noemi

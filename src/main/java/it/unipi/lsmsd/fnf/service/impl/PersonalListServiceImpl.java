@@ -3,7 +3,13 @@ package it.unipi.lsmsd.fnf.service.impl;
 import it.unipi.lsmsd.fnf.dao.*;
 import it.unipi.lsmsd.fnf.dao.enums.DataRepositoryEnum;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
+<<<<<<< HEAD
 import it.unipi.lsmsd.fnf.dto.PersonalListSummaryDTO;
+=======
+import it.unipi.lsmsd.fnf.dto.PageDTO;
+import it.unipi.lsmsd.fnf.dto.PersonalListDTO;
+import it.unipi.lsmsd.fnf.dto.RegisteredUserDTO;
+>>>>>>> noemi
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.PersonalList;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
@@ -12,6 +18,7 @@ import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 import it.unipi.lsmsd.fnf.service.exception.BusinessExceptionType;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -157,4 +164,18 @@ public class PersonalListServiceImpl implements PersonalListService {
     public PersonalList findList(String id) throws BusinessException {
         return null;
     }
+<<<<<<< HEAD
+=======
+
+    //Service for mongoDB queries
+    @Override
+    public Map<PageDTO<? extends MediaContentDTO>, Integer> popularMediaContentList(MediaContentType mediaContentType) throws BusinessException {
+        try {
+            return personalListDAO.popularMediaContentList(mediaContentType);
+        } catch (DAOException e) {
+            throw new BusinessException(e);
+        }
+    }
+
+>>>>>>> noemi
 }

@@ -5,18 +5,25 @@ import it.unipi.lsmsd.fnf.dao.ReviewDAO;
 import it.unipi.lsmsd.fnf.dao.enums.DataRepositoryEnum;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
+<<<<<<< HEAD
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
 import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
+=======
+import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
+import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
+>>>>>>> noemi
 import it.unipi.lsmsd.fnf.service.ReviewService;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 
 import it.unipi.lsmsd.fnf.service.exception.BusinessExceptionType;
 import org.apache.commons.lang3.StringUtils;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 import static it.unipi.lsmsd.fnf.dao.DAOLocator.*;
 
@@ -131,4 +138,56 @@ public class ReviewServiceImpl implements ReviewService {
             throw new BusinessException("Error finding review by media",e);
         }
     }
+
+    //Service for mongoDB queries
+    @Override
+    public Double averageRatingUser(String userId) throws BusinessException {
+        try {
+            return reviewDAO.averageRatingUser(userId);
+        } catch (Exception e){
+            throw new BusinessException(e);
+        }
+    }
+
+    @Override
+    public Map<String, Double> ratingMediaContentByYear(MediaContentType type, String mediaContentId, int startYear, int endYear) throws BusinessException {
+        try {
+            if (startYear < 0 || endYear < 0 || startYear > LocalDate.now().getYear() || endYear > LocalDate.now().getYear()) {
+                throw new BusinessException("Invalid year");
+            }
+            return reviewDAO.getMediaContentRatingByYear(type, mediaContentId, startYear, endYear);
+        } catch (Exception e){
+            throw new BusinessException(e);
+        }
+    }
+
+    @Override
+    public Map<String, Double> ratingMediaContentByMonth(MediaContentType type, String mediaContentId, int year) throws BusinessException {
+        try {
+            if (year < 0 || year > LocalDate.now().getYear()) {
+                throw new BusinessException("Invalid year");
+            }
+            return reviewDAO.getMediaContentRatingByMonth(type, mediaContentId, year);
+        } catch (Exception e) {
+            throw new BusinessException(e);
+        }
+    }
+
+    @Override
+    public PageDTO<MediaContentDTO> suggestTopMediaContent(MediaContentType mediaContentType, String criteria, String type) throws BusinessException {
+        try {
+            return reviewDAO.suggestTopMediaContent(mediaContentType, criteria, type);
+        } catch (Exception e){
+            throw new BusinessException(e);
+        }
+    }
+
+    /*@Override
+    public Map<String, Double> averageRatingByCriteria(String type) throws BusinessException {
+        try {
+            return reviewDAO.averageRatingByCriteria(type);
+        } catch (Exception e){
+            throw new BusinessException(e);
+        }
+    }*/
 }

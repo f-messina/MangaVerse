@@ -18,6 +18,10 @@ public interface MediaContentDAO<T extends MediaContent> {
     PageDTO<? extends MediaContentDTO> search(List<Map<String, Object>> filters, Map<String, Integer> orderBy, int page) throws DAOException;
     void updateLatestReview (ReviewDTO reviewDTO) throws DAOException;
 
+    //MongoDB queries
+    //Best tags based on the average rating
+    Map<String, Double> getBestCriteria(String criteria, boolean isArray, int page) throws DAOException;
+
     // Neo4J specific methods
     <E extends MediaContentDTO> void createNode(E mediaContentDTO) throws DAOException;
     void like(String userId, String mediaContentId) throws DAOException;

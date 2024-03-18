@@ -26,6 +26,8 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import java.util.*;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static com.mongodb.client.model.Aggregates.*;
 import static com.mongodb.client.model.Filters.*;
@@ -425,6 +427,45 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
         return reviewDocument;
     }
 
+    //MongoDB queries
+    //Best tags based on the average rating
+    @Override
+    public Map<String, Double> getBestCriteria (String criteria, boolean isArray, int page) throws DAOException {
+        try {
+            MongoCollection<Document> animeCollection = getCollection(COLLECTION_NAME);
+            int pageOffset = (page-1)*Constants.PAGE_SIZE;
+            //criteria can be tags
+            //I have to use unwind, I don't have another way to do the query
+            List<Document> pipeline = new ArrayList<>();
+
+            pipeline.add(Document.parse("{$match:{" + criteria + ": { $exists: true } } }"));
+            if (isArray) {
+                pipeline.add(Document.parse("{$unwind: \"$" + criteria + "\"}"));
+            }
+
+            pipeline.add(Document.parse("{$group: {_id: \"$" + criteria + "\", max_average_rating: {$max: \"$average_rating\"} } }"));
+            pipeline.add(Document.parse("{$sort: {max_average_rating: -1}}"));
+            pipeline.add(Document.parse("{$skip: " + pageOffset + "}"));
+            //Limit to 25 results
+            pipeline.add(Document.parse("{$limit: 25}"));
+
+            List <Document> document = animeCollection.aggregate(pipeline).into(new ArrayList<>());
+            Map<String, Double> bestCriteria = new LinkedHashMap<>();
+            for (Document doc : document) {
+                if (doc.get("max_average_rating") instanceof Integer) {
+                    bestCriteria.put(doc.get("_id").toString(), ((Integer) doc.get("max_average_rating")).doubleValue());
+                } else
+                    bestCriteria.put(doc.get("_id").toString(), doc.getDouble("max_average_rating"));
+            }
+
+            return bestCriteria;
+
+        } catch (Exception e) {
+            throw new DAOException("Error while searching anime", e);
+        }
+
+    }
+    
     // Neo4J specific methods
     @Override
     public void createNode(MediaContentDTO animeDTO) throws DAOException {

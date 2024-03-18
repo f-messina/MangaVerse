@@ -174,22 +174,43 @@ public class UserDAOImpl extends BaseNeo4JDAO implements UserDAO {
     }
 
     @Override
+<<<<<<< HEAD
     public List<Document> getGenderDistribution() throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
+=======
+    public Map<String, Integer> getDistribution(String criteria) throws DAOException {
+        return null;
+>>>>>>> noemi
     }
+
+
     @Override
+<<<<<<< HEAD
     public Integer averageAgeUsers() throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
     @Override
     public List<Document> getLocationDistribution() throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
+=======
+    public Double averageAgeUsers() throws DAOException {
+        return null;
+>>>>>>> noemi
     }
+
+
     @Override
+<<<<<<< HEAD
     public List<Document> getUsersByAgeRange() throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
+=======
+    public Map<String, Double> averageAppRating(String criteria) throws DAOException {
+        return null;
+>>>>>>> noemi
     }
+
     @Override
+<<<<<<< HEAD
     public List<Document> getUsersRegisteredByYear() throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
@@ -204,5 +225,11 @@ public class UserDAOImpl extends BaseNeo4JDAO implements UserDAO {
     @Override
     public List<Document> averageAppRatingByGender() throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
+=======
+    public Map<String, Double> averageAppRatingByAgeRange() throws DAOException {
+        return null;
+>>>>>>> noemi
     }
+
+
 }

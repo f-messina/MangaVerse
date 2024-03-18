@@ -312,4 +312,9 @@ public class AnimeDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Anime>
     public void updateLatestReview(ReviewDTO reviewDTO) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
+
+    @Override
+    public Map<String, Double> getBestCriteria(String criteria, boolean isArray, int page) throws DAOException {
+        return null;
+    }
 }

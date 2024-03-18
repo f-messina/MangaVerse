@@ -10,8 +10,8 @@ import java.util.Map;
 
 
 public class AnimeDTO extends MediaContentDTO{
-    private Integer year;
-    private String season;
+        private Integer year;
+        private String season;
 
     public AnimeDTO() {
     }

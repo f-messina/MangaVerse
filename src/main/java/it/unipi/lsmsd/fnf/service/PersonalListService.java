@@ -1,5 +1,6 @@
 package it.unipi.lsmsd.fnf.service;
 
+import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.PersonalList;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
@@ -8,6 +9,7 @@ import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 
 import java.util.List;
+import java.util.Map;
 
 public interface PersonalListService {
     //Insert list
@@ -40,4 +42,7 @@ public interface PersonalListService {
     List<PersonalList> findAllLists() throws BusinessException;
 
     PersonalList findList(String id) throws BusinessException;
+
+    //Service for mongoDB queries
+    Map<PageDTO<? extends MediaContentDTO>, Integer> popularMediaContentList(MediaContentType mediaContentType) throws BusinessException;
 }

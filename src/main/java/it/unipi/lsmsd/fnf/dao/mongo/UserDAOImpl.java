@@ -2,6 +2,12 @@ package it.unipi.lsmsd.fnf.dao.mongo;
 
 import com.mongodb.MongoException;
 import com.mongodb.client.AggregateIterable;
+<<<<<<< HEAD
+=======
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.model.*;
+import com.mongodb.client.result.UpdateResult;
+>>>>>>> noemi
 import it.unipi.lsmsd.fnf.dao.UserDAO;
 import it.unipi.lsmsd.fnf.dao.exception.*;
 import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
@@ -19,10 +25,14 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import java.time.LocalDate;
+<<<<<<< HEAD
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+=======
+import java.util.*;
+>>>>>>> noemi
 
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.*;
@@ -245,6 +255,7 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
         } catch (Exception e) {
             throw new DAOException("Error searching user by username: " + username, e);
         }
+<<<<<<< HEAD
     }
 
     //MongoDB complex queries
@@ -255,27 +266,131 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
      * @return A list of MongoDB documents representing the distribution of genders.
      * @throws DAOException If an error occurs while retrieving the gender distribution.
      */
-    @Override
-    public List<Document> getGenderDistribution() throws DAOException {
-        try {
-            MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
-
-            List<Document> pipeline = new ArrayList<>();
-            pipeline.add(Document.parse("{$group: {_id: \"$gender\", count: { $sum: 1 }}}"));
-
-            AggregateIterable<Document> aggregationResult = usersCollection.aggregate(pipeline);
-
-            List<Document> result = new ArrayList<>();
-            aggregationResult.into(result);
-
-            return result;
-
-
-        }
+=======
         catch (Exception e){
-            throw new DAOException("Error getting genre distribution", e);
+            throw new DAOException("Error searching all the usersCollection", e);
         }
     }
+
+    private RegisteredUserDTO documentToRegisteredUserDTO(Document doc) {
+        RegisteredUserDTO user = new RegisteredUserDTO();
+        user.setId(doc.getObjectId("_id").toString());
+        user.setUsername(doc.getString("username"));
+        user.setProfilePicUrl(doc.getString("picture"));
+        return user;
+    }
+
+    private RegisteredUser documentToRegisteredUser(Document doc) {
+        RegisteredUser user;
+
+        if (doc.getBoolean("is_manager") != null) {
+            Manager manager = new Manager();
+            manager.setHiredDate(ConverterUtils.dateToLocalDate(doc.getDate("hired_on")));
+            manager.setTitle(doc.getString("title"));
+            user = manager;
+        } else {
+            User regularUser = new User();
+            regularUser.setUsername(doc.getString("username"));
+            regularUser.setBirthday(ConverterUtils.dateToLocalDate(doc.getDate("birthday")));
+            regularUser.setDescription(doc.getString("description"));
+            regularUser.setGender(Gender.fromString(doc.getString("gender")));
+            regularUser.setLocation(doc.getString("location"));
+            user = regularUser;
+        }
+
+        user.setId(doc.getObjectId("_id").toString());
+        user.setPassword(doc.getString("password"));
+        user.setEmail(doc.getString("email"));
+        user.setJoinedDate(ConverterUtils.dateToLocalDate(doc.getDate("joined_on")));
+        user.setFullname(doc.getString("fullname"));
+        user.setProfilePicUrl(doc.getString("picture"));
+        return user;
+    }
+
+    private Document RegisteredUserToDocument(RegisteredUser user) {
+        Document doc = new Document();
+        appendIfNotNull(doc, "password", user.getPassword());
+        appendIfNotNull(doc, "email", user.getEmail());
+
+        if (user.getJoinedDate() != null) {
+            appendIfNotNull(doc, "joined_on", ConverterUtils.localDateToDate(user.getJoinedDate()));
+        }
+        appendIfNotNull(doc, "fullname", user.getFullname());
+        appendIfNotNull(doc, "picture", user.getProfilePicUrl());
+
+        if (user instanceof Manager manager) {
+            appendIfNotNull(doc, "title", manager.getTitle());
+            appendIfNotNull(doc, "hired_on", ConverterUtils.localDateToDate(manager.getHiredDate()));
+        } else if (user instanceof User regularUser) {
+            appendIfNotNull(doc, "username", regularUser.getUsername());
+            appendIfNotNull(doc, "birthday", ConverterUtils.localDateToDate(regularUser.getBirthday()));
+            appendIfNotNull(doc, "description", regularUser.getDescription());
+            // TODO: change gender name() to ToString()
+            appendIfNotNull(doc, "gender", regularUser.getGender() != null ? regularUser.getGender().name() : null);
+            appendIfNotNull(doc, "location", regularUser.getLocation());
+        }
+
+        return doc;
+    }
+
+    private Document UnsetDocument(User registeredUser) {
+        Document doc = new Document();
+        if (registeredUser.getFullname() != null && registeredUser.getFullname().equals(Constants.NULL_STRING))
+            doc.append("fullname", 1);
+        if (registeredUser.getBirthday() != null && registeredUser.getBirthday().equals(Constants.NULL_DATE))
+            doc.append("birthday", 1);
+        if (registeredUser.getLocation() != null && registeredUser.getLocation().equals(Constants.NULL_STRING))
+            doc.append("location", 1);
+        if (registeredUser.getDescription() != null && registeredUser.getDescription().equals(Constants.NULL_STRING))
+            doc.append("description", 1);
+        if (registeredUser.getGender() != null && registeredUser.getGender().equals(Gender.UNKNOWN))
+            doc.append("gender", 1);
+
+        return doc;
+    }
+
+    //MongoDB complex queries
+    //Find the distribution of genders, of ages, of locations
+>>>>>>> noemi
+    @Override
+    public Map<String, Integer> getDistribution (String criteria) throws DAOException {
+        try {
+            MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
+            //criteria can be: gender, location, birthday, joined_on
+
+            List<Document> pipeline = new ArrayList<>();
+            if (criteria.equals("birthday") || criteria.equals("joined_on")) {
+                pipeline.add(Document.parse("{$project: { year: { $year: \"$" + criteria +"\" },  app_rating: 1 }}"));
+                pipeline.add(Document.parse("{$group: {_id: \"$year\", count: { $sum: 1 }}}"));
+                pipeline.add(Document.parse("{$sort: {count: -1}}"));
+            } else if (criteria.equals("location") || criteria.equals("gender")) {
+                pipeline.add(Document.parse("{$group: {_id: \"$" + criteria + "\", count: { $sum: 1 }}}"));
+                pipeline.add(Document.parse("{$sort: {count: -1}}"));
+
+
+            } else
+                System.out.println("Criteria not valid");
+
+
+            List<Document> aggregationResult = usersCollection.aggregate(pipeline).into(new ArrayList<>());
+
+            System.out.println(aggregationResult);
+
+            Map<String,Integer> map = new LinkedHashMap<>();
+            for (Document doc : aggregationResult) {
+                if (criteria.equals("birthday") || criteria.equals("joined_on"))
+                    map.put(String.valueOf(doc.getInteger("_id")), doc.getInteger("count"));
+
+                else if (criteria.equals("location") || criteria.equals("gender"))
+                    map.put(doc.getString("_id"), doc.getInteger("count"));
+            }
+            return map;
+        }
+        catch (Exception e){
+            throw new DAOException("Error getting distribution", e);
+        }
+    }
+
 
     //Find the average age of users
     /**
@@ -285,27 +400,36 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
      * @throws DAOException If an error occurs while calculating the average age.
      */
     @Override
-    public Integer averageAgeUsers() throws DAOException {
+    public Double averageAgeUsers() throws DAOException {
         try {
             MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
 
-            List<Document> pipeline = new ArrayList<>();
-            pipeline.add(Document.parse("""
-                    {$project: {age: {$divide: [{ $subtract: [new Date(), "$birthday"] },
-                              1000 * 60 * 60 * 24 * 365 ] }}
-                    """));
-            pipeline.add(Document.parse("{ $group: {_id: null, averageAge: { $avg: \"$age\" }}}"));
-            AggregateIterable<Document> aggregationResult = usersCollection.aggregate(pipeline);
+            List<Bson> pipeline = new ArrayList<>();
 
-            List<Document> result = new ArrayList<>();
-            aggregationResult.into(result);
-            return result.getFirst().getInteger("averageAge");
+            pipeline.add(Aggregates.match(Filters.exists("birthday")));
+
+            pipeline.add(Aggregates.project(Projections.computed("age",
+                    new Document("$let", new Document("vars", new Document("dob", "$birthday"))
+                            .append("in", new Document("$floor", new Document("$divide",
+                                    Arrays.asList(new Document("$subtract", Arrays.asList(new Date(), "$$dob")),
+                                            1000L * 60 * 60 * 24 * 365))))))));
+
+            pipeline.add(Aggregates.group(null, Accumulators.avg("averageAge", "$age")));
+
+            List<Document> aggregationResult = usersCollection.aggregate(pipeline).into(new ArrayList<>());
+
+            if (!aggregationResult.isEmpty()) {
+                return aggregationResult.get(0).getDouble("averageAge");
+            } else {
+                return null; // o un valore predefinito a tua scelta
+            }
         }
         catch (Exception e){
             throw new DAOException("Error getting average age of usersCollection", e);
         }
     }
 
+<<<<<<< HEAD
     //Find the distribution of users by location
     /**
      * Retrieves the distribution of users by location.
@@ -313,24 +437,42 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
      * @return A list of MongoDB documents representing the distribution of users by location.
      * @throws DAOException If an error occurs while retrieving the location distribution.
      */
+=======
+
+    //Find average app_rating based on the birthday, location and gender.
+>>>>>>> noemi
     @Override
-    public List<Document> getLocationDistribution() throws DAOException {
+    public Map<String, Double> averageAppRating (String criteria) throws DAOException {
         try {
             MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
 
-            List<Document> pipeline = new ArrayList<>();
-            pipeline.add(Document.parse("{$group: {_id: \"$location\", count: { $sum: 1 }}}"));
-            AggregateIterable<Document> aggregationResult = usersCollection.aggregate(pipeline);
+            //criteria can be: location and gender
 
-            List<Document> result = new ArrayList<>();
-            aggregationResult.into(result);
-            return result;
+            List<Document> pipeline = new ArrayList<>();
+            pipeline.add(Document.parse("{$match: {\"" + criteria + "\": { $exists: true }}}"));
+
+            pipeline.add(Document.parse("{$group: {_id: \"$" + criteria + "\", averageAppRating: { $avg: \"$app_rating\" }}}"));
+
+            pipeline.add(Document.parse("{$sort: {averageAppRating: -1}}"));
+
+            List<Document> aggregationResult = usersCollection.aggregate(pipeline).into(new ArrayList<>());
+
+            Map<String,Double> map = new LinkedHashMap<>();
+            for (Document doc : aggregationResult) {
+
+                map.put(doc.getString("_id"), doc.getDouble("averageAppRating"));
+
+            }
+            return map;
+
+
         }
         catch (Exception e){
-            throw new DAOException("Error getting location distribution", e);
+            throw new DAOException("Error getting average app rating", e);
         }
     }
 
+<<<<<<< HEAD
     //Find how many users there are grouped by age range
     /**
      * Retrieves the number of users grouped by age range.
@@ -338,28 +480,64 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
      * @return A list of MongoDB documents representing the number of users in each age range.
      * @throws DAOException If an error occurs while retrieving users by age range.
      */
+=======
+    //Find the average app_rating of users based on group af ages
+>>>>>>> noemi
     @Override
-    public List<Document> getUsersByAgeRange() throws DAOException {
+    public Map<String, Double> averageAppRatingByAgeRange () throws DAOException {
         try {
             MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
 
-            List<Document> pipeline = new ArrayList<>();
-            pipeline.add(Document.parse("""
-                    {$project: {age: {$divide: [{ $subtract: [new Date(), "$birthday"] },
-                              1000 * 60 * 60 * 24 * 365 ] }}
-                    """));
-            pipeline.add(Document.parse("{$bucket: {groupBy: \"$age\", boundaries: [13, 20, 40, 50], default: \"Other\", output: { count: { $sum: 1 } }}}"));
-            AggregateIterable<Document> aggregationResult = usersCollection.aggregate(pipeline);
+            List<Bson> pipeline = new ArrayList<>();
 
-            List<Document> result = new ArrayList<>();
-            aggregationResult.into(result);
-            return result;
+            Bson projectStage = Aggregates.project(
+                    Projections.fields(
+                            Projections.computed("age", new Document("$divide",
+                                    Arrays.asList(
+                                            new Document("$subtract", Arrays.asList(new Date(), "$birthday")),
+                                            1000L * 60 * 60 * 24 * 365
+                                    )
+                            )),
+                            Projections.include("app_rating")
+                    )
+            );
+            pipeline.add(projectStage);
+
+            List<Long> boundaries = Arrays.asList(0L, 13L, 20L, 40L, 50L);
+            BsonField[] outputFields = {
+                    new BsonField("averageAppRating", new Document("$avg", "$app_rating"))
+            };
+
+            BucketOptions options = new BucketOptions()
+                    .defaultBucket(50L)
+                    .output(outputFields);
+
+            Bson bucketStage = Aggregates.bucket("$age", boundaries, options);
+            pipeline.add(bucketStage);
+
+
+            List<Document> aggregationResult = usersCollection.aggregate(pipeline).into(new ArrayList<>());
+
+            Map<String, Double> map = new LinkedHashMap<>();
+
+            for (Document doc : aggregationResult) {
+
+                String ageRange = convertIntegerToAgeRange(doc.getLong("_id"));
+                map.put(ageRange, doc.getDouble("averageAppRating"));
+
+
+
+            }
+
+            return map;
+
         }
         catch (Exception e){
-            throw new DAOException("Error getting usersCollection by age range", e);
+            throw new DAOException("Error getting average app rating by age range", e);
         }
     }
 
+<<<<<<< HEAD
     //Find how many users registered for each year
     /**
      * Retrieves the number of users registered for each year.
@@ -464,6 +642,22 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
             throw new DAOException("Error getting genre distribution", e);
         }
     }
+=======
+    private String convertIntegerToAgeRange(Long age) {
+        if (age == 0) {
+            return("0-13");
+        } else if (age == 13) {
+            return("13-20");
+        } else if (age == 20) {
+            return ("20-40");
+        } else if (age == 40) {
+            return("40-50");
+        } else {
+            return("50+");
+        }
+
+    }
+>>>>>>> noemi
 
     private UserSummaryDTO documentToUserSummaryDTO(Document doc) {
         UserSummaryDTO user = new UserSummaryDTO();

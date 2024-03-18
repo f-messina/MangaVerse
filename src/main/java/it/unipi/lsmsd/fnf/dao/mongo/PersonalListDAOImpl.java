@@ -1,22 +1,44 @@
 package it.unipi.lsmsd.fnf.dao.mongo;
 
+<<<<<<< HEAD
 import com.mongodb.MongoException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.result.UpdateResult;
+=======
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.result.InsertOneResult;
+>>>>>>> noemi
 import it.unipi.lsmsd.fnf.dao.PersonalListDAO;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
+<<<<<<< HEAD
 import it.unipi.lsmsd.fnf.dao.exception.DAOExceptionType;
 import it.unipi.lsmsd.fnf.dao.exception.DuplicatedException;
 import it.unipi.lsmsd.fnf.dao.exception.DuplicatedExceptionType;
 import it.unipi.lsmsd.fnf.dto.PersonalListSummaryDTO;
+=======
+import it.unipi.lsmsd.fnf.dto.PageDTO;
+import it.unipi.lsmsd.fnf.dto.PersonalListDTO;
+import it.unipi.lsmsd.fnf.dto.RegisteredUserDTO;
+import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
+import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
+import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
+>>>>>>> noemi
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 
+<<<<<<< HEAD
 import java.util.ArrayList;
 import java.util.List;
+=======
+import java.util.*;
+import java.util.stream.Collectors;
+
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.UpdateOptions;
+>>>>>>> noemi
 
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Filters.nin;
@@ -93,15 +115,120 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
             } else {
                 System.out.println("List updated successfully");
 
-            }
+<<<<<<< HEAD
+=======
+        List<MangaDTO> mangaList = Optional.ofNullable(document.getList("manga_list", Document.class))
+                .orElse(new ArrayList<>())
+                .stream()
+                .map(doc -> new MangaDTO(doc.getObjectId("id").toString(), doc.getString("title"), doc.getString("picture")))
+                .toList();
 
+
+        return new PersonalListDTO(
+                document.getObjectId("_id").toString(),
+                document.getString("name"),
+                user,
+                mangaList,
+                animeList
+        );
+    }
+
+    private Document animeDTOToDocument(AnimeDTO anime) {
+        return new Document("id", new ObjectId(anime.getId()))
+                .append("title", anime.getTitle())
+                .append("picture", anime.getImageUrl());
+    }
+
+    private Document mangaDTOToDocument(MangaDTO manga) {
+        return new Document("id", new ObjectId(manga.getId()))
+                .append("title", manga.getTitle())
+                .append("picture", manga.getImageUrl());
+    }
+
+    private Document userDTOToDocument(RegisteredUserDTO user) {
+        Document doc = new Document("id", new ObjectId(user.getId()));
+        appendIfNotNull(doc, "location", user.getLocation());
+        appendIfNotNull(doc, "birthday", ConverterUtils.localDateToDate(user.getBirthday()));
+        return doc;
+    }
+
+    private Document PersonalListDTOTODocument(PersonalListDTO list) {
+        List<Document> animeDoc = list.getAnime().stream().map(this::animeDTOToDocument).collect(Collectors.toList());
+        List<Document> mangaDoc = list.getManga().stream().map(this::mangaDTOToDocument).collect(Collectors.toList());
+
+        return new Document("name", list.getName())
+                .append("user", userDTOToDocument(list.getUser()))
+                .append("anime_list", animeDoc)
+                .append("manga_list", mangaDoc);
+    }
+
+
+    //MongoDB queries
+    //Find the manga or anime which is more present in the lists
+    @Override
+    public Map<PageDTO<? extends MediaContentDTO>, Integer> popularMediaContentList(MediaContentType mediaContentType) throws DAOException {
+        try {
+            MongoCollection<Document> listsCollection = getCollection(COLLECTION_NAME);
+
+            String nodeType = mediaContentType.equals(MediaContentType.ANIME) ? "anime" : "manga";
+
+            //N.B.: use of unwind (I have arrays). Is it worth it?
+            List<Document> pipeline = new ArrayList<>();
+            pipeline.add(Document.parse("{$project: { items: { $concatArrays: ['$" + nodeType + "_list'] } }}" ));
+            pipeline.add(Document.parse("{$unwind: '$items'}" ));
+            pipeline.add(Document.parse("{$group: { _id: '$items.id', title: { $first: '$items.title' }, totalLists: { $sum: 1 } }}" ));
+            pipeline.add(Document.parse("{$sort: { totalLists: -1 }}" ));
+            pipeline.add(Document.parse("{$limit: 25 }" ));
+
+
+
+            List<Document> result = listsCollection.aggregate(pipeline).into(new ArrayList<>());
+
+            Map<PageDTO<? extends MediaContentDTO>, Integer> popularMediaContentMap = new HashMap<>();
+
+            System.out.println("map ok");
+            for (Document document : result) {
+                String contentId = document.getString("_id");
+                MediaContentDTO mediaContentDTO;
+                if (nodeType.equals("anime")) {
+                    mediaContentDTO = documentToAnimeDTO(Objects.requireNonNull(listsCollection.find(eq("_id", new ObjectId(contentId))).first()));
+                } else { // Assume manga for other cases
+                    mediaContentDTO = documentToMangaDTO(Objects.requireNonNull(listsCollection.find(eq("_id", new ObjectId(contentId))).first()));
+                }
+                PageDTO<MediaContentDTO> pageDTO = new PageDTO<>(Collections.singletonList(mediaContentDTO), 1);
+                popularMediaContentMap.put(pageDTO, document.getInteger("totalLists"));
+>>>>>>> noemi
+            }
+            System.out.println(popularMediaContentMap.size());
+
+<<<<<<< HEAD
         } catch (DuplicatedException e) {
             throw new DAOException(DAOExceptionType.DUPLICATED_KEY, e.getMessage());
 
         } catch (MongoException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+=======
+            return popularMediaContentMap;
+>>>>>>> noemi
 
+            /*List<MediaContentDTO> mediaContentDTOs = new ArrayList<>();
+
+
+            for (Document document : result) {
+                String contentId = document.getString("_id");
+                MediaContentDTO mediaContentDTO;
+                if (nodeType.equals("anime")) {
+                    mediaContentDTO = documentToAnimeDTO(Objects.requireNonNull(listsCollection.find(eq("_id", new ObjectId(contentId))).first()));
+                } else { // Assume manga for other cases
+                    mediaContentDTO = documentToMangaDTO(Objects.requireNonNull(listsCollection.find(eq("_id", new ObjectId(contentId))).first()));
+                }
+                mediaContentDTOs.add(mediaContentDTO);
+            }
+            System.out.println(mediaContentDTOs.size());
+
+            return new PageDTO<>(mediaContentDTOs, mediaContentDTOs.size());*/
         } catch (Exception e) {
+<<<<<<< HEAD
             throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
 
         }
@@ -128,9 +255,30 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
         } catch (Exception e) {
             throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
 
+=======
+            throw new DAOException("Error finding popular media content", e);
         }
     }
 
+    private AnimeDTO documentToAnimeDTO(Document doc) {
+        AnimeDTO anime = new AnimeDTO();
+        anime.setId(doc.getObjectId("_id").toString());
+        anime.setTitle(doc.getString("title"));
+        anime.setImageUrl(doc.getString("picture"));
+        Object averageRatingObj = doc.get("average_rating");
+        anime.setAverageRating(
+                (averageRatingObj instanceof Integer) ? ((Integer) averageRatingObj).doubleValue() :
+                        (averageRatingObj instanceof Double) ? (Double) averageRatingObj : 0.0
+        );
+        if ((doc.get("anime_season", Document.class) != null)) {
+            anime.setYear(doc.get("anime_season", Document.class).getInteger("year"));
+            anime.setSeason(doc.get("anime_season", Document.class).getString("season"));
+>>>>>>> noemi
+        }
+        return anime;
+    }
+
+<<<<<<< HEAD
     /**
      * Adds an element to a personal list in the database.
      *
@@ -253,5 +401,21 @@ public class PersonalListDAOImpl extends BaseMongoDBDAO implements PersonalListD
             throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
 
         }
+=======
+    private MangaDTO documentToMangaDTO(Document doc) {
+        MangaDTO manga = new MangaDTO();
+        manga.setId(doc.getObjectId("_id").toString());
+        manga.setTitle(doc.getString("title"));
+        manga.setImageUrl(doc.getString("picture"));
+        Object averageRatingObj = doc.get("average_rating");
+        manga.setAverageRating(
+                (averageRatingObj instanceof Integer) ? Double.valueOf(((Integer) averageRatingObj)) :
+                        (averageRatingObj instanceof Double) ? (Double) averageRatingObj : null
+        );
+        manga.setStartDate(ConverterUtils.dateToLocalDate(doc.getDate("start_date")));
+        manga.setEndDate(ConverterUtils.dateToLocalDate(doc.getDate("end_date")));
+
+        return manga;
+>>>>>>> noemi
     }
 }

@@ -1,5 +1,6 @@
 package it.unipi.lsmsd.fnf.dao.mongo;
 
+<<<<<<< HEAD
 import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
@@ -14,6 +15,18 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+=======
+import it.unipi.lsmsd.fnf.dao.exception.DAOException;
+import junit.framework.TestCase;
+import org.junit.Test;
+
+import java.util.Map;
+
+import static it.unipi.lsmsd.fnf.dao.base.BaseMongoDBDAO.closeConnection;
+import static it.unipi.lsmsd.fnf.dao.base.BaseMongoDBDAO.openConnection;
+
+public class MangaDAOImplTest extends TestCase {
+>>>>>>> noemi
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -101,5 +114,22 @@ class MangaDAOImplTest {
         manga.setStatus(Status.ONGOING);
         manga.setImageUrl("Sample Cover URL");
         return manga;
+    }
+
+    //OK for genres, themes, demographics
+    //Authors OK but it returns: id, role and name
+    public void testGetBestCriteriaManga() {
+        MangaDAOImpl mangaDAO = new MangaDAOImpl();
+        try {
+            openConnection();
+            Map<String, Double> bestManga = mangaDAO.getBestCriteria("authors", true, 2);
+            for (Map.Entry<String, Double> entry : bestManga.entrySet()) {
+                System.out.println("Authors: " + entry.getKey() + ", Average rating: " + entry.getValue());
+            }
+
+            closeConnection();
+        } catch (DAOException e) {
+            fail("Exception not expected: " + e.getMessage());
+        }
     }
 }

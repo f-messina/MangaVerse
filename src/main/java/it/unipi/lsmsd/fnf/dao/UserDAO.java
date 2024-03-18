@@ -8,9 +8,11 @@ import it.unipi.lsmsd.fnf.model.registeredUser.User;
 
 import org.bson.Document;
 import java.util.List;
+import java.util.Map;
 
 public interface UserDAO {
     //MongoDB queries
+<<<<<<< HEAD
     public void createUser(UserRegistrationDTO user) throws DAOException;
     public void updateUser(User user) throws DAOException;
     public void deleteUser(String userId) throws DAOException;
@@ -25,6 +27,23 @@ public interface UserDAO {
     Integer averageAppRatingByAge(Integer yearOfBirth) throws DAOException;
     Integer averageAppRatingByLocation(String location) throws DAOException;
     List<Document> averageAppRatingByGender() throws DAOException;
+=======
+    String register(User user) throws DAOException;
+    void remove(String id) throws DAOException;
+    RegisteredUser authenticate(String email, String password) throws DAOException;
+    RegisteredUser find(String id) throws DAOException;
+    List<RegisteredUserDTO> search(String username) throws DAOException;
+    List<RegisteredUserDTO> findAll() throws DAOException;
+    void update(User user) throws DAOException;
+    void update(RegisteredUser user) throws DAOException;
+
+    //MongoDB complex queries
+
+    Map<String, Integer> getDistribution(String criteria) throws DAOException;
+    Double averageAgeUsers() throws DAOException;
+    Map<String, Double> averageAppRating(String criteria) throws DAOException;
+    Map<String, Double> averageAppRatingByAgeRange() throws DAOException;
+>>>>>>> noemi
 
     //Neo4J queries
     void createNode(UserSummaryDTO userSummaryDTO) throws DAOException;

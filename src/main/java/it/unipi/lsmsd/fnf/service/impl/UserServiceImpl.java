@@ -16,9 +16,15 @@ import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 import it.unipi.lsmsd.fnf.service.exception.BusinessExceptionType;
 
 import org.apache.commons.lang3.StringUtils;
+import org.bson.Document;
 
 import java.util.List;
+<<<<<<< HEAD
 import java.util.Objects;
+=======
+import java.util.Map;
+import java.util.stream.Collectors;
+>>>>>>> noemi
 
 import static it.unipi.lsmsd.fnf.dao.DAOLocator.*;
 
@@ -205,4 +211,51 @@ public class UserServiceImpl implements UserService {
             throw new BusinessException("Error while retrieving the follower list.");
         }
     }
+<<<<<<< HEAD
+=======
+
+
+    //Service for mongoDB queries
+    @Override
+    public Map<String, Integer> getDistribution (String criteria) throws BusinessException {
+        try {
+            if(!(criteria.equals("location") || (criteria.equals("gender")) || (criteria.equals("birthday") || (criteria.equals("joined_on"))))) {
+                throw new BusinessException("Invalid criteria");
+            }
+            return userDAO.getDistribution(criteria);
+        } catch (Exception e) {
+            throw new BusinessException("Error while retrieving the distribution.", e);
+        }
+    }
+
+    @Override
+    public Double averageAgeUsers() throws BusinessException {
+        try {
+            return userDAO.averageAgeUsers();
+        } catch (Exception e) {
+            throw new BusinessException("Error while retrieving the average age of users.", e);
+        }
+    }
+
+    @Override
+    public Map<String, Double> averageAppRating (String criteria) throws BusinessException {
+        try {
+            if(!(criteria.equals("location") || (criteria.equals("gender")))) {
+                throw new BusinessException("Invalid criteria");
+            }
+            return userDAO.averageAppRating(criteria);
+        } catch (Exception e) {
+            throw new BusinessException("Error while retrieving the average app rating.", e);
+        }
+    }
+
+    @Override
+    public Map<String, Double> averageAppRatingByAgeRange () throws BusinessException {
+        try {
+            return userDAO.averageAppRatingByAgeRange();
+        } catch (Exception e) {
+            throw new BusinessException("Error while retrieving the average app rating by age range.", e);
+        }
+    }
+>>>>>>> noemi
 }

@@ -4,13 +4,25 @@ import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.model.enums.Status;
 import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
+<<<<<<< HEAD
 import org.bson.Document;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+=======
+import junit.framework.TestCase;
+import org.junit.Test;
+>>>>>>> noemi
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+<<<<<<< HEAD
+=======
+
+import static it.unipi.lsmsd.fnf.dao.base.BaseMongoDBDAO.closeConnection;
+import static it.unipi.lsmsd.fnf.dao.base.BaseMongoDBDAO.openConnection;
+>>>>>>> noemi
 
 import static com.mongodb.client.model.Filters.ne;
 import static com.mongodb.client.model.Filters.nin;
@@ -101,4 +113,36 @@ class AnimeDAOImplTest {
         anime.setStatus(Status.FINISHED);
         return anime;
     }
+<<<<<<< HEAD
+=======
+
+    public void testUpdate() {
+    }
+
+    public void testDelete() {
+    }
+
+    public void testFind() {
+    }
+
+    public void testSearch() {
+    }
+
+    //OK for tags
+    public void testGetBestCriteriaAnime() {
+
+        AnimeDAOImpl animeDAO = new AnimeDAOImpl();
+        try {
+            openConnection();
+            Map<String, Double> bestAnime = animeDAO.getBestCriteria("tags", true, 2);
+            for (Map.Entry<String, Double> entry : bestAnime.entrySet()) {
+                System.out.println("Tag: " + entry.getKey() + ", Average rating: " + entry.getValue());
+            }
+
+            closeConnection();
+        } catch (DAOException e) {
+            fail("Exception not expected: " + e.getMessage());
+        }
+    }
+>>>>>>> noemi
 }
