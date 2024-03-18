@@ -1,10 +1,12 @@
 package it.unipi.lsmsd.fnf.dao.mongo;
 
-import com.mongodb.client.result.UpdateResult;
-import it.unipi.lsmsd.fnf.dao.MediaContentDAO;
-import it.unipi.lsmsd.fnf.dao.base.BaseMongoDBDAO;
+import com.mongodb.DuplicateKeyException;
+import com.mongodb.MongoException;
+import it.unipi.lsmsd.fnf.dao.interfaces.MediaContentDAO;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dao.exception.DAOExceptionType;
+import it.unipi.lsmsd.fnf.dao.exception.DuplicatedException;
+import it.unipi.lsmsd.fnf.dao.exception.DuplicatedExceptionType;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
@@ -14,6 +16,7 @@ import it.unipi.lsmsd.fnf.model.enums.AnimeType;
 import it.unipi.lsmsd.fnf.model.enums.Status;
 import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
+import it.unipi.lsmsd.fnf.utils.mapper.ModelToDtoMapper;
 import it.unipi.lsmsd.fnf.utils.Constants;
 import it.unipi.lsmsd.fnf.utils.ConverterUtils;
 
@@ -25,7 +28,7 @@ import org.bson.types.ObjectId;
 import java.util.*;
 
 import static com.mongodb.client.model.Aggregates.*;
-import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Updates.setOnInsert;
 
 /**
@@ -38,28 +41,34 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
      * Inserts an Anime object into the MongoDB database.
      *
      * @param anime The Anime object to insert.
-     * @return The ObjectId of the inserted Anime.
      * @throws DAOException If an error occurs during the insertion process.
      */
     @Override
-    public String insert(Anime anime) throws DAOException {
+    public void createMediaContent(Anime anime) throws DAOException {
         try {
             MongoCollection<Document> animeCollection = getCollection(COLLECTION_NAME);
 
             Bson filter = eq("title", anime.getTitle());
-            Bson update = setOnInsert(animeToDocument(anime));
+            Document animeDocument = animeToDocument(anime);
+            Bson doc = setOnInsert(animeDocument);
+            UpdateOptions options = new UpdateOptions().upsert(true);
 
-            UpdateResult result = animeCollection.updateOne(filter, update, new UpdateOptions().upsert(true));
-            if (result.getUpsertedId() == null) {
-                throw new DAOException(DAOExceptionType.EXIST_ANIME,"The anime already exists");
-            } else {
-                return result.getUpsertedId().asObjectId().getValue().toString();
-            }
+            Optional.ofNullable(animeCollection.updateOne(filter,doc, options).getUpsertedId())
+                    .map(result -> result.asObjectId().getValue().toHexString())
+                    .map(id -> { anime.setId(id); return id; })
+                    .orElseThrow(() -> new DuplicatedException(DuplicatedExceptionType.DUPLICATED_KEY, "An anime with the same title already exists"));
+
+        } catch (DuplicateKeyException e) {
+            throw new DAOException(DAOExceptionType.DUPLICATED_KEY, e.getMessage());
+
+        } catch (MongoException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
         } catch (Exception e) {
-            throw new DAOException("Error while inserting anime", e);
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+
         }
     }
-
 
     /**
      * Updates an existing Anime object in the MongoDB database.
@@ -68,16 +77,31 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
      * @throws DAOException If an error occurs during the update process.
      */
     @Override
-    public void update(Anime anime) throws DAOException {
+    public void updateMediaContent(Anime anime) throws DAOException {
         try {
             MongoCollection<Document> animeCollection = getCollection(COLLECTION_NAME);
+
+            Bson filterTitle = and(eq("title", anime.getTitle()), ne("_id", new ObjectId(anime.getId())));
+            if (animeCollection.countDocuments(filterTitle) > 0) {
+                throw new DAOException(DAOExceptionType.DUPLICATED_KEY, "An anime with the same name already exists");
+            }
 
             Bson filter = Filters.eq("_id", new ObjectId(anime.getId()));
             Bson update = new Document("$set", animeToDocument(anime));
 
-            animeCollection.updateOne(filter, update);
+            if (animeCollection.updateOne(filter, update).getModifiedCount() == 0) {
+                throw new MongoException("No anime was updated");
+            }
+
+        } catch (DuplicateKeyException e) {
+            throw new DAOException(DAOExceptionType.DUPLICATED_KEY, e.getMessage());
+
+        } catch (MongoException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
         } catch (Exception e) {
-            throw new DAOException("Error while updating anime", e);
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+
         }
     }
 
@@ -88,27 +112,34 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
      * @throws DAOException If an error occurs during the deletion process.
      */
     @Override
-    public void delete(String animeId) throws DAOException {
+    public void deleteMediaContent(String animeId) throws DAOException {
         try {
             MongoCollection<Document> animeCollection = getCollection(COLLECTION_NAME);
 
             Bson filter = Filters.eq("_id", new ObjectId(animeId));
 
-            animeCollection.deleteOne(filter);
+            if (animeCollection.deleteOne(filter).getDeletedCount() == 0) {
+                throw new MongoException("No anime was deleted");
+            }
+
+        } catch (MongoException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
         } catch (Exception e) {
-            throw new DAOException("Error while removing anime", e);
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+
         }
     }
 
     /**
      * Finds an Anime object in the MongoDB database based on its ObjectId.
      *
-     * @param id The ObjectId of the Anime to find.
+     * @param animeId The ObjectId of the Anime to find.
      * @return The found Anime object, or null if not found.
      * @throws DAOException If an error occurs during the search process.
      */
     @Override
-    public Anime find(String animeId) throws DAOException {
+    public Anime readMediaContent(String animeId) throws DAOException {
         try {
             MongoCollection<Document> animeCollection = getCollection(COLLECTION_NAME);
 
@@ -117,11 +148,25 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
             Document result = animeCollection.find(filter).first();
 
             return (result != null)? documentToAnime(result) : null;
+
+        } catch (MongoException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
         } catch (Exception e) {
-            throw new DAOException("Error while searching anime", e);
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+
         }
     }
 
+    /**
+     * Searches for Anime objects in the MongoDB database based on provided filters, ordering, and pagination.
+     *
+     * @param filters  The list of filters to apply to the search.
+     * @param orderBy  The map defining the ordering criteria for the search.
+     * @param page     The page number for pagination.
+     * @return A PageDTO object containing a list of AnimeDTO objects matching the search criteria and the total count of results.
+     * @throws DAOException If an error occurs during the search process.
+     */
     @Override
     public PageDTO<AnimeDTO> search(List<Map<String, Object>> filters, Map<String, Integer> orderBy, int page) throws DAOException {
         try {
@@ -170,21 +215,91 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
                     .map(doc -> doc.getInteger("total"))
                     .orElse(0);
 
-            return new PageDTO<>(animeList, totalCount);
+            if (totalCount > 0) {
+                return new PageDTO<>(animeList, totalCount);
+            } else {
+                throw new MongoException("No anime found matching the search criteria");
+            }
+
+        } catch (MongoException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
         } catch (Exception e) {
-            throw new DAOException("Error while searching anime", e);
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+
         }
     }
 
+    /**
+     * Updates the latest review for an Anime in the MongoDB database.
+     *
+     * @param reviewDTO The ReviewDTO object representing the latest review to update.
+     * @throws DAOException If an error occurs during the update process.
+     */
     @Override
     public void updateLatestReview(ReviewDTO reviewDTO) throws DAOException {
-        //do it later
-        // if the review id is already inside just change the review, if it doesnt exist it measn it is new so oush the new one and pull the oldest one
-        //check if checking the date or the id is better according to the performance
-        // sonra  bu methodu reviewservice de insert kısmında kullan ki yeni review eklendiğinde latest review da değişmiş olsun
-        //mangaya da koy aynısından
+        try {
+            MongoCollection<Document> animeCollection = getCollection(COLLECTION_NAME);
+
+            // Convert ReviewDTO to Document
+            Document reviewDocument = reviewDTOtoDocument(reviewDTO);
+
+            // Create a filter to check if the review with the given ID already exists in the array
+            Document filter = new Document("latestReviews._id", reviewDTO.getId());
+
+            // Create a projection to include only the necessary fields
+            Document projection = new Document("latestReviews.$", 1);
+
+            // Execute the query to find the matching review
+            Document existingReview = animeCollection.find(filter)
+                    .projection(projection)
+                    .first();
+
+            // Combine all update operations into a single update statement
+            Document updateOperations = new Document();
+
+            if (existingReview != null) {
+                // Review already exists, move it to the first position
+                updateOperations.append("$pull", new Document("latestReviews", new Document("_id", reviewDTO.getId())));
+                updateOperations.append("$push", new Document("latestReviews", new Document("$each", List.of(reviewDocument)).append("$position", 0)));
+            } else {
+                // Review doesn't exist, add it to the first position
+                updateOperations.append("$push", new Document("latestReviews", new Document("$each", List.of(reviewDocument)).append("$position", 0)));
+            }
+
+            // Ensure the array has at most 5 reviews
+            updateOperations.append("$push", new Document("latestReviews", new Document("$each", List.of()).append("$slice", -5)));
+
+            // Apply the combined update operations
+            animeCollection.updateOne(filter, updateOperations);
+
+        } catch (Exception e) {
+            throw new DAOException("Error updating latest review", e);
+        }
     }
 
+    /**
+     * Converts a ReviewDTO object into a Document for MongoDB storage.
+     *
+     * @param reviewDTO The ReviewDTO object to convert.
+     * @return A Document representing the ReviewDTO.
+     */
+    private Document reviewToDocument(ReviewDTO reviewDTO) {
+        Document doc = new Document();
+        doc.append("id", reviewDTO.getId());
+        doc.append("comment", reviewDTO.getComment());
+        doc.append("date", reviewDTO.getDate());
+        // Add other fields as necessary
+        return doc;
+    }
+
+
+    /**
+     * Converts an Anime object into a Document for MongoDB storage.
+     *
+     * @param anime The Anime object to convert.
+     * @return A Document representing the Anime.
+     */
     private Document animeToDocument(Anime anime) {
         Document doc = new Document();
         appendIfNotNull(doc, "title", anime.getTitle());
@@ -210,16 +325,8 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
                 .orElse(Collections.emptyList())
                 .stream()
                 .map(review -> {
-                    Document reviewDocument = new Document();
-                    appendIfNotNull(reviewDocument, "id", review.getId());
-                    appendIfNotNull(reviewDocument, "comment", review.getComment());
-                    appendIfNotNull(reviewDocument, "date", ConverterUtils.localDateToDate(review.getDate()));
-                    Document userDocument = new Document();
-                    appendIfNotNull(userDocument, "id", review.getUser().getId());
-                    appendIfNotNull(userDocument, "username", review.getUser().getUsername());
-                    appendIfNotNull(userDocument, "picture", review.getUser().getProfilePicUrl());
-                    appendIfNotNull(reviewDocument, "user", userDocument);
-                    return reviewDocument;
+                    ReviewDTO reviewDTO = ModelToDtoMapper.convertToDTO(review);
+                    return reviewDTOtoDocument(reviewDTO);
                 })
                 .toList();
 
@@ -228,6 +335,12 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
         return doc;
     }
 
+    /**
+     * Converts a Document from MongoDB storage into an Anime object.
+     *
+     * @param doc The Document to convert.
+     * @return An Anime object representing the Document.
+     */
     private Anime documentToAnime(Document doc) {
         Anime anime = new Anime();
         anime.setId(doc.getObjectId("_id").toString());
@@ -275,6 +388,12 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
         return anime;
     }
 
+    /**
+     * Converts a Document from MongoDB storage into an AnimeDTO object.
+     *
+     * @param doc The Document to convert.
+     * @return An AnimeDTO object representing the Document.
+     */
     private AnimeDTO documentToAnimeDTO(Document doc) {
         AnimeDTO anime = new AnimeDTO();
         anime.setId(doc.getObjectId("_id").toString());
@@ -293,47 +412,102 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
         return anime;
     }
 
+    private Document reviewDTOtoDocument(ReviewDTO reviewDTO) {
+        Document reviewDocument = new Document();
+        appendIfNotNull(reviewDocument, "id", reviewDTO.getId());
+        appendIfNotNull(reviewDocument, "comment", reviewDTO.getComment());
+        appendIfNotNull(reviewDocument, "date", ConverterUtils.localDateToDate(reviewDTO.getDate()));
+        Document userDocument = new Document();
+        appendIfNotNull(userDocument, "id", reviewDTO.getUser().getId());
+        appendIfNotNull(userDocument, "username", reviewDTO.getUser().getUsername());
+        appendIfNotNull(userDocument, "picture", reviewDTO.getUser().getProfilePicUrl());
+        appendIfNotNull(reviewDocument, "user", userDocument);
+        return reviewDocument;
+    }
+
+    //MongoDB queries
+    //Best tags based on the average rating
+    @Override
+    public Map<String, Double> getBestCriteria (String criteria, boolean isArray, int page) throws DAOException {
+        try {
+            MongoCollection<Document> animeCollection = getCollection(COLLECTION_NAME);
+            int pageOffset = (page-1)*Constants.PAGE_SIZE;
+            //criteria can be tags
+            //I have to use unwind, I don't have another way to do the query
+            List<Document> pipeline = new ArrayList<>();
+
+            pipeline.add(Document.parse("{$match:{" + criteria + ": { $exists: true } } }"));
+            if (isArray) {
+                pipeline.add(Document.parse("{$unwind: \"$" + criteria + "\"}"));
+            }
+
+            pipeline.add(Document.parse("{$group: {_id: \"$" + criteria + "\", max_average_rating: {$max: \"$average_rating\"} } }"));
+            pipeline.add(Document.parse("{$sort: {max_average_rating: -1}}"));
+            pipeline.add(Document.parse("{$skip: " + pageOffset + "}"));
+            //Limit to 25 results
+            pipeline.add(Document.parse("{$limit: 25}"));
+
+            List <Document> document = animeCollection.aggregate(pipeline).into(new ArrayList<>());
+            Map<String, Double> bestCriteria = new LinkedHashMap<>();
+            for (Document doc : document) {
+                if (doc.get("max_average_rating") instanceof Integer) {
+                    bestCriteria.put(doc.get("_id").toString(), ((Integer) doc.get("max_average_rating")).doubleValue());
+                } else
+                    bestCriteria.put(doc.get("_id").toString(), doc.getDouble("max_average_rating"));
+            }
+
+            return bestCriteria;
+
+        } catch (Exception e) {
+            throw new DAOException("Error while searching anime", e);
+        }
+
+    }
+    
     // Neo4J specific methods
     @Override
     public void createNode(MediaContentDTO animeDTO) throws DAOException {
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override
     public void like(String userId, String mediaContentId) throws DAOException {
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override
     public void unlike(String userId, String mediaContentId) throws DAOException {
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override
     public boolean isLiked(String userId, String mediaId) throws DAOException {
-        return false;
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override
     public List<? extends MediaContentDTO> getLiked(String userId) throws DAOException {
-        return null;
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override
     public List<? extends MediaContentDTO> getSuggested(String userId) throws DAOException {
-        return null;
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override
     public List<? extends MediaContentDTO> getTrendMediaContentByYear(int year) throws DAOException {
-        return null;
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override
     public List<String> getMediaContentGenresTrendByYear(int year) throws DAOException {
-        return null;
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override
     public List<? extends MediaContentDTO> getMediaContentTrendByGenre() throws DAOException {
-        return null;
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override
     public List<? extends MediaContentDTO> getMediaContentTrendByLikes() throws DAOException {
-        return null;
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override
     public List<String> getMediaContentGenresTrend() throws DAOException {
-        return null;
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
 }
 

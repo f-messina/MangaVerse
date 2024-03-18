@@ -2,6 +2,9 @@ package it.unipi.lsmsd.fnf.model.enums;
 
 import it.unipi.lsmsd.fnf.utils.Constants;
 
+/**
+ * Enumeration representing different demographics for manga.
+ */
 public enum MangaDemographics {
     SHOUNEN(1),
     SHOUJO(2),
@@ -12,13 +15,26 @@ public enum MangaDemographics {
 
     private final int code;
 
+    /**
+     * Constructor for MangaDemographics enum.
+     * @param code The code associated with the enum value.
+     */
     MangaDemographics(int code){
         this.code=code;
     }
+
+    /**
+     * Returns the code associated with the enum value.
+     * @return The code associated with the enum value.
+     */
     public int getCode() {
         return code;
     }
 
+    /**
+     * Returns a string representation of the enum value.
+     * @return A string representation of the enum value.
+     */
     public String toString() {
         return switch (this) {
             case SHOUNEN -> "Shounen";
@@ -30,6 +46,12 @@ public enum MangaDemographics {
         };
     }
 
+    /**
+     * Returns the MangaDemographics enum value corresponding to the given string value.
+     * @param value The string value to convert to MangaDemographics enum.
+     * @return The MangaDemographics enum value corresponding to the given string value.
+     * @throws IllegalArgumentException if no enum constant is found for the given string value.
+     */
     public static MangaDemographics fromString(String value) {
         if (value == null) {
             return MangaDemographics.UNKNOWN;

@@ -10,10 +10,14 @@ import java.util.Map;
 
 
 public class AnimeDTO extends MediaContentDTO{
-    private Integer year;
-    private String season;
+        private Integer year;
+        private String season;
 
     public AnimeDTO() {
+    }
+
+    public AnimeDTO(String id, String title) {
+        super(id, title);
     }
 
     public AnimeDTO(String id, String title, String imageUrl, Double averageRating, Integer year, String season) {

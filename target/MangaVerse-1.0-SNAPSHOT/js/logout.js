@@ -4,6 +4,6 @@ function initLogout() {
         event.preventDefault();
         const logoutHref = $(this).attr("href");
         const inputData = { action: "logout", targetJSP: logoutHref };
-        $.post("auth", inputData).fail(function(xhr, status, error) { console.error("Logout request failed:", status, error)});
+        $.post(authURI, inputData).fail(function(xhr, status, error) { console.error("Logout request failed:", status, error)});
     });
 }

@@ -1,8 +1,8 @@
 package it.unipi.lsmsd.fnf.dao.neo4j;
 
-import it.unipi.lsmsd.fnf.dao.MediaContentDAO;
-import it.unipi.lsmsd.fnf.dao.base.BaseNeo4JDAO;
+import it.unipi.lsmsd.fnf.dao.interfaces.MediaContentDAO;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
+import it.unipi.lsmsd.fnf.dao.exception.DAOExceptionType;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
@@ -16,8 +16,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Implementation of the MediaContentDAO interface for handling Anime objects in Neo4j.
+ */
 public class AnimeDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Anime> {
 
+    /**
+     * Creates a node for an Anime in the Neo4j database.
+     *
+     * @param animeDTO The AnimeDTO object containing information about the Anime to be created.
+     * @throws DAOException If an error occurs while creating the Anime node.
+     */
     @Override
     public void createNode(MediaContentDTO animeDTO) throws DAOException {
         try (Session session = getSession()) {
@@ -28,6 +37,13 @@ public class AnimeDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Anime>
         }
     }
 
+    /**
+     * Records a user's like for a specific Anime in the Neo4j database.
+     *
+     * @param userId  The ID of the user liking the Anime.
+     * @param animeId The ID of the Anime being liked.
+     * @throws DAOException If an error occurs while processing the like operation.
+     */
     @Override
     public void like(String userId, String animeId) throws DAOException {
         try (Session session = getSession()) {
@@ -41,6 +57,13 @@ public class AnimeDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Anime>
         }
     }
 
+    /**
+     * Removes a user's like for a specific Anime from the Neo4j database.
+     *
+     * @param userId  The ID of the user unliking the Anime.
+     * @param animeId The ID of the Anime being unliked.
+     * @throws DAOException If an error occurs while processing the unlike operation.
+     */
     @Override
     public void unlike(String userId, String animeId) throws DAOException {
         try (Session session = getSession()) {
@@ -51,6 +74,14 @@ public class AnimeDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Anime>
         }
     }
 
+    /**
+     * Checks if a user has liked a specific Anime in the Neo4j database.
+     *
+     * @param userId   The ID of the user to check.
+     * @param mediaId  The ID of the Anime to check.
+     * @return True if the user has liked the Anime, false otherwise.
+     * @throws DAOException If an error occurs while checking the like status.
+     */
     @Override
     public boolean isLiked(String userId, String mediaId) throws DAOException {
         try (Session session = getSession()) {
@@ -63,6 +94,13 @@ public class AnimeDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Anime>
         }
     }
 
+    /**
+     * Retrieves a list of AnimeDTO objects that a user has liked from the Neo4j database.
+     *
+     * @param userId The ID of the user whose liked Anime are to be retrieved.
+     * @return A list of AnimeDTO objects representing the Anime liked by the user.
+     * @throws DAOException If an error occurs while retrieving the liked Anime.
+     */
     @Override
     public List<AnimeDTO> getLiked(String userId) throws DAOException {
         try (Session session = getSession()) {
@@ -74,6 +112,13 @@ public class AnimeDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Anime>
         }
     }
 
+    /**
+     * Retrieves a list of suggested AnimeDTO objects for a user from the Neo4j database.
+     *
+     * @param userId The ID of the user for whom suggested Anime are to be retrieved.
+     * @return A list of AnimeDTO objects representing suggested Anime for the user.
+     * @throws DAOException If an error occurs while retrieving suggested Anime.
+     */
     @Override
     public List<AnimeDTO> getSuggested(String userId) throws DAOException {
         try (Session session = getSession()) {
@@ -89,6 +134,13 @@ public class AnimeDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Anime>
         }
     }
 
+    /**
+     * Retrieves a list of trending AnimeDTO objects for a specific year from the Neo4j database.
+     *
+     * @param year The year for which trending Anime are to be retrieved.
+     * @return A list of AnimeDTO objects representing trending Anime for the specified year.
+     * @throws DAOException If an error occurs while retrieving trending Anime.
+     */
     @Override
     public List<AnimeDTO> getTrendMediaContentByYear(int year) throws DAOException {
         try (Session session = getSession()) {
@@ -108,6 +160,13 @@ public class AnimeDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Anime>
         }
     }
 
+    /**
+     * Retrieves a list of trending Anime genres for a specific year from the Neo4j database.
+     *
+     * @param year The year for which trending Anime genres are to be retrieved.
+     * @return A list of Strings representing trending Anime genres for the specified year.
+     * @throws DAOException If an error occurs while retrieving trending Anime genres.
+     */
     @Override
     public List<String> getMediaContentGenresTrendByYear(int year) throws DAOException {
         List<String> genreNames = new ArrayList<>();
@@ -138,6 +197,12 @@ public class AnimeDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Anime>
         }
     }
 
+    /**
+     * Retrieves a list of trending AnimeDTO objects by genre from the Neo4j database.
+     *
+     * @return A list of AnimeDTO objects representing trending Anime by genre.
+     * @throws DAOException If an error occurs while retrieving trending Anime by genre.
+     */
     @Override
     public List<AnimeDTO> getMediaContentTrendByGenre() throws DAOException {
         try (Session session = getSession()) {
@@ -155,6 +220,12 @@ public class AnimeDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Anime>
         }
     }
 
+    /**
+     * Retrieves a list of trending AnimeDTO objects by likes from the Neo4j database.
+     *
+     * @return A list of AnimeDTO objects representing trending Anime by likes.
+     * @throws DAOException If an error occurs while retrieving trending Anime by likes.
+     */
     @Override
     public List<AnimeDTO> getMediaContentTrendByLikes() throws DAOException {
         try (Session session = getSession()) {
@@ -171,6 +242,12 @@ public class AnimeDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Anime>
         }
     }
 
+    /**
+     * Retrieves a list of trending Anime genres from the Neo4j database.
+     *
+     * @return A list of Strings representing trending Anime genres.
+     * @throws DAOException If an error occurs while retrieving trending Anime genres.
+     */
     @Override
     public List<String> getMediaContentGenresTrend() throws DAOException {
         List<String> genreNames = new ArrayList<>();
@@ -212,24 +289,32 @@ public class AnimeDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Anime>
 
     // Methods available only in MongoDB
     @Override
-    public String insert(Anime mediaContent) throws DAOException {
-        return null;
+    public void createMediaContent(Anime mediaContent) throws DAOException {
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
     @Override
-    public void update(Anime mediaContent) throws DAOException {
+    public void updateMediaContent(Anime mediaContent) throws DAOException {
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
     @Override
-    public Anime find(String id) throws DAOException {
-        return null;
+    public Anime readMediaContent(String id) throws DAOException {
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
     @Override
-    public void delete(String id) throws DAOException {
+    public void deleteMediaContent(String id) throws DAOException {
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
     @Override
     public PageDTO<? extends MediaContentDTO> search(List<Map<String, Object>> filters, Map<String, Integer> orderBy, int page) throws DAOException {
-        return null;
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
     @Override
     public void updateLatestReview(ReviewDTO reviewDTO) throws DAOException {
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
+    }
+
+    @Override
+    public Map<String, Double> getBestCriteria(String criteria, boolean isArray, int page) throws DAOException {
+        return null;
     }
 }

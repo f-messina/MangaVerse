@@ -1,55 +1,53 @@
 package it.unipi.lsmsd.fnf.service.impl;
 
-import it.unipi.lsmsd.fnf.dao.MediaContentDAO;
-import it.unipi.lsmsd.fnf.dao.PersonalListDAO;
-import it.unipi.lsmsd.fnf.dao.ReviewDAO;
-import it.unipi.lsmsd.fnf.dao.UserDAO;
+import it.unipi.lsmsd.fnf.dao.interfaces.MediaContentDAO;
+import it.unipi.lsmsd.fnf.dao.interfaces.UserDAO;
 import it.unipi.lsmsd.fnf.dao.enums.DataRepositoryEnum;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
-import it.unipi.lsmsd.fnf.dto.RegisteredUserDTO;
+import it.unipi.lsmsd.fnf.dto.LoggedUserDTO;
+import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dao.exception.DAOExceptionType;
 import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
-import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
-import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
 import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
 import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
-import it.unipi.lsmsd.fnf.model.mediaContent.MediaContent;
-import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
-import it.unipi.lsmsd.fnf.service.UserService;
+import it.unipi.lsmsd.fnf.service.interfaces.UserService;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 import it.unipi.lsmsd.fnf.service.exception.BusinessExceptionType;
-import it.unipi.lsmsd.fnf.service.mapper.DtoToModelMapper;
 
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Objects;
+import java.util.Map;
 
 import static it.unipi.lsmsd.fnf.dao.DAOLocator.*;
-import static it.unipi.lsmsd.fnf.service.mapper.DtoToModelMapper.userRegistrationDTOToUser;
 
+/**
+ * The UserServiceImpl class provides implementation for the UserService interface.
+ * It handles user registration, authentication, updating user information, and other user-related functionalities.
+ */
 public class UserServiceImpl implements UserService {
 
     private static final UserDAO userDAO;
-    private static final PersonalListDAO personalListDAO;
-    private static final ReviewDAO reviewDAO;
     private static final UserDAO userDAONeo4J;
     private static final MediaContentDAO<Anime> animeDAONeo4J;
     private static final MediaContentDAO<Manga> mangaDAONeo4J;
 
     static {
         userDAO = getUserDAO(DataRepositoryEnum.MONGODB);
-        personalListDAO = getPersonalListDAO(DataRepositoryEnum.MONGODB);
-        reviewDAO = getReviewDAO(DataRepositoryEnum.MONGODB);
         userDAONeo4J = getUserDAO(DataRepositoryEnum.NEO4J);
         animeDAONeo4J = getAnimeDAO(DataRepositoryEnum.NEO4J);
         mangaDAONeo4J = getMangaDAO(DataRepositoryEnum.NEO4J);
     }
 
+    /**
+     * Registers a new user and logs them in.
+     * @param userRegistrationDTO The user registration data.
+     * @throws BusinessException If an error occurs during the registration process.
+     */
     @Override
-    public User registerUserAndLogin(UserRegistrationDTO userRegistrationDTO) throws BusinessException {
+    public void registerUserAndLogin(UserRegistrationDTO userRegistrationDTO) throws BusinessException {
         try {
             // Validation checks for empty fields
             if (StringUtils.isAnyEmpty(
@@ -57,146 +55,196 @@ public class UserServiceImpl implements UserService {
                     userRegistrationDTO.getPassword(),
                     userRegistrationDTO.getEmail()
             )) {
-                throw new BusinessException(BusinessExceptionType.EMPTY_USERNAME_PSW_EMAIL,"Username, password and email cannot be empty");
+                throw new BusinessException(BusinessExceptionType.EMPTY_FIELDS,"Username, password and email cannot be empty");
             }
 
-            User user = userRegistrationDTOToUser(userRegistrationDTO);
-            user.setId(userDAO.register(user));
-            return user;
-
+            userDAO.createUser(userRegistrationDTO);
         } catch (DAOException e) {
             DAOExceptionType type = e.getType();
 
-            if (DAOExceptionType.TAKEN_EMAIL.equals(type)) {
-                throw new BusinessException(BusinessExceptionType.TAKEN_EMAIL,"Email is already taken");
+            switch (type) {
+                case DUPLICATED_EMAIL -> throw new BusinessException(BusinessExceptionType.DUPLICATED_EMAIL,"Email is already taken");
+                case DUPLICATED_USERNAME -> throw new BusinessException(BusinessExceptionType.DUPLICATED_USERNAME,"Username is taken");
+                case DUPLICATED_KEY -> throw new BusinessException(BusinessExceptionType.DUPLICATED_KEY,"Email and username are already taken");
+                case null, default -> throw new BusinessException("DAOException during registration operation");
             }
-            else if(DAOExceptionType.TAKEN_USERNAME.equals(type)) {
-                throw new BusinessException(BusinessExceptionType.TAKEN_USERNAME,"Username is taken");
-            }else {
-                throw new BusinessException("DAOException during registration operation", e);
-            }
-
-        } catch (Exception e) {
-            throw new BusinessException("Error registering user", e);
         }
     }
 
+    /**
+     * Authenticates a user based on email and password.
+     *
+     * @param email    The email of the user.
+     * @param password The password of the user.
+     * @return The authenticated user.
+     * @throws BusinessException If an error occurs during the authentication process.
+     */
     @Override
-    public RegisteredUser login(String email, String password) throws BusinessException {
+    public LoggedUserDTO login(String email, String password) throws BusinessException {
         // Validation checks for empty fields
         if (StringUtils.isEmpty(email))
-            throw new BusinessException(BusinessExceptionType.EMPTY_EMAIL,"Email cannot be empty");
+            throw new BusinessException(BusinessExceptionType.EMPTY_FIELDS,"Email cannot be empty");
         if (StringUtils.isEmpty(password))
-            throw new BusinessException(BusinessExceptionType.EMPTY_PSW,"Password cannot be empty");
+            throw new BusinessException(BusinessExceptionType.EMPTY_FIELDS,"Password cannot be empty");
 
         try {
-            RegisteredUser registeredUser = userDAO.authenticate(email, password);
-            if (registeredUser instanceof User user) {
-                user.setLists(personalListDAO.findByUser(user.getId(), true)
-                        .stream()
-                        .map(DtoToModelMapper::personalListDTOtoPersonalList)
-                        .collect(Collectors.toCollection(ArrayList::new)));
-                user.setReviews(reviewDAO.findByUser(user.getId())
-                        .stream()
-                        .map(DtoToModelMapper::reviewDTOtoReview)
-                        .collect(Collectors.toCollection(ArrayList::new)));
-                List<MediaContent> likedManga = mangaDAONeo4J.getLiked(user.getId()).stream()
-                        .map(mangaDTO -> DtoToModelMapper.mangaDTOtoManga((MangaDTO) mangaDTO))
-                        .collect(Collectors.toList());
-                List<MediaContent> likedAnime = animeDAONeo4J.getLiked(user.getId()).stream()
-                        .map(animeDTO -> DtoToModelMapper.animeDTOtoAnime((AnimeDTO) animeDTO))
-                        .collect(Collectors.toList());
 
-                user.setLikedMediaContent(likedManga);
-                user.getLikedMediaContent().addAll(likedAnime);
-            }
-            return registeredUser;
+            return userDAO.authenticate(email, password);
 
         } catch (DAOException e) {
             DAOExceptionType type = e.getType();
-            switch (type) {
-                case DAOExceptionType.WRONG_EMAIL:
-                    throw new BusinessException(BusinessExceptionType.INVALID_EMAIL,"Invalid email");
-                case DAOExceptionType.WRONG_PSW:
-                    throw new BusinessException(BusinessExceptionType.WRONG_PSW,"Wrong password");
-                default:
-                    throw new BusinessException("DAOException during authenticating operation", e);
-            }
-        } catch (Exception e) {
-            throw new BusinessException("Error authenticating user", e);
+            if (Objects.requireNonNull(type) == DAOExceptionType.AUTHENTICATION_ERROR)
+                throw new BusinessException(BusinessExceptionType.AUTHENTICATION_ERROR, "Email or password is incorrect");
+            else
+                throw new BusinessException("DAOException during authenticating operation");
         }
     }
 
 
+    /**
+     * Updates user information.
+     * @param user The updated user information.
+     * @throws BusinessException If an error occurs during the update process.
+     */
     @Override
     public void updateUserInfo(User user) throws BusinessException {
         try {
-            userDAO.update(user);
+            userDAO.updateUser(user);
+
         } catch (DAOException e) {
             DAOExceptionType type = e.getType();
-            if (DAOExceptionType.TAKEN_USERNAME.equals(type)) {
-                throw new BusinessException(BusinessExceptionType.TAKEN_USERNAME,"Username already in use");
+            if (DAOExceptionType.DUPLICATED_USERNAME.equals(type)) {
+                throw new BusinessException(BusinessExceptionType.DUPLICATED_USERNAME, "Username already in use");
             } else {
-                throw new BusinessException(e);
+                throw new BusinessException("Error updating user info");
             }
-        } catch (Exception e) {
-            throw new BusinessException(e);
         }
     }
 
     @Override
-    public void createNode(RegisteredUserDTO registeredUserDTO) throws BusinessException {
+    public User getUserById(String userId) throws BusinessException {
         try {
-            userDAONeo4J.createNode(registeredUserDTO);
-        } catch (Exception e) {
+            return (User) userDAO.readUser(userId, false);
+        } catch (DAOException e) {
+            throw new BusinessException("Error while retrieving user by id.", e);
+        }
+    }
+
+    /**
+     * Creates a node for a registered user in the Neo4j graph database.
+     * @param userSummaryDTO The user summary data.
+     * @throws BusinessException If an error occurs during the node creation process.
+     */
+    @Override
+    public void createNode(UserSummaryDTO userSummaryDTO) throws BusinessException {
+        try {
+            userDAONeo4J.createNode(userSummaryDTO);
+        } catch (DAOException e) {
             throw new BusinessException("Error while creating the user node.", e);
         }
     }
 
+    /**
+     * Follows a user.
+     * @param followerUserId The ID of the user who wants to follow.
+     * @param followingUserId The ID of the user to be followed.
+     * @throws BusinessException If an error occurs while following the user.
+     */
     @Override
     public void follow(String followerUserId, String followingUserId) throws BusinessException {
         try {
             userDAONeo4J.follow(followerUserId, followingUserId);
-        } catch (Exception e) {
+        } catch (DAOException e) {
             throw new BusinessException("Error while following the user.", e);
         }
     }
 
+    /**
+     * Unfollows a user.
+     * @param followerUserId The ID of the user who wants to unfollow.
+     * @param followingUserId The ID of the user to be unfollowed.
+     * @throws BusinessException If an error occurs while unfollowing the user.
+     */
     @Override
     public void unfollow(String followerUserId, String followingUserId) throws BusinessException {
         try {
             userDAONeo4J.unfollow(followerUserId, followingUserId);
-        } catch (Exception e) {
+        } catch (DAOException e) {
             throw new BusinessException("Error while unfollowing the user.", e);
         }
     }
 
+    /**
+     * Retrieves the list of users being followed by a particular user.
+     * @param userId The ID of the user.
+     * @return The list of users being followed by the specified user.
+     * @throws BusinessException If an error occurs while retrieving the list.
+     */
     @Override
-    public List<RegisteredUserDTO> getFollowing(String userId) throws BusinessException {
+    public List<UserSummaryDTO> getFollowing(String userId) throws BusinessException {
         try {
             return userDAONeo4J.getFollowing(userId);
-        } catch (Exception e) {
+        } catch (DAOException e) {
             throw new BusinessException("Error while retrieving the following list.");
         }
     }
 
+
+    /**
+     * Retrieves the list of users following a particular user.
+     * @param userId The ID of the user.
+     * @return The list of users following the specified user.
+     * @throws BusinessException If an error occurs while retrieving the list.
+     */
     @Override
-    public List<RegisteredUserDTO> getFollowers(String userId) throws BusinessException {
+    public List<UserSummaryDTO> getFollowers(String userId) throws BusinessException {
         try {
             return userDAONeo4J.getFollowers(userId);
-        } catch (Exception e) {
+        } catch (DAOException e) {
             throw new BusinessException("Error while retrieving the follower list.");
         }
     }
 
-    /*
+    //Service for mongoDB queries
     @Override
-    public List<RegisteredUserDTO> suggestUsers(String userId) throws BusinessException {
+    public Map<String, Integer> getDistribution (String criteria) throws BusinessException {
         try {
-            return userDAONeo4J.suggestUsers(userId);
+            if(!(criteria.equals("location") || (criteria.equals("gender")) || (criteria.equals("birthday") || (criteria.equals("joined_on"))))) {
+                throw new BusinessException("Invalid criteria");
+            }
+            return userDAO.getDistribution(criteria);
         } catch (Exception e) {
-            throw new BusinessException("Error while suggesting users.", e);
+            throw new BusinessException("Error while retrieving the distribution.", e);
         }
     }
-     */
+
+    @Override
+    public Double averageAgeUsers() throws BusinessException {
+        try {
+            return userDAO.averageAgeUsers();
+        } catch (Exception e) {
+            throw new BusinessException("Error while retrieving the average age of users.", e);
+        }
+    }
+
+    @Override
+    public Map<String, Double> averageAppRating (String criteria) throws BusinessException {
+        try {
+            if(!(criteria.equals("location") || (criteria.equals("gender")))) {
+                throw new BusinessException("Invalid criteria");
+            }
+            return userDAO.averageAppRating(criteria);
+        } catch (Exception e) {
+            throw new BusinessException("Error while retrieving the average app rating.", e);
+        }
+    }
+
+    @Override
+    public Map<String, Double> averageAppRatingByAgeRange () throws BusinessException {
+        try {
+            return userDAO.averageAppRatingByAgeRange();
+        } catch (Exception e) {
+            throw new BusinessException("Error while retrieving the average app rating by age range.", e);
+        }
+    }
 }

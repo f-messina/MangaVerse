@@ -5,6 +5,8 @@ import it.unipi.lsmsd.fnf.model.enums.Status;
 import java.time.LocalDate;
 
 public class Constants {
+
+    public static final String DEFAULT_PROFILE_PICTURE = "images/user%20icon%20-%20Kopya%20-%20Kopya.png";
     public static final String AUTHENTICATED_USER_KEY = "authenticatedUser";
     public static final int PAGE_SIZE = 25;
     public static final String PAGINATION_FACET = "paginationResults";

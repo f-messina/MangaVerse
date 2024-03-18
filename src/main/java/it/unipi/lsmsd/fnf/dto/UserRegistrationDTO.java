@@ -5,13 +5,22 @@ import it.unipi.lsmsd.fnf.model.enums.Gender;
 import java.time.LocalDate;
 
 public class UserRegistrationDTO {
+    private String id;
     private String username;
+    private String location;
+    private LocalDate birthday;
     private String password;
     private String email;
     private String fullname;
     private Gender gender;
-    private String location;
-    private LocalDate birthday;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getUsername() {
         return username;
@@ -72,13 +81,14 @@ public class UserRegistrationDTO {
     @Override
     public String toString() {
         return "UserRegistrationDTO{" +
-                "username='" + username + '\'' +
+                "id='" + id + '\'' +
+                ", username='" + username + '\'' +
+                ", location='" + location + '\'' +
+                ", birthday=" + birthday +
                 ", password='" + password + '\'' +
                 ", email='" + email + '\'' +
                 ", fullname='" + fullname + '\'' +
                 ", gender='" + gender + '\'' +
-                ", location='" + location + '\'' +
-                ", birthday=" + birthday +
                 '}';
     }
 }
