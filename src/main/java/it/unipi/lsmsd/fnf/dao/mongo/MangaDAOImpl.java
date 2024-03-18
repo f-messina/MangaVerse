@@ -3,7 +3,7 @@ package it.unipi.lsmsd.fnf.dao.mongo;
 import com.mongodb.DuplicateKeyException;
 import com.mongodb.MongoException;
 import com.mongodb.client.model.UpdateOptions;
-import it.unipi.lsmsd.fnf.dao.MediaContentDAO;
+import it.unipi.lsmsd.fnf.dao.interfaces.MediaContentDAO;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dao.exception.DAOExceptionType;
 import it.unipi.lsmsd.fnf.dao.exception.DuplicatedException;
@@ -431,7 +431,6 @@ public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Mang
         return manga;
     }
 
-<<<<<<< HEAD
     private Document reviewDTOtoDocument(ReviewDTO reviewDTO) {
         Document reviewDocument = new Document();
         appendIfNotNull(reviewDocument, "id", reviewDTO.getId());
@@ -444,7 +443,7 @@ public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Mang
         appendIfNotNull(reviewDocument, "user", userDocument);
         return reviewDocument;
     }
-=======
+
     //MongoDB queries
     //Best genres/themes/demographics/authors based on the average rating
     @Override
@@ -494,10 +493,6 @@ public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Mang
         }
 
     }
-
-
-
->>>>>>> noemi
 
     // Neo4J specific methods
     @Override

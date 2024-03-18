@@ -8,14 +8,13 @@ import it.unipi.lsmsd.fnf.model.enums.AnimeType;
 import it.unipi.lsmsd.fnf.model.enums.MangaDemographics;
 import it.unipi.lsmsd.fnf.model.enums.MangaType;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
-import it.unipi.lsmsd.fnf.service.MediaContentService;
-import it.unipi.lsmsd.fnf.service.PersonalListService;
+import it.unipi.lsmsd.fnf.service.interfaces.MediaContentService;
 import it.unipi.lsmsd.fnf.service.ServiceLocator;
+import it.unipi.lsmsd.fnf.service.interfaces.UserService;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 import it.unipi.lsmsd.fnf.utils.Constants;
 import it.unipi.lsmsd.fnf.utils.ConverterUtils;
 import it.unipi.lsmsd.fnf.utils.SecurityUtils;
-import it.unipi.lsmsd.fnf.utils.UserUtils;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -39,7 +38,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 public class MainPageServlet extends HttpServlet {
     private static final Logger logger = LoggerFactory.getLogger(MainPageServlet.class);
     private static final MediaContentService mediaContentService = ServiceLocator.getMediaContentService();
-    private static final PersonalListService personalListService = ServiceLocator.getPersonalListService();
+    private static final UserService userService = ServiceLocator.getUserService();
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         processRequest(request, response);
@@ -196,7 +195,7 @@ public class MainPageServlet extends HttpServlet {
         mediaContent.setTitle(request.getParameter("mediaTitle"));
         mediaContent.setImageUrl(request.getParameter("mediaImageUrl"));
         try {
-            personalListService.addToList(listId, mediaContent);
+            userService.addToList(listId, mediaContent);
         } catch (BusinessException e) {
             logger.error("Error occurred during list operation", e);
             request.getRequestDispatcher("/error.jsp").forward(request, response);

@@ -1,12 +1,9 @@
 package it.unipi.lsmsd.fnf.dao.mongo;
 
-<<<<<<< HEAD
 import it.unipi.lsmsd.fnf.dto.PageDTO;
-import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
 import it.unipi.lsmsd.fnf.model.enums.MangaType;
 import it.unipi.lsmsd.fnf.model.enums.Status;
-import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
 import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,18 +12,7 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
-=======
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
-import junit.framework.TestCase;
-import org.junit.Test;
-
-import java.util.Map;
-
-import static it.unipi.lsmsd.fnf.dao.base.BaseMongoDBDAO.closeConnection;
-import static it.unipi.lsmsd.fnf.dao.base.BaseMongoDBDAO.openConnection;
-
-public class MangaDAOImplTest extends TestCase {
->>>>>>> noemi
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -116,18 +102,14 @@ class MangaDAOImplTest {
         return manga;
     }
 
-    //OK for genres, themes, demographics
-    //Authors OK but it returns: id, role and name
+    @Test
     public void testGetBestCriteriaManga() {
         MangaDAOImpl mangaDAO = new MangaDAOImpl();
         try {
-            openConnection();
             Map<String, Double> bestManga = mangaDAO.getBestCriteria("authors", true, 2);
             for (Map.Entry<String, Double> entry : bestManga.entrySet()) {
                 System.out.println("Authors: " + entry.getKey() + ", Average rating: " + entry.getValue());
             }
-
-            closeConnection();
         } catch (DAOException e) {
             fail("Exception not expected: " + e.getMessage());
         }

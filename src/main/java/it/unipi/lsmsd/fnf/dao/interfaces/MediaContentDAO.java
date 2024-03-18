@@ -1,4 +1,4 @@
-package it.unipi.lsmsd.fnf.dao;
+package it.unipi.lsmsd.fnf.dao.interfaces;
 
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dto.PageDTO;

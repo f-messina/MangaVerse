@@ -1,30 +1,19 @@
 package it.unipi.lsmsd.fnf.dao.mongo;
 
-<<<<<<< HEAD
-import it.unipi.lsmsd.fnf.dao.UserDAO;
+import it.unipi.lsmsd.fnf.dao.interfaces.UserDAO;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
 import it.unipi.lsmsd.fnf.model.enums.Gender;
-import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
+
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
-=======
-import it.unipi.lsmsd.fnf.dao.exception.DAOException;
-import junit.framework.TestCase;
-
-import java.util.List;
 import java.util.Map;
 
-import static it.unipi.lsmsd.fnf.dao.base.BaseMongoDBDAO.closeConnection;
-import static it.unipi.lsmsd.fnf.dao.base.BaseMongoDBDAO.openConnection;
-
-public class UserDAOImplTest extends TestCase {
->>>>>>> noemi
-
+import static org.junit.jupiter.api.Assertions.*;
 
 public class UserDAOImplTest {
 
@@ -118,58 +107,55 @@ public class UserDAOImplTest {
     }
 
     //OK for gender, location, birthday and joined_on
-
+    @Test
     public void testGetDistribution() {
         try {
-            openConnection();
             UserDAOImpl userDAO = new UserDAOImpl();
             Map<String, Integer> distribution = userDAO.getDistribution("location");
             System.out.println(distribution.toString());
 
-            closeConnection();
         } catch (DAOException e) {
             fail("Exception not expected: " + e.getMessage());
         }
     }
 
-    //OK
+    @Test
     public void testAverageAgeUsers() {
         try {
-            openConnection();
+
             UserDAOImpl userDAO = new UserDAOImpl();
             Double averageAge = userDAO.averageAgeUsers();
             System.out.println(averageAge);
 
-            closeConnection();
+
         } catch (DAOException e) {
             fail("Exception not expected: " + e.getMessage());
         }
     }
 
-   //Location, gender OK
+    @Test
     public void testAverageAppRating() {
         try {
-            openConnection();
+
             UserDAOImpl userDAO = new UserDAOImpl();
             Map<String, Double> averageRating = userDAO.averageAppRating("gender");
             System.out.println(averageRating);
 
-            closeConnection();
         } catch (DAOException e) {
             fail("Exception not expected: " + e.getMessage());
         }
     }
 
+    @Test
     public void testAverageAppRatingByAgeRange() {
         try {
-            openConnection();
+
             UserDAOImpl userDAO = new UserDAOImpl();
             Map<String, Double> averageRating = userDAO.averageAppRatingByAgeRange();
             System.out.println(averageRating);
 
-            closeConnection();
         } catch (DAOException e) {
-            fail("Exception not expected: " + e.getMessage());
+            throw new RuntimeException(e);
         }
     }
 }

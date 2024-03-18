@@ -2,6 +2,9 @@ package it.unipi.lsmsd.fnf.dao;
 
 
 import it.unipi.lsmsd.fnf.dao.enums.DataRepositoryEnum;
+import it.unipi.lsmsd.fnf.dao.interfaces.MediaContentDAO;
+import it.unipi.lsmsd.fnf.dao.interfaces.ReviewDAO;
+import it.unipi.lsmsd.fnf.dao.interfaces.UserDAO;
 import it.unipi.lsmsd.fnf.dao.mongo.*;
 import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
 import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
@@ -38,20 +41,6 @@ public class DAOLocator {
             return new it.unipi.lsmsd.fnf.dao.mongo.MangaDAOImpl();
         } else if (DataRepositoryEnum.NEO4J.equals(dataRepositoryEnum)) {
             return new it.unipi.lsmsd.fnf.dao.neo4j.MangaDAOImpl();
-        }
-        throw new UnsupportedOperationException("Data repository not supported: " + dataRepositoryEnum);
-    }
-
-    /**
-     * Retrieves the DAO for handling personal lists based on the data repository.
-     *
-     * @param dataRepositoryEnum The enum representing the data repository (MongoDB).
-     * @return The PersonalListDAO for personal list operations based on the specified data repository.
-     * @throws UnsupportedOperationException If the specified data repository is not supported.
-     */
-    public static PersonalListDAO getPersonalListDAO(DataRepositoryEnum dataRepositoryEnum){
-        if (DataRepositoryEnum.MONGODB.equals(dataRepositoryEnum)){
-            return new PersonalListDAOImpl();
         }
         throw new UnsupportedOperationException("Data repository not supported: " + dataRepositoryEnum);
     }

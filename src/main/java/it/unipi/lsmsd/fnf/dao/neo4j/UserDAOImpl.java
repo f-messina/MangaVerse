@@ -1,13 +1,14 @@
 package it.unipi.lsmsd.fnf.dao.neo4j;
 
-import it.unipi.lsmsd.fnf.dao.UserDAO;
+import it.unipi.lsmsd.fnf.dao.interfaces.UserDAO;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dao.exception.DAOExceptionType;
+import it.unipi.lsmsd.fnf.dto.PersonalListSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
+import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
-import org.bson.Document;
 import org.neo4j.driver.Record;
 import org.neo4j.driver.Session;
 
@@ -174,62 +175,53 @@ public class UserDAOImpl extends BaseNeo4JDAO implements UserDAO {
     }
 
     @Override
-<<<<<<< HEAD
-    public List<Document> getGenderDistribution() throws DAOException {
+    public void insertList(PersonalListSummaryDTO listSummaryDTO) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
-=======
+    }
+
+    @Override
+    public void updateList(PersonalListSummaryDTO listSummaryDTO) throws DAOException {
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
+    }
+
+    @Override
+    public void deleteList(String userId, String listId) throws DAOException {
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
+    }
+
+    @Override
+    public void addToList(String userId, String listId, String mediaId, MediaContentType mediaType) throws DAOException {
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
+    }
+
+    @Override
+    public void removeFromList(String userId, String listId, String mediaId, MediaContentType mediaType) throws DAOException {
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
+    }
+
+    @Override
+    public void removeElementInListWithoutMedia() throws DAOException {
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
+    }
+
+    @Override
     public Map<String, Integer> getDistribution(String criteria) throws DAOException {
         return null;
->>>>>>> noemi
     }
 
-
     @Override
-<<<<<<< HEAD
-    public Integer averageAgeUsers() throws DAOException {
-        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
-    }
-    @Override
-    public List<Document> getLocationDistribution() throws DAOException {
-        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
-=======
     public Double averageAgeUsers() throws DAOException {
         return null;
->>>>>>> noemi
     }
 
-
     @Override
-<<<<<<< HEAD
-    public List<Document> getUsersByAgeRange() throws DAOException {
-        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
-=======
     public Map<String, Double> averageAppRating(String criteria) throws DAOException {
         return null;
->>>>>>> noemi
     }
 
     @Override
-<<<<<<< HEAD
-    public List<Document> getUsersRegisteredByYear() throws DAOException {
-        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
-    }
-    @Override
-    public Integer averageAppRatingByAge(Integer yearOfBirth) throws DAOException {
-        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
-    }
-    @Override
-    public Integer averageAppRatingByLocation(String location) throws DAOException {
-        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
-    }
-    @Override
-    public List<Document> averageAppRatingByGender() throws DAOException {
-        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
-=======
     public Map<String, Double> averageAppRatingByAgeRange() throws DAOException {
         return null;
->>>>>>> noemi
     }
-
 
 }

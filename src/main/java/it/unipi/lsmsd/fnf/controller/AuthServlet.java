@@ -2,8 +2,6 @@ package it.unipi.lsmsd.fnf.controller;
 
 import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
 import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
-import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
-import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import it.unipi.lsmsd.fnf.service.ServiceLocator;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 import it.unipi.lsmsd.fnf.service.exception.BusinessExceptionType;
@@ -18,7 +16,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import it.unipi.lsmsd.fnf.service.UserService;
+import it.unipi.lsmsd.fnf.service.interfaces.UserService;
 
 import java.io.IOException;
 import java.util.Objects;

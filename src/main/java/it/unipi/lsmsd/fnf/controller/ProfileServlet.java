@@ -1,15 +1,16 @@
 package it.unipi.lsmsd.fnf.controller;
 
 import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
-import it.unipi.lsmsd.fnf.model.PersonalList;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import it.unipi.lsmsd.fnf.service.*;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 import it.unipi.lsmsd.fnf.service.exception.BusinessExceptionType;
+import it.unipi.lsmsd.fnf.service.interfaces.MediaContentService;
+import it.unipi.lsmsd.fnf.service.interfaces.ReviewService;
+import it.unipi.lsmsd.fnf.service.interfaces.UserService;
 import it.unipi.lsmsd.fnf.utils.Constants;
 import it.unipi.lsmsd.fnf.utils.SecurityUtils;
-import it.unipi.lsmsd.fnf.utils.UserUtils;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -26,7 +27,6 @@ import java.io.IOException;
 public class ProfileServlet extends HttpServlet {
     private static final Logger logger = LoggerFactory.getLogger(ProfileServlet.class);
     private static final UserService userService = ServiceLocator.getUserService();
-    private static final PersonalListService personalListService = ServiceLocator.getPersonalListService();
     private static final MediaContentService mediaContentService = ServiceLocator.getMediaContentService();
     private static final ReviewService reviewService = ServiceLocator.getReviewService();
 
@@ -100,7 +100,7 @@ public class ProfileServlet extends HttpServlet {
     private void handleDeleteList(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         String listId = request.getParameter("listIdToRemove");
         try {
-            personalListService.deleteList(listId);
+            userService.deleteList(listId);
             response.sendRedirect("profile");
         } catch (BusinessException e) {
             logger.error("Error during delete list operation.", e);
@@ -123,7 +123,7 @@ String targetJSP = "homepage.jsp";
             UserSummaryDTO authUser = SecurityUtils.getAuthenticatedUser(request);
             String listName = request.getParameter("listName");
 
-            personalListService.insertList(authUser.getId(), listName);
+            userService.insertList(authUser.getId(), listName);
 
             request.getSession().setAttribute(Constants.AUTHENTICATED_USER_KEY, authUser);
             response.sendRedirect("profile");
@@ -140,7 +140,7 @@ String targetJSP = "homepage.jsp";
         if (request.getParameter("mangaIdToRemove") != null) {
             String mangaId = request.getParameter("mangaIdToRemove");
             try {
-                personalListService.removeFromList(listId, mangaId, MediaContentType.MANGA);
+                userService.removeFromList(listId, mangaId, MediaContentType.MANGA);
                 response.sendRedirect("profile");
             } catch (BusinessException e) {
                 logger.error("Error during delete manga operation.", e);
@@ -150,7 +150,7 @@ String targetJSP = "homepage.jsp";
         } else {
             String animeId = request.getParameter("animeIdToRemove");
             try {
-                personalListService.removeFromList(listId, animeId, MediaContentType.ANIME);
+                userService.removeFromList(listId, animeId, MediaContentType.ANIME);
                 response.sendRedirect("profile");
             } catch (BusinessException e) {
                 logger.error("Error during delete anime operation.", e);

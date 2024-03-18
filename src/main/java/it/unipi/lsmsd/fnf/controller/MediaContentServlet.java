@@ -1,20 +1,16 @@
 package it.unipi.lsmsd.fnf.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.model.mediaContent.MediaContent;
-import it.unipi.lsmsd.fnf.service.MediaContentService;
-import it.unipi.lsmsd.fnf.service.PersonalListService;
-import it.unipi.lsmsd.fnf.service.ReviewService;
-import it.unipi.lsmsd.fnf.service.ServiceLocator;
+import it.unipi.lsmsd.fnf.service.*;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 import it.unipi.lsmsd.fnf.service.exception.BusinessExceptionType;
+import it.unipi.lsmsd.fnf.service.interfaces.MediaContentService;
+import it.unipi.lsmsd.fnf.service.interfaces.ReviewService;
+import it.unipi.lsmsd.fnf.service.interfaces.UserService;
 import it.unipi.lsmsd.fnf.utils.ConverterUtils;
 import it.unipi.lsmsd.fnf.utils.SecurityUtils;
-import it.unipi.lsmsd.fnf.utils.UserUtils;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -31,7 +27,7 @@ import java.io.IOException;
 public class MediaContentServlet extends HttpServlet {
     private static final Logger logger = LoggerFactory.getLogger(MediaContentServlet.class);
     private static final MediaContentService mediaContentService = ServiceLocator.getMediaContentService();
-    private static final PersonalListService personalListService = ServiceLocator.getPersonalListService();
+    private static final UserService userService = ServiceLocator.getUserService();
     private static final ReviewService reviewService = ServiceLocator.getReviewService();
 
     @Override
@@ -87,7 +83,7 @@ public class MediaContentServlet extends HttpServlet {
         String targetJSP = mediaType.equals(MediaContentType.ANIME) ? "WEB-INF/jsp/anime.jsp" : "WEB-INF/jsp/manga.jsp";
 
         try {
-            personalListService.addToList(listId, (MediaContentDTO) request.getAttribute("media"));
+            userService.addToList(listId, (MediaContentDTO) request.getAttribute("media"));
             request.setAttribute("success", "Media added to list");
         } catch (Exception e) {
             logger.error("Error while processing request", e);

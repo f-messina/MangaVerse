@@ -2,7 +2,7 @@ package it.unipi.lsmsd.fnf.dao.mongo;
 
 import com.mongodb.DuplicateKeyException;
 import com.mongodb.MongoException;
-import it.unipi.lsmsd.fnf.dao.MediaContentDAO;
+import it.unipi.lsmsd.fnf.dao.interfaces.MediaContentDAO;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dao.exception.DAOExceptionType;
 import it.unipi.lsmsd.fnf.dao.exception.DuplicatedException;
@@ -26,8 +26,6 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import java.util.*;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import static com.mongodb.client.model.Aggregates.*;
 import static com.mongodb.client.model.Filters.*;

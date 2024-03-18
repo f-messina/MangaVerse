@@ -1,8 +1,10 @@
 package it.unipi.lsmsd.fnf.service.impl;
 
-import it.unipi.lsmsd.fnf.dao.*;
 import it.unipi.lsmsd.fnf.dao.enums.DataRepositoryEnum;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
+import it.unipi.lsmsd.fnf.dao.interfaces.MediaContentDAO;
+import it.unipi.lsmsd.fnf.dao.interfaces.ReviewDAO;
+import it.unipi.lsmsd.fnf.dao.interfaces.UserDAO;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
@@ -11,7 +13,7 @@ import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
 import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
 import it.unipi.lsmsd.fnf.model.mediaContent.MediaContent;
-import it.unipi.lsmsd.fnf.service.MediaContentService;
+import it.unipi.lsmsd.fnf.service.interfaces.MediaContentService;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 import it.unipi.lsmsd.fnf.service.exception.BusinessExceptionType;
 import org.apache.commons.lang3.StringUtils;
@@ -20,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 
 import static it.unipi.lsmsd.fnf.dao.DAOLocator.*;
-import static it.unipi.lsmsd.fnf.utils.mapper.ModelToDtoMapper.convertToDTO;
 
 /**
  * The MediaContentServiceImpl class provides implementation for the MediaContentService interface.
@@ -31,7 +32,7 @@ public class MediaContentServiceImpl implements MediaContentService {
     private static final MediaContentDAO<Manga> mangaDAO;
     private static final ReviewDAO reviewDAO;
 
-    private static final PersonalListDAO personalListDAO;
+    private static final UserDAO userDAO;
     private static final MediaContentDAO<Anime> animeDAONeo4J;
     private static final MediaContentDAO<Manga> mangaDAONeo4J;
 
@@ -39,7 +40,7 @@ public class MediaContentServiceImpl implements MediaContentService {
         animeDAO = getAnimeDAO(DataRepositoryEnum.MONGODB);
         mangaDAO = getMangaDAO(DataRepositoryEnum.MONGODB);
         reviewDAO = getReviewDAO(DataRepositoryEnum.MONGODB);
-        personalListDAO = getPersonalListDAO(DataRepositoryEnum.MONGODB);
+        userDAO = getUserDAO(DataRepositoryEnum.MONGODB);
         animeDAONeo4J = getAnimeDAO(DataRepositoryEnum.NEO4J);
         mangaDAONeo4J = getMangaDAO(DataRepositoryEnum.NEO4J);
     }
@@ -106,7 +107,7 @@ public class MediaContentServiceImpl implements MediaContentService {
             } else {
                 throw new BusinessException(BusinessExceptionType.INVALID_TYPE,"Invalid media content type");
             }
-            // TODO: personalListDAO.removeElementInListWithoutMedia();
+            // TODO: userDAO.removeElementInListWithoutMedia();
             // TODO: reviewDAO.deleteReviewsWithNoMedia();
         } catch (Exception e) {
             throw new BusinessException("Error removing the media content",e);
@@ -370,9 +371,4 @@ public class MediaContentServiceImpl implements MediaContentService {
             throw new BusinessException("Error while retrieving the best criteria.", e);
         }
     }
-<<<<<<< HEAD
-    */
 }
-=======
-}
->>>>>>> noemi

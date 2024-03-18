@@ -1,48 +1,31 @@
 package it.unipi.lsmsd.fnf.dao.mongo;
 
-<<<<<<< HEAD
-import com.mongodb.*;
-import com.mongodb.client.ClientSession;
-import com.mongodb.client.TransactionBody;
-=======
 import com.mongodb.MongoException;
->>>>>>> noemi
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.result.UpdateResult;
 import com.mongodb.client.MongoCollection;
 
-import it.unipi.lsmsd.fnf.dao.ReviewDAO;
+import it.unipi.lsmsd.fnf.dao.interfaces.ReviewDAO;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
-<<<<<<< HEAD
 import it.unipi.lsmsd.fnf.dao.exception.DAOExceptionType;
 import it.unipi.lsmsd.fnf.dao.exception.DuplicatedException;
 import it.unipi.lsmsd.fnf.dao.exception.DuplicatedExceptionType;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
-=======
-import it.unipi.lsmsd.fnf.dto.PageDTO;
-import it.unipi.lsmsd.fnf.dto.RegisteredUserDTO;
->>>>>>> noemi
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
-<<<<<<< HEAD
-import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import it.unipi.lsmsd.fnf.utils.Constants;
-=======
->>>>>>> noemi
 import it.unipi.lsmsd.fnf.utils.ConverterUtils;
 
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
-import org.neo4j.driver.Record;
 
 import java.time.LocalDate;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.exclude;
@@ -484,269 +467,6 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
         }
     }
 
-<<<<<<< HEAD
-    //MongoDB queries
-    //Find the average rating a user has given to media contents given the userId
-    /**
-     * Calculates the average rating given by a specific user to all media contents.
-     *
-     * @param userId The ID of the user whose average rating is to be calculated.
-     * @return The average rating given by the user.
-     * @throws DAOException If an error occurs during the calculation process.
-     */
-    @Override
-    public int averageRatingUser(String userId) throws DAOException {
-        try {
-            MongoCollection<Document> reviewCollection = getCollection("reviewDTO");
-
-            List<Document> pipeline = new ArrayList<>();
-            pipeline.add(Document.parse("{$match: { 'user.id': '" + new ObjectId(userId) + "' }}")); // Match reviews by user ID
-            pipeline.add(Document.parse("{$group: { _id: '$user.id', averageRating: { $avg: '$rating' }}}")); // Group by user ID and calculate average rating
-            // Execute the aggregation
-            List<Document> result = reviewCollection.aggregate(pipeline).into(new ArrayList<>());
-
-            // Retrieve the average rating from the aggregation result
-            if (!result.isEmpty()) {
-                Document aggregationResult = result.getFirst();
-                Double averageRating = aggregationResult.getDouble("averageRating");
-                if (averageRating != null) {
-                    return averageRating.intValue(); // Convert average rating to int
-                }
-            }
-            return -1; // Return -1 if no reviews are found
-
-        } catch (Exception e) {
-            throw new DAOException("Error while finding reviews by user", e);
-        }
-    }
-
-    //Trend of the rating of a specific anime grouped by year
-    /**
-     * Calculates the average rating of a specific anime for a given year.
-     *
-     * @param year    The year for which the average rating is to be calculated.
-     * @param animeId The ID of the anime for which the average rating is to be calculated.
-     * @return The average rating of the anime for the specified year.
-     * @throws DAOException If an error occurs during the calculation process.
-     */
-    @Override
-    public int ratingAnimeYear(int year, String animeId) throws DAOException {
-        try {
-            MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
-
-            List<Document> pipeline = new ArrayList<>();
-            pipeline.add(Document.parse("{$match: { \"anime.id\": ObjectId(\"" +  new ObjectId(animeId) + "\"), \"date\": { $gte: ISODate(\"" + year + "-01-01\"), $lt: ISODate(\"" + (year + 1) + "-01-01\")}}}}"));
-            pipeline.add(Document.parse("{$project: { year: { $year: \"$date\" }, rating: 1 }}"));
-            pipeline.add(Document.parse("{$group: { _id: \"$year\", averageRating: { $avg: \"$rating\" }}}"));// Execute the aggregation
-            List<Document> result = reviewCollection.aggregate(pipeline).into(new ArrayList<>());
-
-            // Convert the aggregation result to a list of AnimeDTO
-            for (Document document : result) {
-                double averageRating = document.getDouble("averageRating");
-                // Convert average rating to integer (rounded)
-                return (int) Math.round(averageRating);
-            }
-
-            // Return -1 if no aggregation result is found
-            return -1;
-
-
-        } catch (Exception e) {
-            throw new DAOException("Error while finding ratings by user", e);
-        }
-    }
-
-    //Trend of the rating of a specific anime grouped by month
-    /**
-     * Calculates the average rating of a specific anime for a given month and year.
-     *
-     * @param month   The month for which the average rating is to be calculated.
-     * @param year    The year for which the average rating is to be calculated.
-     * @param animeId The ID of the anime for which the average rating is to be calculated.
-     * @return The average rating of the anime for the specified month and year.
-     * @throws DAOException If an error occurs during the calculation process.
-     */
-    @Override
-    public int ratingAnimeMonth(int month, int year, String animeId) throws DAOException {
-        try {
-            MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
-
-            List<Document> pipeline = new ArrayList<>();
-            pipeline.add(Document.parse("{$match: { \"anime.id\": ObjectId(\"" +  new ObjectId(animeId) + "\"), \" +\n" +
-                    "        \"date\": { \"$gte: ISODate(\"\"" + year + "\"-\"" + month + "\"-01\"),  \"$lt: ISODate(\"" + year + "\"-\"" + (month + 1) + "\"-01\")\"} }"));
-            pipeline.add(Document.parse("{$project: { month: { $month: \"$date\" }, rating: 1 }}"));
-            pipeline.add(Document.parse("{$group: { _id: \"$month\", averageRating: { $avg: \"$rating\" }}}"));// Execute the aggregation
-            List<Document> result = reviewCollection.aggregate(pipeline).into(new ArrayList<>());
-
-            // Convert the aggregation result to a list of AnimeDTO
-            for (Document document : result) {
-                double averageRating = document.getDouble("averageRating");
-                // Convert average rating to integer (rounded)
-                return (int) Math.round(averageRating);
-            }
-
-            // Return -1 if no aggregation result is found
-            return -1;
-
-
-        } catch (Exception e) {
-            throw new DAOException("Error while finding ratings by user", e);
-        }
-    }
-
-    //Trend of the rating of a specific manga grouped by year
-
-    /**
-     * Calculates the average rating of a specific manga for a given year.
-     *
-     * @param year    The year for which the average rating is to be calculated.
-     * @param mangaId The ID of the manga for which the average rating is to be calculated.
-     * @return The average rating of the manga for the specified year.
-     * @throws DAOException If an error occurs during the calculation process.
-     */
-    @Override
-    public int ratingMangaYear(int year, String mangaId) throws DAOException {
-        try {
-            MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
-
-            List<Document> pipeline = new ArrayList<>();
-            pipeline.add(Document.parse("{$match: { \"anime.id\": ObjectId(\"" + new ObjectId(mangaId) + "\"), \"date\": { $gte: ISODate(\"" + year + "-01-01\"), $lt: ISODate(\"" + (year + 1) + "-01-01\")}}}}"));
-            pipeline.add(Document.parse("{$project: { year: { $year: \"$date\" }, rating: 1 }}"));
-            pipeline.add(Document.parse("{$group: { _id: \"$year\", averageRating: { $avg: \"$rating\" }}}"));// Execute the aggregation
-            List<Document> result = reviewCollection.aggregate(pipeline).into(new ArrayList<>());
-
-            // Convert the aggregation result to a list of AnimeDTO
-            for (Document document : result) {
-                double averageRating = document.getDouble("averageRating");
-                // Convert average rating to integer (rounded)
-                return (int) Math.round(averageRating);
-            }
-
-            // Return -1 if no aggregation result is found
-            return -1;
-
-
-        } catch (Exception e) {
-            throw new DAOException("Error while finding ratings by user", e);
-        }
-    }
-
-
-
-    //Trend of the rating of a specific manga grouped by month
-    /**
-     * Calculates the average rating of a specific manga for a given month and year.
-     *
-     * @param month   The month for which the average rating is to be calculated.
-     * @param year    The year for which the average rating is to be calculated.
-     * @param mangaId The ID of the manga for which the average rating is to be calculated.
-     * @return The average rating of the manga for the specified month and year.
-     * @throws DAOException If an error occurs during the calculation process.
-     */
-    @Override
-    public int ratingMangaMonth(int month, int year, String mangaId) throws DAOException {
-        try {
-            MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
-
-            List<Document> pipeline = new ArrayList<>();
-            pipeline.add(Document.parse("{$match: { \"manga.id\": ObjectId(" + new ObjectId(mangaId) + "), " +
-                    "        \"date\": { \"$gte: ISODate(\"" + month + "\"" + month + "\"-01\"),  \"$lt: ISODate(\"" + year + "\"-\"" + (month + 1) + "\"-01\")\"} }"));
-            pipeline.add(Document.parse("{$project: { month: { $month: \"$date\" }, rating: 1 }}"));
-            pipeline.add(Document.parse("{$group: { _id: \"$month\", averageRating: { $avg: \"$rating\" }}}"));
-            // Execute the aggregation
-            List<Document> result = reviewCollection.aggregate(pipeline).into(new ArrayList<>());
-
-            // Convert the aggregation result to a list of AnimeDTO
-            for (Document document : result) {
-                double averageRating = document.getDouble("averageRating");
-                // Convert average rating to integer (rounded)
-                return (int) Math.round(averageRating);
-            }
-
-            // Return -1 if no aggregation result is found
-            return -1;
-
-
-        } catch (Exception e) {
-            throw new DAOException("Error while finding ratings by user", e);
-        }
-    }
-
-    //Average rating given by users of a certain age: select a year of birth and see what is the average rating in general
-    /**
-     * Calculates the average rating given by users born in a specific year.
-     *
-     * @param yearOfBirth The year of birth for which the average rating is to be calculated.
-     * @return The average rating given by users born in the specified year.
-     * @throws DAOException If an error occurs during the calculation process.
-     */
-    @Override
-    public int averageRatingByAge(int yearOfBirth) throws DAOException {
-        try {
-            MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
-
-            List<Document> pipeline = new ArrayList<>();
-            pipeline.add(Document.parse("{$match: {\"user.birthday\": {$gte: ISODate(\"" + yearOfBirth + "-01-01T00:00:00.000Z\"),\n" +
-                    "        $lt: ISODate(\"" + (yearOfBirth + 1) + "-01-01T00:00:00.000Z\")      }    }  }\n"));
-            pipeline.add(Document.parse("  {    $group: {      _id: null,      totalRating: { $sum: \"$rating\" },      count: { $sum: 1 }    }  }"));
-            pipeline.add(Document.parse("  {    $project: {      _id: 0,      averageRating: { $divide: [\"$totalRating\", \"$count\"] }    }  }"));
-            // Execute the aggregation
-            List<Document> result = reviewCollection.aggregate(pipeline).into(new ArrayList<>());
-
-            // Convert the aggregation result to a list of AnimeDTO
-            for (Document document : result) {
-                double averageRating = document.getDouble("averageRating");
-                // Convert average rating to integer (rounded)
-                return (int) Math.round(averageRating);
-            }
-
-            // Return -1 if no aggregation result is found
-            return -1;
-
-        } catch (Exception e) {
-            throw new DAOException("Error while finding ratings by user", e);
-        }
-
-    }
-
-    //Average rating given by users of a certain location: select a location and see what is the average rating in general
-    /**
-     * Calculates the average rating given by users from a specific location.
-     *
-     * @param location The location for which the average rating is to be calculated.
-     * @return The average rating given by users from the specified location.
-     * @throws DAOException If an error occurs during the calculation process.
-     */
-    @Override
-    public int averageRatingByLocation(String location) throws DAOException {
-        try {
-            MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
-
-            List<Document> pipeline = new ArrayList<>();
-            pipeline.add(Document.parse("{$match: {\"user.location\": " + location + "    }  }"));
-            pipeline.add(Document.parse("  {$group: {_id: null, totalRating: { $sum: \"$rating\" }, count: { $sum: 1 }}}"));
-            pipeline.add(Document.parse("{$project: {_id: 0, averageRating: { $divide: [\"$totalRating\", \"$count\"] }}}"));
-            // Execute the aggregation
-            List<Document> result = reviewCollection.aggregate(pipeline).into(new ArrayList<>());
-
-            // Convert the aggregation result to a list of AnimeDTO
-            for (Document document : result) {
-                double averageRating = document.getDouble("averageRating");
-                // Convert average rating to integer (rounded)
-                return (int) Math.round(averageRating);
-            }
-
-            // Return -1 if no aggregation result is found
-            return -1;
-
-        } catch (Exception e) {
-            throw new DAOException("Error while finding ratings by user", e);
-        }
-    }
-=======
-
->>>>>>> noemi
-
     /**
      * Converts a ReviewDTO object to a MongoDB document for storage in the database.
      *
@@ -959,65 +679,11 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
             int totalCount = entries.size();
             return new PageDTO<>(entries, totalCount);
 
-
-
         } catch (Exception e) {
             throw new DAOException("Error while finding ratings by users", e);
-        }
 
+        }
     }
-
-
-    //Show the average rating given by users by location or birthday year
-    //Maybe we don't need this
-
-    /*@Override
-    public Map<String, Double> averageRatingByCriteria(String type) throws DAOException {
-        try {
-            MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
-            //Type can be birthday or location
-
-            List<Document> pipeline = new ArrayList<>();
-
-            pipeline.add(Document.parse("{$match: { \"user." + type + "\": {$exists: true, $ne: \"Unknown\"},\n" +
-                    "  \"rating\": {$exists: true, $ne: null}}  }"));
-            if (type.equals("location")) {
-                pipeline.add(Document.parse("{$group: {_id: \"$user." + type + "\", average_rating: {$avg: \"$rating\"}}}"));
-            } else if (type.equals("birthday")) {
-                pipeline.add(Document.parse("{$group: { _id: { $substr: [\"$user." + type + "\", 0, 4] },  average_rating: { $avg: \"$rating\" } }}"));
-
-            }
-            pipeline.add(Document.parse("{$project: {_id: 0, \"criteria\": \"$_id\", average_rating: 1}}"));
-            pipeline.add(Document.parse("{$sort: { \"average_rating\": -1}}"));
-            pipeline.add(Document.parse("{$limit: 25}"));
-
-
-            List<Document> result = reviewCollection.aggregate(pipeline).into(new ArrayList<>());
-
-            Map<String, Double> resultMap = new LinkedHashMap<>();
-
-            // Convert the aggregation result to a map of String and Double
-            for (Document document : result) {
-                String criteria = (document.getString("criteria"));
-                Double averageRating;
-                Object ratingObj = document.get("average_rating");
-                if (ratingObj instanceof Integer) {
-                    averageRating = ((Integer) ratingObj).doubleValue();
-                } else {
-                    averageRating = (Double) ratingObj;
-                }
-                resultMap.put(criteria, averageRating);
-            }
-
-
-            return resultMap;
-
-
-        } catch (Exception e) {
-            throw new DAOException("Error while finding ratings by users", e);
-        }
-
-    } */
 
     private AnimeDTO documentToAnimeDTO(Document doc) {
         AnimeDTO anime = new AnimeDTO();

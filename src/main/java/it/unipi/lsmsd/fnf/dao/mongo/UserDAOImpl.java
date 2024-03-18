@@ -1,18 +1,15 @@
 package it.unipi.lsmsd.fnf.dao.mongo;
 
 import com.mongodb.MongoException;
-import com.mongodb.client.AggregateIterable;
-<<<<<<< HEAD
-=======
-import com.mongodb.client.FindIterable;
 import com.mongodb.client.model.*;
 import com.mongodb.client.result.UpdateResult;
->>>>>>> noemi
-import it.unipi.lsmsd.fnf.dao.UserDAO;
+import it.unipi.lsmsd.fnf.dao.interfaces.UserDAO;
 import it.unipi.lsmsd.fnf.dao.exception.*;
+import it.unipi.lsmsd.fnf.dto.PersonalListSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
 import it.unipi.lsmsd.fnf.model.enums.Gender;
+import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.model.registeredUser.Manager;
 import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
@@ -25,18 +22,17 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import java.time.LocalDate;
-<<<<<<< HEAD
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-=======
 import java.util.*;
->>>>>>> noemi
 
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.*;
 import static com.mongodb.client.model.Sorts.ascending;
+import static com.mongodb.client.model.Updates.*;
+import static com.mongodb.client.model.Updates.pullByFilter;
 
 /**
  * Implementation of UserDAO interface for MongoDB data access.
@@ -255,103 +251,237 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
         } catch (Exception e) {
             throw new DAOException("Error searching user by username: " + username, e);
         }
-<<<<<<< HEAD
     }
 
-    //MongoDB complex queries
-    //Find the distribution of genders between users
     /**
-     * Retrieves the distribution of genders among users.
+     * Inserts a new personal list into the database.
      *
-     * @return A list of MongoDB documents representing the distribution of genders.
-     * @throws DAOException If an error occurs while retrieving the gender distribution.
+     * @param listSummaryDTO The personal list to be inserted.
+     * @throws DAOException If an error occurs during the insertion process.
      */
-=======
-        catch (Exception e){
-            throw new DAOException("Error searching all the usersCollection", e);
+    @Override
+    public void insertList(PersonalListSummaryDTO listSummaryDTO) throws DAOException {
+        try {
+            MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
+
+            Bson filter = and(eq("_id", new ObjectId(listSummaryDTO.getUserId())), ne("lists.name", listSummaryDTO.getName()));
+            ObjectId listId = new ObjectId();
+            Bson listDoc = new Document("id", listId).append("name", listSummaryDTO.getName());
+            Bson update = push("lists", listDoc);
+
+            if (usersCollection.updateOne(filter, update).getModifiedCount() == 0) {
+                throw new MongoException("No list was inserted: user not found or list already exists");
+            } else {
+                listSummaryDTO.setListId(listId.toString());
+                System.out.println("List inserted successfully");
+            }
+
+        } catch (MongoException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
+        } catch (Exception e) {
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+
         }
     }
 
-    private RegisteredUserDTO documentToRegisteredUserDTO(Document doc) {
-        RegisteredUserDTO user = new RegisteredUserDTO();
-        user.setId(doc.getObjectId("_id").toString());
-        user.setUsername(doc.getString("username"));
-        user.setProfilePicUrl(doc.getString("picture"));
-        return user;
+    /**
+     * Updates a personal list in the database.
+     *
+     * @param listSummaryDTO The personal list to be updated.
+     * @throws DAOException If an error occurs during the update process.
+     */
+    @Override
+    public void updateList(PersonalListSummaryDTO listSummaryDTO) throws DAOException {
+        try {
+            MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
+            String userId = listSummaryDTO.getUserId();
+            String listId = listSummaryDTO.getListId();
+            String name = listSummaryDTO.getName();
+
+            Bson filter = and(
+                    eq("_id", new ObjectId(userId)),
+                    nor(
+                            and(
+                                    eq("lists.name", name),
+                                    ne("lists.id", new ObjectId(listId))
+                            )
+                    )
+            );
+            Bson update = set("lists.$[elem].name", name);
+            UpdateOptions options = new UpdateOptions().arrayFilters(List.of(eq("elem.id", new ObjectId(listId))));
+
+            UpdateResult result = usersCollection.updateOne(filter, update, options);
+            if (result.getMatchedCount() == 0) {
+                if (usersCollection.countDocuments(and(eq("_id", new ObjectId(userId)), eq("lists.id", new ObjectId(listId)))) == 0)
+                    throw new MongoException("No list was updated: list not found");
+                else
+                    throw new DuplicatedException(DuplicatedExceptionType.DUPLICATED_NAME, "List with name " + name + " already exists");
+
+            } else {
+                System.out.println("List updated successfully");
+            }
+        } catch (DuplicatedException e) {
+            throw new DAOException(DAOExceptionType.DUPLICATED_KEY, e.getMessage());
+
+        } catch (MongoException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
+        } catch (Exception e) {
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+
+        }
     }
 
-    private RegisteredUser documentToRegisteredUser(Document doc) {
-        RegisteredUser user;
+    @Override
+    public void deleteList(String userId, String listId) throws DAOException {
+        try {
+            MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
 
-        if (doc.getBoolean("is_manager") != null) {
-            Manager manager = new Manager();
-            manager.setHiredDate(ConverterUtils.dateToLocalDate(doc.getDate("hired_on")));
-            manager.setTitle(doc.getString("title"));
-            user = manager;
-        } else {
-            User regularUser = new User();
-            regularUser.setUsername(doc.getString("username"));
-            regularUser.setBirthday(ConverterUtils.dateToLocalDate(doc.getDate("birthday")));
-            regularUser.setDescription(doc.getString("description"));
-            regularUser.setGender(Gender.fromString(doc.getString("gender")));
-            regularUser.setLocation(doc.getString("location"));
-            user = regularUser;
+            Bson filter = eq("_id", new ObjectId(userId));
+            Bson update = pull("lists", eq("id", new ObjectId(listId)));
+
+            if (usersCollection.updateOne(filter, update).getModifiedCount() == 0) {
+                throw new MongoException("No list was deleted: list not found");
+
+            } else {
+                System.out.println("List deleted successfully");
+            }
+
+        } catch (MongoException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
+        } catch (Exception e) {
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
         }
-
-        user.setId(doc.getObjectId("_id").toString());
-        user.setPassword(doc.getString("password"));
-        user.setEmail(doc.getString("email"));
-        user.setJoinedDate(ConverterUtils.dateToLocalDate(doc.getDate("joined_on")));
-        user.setFullname(doc.getString("fullname"));
-        user.setProfilePicUrl(doc.getString("picture"));
-        return user;
     }
 
-    private Document RegisteredUserToDocument(RegisteredUser user) {
-        Document doc = new Document();
-        appendIfNotNull(doc, "password", user.getPassword());
-        appendIfNotNull(doc, "email", user.getEmail());
+    /**
+     * Adds an element to a personal list in the database.
+     *
+     * @param userId The ID of the user who owns the list.
+     * @param listId The ID of the list to add the element to.
+     * @param mediaId The ID of the media to add to the list.
+     * @param mediaType The type of media to add to the list.
+     * @throws DAOException If an error occurs during the addition process.
+     */
+    @Override
+    public void addToList(String userId, String listId, String mediaId, MediaContentType mediaType) throws DAOException {
+        try {
+            MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
+            String mediaTypeString = mediaType.name().toLowerCase();
+            if (mediaType == MediaContentType.ANIME) {
+                MongoCollection<Document> animeCollection = getCollection("anime");
+                if(animeCollection.countDocuments(new Document("_id", new ObjectId(mediaId))) == 0)
+                    throw new MongoException("Anime with id " + mediaId + " not found");
+            } else if (mediaType == MediaContentType.MANGA) {
+                MongoCollection<Document> mangaCollection = getCollection("manga");
+                if(mangaCollection.countDocuments(new Document("_id", new ObjectId(mediaId))) == 0)
+                    throw new MongoException("Manga with id " + mediaId + " not found");
+            }
+            Bson filter = and(
+                    eq("_id", new ObjectId(userId)),
+                    eq("lists.id", new ObjectId(listId))
+            );
+            Bson update = addToSet("lists.$[elem]." + mediaTypeString + "_list", new ObjectId(mediaId));
+            UpdateOptions options = new UpdateOptions().arrayFilters(List.of(eq("elem.id", new ObjectId(listId))));
 
-        if (user.getJoinedDate() != null) {
-            appendIfNotNull(doc, "joined_on", ConverterUtils.localDateToDate(user.getJoinedDate()));
+            UpdateResult result = usersCollection.updateOne(filter, update, options);
+            if (result.getModifiedCount() == 0) {
+                if (result.getMatchedCount() == 0)
+                    throw new MongoException("List not found");
+                else
+                    throw new DuplicatedException(DuplicatedExceptionType.DUPLICATED_KEY, "Element already exists in the list");
+
+            } else {
+                System.out.println("Element added to the list successfully");
+
+            }
+
+        } catch (DuplicatedException e) {
+            throw new DAOException(DAOExceptionType.DUPLICATED_KEY, e.getMessage());
+        } catch (MongoException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
+        } catch (Exception e) {
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+
         }
-        appendIfNotNull(doc, "fullname", user.getFullname());
-        appendIfNotNull(doc, "picture", user.getProfilePicUrl());
-
-        if (user instanceof Manager manager) {
-            appendIfNotNull(doc, "title", manager.getTitle());
-            appendIfNotNull(doc, "hired_on", ConverterUtils.localDateToDate(manager.getHiredDate()));
-        } else if (user instanceof User regularUser) {
-            appendIfNotNull(doc, "username", regularUser.getUsername());
-            appendIfNotNull(doc, "birthday", ConverterUtils.localDateToDate(regularUser.getBirthday()));
-            appendIfNotNull(doc, "description", regularUser.getDescription());
-            // TODO: change gender name() to ToString()
-            appendIfNotNull(doc, "gender", regularUser.getGender() != null ? regularUser.getGender().name() : null);
-            appendIfNotNull(doc, "location", regularUser.getLocation());
-        }
-
-        return doc;
     }
 
-    private Document UnsetDocument(User registeredUser) {
-        Document doc = new Document();
-        if (registeredUser.getFullname() != null && registeredUser.getFullname().equals(Constants.NULL_STRING))
-            doc.append("fullname", 1);
-        if (registeredUser.getBirthday() != null && registeredUser.getBirthday().equals(Constants.NULL_DATE))
-            doc.append("birthday", 1);
-        if (registeredUser.getLocation() != null && registeredUser.getLocation().equals(Constants.NULL_STRING))
-            doc.append("location", 1);
-        if (registeredUser.getDescription() != null && registeredUser.getDescription().equals(Constants.NULL_STRING))
-            doc.append("description", 1);
-        if (registeredUser.getGender() != null && registeredUser.getGender().equals(Gender.UNKNOWN))
-            doc.append("gender", 1);
+    /**
+     * Removes an element from a personal list in the database.
+     *
+     * @param userId The ID of the user who owns the list.
+     * @param listId The ID of the list to remove the element from.
+     * @param mediaId The ID of the media to remove from the list.
+     * @param mediaType The type of media to remove from the list.
+     * @throws DAOException If an error occurs during the removal process.
+     */
+    @Override
+    public void removeFromList(String userId, String listId, String mediaId, MediaContentType mediaType) throws DAOException {
+        try {
+            MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
+            String mediaTypeString = mediaType.name().toLowerCase();
+            Bson filter = eq("_id", new ObjectId(userId));
+            Bson update = pull("lists.$[elem]." + mediaTypeString + "_list", new ObjectId(mediaId));
+            UpdateOptions options = new UpdateOptions().arrayFilters(List.of(eq("elem.id", new ObjectId(listId))));
 
-        return doc;
+            if (usersCollection.updateOne(filter, update, options).getModifiedCount() == 0) {
+                throw new MongoException("No element was removed from the list: list not found");
+
+            } else {
+                System.out.println("Element removed from the list successfully");
+            }
+
+        } catch (MongoException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
+        } catch (Exception e) {
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+
+        }
+    }
+
+    /**
+     * Removes all the elements in the lists that are not present in the media collections.
+     *
+     * @throws DAOException If an error occurs during the removal process.
+     */
+    @Override
+    public void removeElementInListWithoutMedia() throws DAOException {
+        MongoCollection<Document> animeCollection = getCollection("anime");
+        MongoCollection<Document> mangaCollection = getCollection("manga");
+        MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
+
+        try {
+            List<ObjectId> animeId = animeCollection.find().projection(new Document("_id", 1)).into(new ArrayList<>()).stream()
+                    .map(document -> document.getObjectId("_id"))
+                    .toList();
+            List<ObjectId> mangaId = mangaCollection.find().projection(new Document("_id", 1)).into(new ArrayList<>()).stream()
+                    .map(document -> document.getObjectId("_id"))
+                    .toList();
+
+
+            Bson filter = exists("lists", true);
+            Bson mangaFilter = nin("lists.$[].manga_list", mangaId);
+            Bson animeFilter = nin("lists.$[].anime_list", animeId);
+            Bson update = combine(pullByFilter(mangaFilter), pullByFilter(animeFilter));
+            if(usersCollection.updateMany(filter, update).getModifiedCount() == 0){
+                throw new MongoException("No inconsistency found in the anime and manga lists");
+            }
+
+        } catch (MongoException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
+        } catch (Exception e) {
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+
+        }
     }
 
     //MongoDB complex queries
     //Find the distribution of genders, of ages, of locations
->>>>>>> noemi
     @Override
     public Map<String, Integer> getDistribution (String criteria) throws DAOException {
         try {
@@ -429,18 +559,7 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
         }
     }
 
-<<<<<<< HEAD
-    //Find the distribution of users by location
-    /**
-     * Retrieves the distribution of users by location.
-     *
-     * @return A list of MongoDB documents representing the distribution of users by location.
-     * @throws DAOException If an error occurs while retrieving the location distribution.
-     */
-=======
-
-    //Find average app_rating based on the birthday, location and gender.
->>>>>>> noemi
+    //Find average app_rating based on location and gender.
     @Override
     public Map<String, Double> averageAppRating (String criteria) throws DAOException {
         try {
@@ -472,19 +591,9 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
         }
     }
 
-<<<<<<< HEAD
-    //Find how many users there are grouped by age range
-    /**
-     * Retrieves the number of users grouped by age range.
-     *
-     * @return A list of MongoDB documents representing the number of users in each age range.
-     * @throws DAOException If an error occurs while retrieving users by age range.
-     */
-=======
     //Find the average app_rating of users based on group af ages
->>>>>>> noemi
     @Override
-    public Map<String, Double> averageAppRatingByAgeRange () throws DAOException {
+    public Map<String, Double> averageAppRatingByAgeRange() throws DAOException {
         try {
             MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
 
@@ -528,7 +637,6 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
 
 
             }
-
             return map;
 
         }
@@ -537,127 +645,22 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
         }
     }
 
-<<<<<<< HEAD
-    //Find how many users registered for each year
-    /**
-     * Retrieves the number of users registered for each year.
-     *
-     * @return A list of MongoDB documents representing the number of users registered each year.
-     * @throws DAOException If an error occurs while retrieving users registered by year.
-     */
-    @Override
-    public List<Document> getUsersRegisteredByYear() throws DAOException {
-        try {
-            MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
-
-            List<Document> pipeline = new ArrayList<>();
-            pipeline.add(Document.parse("{ $group: { _id: { $year: { $toDate: \"$joined_on\" } }, count: { $sum: 1 } } }"));
-            AggregateIterable<Document> aggregationResult = usersCollection.aggregate(pipeline);
-
-            List<Document> result = new ArrayList<>();
-            aggregationResult.into(result);
-            return result;
-        } catch (Exception e) {
-            throw new DAOException("Error getting usersCollection registered by year", e);
-        }
-    }
-
-    //Find average app_rating based on the age of users
-    /**
-     * Calculates the average app rating based on the age of users.
-     *
-     * @param yearOfBirth The year of birth to calculate the average app rating for.
-     * @return The average app rating for users born in the specified year.
-     * @throws DAOException If an error occurs while calculating the average app rating.
-     */
-    @Override
-    public Integer averageAppRatingByAge (Integer yearOfBirth) throws DAOException{
-        try {
-            MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
-
-            List<Document> pipeline = new ArrayList<>();
-            pipeline.add(Document.parse("{$match: {\"birthday\": { $gte: ISODate(\"" + yearOfBirth + "-01-01T00:00:00.000Z\"),        " +
-                    "$lt: ISODate(\"" + (yearOfBirth+1) + "-01-01T00:00:00.000Z\")}}}"));
-            pipeline.add(Document.parse("{$group: {_id: null, averageAppRating: { $avg: \"$app_rating\" }}}"));
-            AggregateIterable<Document> aggregationResult = usersCollection.aggregate(pipeline);
-
-            List<Document> result = new ArrayList<>();
-            aggregationResult.into(result);
-            return result.getFirst().getInteger("averageAppRating");
-        }
-        catch (Exception e){
-            throw new DAOException("Error getting average app rating by age", e);
-        }
-
-    }
-    //Find average app_rating based on the location of users
-    /**
-     * Calculates the average app rating based on the location of users.
-     *
-     * @param location The location to calculate the average app rating for.
-     * @return The average app rating for users in the specified location.
-     * @throws DAOException If an error occurs while calculating the average app rating.
-     */
-    @Override
-    public Integer averageAppRatingByLocation (String location) throws DAOException{
-        try {
-            MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
-
-            List<Document> pipeline = new ArrayList<>();
-            pipeline.add(Document.parse("{$match: { \"location\": \"" + location + "    }  }"));
-            pipeline.add(Document.parse("{$group: {_id: null, averageAppRating: { $avg: \"$app_rating\" }}}"));
-            AggregateIterable<Document> aggregationResult = usersCollection.aggregate(pipeline);
-
-            List<Document> result = new ArrayList<>();
-            aggregationResult.into(result);
-            return result.getFirst().getInteger("averageAppRating");
-        }
-        catch (Exception e){
-            throw new DAOException("Error getting average app rating by age", e);
-        }
-
-    }
-
-    //Find average app_rating based on the gender of users
-    /**
-     * Calculates the average app rating based on the gender of users.
-     *
-     * @return A list of MongoDB documents representing the average app rating for each gender.
-     * @throws DAOException If an error occurs while calculating the average app rating.
-     */
-    @Override
-    public List<Document> averageAppRatingByGender () throws DAOException {
-        try {
-            MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
-
-            List<Document> pipeline = new ArrayList<>();
-            pipeline.add(Document.parse("{$group: {_id: \"$gender\", averageAppRating: { $avg: \"$app_rating\" }}}"));
-            AggregateIterable<Document> aggregationResult = usersCollection.aggregate(pipeline);
-
-            List<Document> result = new ArrayList<>();
-            aggregationResult.into(result);
-            return result;
-        }
-        catch (Exception e){
-            throw new DAOException("Error getting genre distribution", e);
-        }
-    }
-=======
     private String convertIntegerToAgeRange(Long age) {
-        if (age == 0) {
-            return("0-13");
-        } else if (age == 13) {
-            return("13-20");
-        } else if (age == 20) {
-            return ("20-40");
-        } else if (age == 40) {
-            return("40-50");
+        if (age == null || age < 0) {
+            return "Unknown";
+        } else if (age <= 13) {
+            return "0-13";
+        } else if (age <= 20) {
+            return "13-20";
+        } else if (age <= 40) {
+            return "20-40";
+        } else if (age <= 50) {
+            return "40-50";
         } else {
-            return("50+");
+            return "50+";
         }
-
     }
->>>>>>> noemi
+
 
     private UserSummaryDTO documentToUserSummaryDTO(Document doc) {
         UserSummaryDTO user = new UserSummaryDTO();

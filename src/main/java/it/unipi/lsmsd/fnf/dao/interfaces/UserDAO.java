@@ -1,8 +1,10 @@
-package it.unipi.lsmsd.fnf.dao;
+package it.unipi.lsmsd.fnf.dao.interfaces;
 
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
+import it.unipi.lsmsd.fnf.dto.PersonalListSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
+import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 
@@ -12,38 +14,26 @@ import java.util.Map;
 
 public interface UserDAO {
     //MongoDB queries
-<<<<<<< HEAD
     public void createUser(UserRegistrationDTO user) throws DAOException;
     public void updateUser(User user) throws DAOException;
     public void deleteUser(String userId) throws DAOException;
     public UserSummaryDTO authenticate(String email, String password) throws DAOException;
     public RegisteredUser readUser(String userId, boolean onlyStatsInfo) throws DAOException;
     public List<UserSummaryDTO> searchFirstNUsers(String username, Integer n, String loggedUser) throws DAOException;
-    List<Document> getGenderDistribution() throws DAOException;
-    Integer averageAgeUsers() throws DAOException;
-    List<Document> getLocationDistribution() throws DAOException;
-    List<Document> getUsersByAgeRange() throws DAOException;
-    List<Document> getUsersRegisteredByYear() throws DAOException;
-    Integer averageAppRatingByAge(Integer yearOfBirth) throws DAOException;
-    Integer averageAppRatingByLocation(String location) throws DAOException;
-    List<Document> averageAppRatingByGender() throws DAOException;
-=======
-    String register(User user) throws DAOException;
-    void remove(String id) throws DAOException;
-    RegisteredUser authenticate(String email, String password) throws DAOException;
-    RegisteredUser find(String id) throws DAOException;
-    List<RegisteredUserDTO> search(String username) throws DAOException;
-    List<RegisteredUserDTO> findAll() throws DAOException;
-    void update(User user) throws DAOException;
-    void update(RegisteredUser user) throws DAOException;
+
+    // CRUD operations for personal lists
+    void insertList(PersonalListSummaryDTO listSummaryDTO) throws DAOException;
+    void updateList(PersonalListSummaryDTO listSummaryDTO) throws DAOException;
+    void deleteList(String userId, String listId) throws DAOException;
+    void addToList(String userId, String listId, String mediaId, MediaContentType mediaType) throws DAOException;
+    void removeFromList(String userId, String listId, String mediaId, MediaContentType mediaType) throws DAOException;
+    void removeElementInListWithoutMedia() throws DAOException;
 
     //MongoDB complex queries
-
     Map<String, Integer> getDistribution(String criteria) throws DAOException;
     Double averageAgeUsers() throws DAOException;
     Map<String, Double> averageAppRating(String criteria) throws DAOException;
     Map<String, Double> averageAppRatingByAgeRange() throws DAOException;
->>>>>>> noemi
 
     //Neo4J queries
     void createNode(UserSummaryDTO userSummaryDTO) throws DAOException;

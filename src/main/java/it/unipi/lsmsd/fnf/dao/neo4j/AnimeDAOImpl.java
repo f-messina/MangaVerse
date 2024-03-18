@@ -1,6 +1,6 @@
 package it.unipi.lsmsd.fnf.dao.neo4j;
 
-import it.unipi.lsmsd.fnf.dao.MediaContentDAO;
+import it.unipi.lsmsd.fnf.dao.interfaces.MediaContentDAO;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dao.exception.DAOExceptionType;
 import it.unipi.lsmsd.fnf.dto.PageDTO;

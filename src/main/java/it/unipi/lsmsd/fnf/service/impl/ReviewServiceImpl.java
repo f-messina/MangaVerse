@@ -1,28 +1,23 @@
 package it.unipi.lsmsd.fnf.service.impl;
 
-import it.unipi.lsmsd.fnf.dao.MediaContentDAO;
-import it.unipi.lsmsd.fnf.dao.ReviewDAO;
+import it.unipi.lsmsd.fnf.dao.interfaces.MediaContentDAO;
+import it.unipi.lsmsd.fnf.dao.interfaces.ReviewDAO;
 import it.unipi.lsmsd.fnf.dao.enums.DataRepositoryEnum;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
-<<<<<<< HEAD
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
 import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
-=======
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
-import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
->>>>>>> noemi
-import it.unipi.lsmsd.fnf.service.ReviewService;
+import it.unipi.lsmsd.fnf.service.interfaces.ReviewService;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 
 import it.unipi.lsmsd.fnf.service.exception.BusinessExceptionType;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Map;
 
 import static it.unipi.lsmsd.fnf.dao.DAOLocator.*;
@@ -94,7 +89,9 @@ public class ReviewServiceImpl implements ReviewService {
 
     /**
      * Updates an existing review in the data repository.
-     * @param review The updated review.
+     * @param reviewId The ID of the review to be updated.
+     * @param reviewComment The new comment for the review.
+     * @param reviewRating The new rating for the review.
      * @throws BusinessException If an error occurs during the operation.
      */
     @Override
@@ -137,6 +134,10 @@ public class ReviewServiceImpl implements ReviewService {
         } catch (Exception e){
             throw new BusinessException("Error finding review by media",e);
         }
+    }
+
+    @Override
+    public void updateReview(ReviewDTO review) throws BusinessException {
     }
 
     //Service for mongoDB queries
