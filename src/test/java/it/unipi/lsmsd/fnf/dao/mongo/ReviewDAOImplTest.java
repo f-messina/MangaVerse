@@ -6,7 +6,6 @@ import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import junit.framework.TestCase;
 
-import java.util.List;
 import java.util.Map;
 
 import static it.unipi.lsmsd.fnf.dao.base.BaseMongoDBDAO.closeConnection;
@@ -114,7 +113,7 @@ public class ReviewDAOImplTest extends TestCase {
         try {
             openConnection();
             ReviewDAOImpl reviewDAO = new ReviewDAOImpl();
-            PageDTO<MediaContentDTO> pageDTO = reviewDAO.suggestTopMediaContent(MediaContentType.ANIME, "Brazil", "location");
+            PageDTO<MediaContentDTO> pageDTO = reviewDAO.suggestMediaContent(MediaContentType.ANIME, "Brazil", "location");
 
             System.out.println(pageDTO);
 
@@ -132,7 +131,7 @@ public class ReviewDAOImplTest extends TestCase {
         try {
             openConnection();
             ReviewDAOImpl reviewDAO = new ReviewDAOImpl();
-            PageDTO<MediaContentDTO> pageDTO = reviewDAO.suggestTopMediaContent(MediaContentType.MANGA, "Hungary", "location");
+            PageDTO<MediaContentDTO> pageDTO = reviewDAO.suggestMediaContent(MediaContentType.MANGA, "Hungary", "location");
 
             System.out.println(pageDTO);
 
@@ -149,7 +148,7 @@ public class ReviewDAOImplTest extends TestCase {
             openConnection();
             ReviewDAOImpl reviewDAO = new ReviewDAOImpl();
 
-            PageDTO<MediaContentDTO> pageDTO = reviewDAO.suggestTopMediaContent(MediaContentType.ANIME, "1990", "birthday");
+            PageDTO<MediaContentDTO> pageDTO = reviewDAO.suggestMediaContent(MediaContentType.ANIME, "1990", "birthday");
 
             System.out.println(pageDTO);
 
@@ -166,7 +165,7 @@ public class ReviewDAOImplTest extends TestCase {
             openConnection();
             ReviewDAOImpl reviewDAO = new ReviewDAOImpl();
 
-            PageDTO<MediaContentDTO> pageDTO = reviewDAO.suggestTopMediaContent(MediaContentType.MANGA, "1990", "birthday");
+            PageDTO<MediaContentDTO> pageDTO = reviewDAO.suggestMediaContent(MediaContentType.MANGA, "1990", "birthday");
 
             System.out.println(pageDTO);
 

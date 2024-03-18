@@ -115,6 +115,12 @@ public class UserDAOImpl extends BaseNeo4JDAO implements UserDAO {
     public RegisteredUser find(String id) throws DAOException {
         return null;
     }
+
+    @Override
+    public User getInfoForSuggestions(String userId) throws DAOException {
+        return null;
+    }
+
     @Override
     public List<RegisteredUserDTO> search(String username) throws DAOException {
         return null;

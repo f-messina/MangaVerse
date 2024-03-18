@@ -22,7 +22,6 @@ import it.unipi.lsmsd.fnf.service.exception.BusinessExceptionType;
 import it.unipi.lsmsd.fnf.service.mapper.DtoToModelMapper;
 
 import org.apache.commons.lang3.StringUtils;
-import org.bson.Document;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -142,6 +141,15 @@ public class UserServiceImpl implements UserService {
                 throw new BusinessException(e);
             }
         } catch (Exception e) {
+            throw new BusinessException(e);
+        }
+    }
+
+    @Override
+    public User getUserInfoForSuggestions(String userId) throws BusinessException {
+        try {
+            return userDAO.getInfoForSuggestions(userId);
+        } catch (DAOException e) {
             throw new BusinessException(e);
         }
     }

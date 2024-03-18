@@ -1,6 +1,5 @@
 package it.unipi.lsmsd.fnf.dao.mongo;
 
-import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.model.*;
 import com.mongodb.client.result.UpdateResult;
@@ -16,7 +15,6 @@ import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import it.unipi.lsmsd.fnf.utils.Constants;
 import it.unipi.lsmsd.fnf.utils.ConverterUtils;
 
-import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -25,8 +23,7 @@ import java.time.LocalDate;
 import java.util.*;
 
 import static com.mongodb.client.model.Filters.*;
-import static com.mongodb.client.model.Projections.exclude;
-import static com.mongodb.client.model.Projections.include;
+import static com.mongodb.client.model.Projections.*;
 import static com.mongodb.client.model.Sorts.metaTextScore;
 import static com.mongodb.client.model.Updates.setOnInsert;
 
@@ -153,6 +150,29 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
 
             Document userDocument = usersCollection.find(filter).projection(projection).first();
             return (userDocument != null)? documentToRegisteredUser(userDocument) : null;
+        }
+        catch (Exception e){
+            throw new DAOException("Error searching user by id: "+ userId, e);
+        }
+    }
+
+    @Override
+    public User getInfoForSuggestions(String userId) throws DAOException {
+        try {
+            MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
+
+            Bson filter = eq("_id", new ObjectId(userId));
+            Bson projection = fields(
+                    include("birthday", "location"),
+                    excludeId());
+
+
+
+            Document userDocument = usersCollection.find(filter).projection(projection).first();
+            User user = new User();
+            user.setLocation(userDocument.getString("location"));
+            user.setBirthday(ConverterUtils.dateToLocalDate(userDocument.getDate("birthday")));
+            return (userDocument != null)? user : null;
         }
         catch (Exception e){
             throw new DAOException("Error searching user by id: "+ userId, e);
@@ -395,7 +415,7 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
             List<Bson> pipeline = new ArrayList<>();
 
             Bson projectStage = Aggregates.project(
-                    Projections.fields(
+                    fields(
                             Projections.computed("age", new Document("$divide",
                                     Arrays.asList(
                                             new Document("$subtract", Arrays.asList(new Date(), "$birthday")),

@@ -15,6 +15,9 @@ public interface UserDAO {
     void remove(String id) throws DAOException;
     RegisteredUser authenticate(String email, String password) throws DAOException;
     RegisteredUser find(String id) throws DAOException;
+
+    User getInfoForSuggestions(String userId) throws DAOException;
+
     List<RegisteredUserDTO> search(String username) throws DAOException;
     List<RegisteredUserDTO> findAll() throws DAOException;
     void update(User user) throws DAOException;

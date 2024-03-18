@@ -122,7 +122,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public PageDTO<MediaContentDTO> suggestTopMediaContent(MediaContentType mediaContentType, String criteria, String type) throws BusinessException {
         try {
-            return reviewDAO.suggestTopMediaContent(mediaContentType, criteria, type);
+            return reviewDAO.suggestMediaContent(mediaContentType, criteria, type);
         } catch (Exception e){
             throw new BusinessException(e);
         }

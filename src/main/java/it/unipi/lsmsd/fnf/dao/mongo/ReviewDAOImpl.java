@@ -310,7 +310,7 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
 
     //For users: suggestions based on birthday year and location. For example: show the 25 anime or manga with the highest average ratings in Italy.
     @Override
-    public PageDTO<MediaContentDTO> suggestTopMediaContent(MediaContentType mediaContentType, String criteria, String type) throws DAOException {
+    public PageDTO<MediaContentDTO> suggestMediaContent(MediaContentType mediaContentType, String criteria, String type) throws DAOException {
         try  {
             MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
             String nodeType = mediaContentType.equals(MediaContentType.ANIME) ? "anime" : "manga";
