@@ -90,7 +90,7 @@ public class UserDAOImplTest {
         String userId = "6577877be68376234760585a";
         UserDAO userDAO = new UserDAOImpl();
         try {
-            System.out.println(userDAO.readUser(userId));
+            System.out.println(userDAO.readUser(userId, false));
         } catch (DAOException e) {
             System.err.println(e.getMessage() + " " + e.getType());
         }

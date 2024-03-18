@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import static it.unipi.lsmsd.fnf.dao.DAOLocator.*;
-import static it.unipi.lsmsd.fnf.service.mapper.ModelToDtoMapper.convertToDTO;
+import static it.unipi.lsmsd.fnf.utils.mapper.ModelToDtoMapper.convertToDTO;
 
 /**
  * The MediaContentServiceImpl class provides implementation for the MediaContentService interface.

@@ -27,7 +27,6 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/media_content_test.css">
     <script src="${pageContext.request.contextPath}/js/media_content_test.js" defer></script>
     <script src="https://code.jquery.com/jquery-3.6.4.min.js" defer></script>
-    <script src="${pageContext.request.contextPath}/js/logout.js" defer></script>
 </head>
 <body>
 
@@ -44,7 +43,11 @@
                         <a href="${pageContext.request.contextPath}/signup">Sign Up</a>
                     </c:when>
                     <c:otherwise>
-                        <a id="logoutBtn" href="${pageContext.request.contextPath}/manga?mediaId=${requestScope.anime.id}">Logout</a>
+                        <form action="${pageContext.request.contextPath}/auth" method="post">
+                            <input type="hidden" name="action" value="logout">
+                            <input type="hidden" name="targetServlet" value="/manga?mediaId=${requestScope.anime.id}">
+                            <button type="submit" class="logout">Log Out</button>
+                        </form>
                         <a href="${pageContext.request.contextPath}/profile">Profile</a>
                     </c:otherwise>
                 </c:choose>

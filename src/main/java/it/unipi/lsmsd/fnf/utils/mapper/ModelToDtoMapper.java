@@ -1,4 +1,4 @@
-package it.unipi.lsmsd.fnf.service.mapper;
+package it.unipi.lsmsd.fnf.utils.mapper;
 
 import it.unipi.lsmsd.fnf.dto.PersonalListDTO;
 import it.unipi.lsmsd.fnf.dto.PersonalListSummaryDTO;

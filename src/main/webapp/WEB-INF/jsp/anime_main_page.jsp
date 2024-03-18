@@ -40,7 +40,6 @@
     <script src="https://code.jquery.com/jquery-3.6.4.min.js" defer></script>
     <script src="${pageContext.request.contextPath}/js/main_page_test.js" defer></script>
     <script src="${pageContext.request.contextPath}/js/anime_main_page_test.js" defer></script>
-    <script src="${pageContext.request.contextPath}/js/logout.js" defer></script>
 </head>
 <body>
     <section id="home" class="section-home">
@@ -80,7 +79,11 @@
                         <a href="${pageContext.request.contextPath}/auth">Sign Up</a>
                     </c:when>
                     <c:otherwise>
-                        <a id="logoutBtn" href="${pageContext.request.contextPath}/mainPage/anime" class="logout">Logout</a>
+                        <form action="${pageContext.request.contextPath}/auth" method="post">
+                            <input type="hidden" name="action" value="logout">
+                            <input type="hidden" name="targetServlet" value="/mainPage/anime">
+                            <button type="submit" class="logout">Log Out</button>
+                        </form>
                         <a href="${pageContext.request.contextPath}/profile" class="profile">Profile</a>
                     </c:otherwise>
                 </c:choose>
@@ -227,15 +230,12 @@
 
     <script>
         <c:set var="authenticatedUser" value="${not empty sessionScope[Constants.AUTHENTICATED_USER_KEY]}" />
-        <c:set var="lists" value="${authenticatedUser ? sessionScope[Constants.AUTHENTICATED_USER_KEY].getLists() : null}" />
 
         let mediaDetailHRef = "${pageContext.request.contextPath}/anime?mediaId=";
         let authenticatedUser = ${authenticatedUser};
+        const authURI = "${pageContext.request.contextPath}/auth";
         let servletURI = "${pageContext.request.contextPath}/mainPage/anime";
         let lists = [];
-        <c:forEach items="${lists}" var="list">
-        lists.push(["${list.getId()}", "${list.getName()}"]);
-        </c:forEach>
 
         document.addEventListener("DOMContentLoaded", function () {
             let navBar = document.querySelector(".nav-bar");

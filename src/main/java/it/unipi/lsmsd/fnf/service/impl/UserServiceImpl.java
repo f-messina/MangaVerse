@@ -8,27 +8,17 @@ import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dao.exception.DAOExceptionType;
 import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
-import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
-import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
 import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
 import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
-import it.unipi.lsmsd.fnf.model.mediaContent.MediaContent;
-import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import it.unipi.lsmsd.fnf.service.UserService;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 import it.unipi.lsmsd.fnf.service.exception.BusinessExceptionType;
-import it.unipi.lsmsd.fnf.service.mapper.DtoToModelMapper;
 
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static it.unipi.lsmsd.fnf.dao.DAOLocator.*;
 
@@ -84,13 +74,14 @@ public class UserServiceImpl implements UserService {
 
     /**
      * Authenticates a user based on email and password.
-     * @param email The email of the user.
+     *
+     * @param email    The email of the user.
      * @param password The password of the user.
      * @return The authenticated user.
      * @throws BusinessException If an error occurs during the authentication process.
      */
     @Override
-    public RegisteredUser login(String email, String password) throws BusinessException {
+    public UserSummaryDTO login(String email, String password) throws BusinessException {
         // Validation checks for empty fields
         if (StringUtils.isEmpty(email))
             throw new BusinessException(BusinessExceptionType.EMPTY_FIELDS,"Email cannot be empty");
@@ -98,25 +89,8 @@ public class UserServiceImpl implements UserService {
             throw new BusinessException(BusinessExceptionType.EMPTY_FIELDS,"Password cannot be empty");
 
         try {
-            Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
-            logger.info("User with email " + email + " is trying to log in with password " + password + " at " + LocalDate.now() + " " + LocalDate.now().atTime(0, 0) + " UTC.");
-            RegisteredUser registeredUser = userDAO.authenticate(email, password);
-            logger.info("User with email " + email + " has logged in successfully at " + LocalDate.now() + " " + LocalDate.now().atTime(0, 0) + " UTC.");
-            if (registeredUser instanceof User user) {
-                logger.info("User with email " + email + " has " + user.getLists().size() + " lists.");
-                List<MediaContent> likedManga = mangaDAONeo4J.getLiked(user.getId()).stream()
-                        .map(mangaDTO -> DtoToModelMapper.mangaDTOtoManga((MangaDTO) mangaDTO))
-                        .collect(Collectors.toList());
-                logger.info("User with email " + email + " has " + likedManga.size() + " liked manga.");
-                List<MediaContent> likedAnime = animeDAONeo4J.getLiked(user.getId()).stream()
-                        .map(animeDTO -> DtoToModelMapper.animeDTOtoAnime((AnimeDTO) animeDTO))
-                        .collect(Collectors.toList());
-                logger.info("User with email " + email + " has " + likedAnime.size() + " liked anime.");
-                user.setLikedMediaContent(likedManga);
-                user.getLikedMediaContent().addAll(likedAnime);
-            }
 
-            return registeredUser;
+            return userDAO.authenticate(email, password);
 
         } catch (DAOException e) {
             DAOExceptionType type = e.getType();
@@ -145,6 +119,15 @@ public class UserServiceImpl implements UserService {
             } else {
                 throw new BusinessException("Error updating user info");
             }
+        }
+    }
+
+    @Override
+    public User getUserById(String userId) throws BusinessException {
+        try {
+            return (User) userDAO.readUser(userId, false);
+        } catch (DAOException e) {
+            throw new BusinessException("Error while retrieving user by id.", e);
         }
     }
 

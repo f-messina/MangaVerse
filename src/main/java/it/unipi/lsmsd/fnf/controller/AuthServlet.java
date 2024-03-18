@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import it.unipi.lsmsd.fnf.service.UserService;
 
 import java.io.IOException;
+import java.util.Objects;
 
 @WebServlet("/auth")
 public class AuthServlet extends HttpServlet {
@@ -41,13 +42,15 @@ public class AuthServlet extends HttpServlet {
         String action = request.getParameter("action");
         String targetJSP = "WEB-INF/jsp/auth.jsp";
 
-        User authUser = SecurityUtils.getAuthenticatedUser(request);
+        UserSummaryDTO authUser = SecurityUtils.getAuthenticatedUser(request);
         if (authUser != null) {
-            response.sendRedirect("profile");
+            if (Objects.equals(action, "logout"))
+                handleLogout(request, response);
+            else
+                response.sendRedirect("profile");
         } else switch (action) {
             case "signup" -> handleSignUp(request, response);
             case "login" -> handleLogin(request, response);
-            case "logout" -> handleLogout(request, response);
             case null, default -> request.getRequestDispatcher(targetJSP).forward(request, response);
         }
     }
@@ -59,7 +62,7 @@ public class AuthServlet extends HttpServlet {
             userService.registerUserAndLogin(ConverterUtils.fromRequestToUserRegDTO(request));
 
             HttpSession session = request.getSession(true);
-            session.setAttribute(Constants.AUTHENTICATED_USER_KEY, new UserSummaryDTO(user.getId(), user.getUsername(), user.getEmail()));
+            session.setAttribute(Constants.AUTHENTICATED_USER_KEY, new UserSummaryDTO(user.getId(), user.getUsername(), Constants.DEFAULT_PROFILE_PICTURE));
             response.sendRedirect("profile");
             return;
         } catch (BusinessException e) {
@@ -93,10 +96,10 @@ public class AuthServlet extends HttpServlet {
         String targetJSP;
 
         try {
-            RegisteredUser registeredUser = userService.login(email, password);
+            UserSummaryDTO userSummaryDTO = userService.login(email, password);
             HttpSession session = request.getSession(true);
-            session.setAttribute(Constants.AUTHENTICATED_USER_KEY, registeredUser);
-            response.sendRedirect("profile");
+            session.setAttribute(Constants.AUTHENTICATED_USER_KEY, userSummaryDTO);
+            response.sendRedirect("mainPage/manga");
             return;
         } catch (BusinessException e) {
             logger.error("BusinessException during login operation.", e);
@@ -115,12 +118,11 @@ public class AuthServlet extends HttpServlet {
     }
 
     private void handleLogout(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        User authenticatedUserDTO = SecurityUtils.getAuthenticatedUser(request);
-        String targetJSP = request.getParameter("targetJSP");
-        if (authenticatedUserDTO != null) {
+        String targetServlet = request.getParameter("targetServlet");
+        if (SecurityUtils.getAuthenticatedUser(request) != null) {
             request.getSession().removeAttribute(Constants.AUTHENTICATED_USER_KEY);
             request.getSession().invalidate();
         }
-        request.getRequestDispatcher(targetJSP).forward(request, response);
+        request.getRequestDispatcher(targetServlet).forward(request, response);
     }
 }

@@ -55,9 +55,6 @@ public class MainPageServlet extends HttpServlet {
         request.setAttribute("isManga",  request.getServletPath().equals("/mainPage/manga"));
         request.setAttribute("isAnime", request.getServletPath().equals("/mainPage/anime"));
 
-        if (request.getServletPath().equals("/mainPage")) {
-            request.getRequestDispatcher("homepage.jsp").forward(request, response);
-        }
         if ((boolean) request.getAttribute("isManga")) {
             request.setAttribute("mangaGenres", Constants.MANGA_GENRES);
             request.setAttribute("mangaTypes", MangaType.values());
@@ -70,7 +67,7 @@ public class MainPageServlet extends HttpServlet {
             request.setAttribute("animeStatus", Constants.ANIME_STATUS);
             targetJSP = "/WEB-INF/jsp/anime_main_page.jsp";
         } else {
-            response.sendRedirect("mainPage/manga");
+            request.getRequestDispatcher("homepage.jsp").forward(request, response);
             return;
         }
 
@@ -178,16 +175,7 @@ public class MainPageServlet extends HttpServlet {
         String userId = SecurityUtils.getAuthenticatedUser(request).getId();
         String mediaId = request.getParameter("mediaId");
         try {
-            MediaContentType contentType = isManga ? MediaContentType.MANGA : MediaContentType.ANIME;
-
-            if (UserUtils.isLiked(request)) {
-                mediaContentService.removeLike(userId, mediaId, contentType);
-            } else {
-                mediaContentService.addLike(userId, mediaId, contentType);
-            }
-
-            request.setAttribute("isLiked", !UserUtils.isLiked(request));
-            UserUtils.updateUserSession(request);
+            throw new BusinessException("Error occurred during like operation");
         } catch (BusinessException e) {
             logger.error("Error occurred during like operation", e);
             request.getRequestDispatcher("/error.jsp").forward(request, response);

@@ -2,14 +2,11 @@ package it.unipi.lsmsd.fnf.dao.mongo;
 
 import com.mongodb.MongoException;
 import com.mongodb.client.AggregateIterable;
-import com.mongodb.client.model.UpdateOptions;
-import com.mongodb.client.result.UpdateResult;
 import it.unipi.lsmsd.fnf.dao.UserDAO;
 import it.unipi.lsmsd.fnf.dao.exception.*;
 import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
 import it.unipi.lsmsd.fnf.model.enums.Gender;
-import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.model.registeredUser.Manager;
 import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
@@ -23,14 +20,13 @@ import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 import static com.mongodb.client.model.Filters.*;
-import static com.mongodb.client.model.Projections.exclude;
-import static com.mongodb.client.model.Projections.include;
+import static com.mongodb.client.model.Projections.*;
 import static com.mongodb.client.model.Sorts.ascending;
-import static com.mongodb.client.model.Updates.*;
 
 /**
  * Implementation of UserDAO interface for MongoDB data access.
@@ -61,8 +57,7 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
             else if(emailExists)
                 throw new DuplicatedException(DuplicatedExceptionType.DUPLICATED_EMAIL, "Email already in use");
 
-            String image = "images/user%20icon%20-%20Kopya%20-%20Kopya.png";
-            Optional.ofNullable(usersCollection.insertOne(RegisteredUserToDocument(user, image)).getInsertedId())
+            Optional.ofNullable(usersCollection.insertOne(RegisteredUserToDocument(user, Constants .DEFAULT_PROFILE_PICTURE)).getInsertedId())
                     .map(result -> result.asObjectId().getValue().toHexString())
                     .map(id -> { user.setId(id); return id; })
                     .orElseThrow(() -> new MongoException("No user was inserted"));
@@ -159,12 +154,18 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
      * @throws DAOException If an error occurs while retrieving the user.
      */
     @Override
-    public RegisteredUser readUser(String userId) throws DAOException {
+    public RegisteredUser readUser(String userId, boolean onlyStatsInfo) throws DAOException {
         try {
             MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
 
             Bson filter = eq("_id", new ObjectId(userId));
-            Bson projection = exclude("is_manager", "password");
+            Bson projection;
+            if (onlyStatsInfo) {
+                projection = fields(include("location", "birthday"),
+                        excludeId());
+            } else {
+                projection = exclude("is_manager", "password");
+            }
 
             return Optional.ofNullable(usersCollection.find(filter).projection(projection).first())
                     .map(this::documentToRegisteredUser)
@@ -184,21 +185,17 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
      * @throws DAOException If authentication fails due to incorrect email or password.
      */
     @Override
-    public RegisteredUser authenticate(String email, String password) throws DAOException {
+    public UserSummaryDTO authenticate(String email, String password) throws DAOException {
         try {
             MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
 
-            Bson filter = eq("email", email);
-            Bson projection = exclude("is_manager");
-            RegisteredUser user = Optional.ofNullable(usersCollection.find(filter).projection(projection).first())
-                    .map(this::documentToRegisteredUser)
-                    .orElseThrow (() -> new AuthenticationException("User not found"));
-            if (!user.getPassword().equals(password)) {
-                throw new AuthenticationException("Wrong password");
-            }
+            Bson filter = and(eq("email", email),eq("password", password));
+            Bson projection = exclude("is_manager", "password");
 
-            user.setPassword(null);
-            return user;
+            return Optional.ofNullable(usersCollection.find(filter).projection(projection).first())
+                    .map(doc -> new UserSummaryDTO(doc.getObjectId("_id").toString(), doc.getString("username"), doc.getString("picture")))
+                    .orElseThrow (() -> new AuthenticationException("User not found"));
+
         } catch (MongoException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
 
@@ -237,12 +234,12 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
             if (n == null) {
                 return usersCollection.find(filter).sort(sort).projection(projection).into(new ArrayList<>())
                         .stream()
-                        .map(this::documentToRegisteredUserDTO)
+                        .map(this::documentToUserSummaryDTO)
                         .toList();
             } else {
                 return usersCollection.find(filter).sort(sort).projection(projection).limit(n).into(new ArrayList<>())
                         .stream()
-                        .map(this::documentToRegisteredUserDTO)
+                        .map(this::documentToUserSummaryDTO)
                         .toList();
             }
         } catch (Exception e) {
@@ -468,11 +465,15 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
         }
     }
 
-    private UserSummaryDTO documentToRegisteredUserDTO(Document doc) {
+    private UserSummaryDTO documentToUserSummaryDTO(Document doc) {
         UserSummaryDTO user = new UserSummaryDTO();
         user.setId(doc.getObjectId("_id").toString());
         user.setUsername(doc.getString("username"));
         user.setProfilePicUrl(doc.getString("picture"));
+        user.setLocation(doc.getString("location"));
+        Date birthDate = doc.getDate("birthday");
+        if (birthDate != null)
+            user.setBirthDate(ConverterUtils.dateToLocalDate(birthDate));
         return user;
     }
 

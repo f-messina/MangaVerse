@@ -65,7 +65,6 @@ public class MediaContentServlet extends HttpServlet {
             request.setAttribute("reviews", reviewService.findByMedia(mediaId, mediaType, 1));
             if (SecurityUtils.getAuthenticatedUser(request) != null) {
                 request.setAttribute("isLiked", mediaContentService.isLiked(SecurityUtils.getAuthenticatedUser(request).getId(), mediaId, mediaType));
-                request.setAttribute("lists", (SecurityUtils.getAuthenticatedUser(request).getLists()));
             }
         } catch (Exception e) {
             logger.error("Error while processing request", e);
@@ -104,16 +103,7 @@ public class MediaContentServlet extends HttpServlet {
         String userId = SecurityUtils.getAuthenticatedUser(request).getId();
         String mediaId = request.getParameter("mediaId");
         try {
-            MediaContentType contentType = isManga ? MediaContentType.MANGA : MediaContentType.ANIME;
-
-            if (UserUtils.isLiked(request)) {
-                mediaContentService.removeLike(userId, mediaId, contentType);
-            } else {
-                mediaContentService.addLike(userId, mediaId, contentType);
-            }
-
-            request.setAttribute("isLiked", !UserUtils.isLiked(request));
-            UserUtils.updateUserSession(request);
+            throw new BusinessException("Error occurred during like operation");
         } catch (BusinessException e) {
             logger.error("Error occurred during like operation", e);
             request.getRequestDispatcher("/error.jsp").forward(request, response);

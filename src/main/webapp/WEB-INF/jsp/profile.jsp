@@ -31,7 +31,6 @@
     <script src="https://code.jquery.com/jquery-3.6.4.min.js" defer></script>
     <script src="${pageContext.request.contextPath}/js/profile_test.js" defer></script>
     <script src="${pageContext.request.contextPath}/js/country_dropdown.js" defer></script>
-    <script src="${pageContext.request.contextPath}/js/logout.js" defer></script>
     <title>PROFILE</title>
 </head>
 <body>
@@ -41,39 +40,44 @@
         <div class="nav-items">
             <a href="${pageContext.request.contextPath}/mainPage/anime" class="anime">Anime</a>
             <a href="${pageContext.request.contextPath}/mainPage/manga" class="manga">Manga</a>
-            <a id="logoutBtn" href="${pageContext.request.contextPath}/auth">Logout</a>
+            <form action="${pageContext.request.contextPath}/auth" method="post">
+                <input type="hidden" name="action" value="logout">
+                <input type="hidden" name="targetServlet" value="/auth">
+                <button type="submit" class="logout">Log Out</button>
+            </form>
             <a href="#" class="small-pic"><img alt="profile bar" src="${pageContext.request.contextPath}/images/account-icon.png"> <i class="fa-solid fa-chevron-down" style="color: #000000"> </i></a>
         </div>
     </nav>
 
+    <c:set var="userInfo" value="${requestScope['userInfo']}" />
     <section class="profile">
         <div class="profile-img">
-            <img alt="profile image" src="${sessionScope[Constants.AUTHENTICATED_USER_KEY].getProfilePicUrl()}">
+            <img alt="profile image" src="${userInfo.getProfilePicUrl()}">
         </div>
         <div id="user-info" class="texts">
             <form id="profile-form" method="post" action="${pageContext.request.contextPath}/profile" autocomplete="off" class="forms">
                 <input type="hidden" name="action" value="update-info">
                 <div class="form-group">
                     <label for="username"><i class="zmdi zmdi-account material-icons-name"></i></label>
-                    <input type="text" class="editable info-box" name="username" value="${sessionScope[Constants.AUTHENTICATED_USER_KEY].getUsername()}" id="username" placeholder="Username" oninput="validateUsername()" required disabled/>
+                    <input type="text" class="editable info-box" name="username" value="${userInfo.getUsername()}" id="username" placeholder="Username" oninput="validateUsername()" required disabled/>
                     <span id="username-error" style="color: red"><c:out value="${requestScope['usernameError']}" /></span>
                 </div>
                 <div class="form-group">
                     <label for="email"><i class="zmdi zmdi-email"></i></label>
-                    <input type="email" class="info-box" name="email" id="email" value="${sessionScope[Constants.AUTHENTICATED_USER_KEY].getEmail()}" placeholder="Your Email" required disabled/>
+                    <input type="email" class="info-box" name="email" id="email" value="${userInfo.getEmail()}" placeholder="Your Email" required disabled/>
                 </div>
                 <div class="form-group">
                     <label for="fullname"><i class="zmdi zmdi-lock-outline"></i></label>
-                    <input type="text" class="editable info-box" name="fullname" id="fullname" value="${sessionScope[Constants.AUTHENTICATED_USER_KEY].getFullname()}" placeholder="Full Name (Optional)" disabled/>
+                    <input type="text" class="editable info-box" name="fullname" id="fullname" value="${userInfo.getFullname()}" placeholder="Full Name (Optional)" disabled/>
                 </div>
                 <div class="form-group">
                     <label for="description"><i class="zmdi zmdi-lock-outline"></i></label>
-                    <input type="text" class="editable info-box" name="description" id="description" value="${sessionScope[Constants.AUTHENTICATED_USER_KEY].getDescription()}" placeholder="Description (Optional)" disabled/>
+                    <input type="text" class="editable info-box" name="description" id="description" value="${userInfo.getDescription()}" placeholder="Description (Optional)" disabled/>
                 </div>
                 <div class="form-group">
                     <label for="gender"><i class="zmdi zmdi-lock-outline"></i></label>
                     <select id="gender" class="editable info-box" name="gender" disabled>
-                        <c:set var="selectedGender" value="${sessionScope[Constants.AUTHENTICATED_USER_KEY].getGender()}" />
+                        <c:set var="selectedGender" value="${userInfo.getGender()}" />
                         <c:forEach var="gender" items="${Gender.values()}">
                             <option value="${gender.name()}" <c:if test="${gender.name() eq selectedGender}">selected</c:if>>${gender.toString()}</option>
                         </c:forEach>
@@ -81,17 +85,17 @@
                 </div>
                 <div class="form-group">
                     <label for="birthdate"><i class="zmdi zmdi-lock-outline"></i></label>
-                    <input type="date" class="editable info-box" name="birthdate" value="${sessionScope[Constants.AUTHENTICATED_USER_KEY].getBirthday()}" id="birthdate" placeholder="Birthdate" disabled/>
+                    <input type="date" class="editable info-box" name="birthdate" value="${userInfo.getBirthday()}" id="birthdate" placeholder="Birthdate" disabled/>
                 </div>
                 <div class="form-group">
                     <label for="country"><i class="zmdi zmdi-lock-outline"></i></label>
-                    <input type="text" name="country" class="editable info-box" id="country" placeholder="Country (Optional)" value="${sessionScope[Constants.AUTHENTICATED_USER_KEY].getLocation()}" oninput="validateCountry()" disabled/>
+                    <input type="text" name="country" class="editable info-box" id="country" placeholder="Country (Optional)" value="${userInfo.getLocation()}" oninput="validateCountry()" disabled/>
                     <div class="dropdown-content" id="country-dropdown" onclick="validateCountry()"></div>
                     <span id="country-error" style="color: red"></span>
                 </div>
                 <div class="form-group">
                     <label for="joined-date"><i class="zmdi zmdi-lock"></i></label>
-                    <input type="text" class="info-box" name="joined-date" id="joined-date" value="${sessionScope[Constants.AUTHENTICATED_USER_KEY].getJoinedDate()}" placeholder="Joined Date" disabled/>
+                    <input type="text" class="info-box" name="joined-date" id="joined-date" value="${userInfo.getJoinedDate()}" placeholder="Joined Date" disabled/>
                 </div>
                 <div class="form-group">
                     <button type="submit" id="edit-button" class="submit-btn">Modify</button>
