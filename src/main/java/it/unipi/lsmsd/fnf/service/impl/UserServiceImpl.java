@@ -4,6 +4,7 @@ import it.unipi.lsmsd.fnf.dao.interfaces.MediaContentDAO;
 import it.unipi.lsmsd.fnf.dao.interfaces.UserDAO;
 import it.unipi.lsmsd.fnf.dao.enums.DataRepositoryEnum;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
+import it.unipi.lsmsd.fnf.dto.LoggedUserDTO;
 import it.unipi.lsmsd.fnf.dto.PersonalListSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dao.exception.DAOExceptionType;
@@ -82,7 +83,7 @@ public class UserServiceImpl implements UserService {
      * @throws BusinessException If an error occurs during the authentication process.
      */
     @Override
-    public UserSummaryDTO login(String email, String password) throws BusinessException {
+    public LoggedUserDTO login(String email, String password) throws BusinessException {
         // Validation checks for empty fields
         if (StringUtils.isEmpty(email))
             throw new BusinessException(BusinessExceptionType.EMPTY_FIELDS,"Email cannot be empty");

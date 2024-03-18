@@ -1,5 +1,6 @@
 package it.unipi.lsmsd.fnf.controller;
 
+import it.unipi.lsmsd.fnf.dto.LoggedUserDTO;
 import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
 import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.service.ServiceLocator;
@@ -94,9 +95,9 @@ public class AuthServlet extends HttpServlet {
         String targetJSP;
 
         try {
-            UserSummaryDTO userSummaryDTO = userService.login(email, password);
+            LoggedUserDTO loggedUserDTO = userService.login(email, password);
             HttpSession session = request.getSession(true);
-            session.setAttribute(Constants.AUTHENTICATED_USER_KEY, userSummaryDTO);
+            session.setAttribute(Constants.AUTHENTICATED_USER_KEY, loggedUserDTO);
             response.sendRedirect("mainPage/manga");
             return;
         } catch (BusinessException e) {

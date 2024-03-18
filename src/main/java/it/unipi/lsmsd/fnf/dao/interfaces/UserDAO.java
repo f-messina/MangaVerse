@@ -1,6 +1,7 @@
 package it.unipi.lsmsd.fnf.dao.interfaces;
 
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
+import it.unipi.lsmsd.fnf.dto.LoggedUserDTO;
 import it.unipi.lsmsd.fnf.dto.PersonalListSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
@@ -17,7 +18,7 @@ public interface UserDAO {
     public void createUser(UserRegistrationDTO user) throws DAOException;
     public void updateUser(User user) throws DAOException;
     public void deleteUser(String userId) throws DAOException;
-    public UserSummaryDTO authenticate(String email, String password) throws DAOException;
+    public LoggedUserDTO authenticate(String email, String password) throws DAOException;
     public RegisteredUser readUser(String userId, boolean onlyStatsInfo) throws DAOException;
     public List<UserSummaryDTO> searchFirstNUsers(String username, Integer n, String loggedUser) throws DAOException;
 

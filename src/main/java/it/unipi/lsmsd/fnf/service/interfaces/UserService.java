@@ -1,19 +1,19 @@
 package it.unipi.lsmsd.fnf.service.interfaces;
 
+import it.unipi.lsmsd.fnf.dto.LoggedUserDTO;
 import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
-import org.bson.Document;
 
 import java.util.List;
 import java.util.Map;
 
 public interface UserService {
     void registerUserAndLogin(UserRegistrationDTO userRegistrationDTO) throws BusinessException;
-    UserSummaryDTO login(String email, String password) throws BusinessException;
+    LoggedUserDTO login(String email, String password) throws BusinessException;
     void updateUserInfo(User user) throws BusinessException;
     User getUserById(String userId) throws BusinessException;
     void insertList(String userId, String name) throws BusinessException;

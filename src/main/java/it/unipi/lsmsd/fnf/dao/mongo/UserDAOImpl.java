@@ -5,11 +5,13 @@ import com.mongodb.client.model.*;
 import com.mongodb.client.result.UpdateResult;
 import it.unipi.lsmsd.fnf.dao.interfaces.UserDAO;
 import it.unipi.lsmsd.fnf.dao.exception.*;
+import it.unipi.lsmsd.fnf.dto.LoggedUserDTO;
 import it.unipi.lsmsd.fnf.dto.PersonalListSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
 import it.unipi.lsmsd.fnf.model.enums.Gender;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
+import it.unipi.lsmsd.fnf.model.enums.UserType;
 import it.unipi.lsmsd.fnf.model.registeredUser.Manager;
 import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
@@ -167,8 +169,7 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
             Bson filter = eq("_id", new ObjectId(userId));
             Bson projection;
             if (onlyStatsInfo) {
-                projection = fields(include("location", "birthday"),
-                        excludeId());
+                projection = fields(include("location", "birthday"), excludeId());
             } else {
                 projection = exclude("is_manager", "password");
             }
@@ -191,17 +192,23 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
      * @throws DAOException If authentication fails due to incorrect email or password.
      */
     @Override
-    public UserSummaryDTO authenticate(String email, String password) throws DAOException {
+    public LoggedUserDTO authenticate(String email, String password) throws DAOException {
         try {
             MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
 
             Bson filter = and(eq("email", email),eq("password", password));
-            Bson projection = exclude("is_manager", "password");
+            Bson projection = include("username", "picture", "is_manager");
 
             return Optional.ofNullable(usersCollection.find(filter).projection(projection).first())
-                    .map(doc -> new UserSummaryDTO(doc.getObjectId("_id").toString(), doc.getString("username"), doc.getString("picture")))
-                    .orElseThrow (() -> new AuthenticationException("User not found"));
-
+                    .map(doc -> {
+                        LoggedUserDTO user = new LoggedUserDTO();
+                        user.setId(doc.getObjectId("_id").toString());
+                        user.setUsername(doc.getString("username"));
+                        user.setProfilePicUrl(doc.getString("picture"));
+                        user.setType(doc.getBoolean("is_manager") != null ? UserType.MANAGER : UserType.USER);
+                        return user;
+                    })
+                    .orElseThrow(() -> new AuthenticationException("Invalid email or password"));
         } catch (MongoException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
 

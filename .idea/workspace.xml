@@ -12,41 +12,13 @@
     <list default="true" id="7ce9bf2a-d026-452a-91d6-69a500a9c4c0" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/copilot/chatSessions/00000000000.xd" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/copilot/chatSessions/00000000000.xd" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/copilot/chatSessions/xd.lck" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/copilot/chatSessions/xd.lck" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/controller/MainPageServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/controller/MainPageServlet.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/controller/MediaContentServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/controller/MediaContentServlet.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/controller/ProfileServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/controller/ProfileServlet.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/DAOLocator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/DAOLocator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/PersonalListDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/PersonalListDAO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/ReviewDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/ReviewDAO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/UserDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/UserDAO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/mongo/MangaDAOImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/mongo/MangaDAOImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/mongo/PersonalListDAOImpl.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/mongo/ReviewDAOImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/mongo/ReviewDAOImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/controller/AuthServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/controller/AuthServlet.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/interfaces/UserDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/interfaces/UserDAO.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/mongo/UserDAOImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/mongo/UserDAOImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/neo4j/UserDAOImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/neo4j/UserDAOImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/PersonalListService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/ReviewService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/ReviewService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/ServiceLocator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/ServiceLocator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/UserService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/impl/MediaContentServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/impl/MediaContentServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/impl/PersonalListServiceImpl.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/impl/ReviewServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/impl/ReviewServiceImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/impl/UserServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/impl/UserServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/it/unipi/lsmsd/fnf/dao/mongo/AnimeDAOImplTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/it/unipi/lsmsd/fnf/dao/mongo/AnimeDAOImplTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/it/unipi/lsmsd/fnf/dao/mongo/MangaDAOImplTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/it/unipi/lsmsd/fnf/dao/mongo/MangaDAOImplTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/it/unipi/lsmsd/fnf/dao/mongo/PersonalListDAOImplTest.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/it/unipi/lsmsd/fnf/dao/mongo/ReviewDAOImplTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/it/unipi/lsmsd/fnf/dao/mongo/ReviewDAOImplTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/it/unipi/lsmsd/fnf/dao/mongo/UserDAOImplTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/it/unipi/lsmsd/fnf/dao/mongo/UserDAOImplTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/it/unipi/lsmsd/fnf/dao/mongo/test" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/it/unipi/lsmsd/fnf/dao/neo4j/Neo4JDAOImplTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/it/unipi/lsmsd/fnf/dao/neo4j/Neo4JDAOImplTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/test-classes/it/unipi/lsmsd/fnf/dao/mongo/AnimeDAOImplTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/test-classes/it/unipi/lsmsd/fnf/dao/mongo/AnimeDAOImplTest.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/test-classes/it/unipi/lsmsd/fnf/dao/mongo/MangaDAOImplTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/test-classes/it/unipi/lsmsd/fnf/dao/mongo/MangaDAOImplTest.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/test-classes/it/unipi/lsmsd/fnf/dao/mongo/PersonalListDAOImplTest.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/test-classes/it/unipi/lsmsd/fnf/dao/mongo/ReviewDAOImplTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/test-classes/it/unipi/lsmsd/fnf/dao/mongo/ReviewDAOImplTest.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/test-classes/it/unipi/lsmsd/fnf/dao/mongo/UserDAOImplTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/test-classes/it/unipi/lsmsd/fnf/dao/mongo/UserDAOImplTest.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/test-classes/it/unipi/lsmsd/fnf/dao/neo4j/Neo4JDAOImplTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/test-classes/it/unipi/lsmsd/fnf/dao/neo4j/Neo4JDAOImplTest.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/interfaces/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/service/interfaces/UserService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -396,7 +368,7 @@
       <workItem from="1710241468170" duration="3661000" />
       <workItem from="1710782296641" duration="789000" />
       <workItem from="1710783533560" duration="328000" />
-      <workItem from="1710783951309" duration="677000" />
+      <workItem from="1710783951309" duration="1724000" />
     </task>
     <servers />
   </component>

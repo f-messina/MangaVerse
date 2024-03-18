@@ -3,6 +3,7 @@ package it.unipi.lsmsd.fnf.dao.neo4j;
 import it.unipi.lsmsd.fnf.dao.interfaces.UserDAO;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dao.exception.DAOExceptionType;
+import it.unipi.lsmsd.fnf.dto.LoggedUserDTO;
 import it.unipi.lsmsd.fnf.dto.PersonalListSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
@@ -162,7 +163,7 @@ public class UserDAOImpl extends BaseNeo4JDAO implements UserDAO {
     }
 
     @Override
-    public UserSummaryDTO authenticate(String email, String password) throws DAOException {
+    public LoggedUserDTO authenticate(String email, String password) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
     @Override
