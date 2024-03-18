@@ -5,12 +5,9 @@ import it.unipi.lsmsd.fnf.dao.interfaces.UserDAO;
 import it.unipi.lsmsd.fnf.dao.enums.DataRepositoryEnum;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dto.LoggedUserDTO;
-import it.unipi.lsmsd.fnf.dto.PersonalListSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dao.exception.DAOExceptionType;
 import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
-import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
-import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
 import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
@@ -131,72 +128,6 @@ public class UserServiceImpl implements UserService {
         } catch (DAOException e) {
             throw new BusinessException("Error while retrieving user by id.", e);
         }
-    }
-
-    /**
-     * Inserts a new personal list into the data repository.
-     * @param userId The ID of the user associated with the list.
-     * @param name The name of the list.
-     * @throws BusinessException If an error occurs during the operation.
-     */
-    @Override
-    public void insertList(String userId, String name) throws BusinessException {
-        if (name == null) {
-            throw new BusinessException(BusinessExceptionType.NO_NAME, "The list must have a name.");
-        }
-
-        try {
-            userDAO.insertList(new PersonalListSummaryDTO(userId, name));
-        } catch(DAOException e) {
-            throw new BusinessException("Error while inserting list",e);
-        }
-    }
-
-    /**
-     * Updates an existing personal list in the data repository.
-     * @param listId The ID of the list to be updated.
-     * @param listName The new name for the list.
-     * @param userId The ID of the user to check if the list belongs to him.
-     * @throws BusinessException If an error occurs during the operation.
-     */
-
-    @Override
-    public void updateList(String listId, String listName, String userId) throws BusinessException {
-        Objects.requireNonNull(listId, "The id can't be null.");
-
-        if (listName == null || userId == null) {
-            throw new BusinessException("At least the name or the user must be defined");
-        }
-        try {
-            userDAO.updateList(new PersonalListSummaryDTO(listId, listName));
-        } catch (DAOException e) {
-            throw new BusinessException("Error while updating the list",e);
-        }
-    }
-
-    /**
-     * Adds a media content to a personal list.
-     * @param listId The ID of the list to which the content is to be added.
-     * @param content The media content to be added.
-     * @throws BusinessException If an error occurs during the operation.
-     */
-    @Override
-    public void addToList(String listId, MediaContentDTO content) throws BusinessException {
-    }
-
-    /**
-     * Removes a media content from a personal list.
-     * @param listId The ID of the list from which the content is to be removed.
-     * @param mediaContentId The ID of the media content to be removed.
-     * @param type The type of media content (Anime or Manga).
-     * @throws BusinessException If an error occurs during the operation.
-     */
-    @Override
-    public void removeFromList(String listId, String mediaContentId, MediaContentType type) throws BusinessException {
-    }
-
-    @Override
-    public void deleteList(String id) throws BusinessException {
     }
 
     /**

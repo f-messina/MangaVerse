@@ -235,7 +235,6 @@
         let authenticatedUser = ${authenticatedUser};
         const authURI = "${pageContext.request.contextPath}/auth";
         let servletURI = "${pageContext.request.contextPath}/mainPage/anime";
-        let lists = [];
 
         document.addEventListener("DOMContentLoaded", function () {
             let navBar = document.querySelector(".nav-bar");

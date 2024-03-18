@@ -4,10 +4,8 @@ import it.unipi.lsmsd.fnf.dao.interfaces.UserDAO;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dao.exception.DAOExceptionType;
 import it.unipi.lsmsd.fnf.dto.LoggedUserDTO;
-import it.unipi.lsmsd.fnf.dto.PersonalListSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
-import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import org.neo4j.driver.Record;
@@ -172,36 +170,6 @@ public class UserDAOImpl extends BaseNeo4JDAO implements UserDAO {
     }
     @Override
     public List<UserSummaryDTO> searchFirstNUsers(String username, Integer n, String loggedUser) throws DAOException {
-        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
-    }
-
-    @Override
-    public void insertList(PersonalListSummaryDTO listSummaryDTO) throws DAOException {
-        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
-    }
-
-    @Override
-    public void updateList(PersonalListSummaryDTO listSummaryDTO) throws DAOException {
-        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
-    }
-
-    @Override
-    public void deleteList(String userId, String listId) throws DAOException {
-        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
-    }
-
-    @Override
-    public void addToList(String userId, String listId, String mediaId, MediaContentType mediaType) throws DAOException {
-        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
-    }
-
-    @Override
-    public void removeFromList(String userId, String listId, String mediaId, MediaContentType mediaType) throws DAOException {
-        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
-    }
-
-    @Override
-    public void removeElementInListWithoutMedia() throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
 

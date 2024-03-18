@@ -222,7 +222,6 @@
     const authenticatedUser = ${authenticatedUser};
     const authURI = "${pageContext.request.contextPath}/auth";
     const servletURI = "${pageContext.request.contextPath}/mainPage/manga";
-    const lists = [];
 
     document.addEventListener("DOMContentLoaded", function () {
         let navBar = document.querySelector(".nav-bar");

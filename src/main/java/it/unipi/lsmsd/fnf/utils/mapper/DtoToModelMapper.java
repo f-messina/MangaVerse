@@ -1,21 +1,16 @@
 package it.unipi.lsmsd.fnf.utils.mapper;
 
-import it.unipi.lsmsd.fnf.dto.PersonalListDTO;
 import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
 import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
-import it.unipi.lsmsd.fnf.model.PersonalList;
 import it.unipi.lsmsd.fnf.model.Review;
 import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
 import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
 import it.unipi.lsmsd.fnf.model.mediaContent.MediaContent;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
-
-import java.util.ArrayList;
-import java.util.stream.Collectors;
 
 /**
  * The DtoToModelMapper class provides static methods to map DTOs (Data Transfer Objects) to corresponding model objects.
@@ -51,17 +46,6 @@ public class DtoToModelMapper {
         user.setUsername(userSummaryDTO.getUsername());
         user.setProfilePicUrl(userSummaryDTO.getProfilePicUrl());
         return user;
-    }
-
-    /**
-     * Converts a PersonalListDTO object to a PersonalList object.
-     * @param personalListDTO The PersonalListDTO object to convert.
-     * @return The converted PersonalList object.
-     */
-    public static PersonalList personalListDTOtoPersonalList(PersonalListDTO personalListDTO) {
-        // TODO: Implement this method
-        PersonalList personalList = new PersonalList();
-        return personalList;
     }
 
     /**

@@ -1,15 +1,12 @@
 package it.unipi.lsmsd.fnf.model.registeredUser;
 
-import it.unipi.lsmsd.fnf.model.PersonalList;
 import it.unipi.lsmsd.fnf.model.Review;
 import it.unipi.lsmsd.fnf.model.enums.Gender;
 import it.unipi.lsmsd.fnf.model.mediaContent.MediaContent;
-import org.bson.types.ObjectId;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 public class User extends RegisteredUser {
     private String username;
@@ -17,7 +14,6 @@ public class User extends RegisteredUser {
     private String description;
     private Gender gender;
     private String location;
-    private List<PersonalList> lists = new ArrayList<>();
     private List<Review> reviews = new ArrayList<>();
     private List<MediaContent> likedMediaContent = new ArrayList<>();
 
@@ -56,10 +52,6 @@ public class User extends RegisteredUser {
         return location;
     }
 
-    public List<PersonalList> getLists() {
-        return lists;
-    }
-
     public List<Review> getReviews() {
         return reviews;
     }
@@ -88,10 +80,6 @@ public class User extends RegisteredUser {
         this.location = location;
     }
 
-    public void setLists(List<PersonalList> lists) {
-        this.lists = lists;
-    }
-
     public void setReviews(List<Review> reviews) {
         this.reviews = reviews;
     }
@@ -102,22 +90,6 @@ public class User extends RegisteredUser {
      */
     public void setLikedMediaContent(List<MediaContent> likedMediaContent) {
         this.likedMediaContent = likedMediaContent;
-    }
-
-    /**
-     * Adds a new list created by the user.
-     * @param list The list created by the user.
-     */
-    public void addList(PersonalList list) {
-        this.lists.add(list);
-    }
-
-    /**
-     * Removes a list created by the user.
-     * @param listId The ID of the list to be removed.
-     */
-    public void removeList(String listId) {
-        this.lists.removeIf(personalList -> personalList.getId().equals(listId));
     }
 
     /**

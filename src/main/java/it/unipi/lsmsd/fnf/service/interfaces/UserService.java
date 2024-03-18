@@ -16,11 +16,6 @@ public interface UserService {
     LoggedUserDTO login(String email, String password) throws BusinessException;
     void updateUserInfo(User user) throws BusinessException;
     User getUserById(String userId) throws BusinessException;
-    void insertList(String userId, String name) throws BusinessException;
-    void updateList(String userId, String listId, String name) throws BusinessException;
-    void addToList(String listId, MediaContentDTO content) throws BusinessException;
-    void removeFromList(String listId, String mediaContentId, MediaContentType type) throws BusinessException;
-    void deleteList(String id) throws BusinessException;
 
     //Service for mongoDB queries
     Map<String, Integer> getDistribution(String criteria) throws BusinessException;

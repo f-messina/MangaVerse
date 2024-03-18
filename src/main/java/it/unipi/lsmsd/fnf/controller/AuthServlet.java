@@ -41,7 +41,7 @@ public class AuthServlet extends HttpServlet {
         String action = request.getParameter("action");
         String targetJSP = "WEB-INF/jsp/auth.jsp";
 
-        UserSummaryDTO authUser = SecurityUtils.getAuthenticatedUser(request);
+        LoggedUserDTO authUser = SecurityUtils.getAuthenticatedUser(request);
         if (authUser != null) {
             if (Objects.equals(action, "logout"))
                 handleLogout(request, response);

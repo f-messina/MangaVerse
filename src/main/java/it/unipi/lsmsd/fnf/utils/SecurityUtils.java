@@ -1,5 +1,6 @@
 package it.unipi.lsmsd.fnf.utils;
 
+import it.unipi.lsmsd.fnf.dto.LoggedUserDTO;
 import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,8 +13,8 @@ public class SecurityUtils {
      * @param request The HttpServletRequest containing the current request.
      * @return The User object representing the authenticated user, or null if no user is authenticated.
      */
-    public static UserSummaryDTO getAuthenticatedUser(HttpServletRequest request){
+    public static LoggedUserDTO getAuthenticatedUser(HttpServletRequest request){
         HttpSession session = request.getSession();
-        return (UserSummaryDTO) session.getAttribute(Constants.AUTHENTICATED_USER_KEY);
+        return (LoggedUserDTO) session.getAttribute(Constants.AUTHENTICATED_USER_KEY);
     }
 }

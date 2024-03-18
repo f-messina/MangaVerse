@@ -1,21 +1,15 @@
 package it.unipi.lsmsd.fnf.utils.mapper;
 
-import it.unipi.lsmsd.fnf.dto.PersonalListDTO;
-import it.unipi.lsmsd.fnf.dto.PersonalListSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
-import it.unipi.lsmsd.fnf.model.PersonalList;
 import it.unipi.lsmsd.fnf.model.Review;
 import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
 import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
 import it.unipi.lsmsd.fnf.model.mediaContent.MediaContent;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * The ModelToDtoMapper class provides static methods to map model objects to corresponding DTOs (Data Transfer Objects).
@@ -38,23 +32,6 @@ public class ModelToDtoMapper {
      */
     public static MangaDTO convertToDTO(Manga manga) {
         return new MangaDTO(manga.getId(), manga.getTitle(), manga.getImageUrl(), manga.getAverageRating(), manga.getStartDate(), manga.getEndDate());
-    }
-
-    /**
-     * Converts a PersonalList object to a PersonalListDTO object.
-     * @param list The PersonalList object to convert.
-     * @return The converted PersonalListDTO object.
-     * @throws IllegalArgumentException If the list object is null.
-     */
-    public static PersonalListSummaryDTO convertToDTO(PersonalList list) {
-        if(list == null) {
-            throw new IllegalArgumentException("The list can't be null.");
-        }
-
-        PersonalListSummaryDTO dto = new PersonalListSummaryDTO();
-
-        // TODO: Implement the conversion of the PersonalList object to a PersonalListDTO object.
-        return dto;
     }
 
     /**

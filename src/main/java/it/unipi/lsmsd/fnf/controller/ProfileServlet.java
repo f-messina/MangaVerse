@@ -1,5 +1,6 @@
 package it.unipi.lsmsd.fnf.controller;
 
+import it.unipi.lsmsd.fnf.dto.LoggedUserDTO;
 import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
@@ -43,17 +44,14 @@ public class ProfileServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
         String targetJSP = "WEB-INF/jsp/profile.jsp";
-        UserSummaryDTO authUser = SecurityUtils.getAuthenticatedUser(request);
+        LoggedUserDTO authUser = SecurityUtils.getAuthenticatedUser(request);
 
         if (authUser == null) {
             response.sendRedirect("auth");
         } else switch (action) {
             case "update-info" -> handleUpdate(request, response);
             case "delete" -> handleDelete(request, response);
-            case "add-list" -> handleAddList(request, response);
-            case "delete-list" -> handleDeleteList(request, response);
             case "logout" -> handleLogout(request, response);
-            case "delete-item" -> handleDeleteItem(request, response);
             case null, default -> {
                 try {
                     request.setAttribute("userInfo", userService.getUserById(authUser.getId()));
@@ -97,66 +95,12 @@ public class ProfileServlet extends HttpServlet {
         request.setAttribute("errorMessage", errorMessage);
     }
 
-    private void handleDeleteList(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        String listId = request.getParameter("listIdToRemove");
-        try {
-            userService.deleteList(listId);
-            response.sendRedirect("profile");
-        } catch (BusinessException e) {
-            logger.error("Error during delete list operation.", e);
-            request.setAttribute("errorMessage", "Error during delete list operation.");
-            request.getRequestDispatcher("error-page.jsp").forward(request, response);
-        }
-    }
-
     private void handleLogout(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         request.getRequestDispatcher("home-page.jsp").forward(request, response);
     }
 
     private void handleDelete(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-String targetJSP = "homepage.jsp";
+        String targetJSP = "homepage.jsp";
         request.getRequestDispatcher(targetJSP).forward(request, response);
-    }
-
-    private void handleAddList(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        try {
-            UserSummaryDTO authUser = SecurityUtils.getAuthenticatedUser(request);
-            String listName = request.getParameter("listName");
-
-            userService.insertList(authUser.getId(), listName);
-
-            request.getSession().setAttribute(Constants.AUTHENTICATED_USER_KEY, authUser);
-            response.sendRedirect("profile");
-
-        } catch (BusinessException e) {
-            logger.error("Error during add list operation.", e);
-            request.setAttribute("errorMessage", "Error during add list operation.");
-            request.getRequestDispatcher("error-page.jsp").forward(request, response);
-        }
-    }
-
-    private void handleDeleteItem(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        String listId = request.getParameter("listId");
-        if (request.getParameter("mangaIdToRemove") != null) {
-            String mangaId = request.getParameter("mangaIdToRemove");
-            try {
-                userService.removeFromList(listId, mangaId, MediaContentType.MANGA);
-                response.sendRedirect("profile");
-            } catch (BusinessException e) {
-                logger.error("Error during delete manga operation.", e);
-                request.setAttribute("errorMessage", "Error during delete manga operation.");
-                request.getRequestDispatcher("error-page.jsp").forward(request, response);
-            }
-        } else {
-            String animeId = request.getParameter("animeIdToRemove");
-            try {
-                userService.removeFromList(listId, animeId, MediaContentType.ANIME);
-                response.sendRedirect("profile");
-            } catch (BusinessException e) {
-                logger.error("Error during delete anime operation.", e);
-                request.setAttribute("errorMessage", "Error during delete anime operation.");
-                request.getRequestDispatcher("error-page.jsp").forward(request, response);
-            }
-        }
     }
 }

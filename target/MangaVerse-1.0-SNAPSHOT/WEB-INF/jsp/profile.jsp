@@ -8,7 +8,6 @@
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-<%@ page import="it.unipi.lsmsd.fnf.utils.Constants" %>
 <%@ page import="it.unipi.lsmsd.fnf.model.enums.Gender" %>
 <%@ page contentType="text/html;charset=UTF-8" %>
 <!DOCTYPE html>
@@ -139,94 +138,6 @@
         </div>
     </section>
 
-    <section class="lists">
-        <h1>Lists</h1>
-        <form class="add-list" method="post" action="${pageContext.request.contextPath}/profile">
-            <input type="hidden" name="action" value="add-list">
-            <label for="listName">Add a new list:</label>
-            <input type="text" name="listName" id="listName" placeholder="List Name" required/>
-            <button class="add-list-button" type="submit">Add List</button>
-        </form>
-        <c:set var="lists" value="${requestScope.lists}" />
-        <c:choose>
-            <c:when test="${not empty lists}">
-                <c:forEach var="list" items="${lists}">
-                    <div class="list">
-                        <div class="list-title">
-                            <h2>
-                                <c:out value="${list.getName()}" />
-                            </h2>
-
-                            <form method="post" action="${pageContext.request.contextPath}/profile">
-                                <input type="hidden" name="action" value="delete-list">
-                                <input type="hidden" name="listIdToRemove" value="${list.getId()}">
-                                <button class="remove-btn" type="submit">Remove</button>
-                            </form>
-                        </div>
-                        <div class="container">
-                            <ul class="manga-anime-list" id="manga-anime-list">
-                                <c:if test="${not empty list.getManga()}">
-                                    <c:forEach var="manga" items="${list.getManga()}">
-                                        <li>
-                                            <form method="post" action="${pageContext.request.contextPath}/profile">
-                                                <input type="hidden" name="action" value="delete-item">
-                                                <input type="hidden" name="listId" value="${list.getId()}">
-                                                <input type="hidden" name="mangaIdToRemove" value="${manga.getId()}">
-
-                                                <div style="display: flex; align-items: center;">
-                                                    <div style="margin-right: 10px;">
-                                                        <a class="manga-anime" href="${pageContext.request.contextPath}/manga?mediaId=${manga.getId()}"><c:out value="${manga.getTitle()}"/></a>
-                                                    </div>
-
-                                                    <div style="margin-right: 10px;">
-                                                        <button class="remove-btn" type="submit">Remove</button>
-                                                    </div>
-                                                </div>
-                                                <br/>
-                                                <img class="list-img" src="${manga.getImageUrl()}" alt="${fn:escapeXml(manga.getTitle())} image" />
-                                                <br/><br/><br/>
-                                            </form>
-                                        </li>
-                                    </c:forEach>
-                                </c:if>
-                                <c:if test="${not empty list.getAnime()}">
-                                    <c:forEach var="anime" items="${list.getAnime()}">
-                                        <li>
-                                            <form method="post" action="${pageContext.request.contextPath}/profile">
-                                                <input type="hidden" name="action" value="delete-item">
-                                                <input type="hidden" name="listId" value="${list.getId()}">
-                                                <input type="hidden" name="animeIdToRemove" value="${anime.getId()}">
-
-                                                <div style="display: flex; align-items: center;">
-                                                    <div style="margin-right: 10px;">
-                                                        <a class="manga-anime" href="${pageContext.request.contextPath}/anime?mediaId=${anime.getId()}"><c:out value="${anime.getTitle()}"/></a>
-                                                    </div>
-
-                                                    <div style="margin-right: 10px;">
-                                                        <button class="remove-btn" type="submit">Remove</button>
-                                                    </div>
-                                                </div>
-                                                <br/>
-                                                <img class="list-img" src="${anime.getImageUrl()}" alt="${fn:escapeXml(anime.getTitle())} image" />
-                                                <br/><br/><br/>
-                                            </form>
-                                        </li>
-                                    </c:forEach>
-                                </c:if>
-                                <c:if test="${empty list.getManga() and empty list.getAnime()}">
-                                    <li>No items found</li>
-                                </c:if>
-                            </ul>
-                            <button id="showAllBtn" class="show-all-btn">Show All Items</button>
-                        </div>
-                    </div>
-                </c:forEach>
-            </c:when>
-            <c:otherwise>
-                <h2>No lists found</h2>
-            </c:otherwise>
-        </c:choose>
-    </section>
     <section class="reviews">
         <h1>Reviews</h1>
         <c:set var="reviews" value="${requestScope.reviews}" />

@@ -68,30 +68,12 @@ public class MediaContentServlet extends HttpServlet {
         }
 
         switch (action) {
-            case "addToList" -> handleAddToList(request, response);
             case "toggleLike" -> handleToggleLike(request, response);
             case "addReview" -> handleAddReview(request, response);
             case "deleteReview" -> handleDeleteReview(request, response);
             case "editReview" -> handleEditReview(request, response);
             case null, default -> request.getRequestDispatcher(targetJSP).forward(request, response);
         }
-    }
-
-    private void handleAddToList(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String listId = request.getParameter("listId");
-        MediaContentType mediaType = MediaContentType.valueOf(request.getServletPath().substring(1).toUpperCase());
-        String targetJSP = mediaType.equals(MediaContentType.ANIME) ? "WEB-INF/jsp/anime.jsp" : "WEB-INF/jsp/manga.jsp";
-
-        try {
-            userService.addToList(listId, (MediaContentDTO) request.getAttribute("media"));
-            request.setAttribute("success", "Media added to list");
-        } catch (Exception e) {
-            logger.error("Error while processing request", e);
-            request.setAttribute("error", "Error while adding media to list");
-            targetJSP = "error.jsp";
-        }
-
-        request.getRequestDispatcher(targetJSP).forward(request, response);
     }
 
     private void handleToggleLike(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

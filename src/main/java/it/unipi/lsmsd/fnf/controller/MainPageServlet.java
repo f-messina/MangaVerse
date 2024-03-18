@@ -75,7 +75,6 @@ public class MainPageServlet extends HttpServlet {
             case "sortAndPaginate" -> handleSortAndPaginate(request,response);
             case "suggestions" -> handleSuggestion(request,response);
             case "toggleLike" -> handleToggleLike(request,response);
-            case "addToList" -> handleAddToList(request,response);
             case null, default -> request.getRequestDispatcher(targetJSP).forward(request,response);
         }
     }
@@ -184,27 +183,6 @@ public class MainPageServlet extends HttpServlet {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         response.getWriter().write("{\"isLiked\": " + request.getAttribute("isLiked") + "}");
-    }
-
-    private void handleAddToList(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        boolean isManga = (boolean) request.getAttribute("isManga");
-        String listId = request.getParameter("listId");
-
-        MediaContentDTO mediaContent = isManga ? new MangaDTO() : new AnimeDTO();
-        mediaContent.setId(request.getParameter("mediaId"));
-        mediaContent.setTitle(request.getParameter("mediaTitle"));
-        mediaContent.setImageUrl(request.getParameter("mediaImageUrl"));
-        try {
-            userService.addToList(listId, mediaContent);
-        } catch (BusinessException e) {
-            logger.error("Error occurred during list operation", e);
-            request.getRequestDispatcher("/error.jsp").forward(request, response);
-        }
-
-        // Set the content type and write the JSON response
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        response.getWriter().write("{\"isInList\": " + request.getAttribute("isInList") + "}");
     }
 
     private void handleSuggestion(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
