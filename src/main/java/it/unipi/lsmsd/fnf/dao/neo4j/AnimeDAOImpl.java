@@ -138,6 +138,8 @@ public class AnimeDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Anime>
         }
     }
 
+    //Better to do it in mongoDB
+    /*
     @Override
     public List<AnimeDTO> getMediaContentTrendByGenre() throws DAOException {
         try (Session session = getSession()) {
@@ -153,7 +155,7 @@ public class AnimeDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Anime>
         } catch(Exception e) {
             throw new DAOException("Error while getting trend anime by genre", e);
         }
-    }
+    }*/
 
     @Override
     public List<AnimeDTO> getMediaContentTrendByLikes() throws DAOException {

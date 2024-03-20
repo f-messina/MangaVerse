@@ -27,12 +27,11 @@ public interface MediaContentDAO<T extends MediaContent> {
     <E extends MediaContentDTO> void createNode(E mediaContentDTO) throws DAOException;
     void like(String userId, String mediaContentId) throws DAOException;
     void unlike(String userId, String mediaContentId) throws DAOException;
-    public boolean isLiked(String userId, String mediaId) throws DAOException;
+    boolean isLiked(String userId, String mediaId) throws DAOException;
     List<? extends MediaContentDTO> getLiked(String userId) throws DAOException;
     List<? extends MediaContentDTO> getSuggested(String userId) throws DAOException;
     List<? extends MediaContentDTO> getTrendMediaContentByYear(int year) throws DAOException;
     List<String> getMediaContentGenresTrendByYear(int year) throws DAOException;
-    List<? extends MediaContentDTO> getMediaContentTrendByGenre() throws DAOException;
     List<? extends MediaContentDTO> getMediaContentTrendByLikes() throws DAOException;
     List<String> getMediaContentGenresTrend() throws DAOException;
 }
