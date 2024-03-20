@@ -15,6 +15,7 @@ public interface UserService {
     void registerUserAndLogin(UserRegistrationDTO userRegistrationDTO) throws BusinessException;
     LoggedUserDTO login(String email, String password) throws BusinessException;
     void updateUserInfo(User user) throws BusinessException;
+
     User getUserById(String userId) throws BusinessException;
 
     //Service for mongoDB queries

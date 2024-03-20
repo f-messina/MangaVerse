@@ -122,7 +122,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+
     public User getUserById(String userId) throws BusinessException {
+
         try {
             return (User) userDAO.readUser(userId, false);
         } catch (DAOException e) {

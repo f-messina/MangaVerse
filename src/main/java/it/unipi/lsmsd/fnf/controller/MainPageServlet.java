@@ -8,9 +8,16 @@ import it.unipi.lsmsd.fnf.model.enums.AnimeType;
 import it.unipi.lsmsd.fnf.model.enums.MangaDemographics;
 import it.unipi.lsmsd.fnf.model.enums.MangaType;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
+
+import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
+import it.unipi.lsmsd.fnf.model.registeredUser.User;
+import it.unipi.lsmsd.fnf.service.*;
+
 import it.unipi.lsmsd.fnf.service.interfaces.MediaContentService;
 import it.unipi.lsmsd.fnf.service.ServiceLocator;
+import it.unipi.lsmsd.fnf.service.interfaces.ReviewService;
 import it.unipi.lsmsd.fnf.service.interfaces.UserService;
+
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 import it.unipi.lsmsd.fnf.utils.Constants;
 import it.unipi.lsmsd.fnf.utils.ConverterUtils;
@@ -73,7 +80,7 @@ public class MainPageServlet extends HttpServlet {
         switch (action){
             case "search" -> handleSearch(request,response);
             case "sortAndPaginate" -> handleSortAndPaginate(request,response);
-            case "suggestions" -> handleSuggestion(request,response);
+            //case "suggestions" -> handleSuggestion(request,response);
             case "toggleLike" -> handleToggleLike(request,response);
             case null, default -> request.getRequestDispatcher(targetJSP).forward(request,response);
         }
@@ -185,6 +192,31 @@ public class MainPageServlet extends HttpServlet {
         response.getWriter().write("{\"isLiked\": " + request.getAttribute("isLiked") + "}");
     }
 
-    private void handleSuggestion(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
-    }
+    /*private void handleSuggestion(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+        String suggestionParameter = request.getParameter("suggestionParameter");
+        boolean isManga = (boolean) request.getAttribute("isManga");
+        String targetJSP = isManga ? "/WEB-INF/jsp/manga_main_page.jsp" : "/WEB-INF/jsp/anime_main_page.jsp";
+        if (suggestionParameter.equals("birthday")) {
+            ReviewService reviewService = ServiceLocator.getReviewService();
+            UserService userService = ServiceLocator.getUserService();
+            try {
+                User user = userService.getUserInfoForSuggestions(SecurityUtils.getAuthenticatedUser(request).getId());
+                PageDTO<MediaContentDTO> suggestions = reviewService.suggestTopMediaContent(isManga? MediaContentType.MANGA : MediaContentType.ANIME, user.getBirthday().toString(), "birthday");
+                request.setAttribute("suggestions", suggestions);
+            } catch (BusinessException e) {
+                throw new RuntimeException(e);
+            }
+        } else if (suggestionParameter.equals("location")) {
+            ReviewService reviewService = ServiceLocator.getReviewService();
+            UserService userService = ServiceLocator.getUserService();
+            try {
+                User user = userService.getUserInfoForSuggestions(SecurityUtils.getAuthenticatedUser(request).getId());
+                PageDTO<MediaContentDTO> suggestions =  reviewService.suggestTopMediaContent(isManga? MediaContentType.MANGA : MediaContentType.ANIME, user.getLocation(), "location");
+                request.setAttribute("suggestions", suggestions);
+            } catch (BusinessException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        request.getRequestDispatcher(targetJSP).forward(request, response);
+    }*/
 }

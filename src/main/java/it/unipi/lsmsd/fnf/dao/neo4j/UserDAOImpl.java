@@ -169,8 +169,10 @@ public class UserDAOImpl extends BaseNeo4JDAO implements UserDAO {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
     @Override
+
     public List<UserSummaryDTO> searchFirstNUsers(String username, Integer n, String loggedUser) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
+
     }
 
     @Override

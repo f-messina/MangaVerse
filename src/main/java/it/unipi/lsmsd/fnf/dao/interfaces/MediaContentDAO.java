@@ -10,6 +10,9 @@ import java.util.List;
 import java.util.Map;
 
 public interface MediaContentDAO<T extends MediaContent> {
+
+    List<String> getMediaContentGenresTrend() throws DAOException;
+
     // MongoDB specific methods
     void createMediaContent(T mediaContent) throws DAOException;
     void updateMediaContent(T mediaContent) throws DAOException;
@@ -31,7 +34,7 @@ public interface MediaContentDAO<T extends MediaContent> {
     List<? extends MediaContentDTO> getSuggested(String userId) throws DAOException;
     List<? extends MediaContentDTO> getTrendMediaContentByYear(int year) throws DAOException;
     List<String> getMediaContentGenresTrendByYear(int year) throws DAOException;
-    List<? extends MediaContentDTO> getMediaContentTrendByGenre() throws DAOException;
+
+
     List<? extends MediaContentDTO> getMediaContentTrendByLikes() throws DAOException;
-    List<String> getMediaContentGenresTrend() throws DAOException;
 }
