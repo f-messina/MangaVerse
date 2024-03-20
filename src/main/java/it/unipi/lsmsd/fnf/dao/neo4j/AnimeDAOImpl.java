@@ -205,22 +205,7 @@ public class AnimeDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Anime>
      * @throws DAOException If an error occurs while retrieving trending Anime by genre.
      */
 
-    @Override
-    public List<AnimeDTO> getMediaContentTrendByGenre() throws DAOException {
-        try (Session session = getSession()) {
-            String query = """
-                    MATCH (a:Anime)-[:BELONGS_TO]->(g:Genre)
-                    WITH a, COUNT(a) as numMediaContents\s
-                    ORDER BY numMediaContents DESC
-                    RETURN a.id as id, a.title as title, a.picture as picture
-                    LIMIT 5""";
-            List<Record> records = session.run(query).list();
 
-            return records.stream().map(this::recordToAnimeDTO).collect(Collectors.toList());
-        } catch(Exception e) {
-            throw new DAOException("Error while getting trend anime by genre", e);
-        }
-    }*/
 
     /**
      * Retrieves a list of trending AnimeDTO objects by likes from the Neo4j database.

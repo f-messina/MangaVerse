@@ -1,22 +1,22 @@
 package it.unipi.lsmsd.fnf.controller;
 
-import it.unipi.lsmsd.fnf.dao.base.BaseMongoDBDAO;
+import it.unipi.lsmsd.fnf.dao.mongo.BaseMongoDBDAO;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
-import it.unipi.lsmsd.fnf.service.ReviewService;
+import it.unipi.lsmsd.fnf.service.interfaces.ReviewService;
 import it.unipi.lsmsd.fnf.service.ServiceLocator;
-import it.unipi.lsmsd.fnf.service.UserService;
+import it.unipi.lsmsd.fnf.service.interfaces.UserService;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 import it.unipi.lsmsd.fnf.utils.SecurityUtils;
 import org.junit.Test;
 
 public class MainPageServletTest {
 
-    @Test
+    /*@Test
     public void getSuggestions() throws DAOException {
         BaseMongoDBDAO.openConnection();
         String suggestionParameter = "birthday";
@@ -36,6 +36,6 @@ public class MainPageServletTest {
             }
         }
         BaseMongoDBDAO.closeConnection();
-    }
+    }*/
 
 }

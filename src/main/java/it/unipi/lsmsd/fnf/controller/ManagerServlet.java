@@ -3,17 +3,16 @@ package it.unipi.lsmsd.fnf.controller;
 
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
-import it.unipi.lsmsd.fnf.service.MediaContentService;
-import it.unipi.lsmsd.fnf.service.ReviewService;
+import it.unipi.lsmsd.fnf.service.interfaces.MediaContentService;
+import it.unipi.lsmsd.fnf.service.interfaces.ReviewService;
 import it.unipi.lsmsd.fnf.service.ServiceLocator;
-import it.unipi.lsmsd.fnf.service.UserService;
+import it.unipi.lsmsd.fnf.service.interfaces.UserService;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 
 import java.io.IOException;
 import java.util.ArrayList;

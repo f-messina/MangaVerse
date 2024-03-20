@@ -220,23 +220,7 @@ public class MangaDAOImpl extends BaseNeo4JDAO implements MediaContentDAO<Manga>
      * @return A list of MangaDTO objects representing trending Manga by genre.
      * @throws DAOException If an error occurs while retrieving trending Manga by genre.
      */
-    @Override
 
-    public List<MangaDTO> getMediaContentTrendByGenre() throws DAOException {
-        try (Session session = getSession()) {
-            String query = """
-                    MATCH (m:Manga)-[:BELONGS_TO]->(g:Genre)
-                    WITH m, COUNT(m) as numMediaContents\s
-                    ORDER BY numMediaContents DESC
-                    RETURN m.id as id, m.title as title, m.picture as picture
-                    LIMIT 5""";
-            List<Record> records = session.run(query).list();
-
-            return records.stream().map(this::recordToMangaDTO).collect(Collectors.toList());
-        } catch(Exception e) {
-            throw new DAOException("Error while getting trend manga by genre", e);
-        }
-    }*/
 
     /**
      * Retrieves a list of trending MangaDTO objects by likes from the Neo4j database.

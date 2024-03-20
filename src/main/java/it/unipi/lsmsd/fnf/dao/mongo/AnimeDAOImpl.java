@@ -37,6 +37,8 @@ import static com.mongodb.client.model.Updates.setOnInsert;
 public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anime> {
     private static final String COLLECTION_NAME = "anime";
 
+
+
     /**
      * Inserts an Anime object into the MongoDB database.
      *
@@ -498,16 +500,13 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override
-    public List<? extends MediaContentDTO> getMediaContentTrendByGenre() throws DAOException {
+    public List<String> getMediaContentGenresTrend() throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override
     public List<? extends MediaContentDTO> getMediaContentTrendByLikes() throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
-    @Override
-    public List<String> getMediaContentGenresTrend() throws DAOException {
-        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
-    }
+
 }
 

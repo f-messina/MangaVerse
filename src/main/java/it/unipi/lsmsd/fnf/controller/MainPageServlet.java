@@ -15,6 +15,7 @@ import it.unipi.lsmsd.fnf.service.*;
 
 import it.unipi.lsmsd.fnf.service.interfaces.MediaContentService;
 import it.unipi.lsmsd.fnf.service.ServiceLocator;
+import it.unipi.lsmsd.fnf.service.interfaces.ReviewService;
 import it.unipi.lsmsd.fnf.service.interfaces.UserService;
 
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
@@ -79,7 +80,7 @@ public class MainPageServlet extends HttpServlet {
         switch (action){
             case "search" -> handleSearch(request,response);
             case "sortAndPaginate" -> handleSortAndPaginate(request,response);
-            case "suggestions" -> handleSuggestion(request,response);
+            //case "suggestions" -> handleSuggestion(request,response);
             case "toggleLike" -> handleToggleLike(request,response);
             case null, default -> request.getRequestDispatcher(targetJSP).forward(request,response);
         }
@@ -191,7 +192,7 @@ public class MainPageServlet extends HttpServlet {
         response.getWriter().write("{\"isLiked\": " + request.getAttribute("isLiked") + "}");
     }
 
-    private void handleSuggestion(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+    /*private void handleSuggestion(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
         String suggestionParameter = request.getParameter("suggestionParameter");
         boolean isManga = (boolean) request.getAttribute("isManga");
         String targetJSP = isManga ? "/WEB-INF/jsp/manga_main_page.jsp" : "/WEB-INF/jsp/anime_main_page.jsp";
@@ -217,5 +218,5 @@ public class MainPageServlet extends HttpServlet {
             }
         }
         request.getRequestDispatcher(targetJSP).forward(request, response);
-    }
+    }*/
 }
