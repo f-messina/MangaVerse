@@ -108,6 +108,11 @@ public class Manga extends MediaContent {
         this.type = type;
     }
 
+
+    /**
+     * Returns a string representation of the Manga object.
+     * @return A string representation of the Manga object.
+     */
     @Override
     public String toString() {
         return "Manga{" +

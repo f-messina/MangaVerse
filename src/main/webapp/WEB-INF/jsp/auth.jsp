@@ -19,13 +19,16 @@
     <title>AUTH PAGE</title>
 </head>
 <body>
-<nav>
-    <a href="${pageContext.request.contextPath}/mainPage"><img src="${pageContext.request.contextPath}/images/logo-with-initial.png" alt="logo" /></a>
-    <div class="nav-items">
-        <a href="${pageContext.request.contextPath}/mainPage/anime" class="anime">Anime</a>
-        <a href="${pageContext.request.contextPath}/mainPage/manga" class="manga">Manga</a>
-    </div>
-</nav>
+<div class="nav-bar">
+    <nav>
+        <a href="${pageContext.request.contextPath}/mainPage"><img src="${pageContext.request.contextPath}/images/logo-with-initial.png" alt="logo" /></a>
+        <div class="nav-items">
+            <a href="${pageContext.request.contextPath}/mainPage/anime" class="anime">Anime</a>
+            <a href="${pageContext.request.contextPath}/mainPage/manga" class="manga">Manga</a>
+        </div>
+    </nav>
+</div>
+
 
 <div class="options">
     <section class="sign-up">

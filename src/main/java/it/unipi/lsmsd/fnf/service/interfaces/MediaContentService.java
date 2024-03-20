@@ -1,4 +1,4 @@
-package it.unipi.lsmsd.fnf.service;
+package it.unipi.lsmsd.fnf.service.interfaces;
 
 import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;

@@ -8,7 +8,6 @@
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-<%@ page import="it.unipi.lsmsd.fnf.utils.Constants" %>
 <%@ page import="it.unipi.lsmsd.fnf.model.enums.Gender" %>
 <%@ page contentType="text/html;charset=UTF-8" %>
 <!DOCTYPE html>
@@ -28,10 +27,9 @@
             referrerpolicy="no-referrer"
     />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/profile_test.css">
-    <script src="${pageContext.request.contextPath}/js/profile_test.js" defer></script>
     <script src="https://code.jquery.com/jquery-3.6.4.min.js" defer></script>
+    <script src="${pageContext.request.contextPath}/js/profile_test.js" defer></script>
     <script src="${pageContext.request.contextPath}/js/country_dropdown.js" defer></script>
-    <script src="${pageContext.request.contextPath}/js/logout.js" defer></script>
     <title>PROFILE</title>
 </head>
 <body>
@@ -41,39 +39,44 @@
         <div class="nav-items">
             <a href="${pageContext.request.contextPath}/mainPage/anime" class="anime">Anime</a>
             <a href="${pageContext.request.contextPath}/mainPage/manga" class="manga">Manga</a>
-            <a id="logoutBtn" href="${pageContext.request.contextPath}/auth">Logout</a>
+            <form action="${pageContext.request.contextPath}/auth" method="post">
+                <input type="hidden" name="action" value="logout">
+                <input type="hidden" name="targetServlet" value="/auth">
+                <button type="submit" class="logout">Log Out</button>
+            </form>
             <a href="#" class="small-pic"><img alt="profile bar" src="${pageContext.request.contextPath}/images/account-icon.png"> <i class="fa-solid fa-chevron-down" style="color: #000000"> </i></a>
         </div>
     </nav>
 
+    <c:set var="userInfo" value="${requestScope['userInfo']}" />
     <section class="profile">
         <div class="profile-img">
-            <img alt="profile image" src="${sessionScope[Constants.AUTHENTICATED_USER_KEY].getProfilePicUrl()}">
+            <img alt="profile image" src="${userInfo.getProfilePicUrl()}">
         </div>
         <div id="user-info" class="texts">
             <form id="profile-form" method="post" action="${pageContext.request.contextPath}/profile" autocomplete="off" class="forms">
                 <input type="hidden" name="action" value="update-info">
                 <div class="form-group">
                     <label for="username"><i class="zmdi zmdi-account material-icons-name"></i></label>
-                    <input type="text" class="editable info-box" name="username" value="${sessionScope[Constants.AUTHENTICATED_USER_KEY].getUsername()}" id="username" placeholder="Username" oninput="validateUsername()" required disabled/>
+                    <input type="text" class="editable info-box" name="username" value="${userInfo.getUsername()}" id="username" placeholder="Username" oninput="validateUsername()" required disabled/>
                     <span id="username-error" style="color: red"><c:out value="${requestScope['usernameError']}" /></span>
                 </div>
                 <div class="form-group">
                     <label for="email"><i class="zmdi zmdi-email"></i></label>
-                    <input type="email" class="info-box" name="email" id="email" value="${sessionScope[Constants.AUTHENTICATED_USER_KEY].getEmail()}" placeholder="Your Email" required disabled/>
+                    <input type="email" class="info-box" name="email" id="email" value="${userInfo.getEmail()}" placeholder="Your Email" required disabled/>
                 </div>
                 <div class="form-group">
                     <label for="fullname"><i class="zmdi zmdi-lock-outline"></i></label>
-                    <input type="text" class="editable info-box" name="fullname" id="fullname" value="${sessionScope[Constants.AUTHENTICATED_USER_KEY].getFullname()}" placeholder="Full Name (Optional)" disabled/>
+                    <input type="text" class="editable info-box" name="fullname" id="fullname" value="${userInfo.getFullname()}" placeholder="Full Name (Optional)" disabled/>
                 </div>
                 <div class="form-group">
                     <label for="description"><i class="zmdi zmdi-lock-outline"></i></label>
-                    <input type="text" class="editable info-box" name="description" id="description" value="${sessionScope[Constants.AUTHENTICATED_USER_KEY].getDescription()}" placeholder="Description (Optional)" disabled/>
+                    <input type="text" class="editable info-box" name="description" id="description" value="${userInfo.getDescription()}" placeholder="Description (Optional)" disabled/>
                 </div>
                 <div class="form-group">
                     <label for="gender"><i class="zmdi zmdi-lock-outline"></i></label>
                     <select id="gender" class="editable info-box" name="gender" disabled>
-                        <c:set var="selectedGender" value="${sessionScope[Constants.AUTHENTICATED_USER_KEY].getGender()}" />
+                        <c:set var="selectedGender" value="${userInfo.getGender()}" />
                         <c:forEach var="gender" items="${Gender.values()}">
                             <option value="${gender.name()}" <c:if test="${gender.name() eq selectedGender}">selected</c:if>>${gender.toString()}</option>
                         </c:forEach>
@@ -81,17 +84,17 @@
                 </div>
                 <div class="form-group">
                     <label for="birthdate"><i class="zmdi zmdi-lock-outline"></i></label>
-                    <input type="date" class="editable info-box" name="birthdate" value="${sessionScope[Constants.AUTHENTICATED_USER_KEY].getBirthday()}" id="birthdate" placeholder="Birthdate" disabled/>
+                    <input type="date" class="editable info-box" name="birthdate" value="${userInfo.getBirthday()}" id="birthdate" placeholder="Birthdate" disabled/>
                 </div>
                 <div class="form-group">
                     <label for="country"><i class="zmdi zmdi-lock-outline"></i></label>
-                    <input type="text" name="country" class="editable info-box" id="country" placeholder="Country (Optional)" value="${sessionScope[Constants.AUTHENTICATED_USER_KEY].getLocation()}" oninput="validateCountry()" disabled/>
+                    <input type="text" name="country" class="editable info-box" id="country" placeholder="Country (Optional)" value="${userInfo.getLocation()}" oninput="validateCountry()" disabled/>
                     <div class="dropdown-content" id="country-dropdown" onclick="validateCountry()"></div>
                     <span id="country-error" style="color: red"></span>
                 </div>
                 <div class="form-group">
                     <label for="joined-date"><i class="zmdi zmdi-lock"></i></label>
-                    <input type="text" class="info-box" name="joined-date" id="joined-date" value="${sessionScope[Constants.AUTHENTICATED_USER_KEY].getJoinedDate()}" placeholder="Joined Date" disabled/>
+                    <input type="text" class="info-box" name="joined-date" id="joined-date" value="${userInfo.getJoinedDate()}" placeholder="Joined Date" disabled/>
                 </div>
                 <div class="form-group">
                     <button type="submit" id="edit-button" class="submit-btn">Modify</button>
@@ -135,100 +138,12 @@
         </div>
     </section>
 
-    <section class="lists">
-        <h1>Lists</h1>
-        <form class="add-list" method="post" action="${pageContext.request.contextPath}/profile">
-            <input type="hidden" name="action" value="add-list">
-            <label for="listName">Add a new list:</label>
-            <input type="text" name="listName" id="listName" placeholder="List Name" required/>
-            <button class="add-list-button" type="submit">Add List</button>
-        </form>
-        <c:set var="lists" value="${requestScope.lists}" />
-        <c:choose>
-            <c:when test="${not empty lists}">
-                <c:forEach var="list" items="${lists}">
-                    <div class="list">
-                        <div class="list-title">
-                            <h2>
-                                <c:out value="${list.getName()}" />
-                            </h2>
-
-                            <form method="post" action="${pageContext.request.contextPath}/profile">
-                                <input type="hidden" name="action" value="delete-list">
-                                <input type="hidden" name="listIdToRemove" value="${list.getId()}">
-                                <button class="remove-btn" type="submit">Remove</button>
-                            </form>
-                        </div>
-                        <div class="container">
-                            <ul class="manga-anime-list" id="manga-anime-list">
-                                <c:if test="${not empty list.getManga()}">
-                                    <c:forEach var="manga" items="${list.getManga()}">
-                                        <li>
-                                            <form method="post" action="${pageContext.request.contextPath}/profile">
-                                                <input type="hidden" name="action" value="delete-item">
-                                                <input type="hidden" name="listId" value="${list.getId()}">
-                                                <input type="hidden" name="mangaIdToRemove" value="${manga.getId()}">
-
-                                                <div style="display: flex; align-items: center;">
-                                                    <div style="margin-right: 10px;">
-                                                        <a class="manga-anime" href="${pageContext.request.contextPath}/manga?mediaId=${manga.getId()}"><c:out value="${manga.getTitle()}"/></a>
-                                                    </div>
-
-                                                    <div style="margin-right: 10px;">
-                                                        <button class="remove-btn" type="submit">Remove</button>
-                                                    </div>
-                                                </div>
-                                                <br/>
-                                                <img class="list-img" src="${manga.getImageUrl()}" alt="${fn:escapeXml(manga.getTitle())} image" />
-                                                <br/><br/><br/>
-                                            </form>
-                                        </li>
-                                    </c:forEach>
-                                </c:if>
-                                <c:if test="${not empty list.getAnime()}">
-                                    <c:forEach var="anime" items="${list.getAnime()}">
-                                        <li>
-                                            <form method="post" action="${pageContext.request.contextPath}/profile">
-                                                <input type="hidden" name="action" value="delete-item">
-                                                <input type="hidden" name="listId" value="${list.getId()}">
-                                                <input type="hidden" name="animeIdToRemove" value="${anime.getId()}">
-
-                                                <div style="display: flex; align-items: center;">
-                                                    <div style="margin-right: 10px;">
-                                                        <a class="manga-anime" href="${pageContext.request.contextPath}/anime?mediaId=${anime.getId()}"><c:out value="${anime.getTitle()}"/></a>
-                                                    </div>
-
-                                                    <div style="margin-right: 10px;">
-                                                        <button class="remove-btn" type="submit">Remove</button>
-                                                    </div>
-                                                </div>
-                                                <br/>
-                                                <img class="list-img" src="${anime.getImageUrl()}" alt="${fn:escapeXml(anime.getTitle())} image" />
-                                                <br/><br/><br/>
-                                            </form>
-                                        </li>
-                                    </c:forEach>
-                                </c:if>
-                                <c:if test="${empty list.getManga() and empty list.getAnime()}">
-                                    <li>No items found</li>
-                                </c:if>
-                            </ul>
-                            <button id="showAllBtn" class="show-all-btn">Show All Items</button>
-                        </div>
-                    </div>
-                </c:forEach>
-            </c:when>
-            <c:otherwise>
-                <h2>No lists found</h2>
-            </c:otherwise>
-        </c:choose>
-    </section>
     <section class="reviews">
         <h1>Reviews</h1>
-        <c:set var="reviews" value="${sessionScope[Constants.AUTHENTICATED_USER_KEY].getReviews()}" />
+        <c:set var="reviews" value="${requestScope.reviews}" />
         <c:choose>
             <c:when test="${not empty reviews}">
-                <c:forEach var="review" items="${reviews}">
+                <c:forEach var="review" items="${reviews.getEntries()}">
                     <div class="review ">
                         <h2>
                             <c:out value="${review.getMediaContent().getTitle()}" />

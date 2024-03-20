@@ -1,14 +1,18 @@
 package it.unipi.lsmsd.fnf.dao.mongo;
 
+
 import com.mongodb.client.FindIterable;
+
+import com.mongodb.MongoException;
+
 import com.mongodb.client.model.*;
-import com.mongodb.client.result.UpdateResult;
-import it.unipi.lsmsd.fnf.dao.UserDAO;
-import it.unipi.lsmsd.fnf.dao.base.BaseMongoDBDAO;
-import it.unipi.lsmsd.fnf.dao.exception.DAOException;
-import it.unipi.lsmsd.fnf.dao.exception.DAOExceptionType;
-import it.unipi.lsmsd.fnf.dto.RegisteredUserDTO;
+import it.unipi.lsmsd.fnf.dao.interfaces.UserDAO;
+import it.unipi.lsmsd.fnf.dao.exception.*;
+import it.unipi.lsmsd.fnf.dto.LoggedUserDTO;
+import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
+import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
 import it.unipi.lsmsd.fnf.model.enums.Gender;
+import it.unipi.lsmsd.fnf.model.enums.UserType;
 import it.unipi.lsmsd.fnf.model.registeredUser.Manager;
 import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
@@ -16,288 +20,251 @@ import it.unipi.lsmsd.fnf.utils.Constants;
 import it.unipi.lsmsd.fnf.utils.ConverterUtils;
 
 import com.mongodb.client.MongoCollection;
+import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 import java.util.*;
 
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.*;
+
 import static com.mongodb.client.model.Sorts.metaTextScore;
 import static com.mongodb.client.model.Updates.setOnInsert;
 
+import static com.mongodb.client.model.Sorts.ascending;
+
+
+/**
+ * Implementation of UserDAO interface for MongoDB data access.
+ * Provides methods for user registration, authentication, updating, and removal,
+ * as well as methods for querying user data and performing statistical analyses.
+ */
 public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
     private static final String COLLECTION_NAME = "users";
 
+    /**
+     * Registers a new user in the system.
+     *
+     * @param user The User object to be registered.
+     * @throws DAOException If an error occurs during registration,
+     *                      such as email or username already in use.
+     */
     @Override
-    public String register(User user) throws DAOException {
+    public void createUser(UserRegistrationDTO user) throws DAOException {
         try {
             MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
 
-            user.setJoinedDate(LocalDate.now());
-            user.setProfilePicUrl("images/user%20icon%20-%20Kopya%20-%20Kopya.png");
+            boolean usernameExists = usersCollection.countDocuments(eq("username", user.getUsername())) != 0;
+            boolean emailExists = usersCollection.countDocuments(eq("email", user.getEmail())) != 0;
+            if(usernameExists && emailExists)
+                throw new DuplicatedException(DuplicatedExceptionType.DUPLICATED_KEY, "Username and email already in use");
+            else if(usernameExists)
+                throw new DuplicatedException(DuplicatedExceptionType.DUPLICATED_NAME, "Username already in use");
+            else if(emailExists)
+                throw new DuplicatedException(DuplicatedExceptionType.DUPLICATED_EMAIL, "Email already in use");
 
-            Bson filter = or(
-                    eq("email", user.getEmail()),
-                    eq("username", user.getUsername())
-            );
-            Bson update = setOnInsert(RegisteredUserToDocument(user));
+            Optional.ofNullable(usersCollection.insertOne(RegisteredUserToDocument(user, Constants .DEFAULT_PROFILE_PICTURE)).getInsertedId())
+                    .map(result -> result.asObjectId().getValue().toHexString())
+                    .map(id -> { user.setId(id); return id; })
+                    .orElseThrow(() -> new MongoException("No user was inserted"));
 
-            UpdateResult result = usersCollection.updateOne(filter, update, new UpdateOptions().upsert(true));
+        } catch (MongoException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
 
-            if (result.getUpsertedId() == null) {
-                // Check which field is causing the conflict
-                Document existingUser = usersCollection.find(filter).first();
-                if (existingUser != null) {
-                    if (existingUser.getString("email").equals(user.getEmail()) && existingUser.getString("username").equals(user.getUsername())) {
-                        throw new DAOException(DAOExceptionType.TAKEN_EMAIL_USERNAME,"Email and username already in use");
-                    } else if (existingUser.getString("email").equals(user.getEmail())) {
-                        throw new DAOException(DAOExceptionType.TAKEN_EMAIL,"Email already in use");
-                    } else {
-                        throw new DAOException(DAOExceptionType.TAKEN_USERNAME,"Username already in use");
-                    }
-                } else {
-                    throw new DAOException("Error adding new user");
-                }
-            } else {
-                return result.getUpsertedId().asObjectId().getValue().toString();
+        } catch (DuplicatedException e) {
+            switch (e.getType()) {
+                case DUPLICATED_NAME:
+                    throw new DAOException(DAOExceptionType.DUPLICATED_USERNAME, e.getMessage());
+                case DUPLICATED_EMAIL:
+                    throw new DAOException(DAOExceptionType.DUPLICATED_EMAIL, e.getMessage());
+                default:
+                    throw new DAOException(DAOExceptionType.DUPLICATED_KEY, e.getMessage());
             }
-        } catch (DAOException e) {
-            throw e;
         } catch (Exception e) {
-            throw new DAOException("Error adding new user", e);
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
 
+    /**
+     * Updates the information of an existing user in the system.
+     *
+     * @param user The User object containing the updated information.
+     * @throws DAOException If an error occurs during the update process,
+     *                      such as the username already exists.
+     */
     @Override
-    public void update(User user) throws DAOException {
+    public void updateUser(User user) throws DAOException {
         try {
             MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
 
             // Check if the new username already exists in the collection
-            Bson usernameExistsFilter = eq("username", user.getUsername());
+            Bson usernameExistsFilter = and(
+                    eq("username", user.getUsername()),
+                    ne("_id", new ObjectId(user.getId()))
+            );
             if (usersCollection.countDocuments(usernameExistsFilter) > 0) {
-                throw new DAOException(DAOExceptionType.TAKEN_USERNAME,"Username already exists in the collection");
+                throw new DuplicatedException("Username already exists in the collection");
             }
 
-            // Update the document
+            // Update the document in the collection and check if the update was successful
             Bson filter = eq("_id", new ObjectId(user.getId()));
             Bson update = new Document("$set", RegisteredUserToDocument(user))
                     .append("$unset", UnsetDocument(user));
-
-            UpdateResult results = usersCollection.updateOne(filter, update);
-            if (results.getModifiedCount() == 0) {
-                throw new DAOException("No user was updated");
+            if (usersCollection.updateOne(filter, update).getModifiedCount() == 0) {
+                throw new MongoException("No user was updated");
             }
-        } catch (DAOException e) {
-            throw e;
+
+        } catch (MongoException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
+        } catch (DuplicatedException e) {
+            throw new DAOException(DAOExceptionType.DUPLICATED_USERNAME, e.getMessage());
+
         } catch (Exception e) {
-            throw new DAOException("Error updating user information for user with id: " + user.getId(), e);
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+
         }
     }
 
+    /**
+     * Removes a user from the system based on their ID.
+     *
+     * @param userId The ID of the user to be removed.
+     * @throws DAOException If an error occurs while removing the user.
+     */
     @Override
-    public void remove(String userId) throws DAOException {
+    public void deleteUser(String userId) throws DAOException {
         try {
             MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
 
             Bson filter = eq("_id", new ObjectId(userId));
 
-            usersCollection.deleteOne(filter);
-        }
-        catch (Exception e){
-            throw new DAOException("Error removing user", e);
-        }
-    }
-
-    @Override
-    public RegisteredUser authenticate(String email, String password) throws DAOException {
-        try {
-            MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
-
-            Bson filter = eq("email", email);
-            Bson projection = exclude("is_manager");
-
-            Document userDocument = usersCollection.find(filter).projection(projection).first();
-            if (userDocument != null) {
-                RegisteredUser user = documentToRegisteredUser(userDocument);
-                if (user.getPassword().equals(password)) {
-                    user.setPassword(null);
-                    return user;
-                } else {
-                    throw new DAOException(DAOExceptionType.WRONG_PSW,"Wrong password");
-                }
-            } else {
-                throw new DAOException(DAOExceptionType.WRONG_EMAIL,"User not found");
+            if (usersCollection.deleteOne(filter).getDeletedCount() == 0) {
+                throw new MongoException("No user was deleted");
             }
-        }
-        catch (DAOException e){
-            throw e;
-        }
-        catch (Exception e){
-            throw new DAOException("Error authenticating user", e);
+
+        } catch (MongoException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
+        } catch (Exception e) {
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+
         }
     }
 
+    /**
+     * Retrieves a user from the system based on their ID.
+     *
+     * @param userId The ID of the user to retrieve.
+     * @return The retrieved user, or null if not found.
+     * @throws DAOException If an error occurs while retrieving the user.
+     */
     @Override
-    public RegisteredUser find(String userId) throws DAOException {
+    public RegisteredUser readUser(String userId, boolean onlyStatsInfo) throws DAOException {
         try {
             MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
 
             Bson filter = eq("_id", new ObjectId(userId));
-            Bson projection = exclude("is_manager", "password");
+            Bson projection;
+            if (onlyStatsInfo) {
+                projection = fields(include("location", "birthday"), excludeId());
+            } else {
+                projection = exclude("is_manager", "password");
+            }
 
-            Document userDocument = usersCollection.find(filter).projection(projection).first();
-            return (userDocument != null)? documentToRegisteredUser(userDocument) : null;
+            return Optional.ofNullable(usersCollection.find(filter).projection(projection).first())
+                    .map(this::documentToRegisteredUser)
+                    .orElseThrow(() -> new MongoException("User not found"));
         }
         catch (Exception e){
             throw new DAOException("Error searching user by id: "+ userId, e);
         }
     }
 
-    @Override
-    public User getInfoForSuggestions(String userId) throws DAOException {
+    /**
+     * Authenticates a user based on their email and password.
+     *
+     * @param email    The email of the user to authenticate.
+     * @param password The password of the user to authenticate.
+     * @return The authenticated user.
+     * @throws DAOException If authentication fails due to incorrect email or password.
+     */
+
+
+
+    public LoggedUserDTO authenticate(String email, String password) throws DAOException {
+
         try {
             MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
 
-            Bson filter = eq("_id", new ObjectId(userId));
-            Bson projection = fields(
-                    include("birthday", "location"),
-                    excludeId());
+            Bson filter = and(eq("email", email),eq("password", password));
+            Bson projection = include("username", "picture", "is_manager");
 
+            return Optional.ofNullable(usersCollection.find(filter).projection(projection).first())
+                    .map(doc -> {
+                        LoggedUserDTO user = new LoggedUserDTO();
+                        user.setId(doc.getObjectId("_id").toString());
+                        user.setUsername(doc.getString("username"));
+                        user.setProfilePicUrl(doc.getString("picture"));
+                        user.setType(doc.getBoolean("is_manager") != null ? UserType.MANAGER : UserType.USER);
+                        return user;
+                    })
+                    .orElseThrow(() -> new AuthenticationException("Invalid email or password"));
+        } catch (MongoException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
 
+        } catch (AuthenticationException e) {
+            throw new DAOException(DAOExceptionType.AUTHENTICATION_ERROR, e.getMessage());
 
-            Document userDocument = usersCollection.find(filter).projection(projection).first();
-            User user = new User();
-            user.setLocation(userDocument.getString("location"));
-            user.setBirthday(ConverterUtils.dateToLocalDate(userDocument.getDate("birthday")));
-            return (userDocument != null)? user : null;
-        }
-        catch (Exception e){
-            throw new DAOException("Error searching user by id: "+ userId, e);
+        } catch (Exception e) {
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
 
+    /**
+     * Searches for users based on their username.
+     *
+     * @param username The username to search for.
+     * @return A list of RegisteredUserDTO objects matching the search criteria.
+     * @throws DAOException If an error occurs while searching for users.
+     */
     @Override
-    public List<RegisteredUserDTO> search(String username) throws DAOException {
+    public List<UserSummaryDTO> searchFirstNUsers(String username, Integer n, String loggedUser) throws DAOException {
         try {
             MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
 
-            Bson filter = text(username);
-            Bson sort = metaTextScore("score");
+            Bson filter;
+            if (StringUtils.isNotBlank(username)) {
+                filter = and(regex("username", username, "ix"), eq("is_manager", null));
+            } else {
+                filter = eq("is_manager", null);
+            }
+            if (StringUtils.isNotBlank(loggedUser)) {
+                filter = and(filter, ne("username", loggedUser));
+            }
+            Bson sort = ascending("username");
             Bson projection = include("username", "picture");
 
-            List<RegisteredUserDTO> result = new ArrayList<>();
-            FindIterable<Document> results = usersCollection.find(filter).sort(sort).projection(projection);
-
-            results.forEach(document -> {
-                RegisteredUserDTO user = documentToRegisteredUserDTO(document);
-                result.add(user);
-            });
-
-            return result;
+            if (n == null) {
+                return usersCollection.find(filter).sort(sort).projection(projection).into(new ArrayList<>())
+                        .stream()
+                        .map(this::documentToUserSummaryDTO)
+                        .toList();
+            } else {
+                return usersCollection.find(filter).sort(sort).projection(projection).limit(n).into(new ArrayList<>())
+                        .stream()
+                        .map(this::documentToUserSummaryDTO)
+                        .toList();
+            }
+        } catch (Exception e) {
+            throw new DAOException("Error searching user by username: " + username, e);
         }
-        catch (Exception e){
-            throw new DAOException("Error searching user by username: "+ username, e);
-        }
-    }
-
-    public List<RegisteredUserDTO> findAll() throws DAOException {
-        try {
-            MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
-
-            Bson filter = eq("is_manager", null);
-            Bson projection = include("username", "picture");
-
-            List<RegisteredUserDTO> result = new ArrayList<>();
-            usersCollection.find(filter).projection(projection).forEach(document -> {
-                RegisteredUserDTO user = documentToRegisteredUserDTO(document);
-                result.add(user);
-            });
-
-            return result;
-        }
-        catch (Exception e){
-            throw new DAOException("Error searching all the usersCollection", e);
-        }
-    }
-
-    private RegisteredUserDTO documentToRegisteredUserDTO(Document doc) {
-        RegisteredUserDTO user = new RegisteredUserDTO();
-        user.setId(doc.getObjectId("_id").toString());
-        user.setUsername(doc.getString("username"));
-        user.setProfilePicUrl(doc.getString("picture"));
-        return user;
-    }
-
-    private RegisteredUser documentToRegisteredUser(Document doc) {
-        RegisteredUser user;
-
-        if (doc.getBoolean("is_manager") != null) {
-            Manager manager = new Manager();
-            manager.setHiredDate(ConverterUtils.dateToLocalDate(doc.getDate("hired_on")));
-            manager.setTitle(doc.getString("title"));
-            user = manager;
-        } else {
-            User regularUser = new User();
-            regularUser.setUsername(doc.getString("username"));
-            regularUser.setBirthday(ConverterUtils.dateToLocalDate(doc.getDate("birthday")));
-            regularUser.setDescription(doc.getString("description"));
-            regularUser.setGender(Gender.fromString(doc.getString("gender")));
-            regularUser.setLocation(doc.getString("location"));
-            user = regularUser;
-        }
-
-        user.setId(doc.getObjectId("_id").toString());
-        user.setPassword(doc.getString("password"));
-        user.setEmail(doc.getString("email"));
-        user.setJoinedDate(ConverterUtils.dateToLocalDate(doc.getDate("joined_on")));
-        user.setFullname(doc.getString("fullname"));
-        user.setProfilePicUrl(doc.getString("picture"));
-        return user;
-    }
-
-    private Document RegisteredUserToDocument(RegisteredUser user) {
-        Document doc = new Document();
-        appendIfNotNull(doc, "password", user.getPassword());
-        appendIfNotNull(doc, "email", user.getEmail());
-
-        if (user.getJoinedDate() != null) {
-            appendIfNotNull(doc, "joined_on", ConverterUtils.localDateToDate(user.getJoinedDate()));
-        }
-        appendIfNotNull(doc, "fullname", user.getFullname());
-        appendIfNotNull(doc, "picture", user.getProfilePicUrl());
-
-        if (user instanceof Manager manager) {
-            appendIfNotNull(doc, "title", manager.getTitle());
-            appendIfNotNull(doc, "hired_on", ConverterUtils.localDateToDate(manager.getHiredDate()));
-        } else if (user instanceof User regularUser) {
-            appendIfNotNull(doc, "username", regularUser.getUsername());
-            appendIfNotNull(doc, "birthday", ConverterUtils.localDateToDate(regularUser.getBirthday()));
-            appendIfNotNull(doc, "description", regularUser.getDescription());
-            // TODO: change gender name() to ToString()
-            appendIfNotNull(doc, "gender", regularUser.getGender() != null ? regularUser.getGender().name() : null);
-            appendIfNotNull(doc, "location", regularUser.getLocation());
-        }
-
-        return doc;
-    }
-
-    private Document UnsetDocument(User registeredUser) {
-        Document doc = new Document();
-        if (registeredUser.getFullname() != null && registeredUser.getFullname().equals(Constants.NULL_STRING))
-            doc.append("fullname", 1);
-        if (registeredUser.getBirthday() != null && registeredUser.getBirthday().equals(Constants.NULL_DATE))
-            doc.append("birthday", 1);
-        if (registeredUser.getLocation() != null && registeredUser.getLocation().equals(Constants.NULL_STRING))
-            doc.append("location", 1);
-        if (registeredUser.getDescription() != null && registeredUser.getDescription().equals(Constants.NULL_STRING))
-            doc.append("description", 1);
-        if (registeredUser.getGender() != null && registeredUser.getGender().equals(Gender.UNKNOWN))
-            doc.append("gender", 1);
-
-        return doc;
     }
 
     //MongoDB complex queries
@@ -343,6 +310,12 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
 
 
     //Find the average age of users
+    /**
+     * Calculates the average age of users.
+     *
+     * @return The average age of users.
+     * @throws DAOException If an error occurs while calculating the average age.
+     */
     @Override
     public Double averageAgeUsers() throws DAOException {
         try {
@@ -373,8 +346,7 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
         }
     }
 
-
-    //Find average app_rating based on the birthday, location and gender.
+    //Find average app_rating based on location and gender.
     @Override
     public Map<String, Double> averageAppRating (String criteria) throws DAOException {
         try {
@@ -408,7 +380,7 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
 
     //Find the average app_rating of users based on group af ages
     @Override
-    public Map<String, Double> averageAppRatingByAgeRange () throws DAOException {
+    public Map<String, Double> averageAppRatingByAgeRange() throws DAOException {
         try {
             MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
 
@@ -452,7 +424,6 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
 
 
             }
-
             return map;
 
         }
@@ -462,43 +433,131 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
     }
 
     private String convertIntegerToAgeRange(Long age) {
-        if (age == 0) {
-            return("0-13");
-        } else if (age == 13) {
-            return("13-20");
-        } else if (age == 20) {
-            return ("20-40");
-        } else if (age == 40) {
-            return("40-50");
+        if (age == null || age < 0) {
+            return "Unknown";
+        } else if (age <= 13) {
+            return "0-13";
+        } else if (age <= 20) {
+            return "13-20";
+        } else if (age <= 40) {
+            return "20-40";
+        } else if (age <= 50) {
+            return "40-50";
         } else {
-            return("50+");
+            return "50+";
+        }
+    }
+
+
+    private UserSummaryDTO documentToUserSummaryDTO(Document doc) {
+        UserSummaryDTO user = new UserSummaryDTO();
+        user.setId(doc.getObjectId("_id").toString());
+        user.setUsername(doc.getString("username"));
+        user.setProfilePicUrl(doc.getString("picture"));
+        user.setLocation(doc.getString("location"));
+        Date birthDate = doc.getDate("birthday");
+        if (birthDate != null)
+            user.setBirthDate(ConverterUtils.dateToLocalDate(birthDate));
+        return user;
+    }
+
+    private RegisteredUser documentToRegisteredUser(Document doc) {
+        RegisteredUser user;
+
+        if (doc.getBoolean("is_manager") != null) {
+            Manager manager = new Manager();
+            manager.setHiredDate(ConverterUtils.dateToLocalDate(doc.getDate("hired_on")));
+            manager.setTitle(doc.getString("title"));
+            user = manager;
+        } else {
+            User normalUser = new User();
+            normalUser.setUsername(doc.getString("username"));
+            normalUser.setBirthday(ConverterUtils.dateToLocalDate(doc.getDate("birthday")));
+            normalUser.setDescription(doc.getString("description"));
+            normalUser.setGender(Gender.fromString(doc.getString("gender")));
+            normalUser.setLocation(doc.getString("location"));
+            user = normalUser;
         }
 
+        user.setId(doc.getObjectId("_id").toString());
+        user.setPassword(doc.getString("password"));
+        user.setEmail(doc.getString("email"));
+        user.setJoinedDate(ConverterUtils.dateToLocalDate(doc.getDate("joined_on")));
+        user.setFullname(doc.getString("fullname"));
+        user.setProfilePicUrl(doc.getString("picture"));
+        return user;
+    }
+
+    private Document RegisteredUserToDocument(UserRegistrationDTO user, String image) {
+        return getDocument(user.getPassword(), user.getEmail(), LocalDate.now(),
+                user.getFullname(), image, user.getUsername(),
+                user.getBirthday(), null, user.getGender(), user.getLocation());
+    }
+
+    private Document RegisteredUserToDocument(User user) {
+        return getDocument(user.getPassword(), user.getEmail(), user.getJoinedDate(),
+                user.getFullname(), user.getProfilePicUrl(), user.getUsername(),
+                user.getBirthday(), user.getDescription(), user.getGender(), user.getLocation());
+    }
+
+    private Document getDocument(String password, String email, LocalDate joinedDate, String fullname, String profilePicUrl, String username, LocalDate birthday, String description, Gender gender, String location) {
+        Document doc = new Document();
+        appendIfNotNull(doc, "password", password);
+        appendIfNotNull(doc, "email", email);
+
+        if (joinedDate != null) {
+            appendIfNotNull(doc, "joined_on", ConverterUtils.localDateToDate(joinedDate));
+        }
+        appendIfNotNull(doc, "fullname", fullname);
+        appendIfNotNull(doc, "picture", profilePicUrl);
+        appendIfNotNull(doc, "username", username);
+        appendIfNotNull(doc, "birthday", ConverterUtils.localDateToDate(birthday));
+        appendIfNotNull(doc, "description", description);
+        appendIfNotNull(doc, "gender", gender != null ? gender.name() : null);
+        appendIfNotNull(doc, "location", location);
+
+        return doc;
+    }
+
+    private Document UnsetDocument(User registeredUser) {
+        Document doc = new Document();
+        if (registeredUser.getFullname() != null && registeredUser.getFullname().equals(Constants.NULL_STRING))
+            doc.append("fullname", 1);
+        if (registeredUser.getBirthday() != null && registeredUser.getBirthday().equals(Constants.NULL_DATE))
+            doc.append("birthday", 1);
+        if (registeredUser.getLocation() != null && registeredUser.getLocation().equals(Constants.NULL_STRING))
+            doc.append("location", 1);
+        if (registeredUser.getDescription() != null && registeredUser.getDescription().equals(Constants.NULL_STRING))
+            doc.append("description", 1);
+        if (registeredUser.getGender() != null && registeredUser.getGender().equals(Gender.UNKNOWN))
+            doc.append("gender", 1);
+
+        return doc;
     }
 
     // Methods available only in Neo4J
     @Override
-    public void createNode(RegisteredUserDTO registeredUserDTO) throws DAOException {
+    public void createNode(UserSummaryDTO userSummaryDTO) throws DAOException {
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override
     public void follow(String followerUserId, String followingUserId) throws DAOException {
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override
     public void unfollow(String followerUserId, String followingUserId) throws DAOException {
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override
-    public List<RegisteredUserDTO> getFollowing(String userId) throws DAOException {
-        return null;
+    public List<UserSummaryDTO> getFollowing(String userId) throws DAOException {
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override
-    public List<RegisteredUserDTO> getFollowers(String userId) throws DAOException {
-        return null;
+    public List<UserSummaryDTO> getFollowers(String userId) throws DAOException {
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override
-    public List<RegisteredUserDTO> suggestUsers(String userId) throws DAOException {
-        return null;
-    }
-    @Override
-    public void update(RegisteredUser user) throws DAOException {
+    public List<UserSummaryDTO> suggestUsers(String userId) throws DAOException {
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
 }

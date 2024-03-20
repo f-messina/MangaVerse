@@ -1,4 +1,4 @@
-package it.unipi.lsmsd.fnf.dao;
+package it.unipi.lsmsd.fnf.dao.interfaces;
 
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
@@ -10,12 +10,11 @@ import java.util.List;
 import java.util.Map;
 
 public interface MediaContentDAO<T extends MediaContent> {
-
     // MongoDB specific methods
-    String insert(T mediaContent) throws DAOException;
-    void update(T mediaContent) throws DAOException;
-    T find(String id) throws DAOException;
-    void delete(String id) throws DAOException;
+    void createMediaContent(T mediaContent) throws DAOException;
+    void updateMediaContent(T mediaContent) throws DAOException;
+    T readMediaContent(String id) throws DAOException;
+    void deleteMediaContent(String id) throws DAOException;
     PageDTO<? extends MediaContentDTO> search(List<Map<String, Object>> filters, Map<String, Integer> orderBy, int page) throws DAOException;
     void updateLatestReview (ReviewDTO reviewDTO) throws DAOException;
 

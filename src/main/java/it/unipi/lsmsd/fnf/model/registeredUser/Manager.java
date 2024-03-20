@@ -22,6 +22,10 @@ public class Manager extends RegisteredUser {
         this.title = title;
     }
 
+    /**
+     * Overrides the default toString method to provide a custom string representation of the Manager object.
+     * @return A string representation of the Manager object.
+     */
     @Override
     public String toString() {
         return "Manager{" +

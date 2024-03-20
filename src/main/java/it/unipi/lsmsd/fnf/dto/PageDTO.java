@@ -6,7 +6,7 @@ import it.unipi.lsmsd.fnf.utils.Constants;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PageDTO <T>{
+public class PageDTO<T> {
     private List<T> entries;
     private int totalCount;
     private int totalPages;

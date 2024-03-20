@@ -8,14 +8,19 @@ import it.unipi.lsmsd.fnf.model.enums.AnimeType;
 import it.unipi.lsmsd.fnf.model.enums.MangaDemographics;
 import it.unipi.lsmsd.fnf.model.enums.MangaType;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
+
 import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import it.unipi.lsmsd.fnf.service.*;
+
+import it.unipi.lsmsd.fnf.service.interfaces.MediaContentService;
+import it.unipi.lsmsd.fnf.service.ServiceLocator;
+import it.unipi.lsmsd.fnf.service.interfaces.UserService;
+
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 import it.unipi.lsmsd.fnf.utils.Constants;
 import it.unipi.lsmsd.fnf.utils.ConverterUtils;
 import it.unipi.lsmsd.fnf.utils.SecurityUtils;
-import it.unipi.lsmsd.fnf.utils.UserUtils;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -39,7 +44,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 public class MainPageServlet extends HttpServlet {
     private static final Logger logger = LoggerFactory.getLogger(MainPageServlet.class);
     private static final MediaContentService mediaContentService = ServiceLocator.getMediaContentService();
-    private static final PersonalListService personalListService = ServiceLocator.getPersonalListService();
+    private static final UserService userService = ServiceLocator.getUserService();
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         processRequest(request, response);
@@ -55,9 +60,6 @@ public class MainPageServlet extends HttpServlet {
         request.setAttribute("isManga",  request.getServletPath().equals("/mainPage/manga"));
         request.setAttribute("isAnime", request.getServletPath().equals("/mainPage/anime"));
 
-        if (request.getServletPath().equals("/mainPage")) {
-            request.getRequestDispatcher("homepage.jsp").forward(request, response);
-        }
         if ((boolean) request.getAttribute("isManga")) {
             request.setAttribute("mangaGenres", Constants.MANGA_GENRES);
             request.setAttribute("mangaTypes", MangaType.values());
@@ -70,7 +72,7 @@ public class MainPageServlet extends HttpServlet {
             request.setAttribute("animeStatus", Constants.ANIME_STATUS);
             targetJSP = "/WEB-INF/jsp/anime_main_page.jsp";
         } else {
-            response.sendRedirect("mainPage/manga");
+            request.getRequestDispatcher("homepage.jsp").forward(request, response);
             return;
         }
 
@@ -79,7 +81,6 @@ public class MainPageServlet extends HttpServlet {
             case "sortAndPaginate" -> handleSortAndPaginate(request,response);
             case "suggestions" -> handleSuggestion(request,response);
             case "toggleLike" -> handleToggleLike(request,response);
-            case "addToList" -> handleAddToList(request,response);
             case null, default -> request.getRequestDispatcher(targetJSP).forward(request,response);
         }
     }
@@ -178,16 +179,7 @@ public class MainPageServlet extends HttpServlet {
         String userId = SecurityUtils.getAuthenticatedUser(request).getId();
         String mediaId = request.getParameter("mediaId");
         try {
-            MediaContentType contentType = isManga ? MediaContentType.MANGA : MediaContentType.ANIME;
-
-            if (UserUtils.isLiked(request)) {
-                mediaContentService.removeLike(userId, mediaId, contentType);
-            } else {
-                mediaContentService.addLike(userId, mediaId, contentType);
-            }
-
-            request.setAttribute("isLiked", !UserUtils.isLiked(request));
-            UserUtils.updateUserSession(request);
+            throw new BusinessException("Error occurred during like operation");
         } catch (BusinessException e) {
             logger.error("Error occurred during like operation", e);
             request.getRequestDispatcher("/error.jsp").forward(request, response);
@@ -197,27 +189,6 @@ public class MainPageServlet extends HttpServlet {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         response.getWriter().write("{\"isLiked\": " + request.getAttribute("isLiked") + "}");
-    }
-
-    private void handleAddToList(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        boolean isManga = (boolean) request.getAttribute("isManga");
-        String listId = request.getParameter("listId");
-
-        MediaContentDTO mediaContent = isManga ? new MangaDTO() : new AnimeDTO();
-        mediaContent.setId(request.getParameter("mediaId"));
-        mediaContent.setTitle(request.getParameter("mediaTitle"));
-        mediaContent.setImageUrl(request.getParameter("mediaImageUrl"));
-        try {
-            personalListService.addToList(listId, mediaContent);
-        } catch (BusinessException e) {
-            logger.error("Error occurred during list operation", e);
-            request.getRequestDispatcher("/error.jsp").forward(request, response);
-        }
-
-        // Set the content type and write the JSON response
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        response.getWriter().write("{\"isInList\": " + request.getAttribute("isInList") + "}");
     }
 
     private void handleSuggestion(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{

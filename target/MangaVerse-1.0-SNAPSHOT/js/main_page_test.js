@@ -120,7 +120,7 @@ function createArticleElement(media) {
 
     // Add interaction buttons if authenticated user
     if (authenticatedUser) {
-        articleElement.append(createLikeButton(media), createListButton(media));
+        articleElement.append(createLikeButton(media));
     }
 
     return articleElement;
@@ -142,35 +142,6 @@ function createHeartSVG() {
 function toggleLike(media, likeButton) {
     const requestData = { action: "toggleLike", mediaId: media.id, mediaTitle: media.title, mediaImageUrl: media.imageUrl };
     $.post(servletURI, requestData, () => likeButton.toggleClass("liked"), "json").fail(() => console.error("Error occurred during the asynchronous request"));
-}
-
-// Create list button for a media article
-function createListButton(media) {
-    return $("<button>").addClass("list-button").text("Add to list").on("click", () => showListPopup(media));
-}
-
-// Show a popup with list options for a media article
-function showListPopup(media) {
-    const popupContainer = $("<div>").addClass("popup-container");
-    const popup = $("<div>").addClass("list-popup");
-
-    // Add list option buttons
-    lists.forEach(list => popup.append($("<button>").addClass("list-option-button").text(list).on("click", () => addElementToList(media, list[0]).then(() => {
-        console.log("Element added to the list:", list);
-        popupContainer.empty().hide();
-    }).catch(error => console.error("Error adding element to the list:", error)))));
-
-    popupContainer.empty().append(popup).appendTo("body").show();
-
-    // Close the popup when clicking outside of it
-    popupContainer.on("click", e => e.target === popupContainer && popupContainer.empty().hide());
-}
-
-// Add a media element to a specified list
-function addElementToList(element, listId) {
-    const input = { action: "addToList", mediaId: element.id, mediaTitle: element.title, mediaImageUrl: element.imageUrl, listId };
-    console.log("Adding element to list:", input);
-    return $.post(servletURI, input, data => data.alreadyInList ? console.log("Element already in list") : console.log("Element added to list"));
 }
 
 function updatePageBar(data, formId) {

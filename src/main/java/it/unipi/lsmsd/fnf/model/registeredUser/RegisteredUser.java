@@ -5,12 +5,12 @@ import org.bson.types.ObjectId;
 import java.time.LocalDate;
 
 public abstract class RegisteredUser {
-    private String id;
-    private String password;
-    private String email;
-    private String fullname;
-    private String profilePicUrl;
-    private LocalDate joinedDate;
+    protected String id;
+    protected String password;
+    protected String email;
+    protected String fullname;
+    protected String profilePicUrl;
+    protected LocalDate joinedDate;
 
     public String getId() {
         return id;
@@ -60,6 +60,11 @@ public abstract class RegisteredUser {
         this.joinedDate = joinedDate;
     }
 
+
+    /**
+     * Overrides the default toString method to provide a custom string representation of the RegisteredUser object.
+     * @return A string representation of the RegisteredUser object.
+     */
     @Override
     public String toString() {
         return "RegisteredUser{" +

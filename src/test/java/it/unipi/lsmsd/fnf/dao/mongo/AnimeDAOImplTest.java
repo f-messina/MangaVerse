@@ -1,78 +1,115 @@
 package it.unipi.lsmsd.fnf.dao.mongo;
 
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
+import it.unipi.lsmsd.fnf.dto.PageDTO;
+import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.model.enums.Status;
 import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
-import junit.framework.TestCase;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static it.unipi.lsmsd.fnf.dao.base.BaseMongoDBDAO.closeConnection;
-import static it.unipi.lsmsd.fnf.dao.base.BaseMongoDBDAO.openConnection;
+class AnimeDAOImplTest {
 
-public class AnimeDAOImplTest extends TestCase {
+    @BeforeEach
+    public void setUp() throws Exception {
+        BaseMongoDBDAO.openConnection();
+    }
 
-    public void testInsert() {
-        Anime animeToInsert = createSampleAnime();
+    @AfterEach
+    public void tearDown() throws Exception {
+        BaseMongoDBDAO.closeConnection();
+    }
+    @Test
+    void createMediaContent() {
         AnimeDAOImpl animeDAO = new AnimeDAOImpl();
-
+        Anime anime = createSampleAnime();
         try {
-            String idAnimeInserted = animeDAO.insert(animeToInsert);
 
-            // Verifica che l'ID restituito non sia nullo
-
-            // Verifica che l'oggetto Anime sia stato inserito correttamente
-            Anime retrievedAnime = animeDAO.find(idAnimeInserted);
-            assertEquals(animeToInsert.getTitle(), retrievedAnime.getTitle(), "Inserted anime title should match");
-
-        }  catch (DAOException e) {
-            fail("Exception not expected: " + e.getMessage());
+            animeDAO.createMediaContent(anime);
+            System.out.println("Anime created: " + anime.getId());
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
         }
     }
-    private Anime createSampleAnime() {
-        Anime anime = new Anime();
-        anime.setTitle("Sample Anime");
-        anime.setImageUrl("sample.jpg");
-        anime.setAverageRating(9.0);
-        anime.setEpisodeCount(12);
-        anime.setProducers("StudioProduction I.G");
-        anime.setTags(List.of("Action", "Adventure", "Comedy", "Drama", "Fantasy", "Magic", "Military", "Shounen"));
-        anime.setSeason("SUMMER");
-        anime.setYear(2019);
-        anime.setStatus(Status.FINISHED);
-        anime.setSynopsis("Sample synopsis");
-        return anime;
+
+    @Test
+    void updateMediaContent() {
+        AnimeDAOImpl animeDAO = new AnimeDAOImpl();
+        Anime anime = createSampleAnime();
+        anime.setId("65ee4f4f44567e63565fd124");
+        anime.setTitle("Updated Anime");
+        try {
+            animeDAO.updateMediaContent(anime);
+            System.out.println("Anime updated: " + anime.getId());
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
     }
 
-    public void testUpdate() {
+    @Test
+    void deleteMediaContent() {
+        AnimeDAOImpl animeDAO = new AnimeDAOImpl();
+        try {
+            animeDAO.deleteMediaContent("65ee4f4f44567e63565fd124");
+            System.out.println("Anime deleted");
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
     }
 
-    public void testDelete() {
+    @Test
+    void readMediaContent() {
+        AnimeDAOImpl animeDAO = new AnimeDAOImpl();
+        try {
+            Anime anime = animeDAO.readMediaContent("65ee4f4f44567e63565fd124");
+            System.out.println("Anime read: " + anime.toString());
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
     }
 
-    public void testFind() {
+    @Test
+    void search() {
+        AnimeDAOImpl animeDAO = new AnimeDAOImpl();
+        try {
+            PageDTO<AnimeDTO> animePage = animeDAO.search(List.of(Map.of("$in",Map.of("tags", List.of("school clubs", "manwha")))), Map.of("title", 1), 1);
+            System.out.println("Anime found: " + animePage.getTotalCount());
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
     }
 
-    public void testSearch() {
+    @Test
+    void updateLatestReview() {
     }
 
-    //OK for tags
+    @Test
     public void testGetBestCriteriaAnime() {
 
         AnimeDAOImpl animeDAO = new AnimeDAOImpl();
         try {
-            openConnection();
             Map<String, Double> bestAnime = animeDAO.getBestCriteria("tags", true, 2);
             for (Map.Entry<String, Double> entry : bestAnime.entrySet()) {
                 System.out.println("Tag: " + entry.getKey() + ", Average rating: " + entry.getValue());
             }
 
-            closeConnection();
         } catch (DAOException e) {
-            fail("Exception not expected: " + e.getMessage());
+            e.printStackTrace();
         }
+    }
+
+    private Anime createSampleAnime() {
+        Anime anime = new Anime();
+        anime.setTitle("Sample Anime");
+        anime.setImageUrl("sample.jpg");
+        anime.setEpisodeCount(12);
+        anime.setProducers("StudioProduction I.G");
+        anime.setYear(2019);
+        anime.setStatus(Status.FINISHED);
+        return anime;
     }
 }

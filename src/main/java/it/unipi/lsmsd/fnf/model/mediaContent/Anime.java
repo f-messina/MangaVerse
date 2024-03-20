@@ -5,7 +5,9 @@ import it.unipi.lsmsd.fnf.model.enums.AnimeType;
 
 import java.util.ArrayList;
 import java.util.List;
-
+/**
+ * Represents an anime media content.
+ */
 public class Anime extends MediaContent {
     private Integer year;
     private String season;
@@ -89,14 +91,27 @@ public class Anime extends MediaContent {
         this.type = type;
     }
 
+
+    /**
+     * Adds a review to the list of reviews for this anime.
+     * @param review The review to add.
+     */
     public void addReview(Review review) {
         this.reviews.add(review);
     }
 
+    /**
+     * Removes a review from the list of reviews for this anime.
+     * @param review The review to remove.
+     */
     public void removeReview(Review review) {
         this.reviews.remove(review);
     }
 
+    /**
+     * Returns a string representation of the Anime object.
+     * @return A string representation of the Anime object.
+     */
     @Override
     public String toString() {
         return "Anime{" +
