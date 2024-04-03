@@ -560,7 +560,7 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
             List<Document> pipeline = new ArrayList<>();
 
 
-            pipeline.add(Document.parse("{$match: { \"" + nodeType + ".id\": ObjectId(\"" + mediaContentId + "\"), rating: {$exists: true}, date: {$gte: ISODate(\" " + startYear + " -01-01T00:00:00.000Z\"), $lte: ISODate(\"" + endYear + "-12-31T23:59:59.999Z\")}}}"));
+            pipeline.add(Document.parse("{$match: { \"" + nodeType + ".id\": ObjectId(\"" + mediaContentId + "\"), rating: {$exists: true}, date: {$gte: ISODate(\"" + startYear + "-01-01T00:00:00.000Z\"), $lte: ISODate(\"" + endYear + "-12-31T23:59:59.999Z\")}}}"));
             pipeline.add(Document.parse("{$group: {_id: {$year: \"$date\",}, average_rating: {$avg: \"$rating\"}}}"));
             pipeline.add(Document.parse("{$project: {_id: 0, year: \"$_id\", average_rating: 1}}"));
             pipeline.add(Document.parse("{$sort: {year: 1}}"));

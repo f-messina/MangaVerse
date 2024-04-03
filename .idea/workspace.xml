@@ -9,6 +9,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
+
     <list default="true" id="7ce9bf2a-d026-452a-91d6-69a500a9c4c0" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/controller/ManagerServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/controller/ManagerServlet.java" afterDir="false" />
@@ -17,6 +18,7 @@
       <change beforePath="$PROJECT_DIR$/src/main/webapp/manager_mangaPage.jsp" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/webapp/manager_userPage.jsp" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/target/MangaVerse-1.0-SNAPSHOT/manager_mangaPage.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaVerse-1.0-SNAPSHOT/manager_mangaPage.jsp" afterDir="false" />
+
       <change beforePath="$PROJECT_DIR$/target/test-classes/it/unipi/lsmsd/fnf/dao/mongo/ReviewDAOImplTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/test-classes/it/unipi/lsmsd/fnf/dao/mongo/ReviewDAOImplTest.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -31,13 +33,13 @@
         <option value="SCSS File" />
         <option value="Enum" />
         <option value="Class" />
-        <option value="JUnit5 Test Class" />
         <option value="CSS File" />
         <option value="Jsp File" />
         <option value="JavaScript File" />
         <option value="JUnit5 Test Class" />
         <option value="Interface" />
         <option value="Class" />
+        <option value="JUnit5 Test Class" />
       </list>
     </option>
   </component>
@@ -80,16 +82,20 @@
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;Tomcat Server.Tomcat 10.1.16.executor&quot;: &quot;Run&quot;,
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+
     &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
     &quot;git-widget-placeholder&quot;: &quot;feyzan&quot;,
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+
     &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
@@ -111,86 +117,87 @@
       <recent name="" />
     </key>
     <key name="CreateTestDialog.RecentsKey">
+      <recent name="it.unipi.lsmsd.fnf.controller" />
       <recent name="it.unipi.lsmsd.fnf.dao.mongo" />
       <recent name="it.unipi.lsmsd.fnf.service.impl" />
     </key>
   </component>
-  <component name="RunManager" selected="Tomcat Server.Tomcat 10.1.16">
-    <configuration name="AnimeDAOImplTest.createMediaContent" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="JUnit.ManagerServletTest.handleTrendGenres">
+    <configuration name="ManagerServletTest.handleTrendGenres" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="MangaVerse" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="it.unipi.lsmsd.fnf.dao.mongo.*" />
+          <option name="PATTERN" value="it.unipi.lsmsd.fnf.controller.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
-      <option name="PACKAGE_NAME" value="it.unipi.lsmsd.fnf.dao.mongo" />
-      <option name="MAIN_CLASS_NAME" value="it.unipi.lsmsd.fnf.dao.mongo.AnimeDAOImplTest" />
-      <option name="METHOD_NAME" value="createMediaContent" />
+      <option name="PACKAGE_NAME" value="it.unipi.lsmsd.fnf.controller" />
+      <option name="MAIN_CLASS_NAME" value="it.unipi.lsmsd.fnf.controller.ManagerServletTest" />
+      <option name="METHOD_NAME" value="handleTrendGenres" />
       <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="MangaDAOImplTest.createMediaContent" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="ManagerServletTest.handleTrendGenresByYear" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="MangaVerse" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="it.unipi.lsmsd.fnf.dao.mongo.*" />
+          <option name="PATTERN" value="it.unipi.lsmsd.fnf.controller.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
-      <option name="PACKAGE_NAME" value="it.unipi.lsmsd.fnf.dao.mongo" />
-      <option name="MAIN_CLASS_NAME" value="it.unipi.lsmsd.fnf.dao.mongo.MangaDAOImplTest" />
-      <option name="METHOD_NAME" value="createMediaContent" />
+      <option name="PACKAGE_NAME" value="it.unipi.lsmsd.fnf.controller" />
+      <option name="MAIN_CLASS_NAME" value="it.unipi.lsmsd.fnf.controller.ManagerServletTest" />
+      <option name="METHOD_NAME" value="handleTrendGenresByYear" />
       <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="PersonalListDAOImplTest.insertList" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="ManagerServletTest.handleTrendMediaContentByLikes" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="MangaVerse" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="it.unipi.lsmsd.fnf.dao.mongo.*" />
+          <option name="PATTERN" value="it.unipi.lsmsd.fnf.controller.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
-      <option name="PACKAGE_NAME" value="it.unipi.lsmsd.fnf.dao.mongo" />
-      <option name="MAIN_CLASS_NAME" value="it.unipi.lsmsd.fnf.dao.mongo.PersonalListDAOImplTest" />
-      <option name="METHOD_NAME" value="insertList" />
+      <option name="PACKAGE_NAME" value="it.unipi.lsmsd.fnf.controller" />
+      <option name="MAIN_CLASS_NAME" value="it.unipi.lsmsd.fnf.controller.ManagerServletTest" />
+      <option name="METHOD_NAME" value="handleTrendMediaContentByLikes" />
       <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="UserDAOImplTest.addToList" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="ManagerServletTest.handleTrendMediaContentByYear" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="MangaVerse" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="it.unipi.lsmsd.fnf.dao.mongo.*" />
+          <option name="PATTERN" value="it.unipi.lsmsd.fnf.controller.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
-      <option name="PACKAGE_NAME" value="it.unipi.lsmsd.fnf.dao.mongo" />
-      <option name="MAIN_CLASS_NAME" value="it.unipi.lsmsd.fnf.dao.mongo.UserDAOImplTest" />
-      <option name="METHOD_NAME" value="addToList" />
+      <option name="PACKAGE_NAME" value="it.unipi.lsmsd.fnf.controller" />
+      <option name="MAIN_CLASS_NAME" value="it.unipi.lsmsd.fnf.controller.ManagerServletTest" />
+      <option name="METHOD_NAME" value="handleTrendMediaContentByYear" />
       <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="UserDAOImplTest.testAverageAppRatingByAgeRange" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="ManagerServletTest.handleUsersAverageAppRatingAgeRange" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="MangaVerse" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="it.unipi.lsmsd.fnf.dao.mongo.*" />
+          <option name="PATTERN" value="it.unipi.lsmsd.fnf.controller.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
-      <option name="PACKAGE_NAME" value="it.unipi.lsmsd.fnf.dao.mongo" />
-      <option name="MAIN_CLASS_NAME" value="it.unipi.lsmsd.fnf.dao.mongo.UserDAOImplTest" />
-      <option name="METHOD_NAME" value="testAverageAppRatingByAgeRange" />
+      <option name="PACKAGE_NAME" value="it.unipi.lsmsd.fnf.controller" />
+      <option name="MAIN_CLASS_NAME" value="it.unipi.lsmsd.fnf.controller.ManagerServletTest" />
+      <option name="METHOD_NAME" value="handleUsersAverageAppRatingAgeRange" />
       <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -286,20 +293,20 @@
       </method>
     </configuration>
     <list>
-      <item itemvalue="JUnit.UserDAOImplTest.testAverageAppRatingByAgeRange" />
-      <item itemvalue="JUnit.PersonalListDAOImplTest.insertList" />
-      <item itemvalue="JUnit.AnimeDAOImplTest.createMediaContent" />
-      <item itemvalue="JUnit.MangaDAOImplTest.createMediaContent" />
-      <item itemvalue="JUnit.UserDAOImplTest.addToList" />
+      <item itemvalue="JUnit.ManagerServletTest.handleTrendGenres" />
+      <item itemvalue="JUnit.ManagerServletTest.handleTrendGenresByYear" />
+      <item itemvalue="JUnit.ManagerServletTest.handleTrendMediaContentByLikes" />
+      <item itemvalue="JUnit.ManagerServletTest.handleTrendMediaContentByYear" />
+      <item itemvalue="JUnit.ManagerServletTest.handleUsersAverageAppRatingAgeRange" />
       <item itemvalue="Tomcat Server.Tomcat 10.1.16" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="JUnit.UserDAOImplTest.testAverageAppRatingByAgeRange" />
-        <item itemvalue="JUnit.PersonalListDAOImplTest.insertList" />
-        <item itemvalue="JUnit.MangaDAOImplTest.createMediaContent" />
-        <item itemvalue="JUnit.AnimeDAOImplTest.createMediaContent" />
-        <item itemvalue="JUnit.UserDAOImplTest.addToList" />
+        <item itemvalue="JUnit.ManagerServletTest.handleTrendGenres" />
+        <item itemvalue="JUnit.ManagerServletTest.handleTrendMediaContentByLikes" />
+        <item itemvalue="JUnit.ManagerServletTest.handleTrendGenresByYear" />
+        <item itemvalue="JUnit.ManagerServletTest.handleTrendMediaContentByYear" />
+        <item itemvalue="JUnit.ManagerServletTest.handleUsersAverageAppRatingAgeRange" />
       </list>
     </recent_temporary>
   </component>
@@ -372,9 +379,20 @@
       <workItem from="1710783533560" duration="328000" />
       <workItem from="1710783951309" duration="1724000" />
       <workItem from="1710787720153" duration="827000" />
+
       <workItem from="1710940933331" duration="1641000" />
       <workItem from="1710947463440" duration="11957000" />
+
     </task>
+    <task id="LOCAL-00001" summary="manager controller merge to main">
+      <option name="closed" value="true" />
+      <created>1710942627017</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1710942627017</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -390,5 +408,9 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="manager controller merge to main" />
+    <option name="LAST_COMMIT_MESSAGE" value="manager controller merge to main" />
   </component>
 </project>
