@@ -1,11 +1,19 @@
 package it.unipi.lsmsd.fnf.controller;
 
 
+
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
+import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
 import it.unipi.lsmsd.fnf.service.interfaces.MediaContentService;
 import it.unipi.lsmsd.fnf.service.interfaces.ReviewService;
 import it.unipi.lsmsd.fnf.service.ServiceLocator;
@@ -26,8 +34,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-@WebServlet(urlPatterns = {"/manager"})
+@WebServlet(urlPatterns = {"/manager", "/manager/manga", "/manager/anime", "/manager/user" })
 public class ManagerServlet extends HttpServlet {
+
+    private static final MediaContentService mediaContentService = ServiceLocator.getMediaContentService();
 
 
     //DoGet and DoPost methods as the other servlets
@@ -59,6 +69,9 @@ public class ManagerServlet extends HttpServlet {
     private void processRequest(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException, ExecutionException, InterruptedException {
         String action = request.getParameter("action");
         //String targetJSP;
+        if (request.getServletPath().equals("/manager")) {
+            response.sendRedirect("/manager/user");
+        }
         request.setAttribute("isManga",  request.getServletPath().equals("/manager/manga"));
         request.setAttribute("isAnime", request.getServletPath().equals("/manager/anime"));
         request.setAttribute("isUser", request.getServletPath().equals("/manager/user"));
@@ -100,6 +113,10 @@ public class ManagerServlet extends HttpServlet {
             case "trendGenresByYear" -> handleTrendGenresByYear(request, response);
             case "trendMediaContentByLikes" -> handleTrendMediaContentByLikes(request, response);
             case "trendGenres" -> handleTrendGenres(request, response);
+
+            case "show_info" -> handleShowInfo(request, response);
+            case "update_info" -> handleUpdateInfo(request,response);
+            case "delete_media" -> handleDeleteMedia(request,response);
 
             case null, default -> {
                 for (PageHandler actionToRun : defaultActions) {
@@ -984,5 +1001,73 @@ public class ManagerServlet extends HttpServlet {
     //Handler for each type of task
     //Examples: analytics requests (add media content, remove media content, update media content and search will be done by Fey)
 
+
+    private void handleShowInfo(HttpServletRequest request, HttpServletResponse response) {
+        if ((boolean) request.getAttribute("isManga")) {
+            try {
+                Manga manga = (Manga) mediaContentService.getMediaContentById(request.getParameter("mediaId"), MediaContentType.MANGA);
+
+                // Set the content type and write the JSON response
+                ObjectMapper objectMapper = new ObjectMapper();
+                objectMapper.registerModule(new JavaTimeModule());
+                ObjectNode jsonResponse = objectMapper.createObjectNode();
+                JsonNode mangaNode = objectMapper.valueToTree(manga);
+                jsonResponse.set("manga", mangaNode);
+                response.setContentType("application/json");
+                response.setCharacterEncoding("UTF-8");
+                response.getWriter().write(jsonResponse.toString());
+            } catch (BusinessException | IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    public void handleUpdateInfo(HttpServletRequest request, HttpServletResponse response){
+        if ((boolean) request.getAttribute("isManga")) {
+            try {
+                // Retrieve updated manga information from the request parameters
+                String mangaId = request.getParameter("mangaId");
+                String title = request.getParameter("title");
+                String author = request.getParameter("author");
+                String url = request.getParameter("url");
+                // You can retrieve other fields similarly
+
+                // Create a Manga object with the updated information
+                Manga manga = new Manga();
+                manga.setTitle(title);
+                manga.setImageUrl(url);
+                // Set other fields as needed
+
+                // Update manga information using the MediaContentService
+                MediaContentService mediaContentService = ServiceLocator.getMediaContentService();
+                mediaContentService.updateMediaContent(manga);
+
+                // Send a success response back to the client
+                response.setContentType("text/plain");
+                response.getWriter().write("Manga information updated successfully.");
+            } catch (BusinessException | IOException e) {
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            }
+        }
+    }
+
+    public void handleDeleteMedia(HttpServletRequest request, HttpServletResponse response){
+        if ((boolean) request.getAttribute("isManga")){
+            try{
+                String mediaId = request.getParameter("mediaId");
+                if (mediaId != null){
+
+                    mediaContentService.removeMediaContent(mediaId, MediaContentType.MANGA);
+                    response.setStatus(HttpServletResponse.SC_OK);
+                    response.getWriter().write("Manga deleted successfully");
+                } else {
+                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    response.getWriter().println("Invalid manga ID");
+                }
+            }catch (BusinessException | IOException e){
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            }
+        }
+    }
 
 }

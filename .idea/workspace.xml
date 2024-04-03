@@ -2,21 +2,23 @@
 <project version="4">
   <component name="ArtifactsWorkspaceSettings">
     <artifacts-to-build>
-      <artifact name="MangaVerse:war exploded" />
+      <artifact name="MangaUniverse:war exploded" />
     </artifacts-to-build>
   </component>
   <component name="AutoImportSettings">
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7ce9bf2a-d026-452a-91d6-69a500a9c4c0" name="Changes" comment="manager controller merge to main">
-      <change afterPath="$PROJECT_DIR$/src/test/java/it/unipi/lsmsd/fnf/controller/ManagerServletTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/copilot/chatSessions/00000000000.xd" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/copilot/chatSessions/00000000000.xd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/copilot/chatSessions/xd.lck" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/copilot/chatSessions/xd.lck" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+
+    <list default="true" id="7ce9bf2a-d026-452a-91d6-69a500a9c4c0" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/controller/ManagerServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/controller/ManagerServlet.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/mongo/ReviewDAOImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unipi/lsmsd/fnf/dao/mongo/ReviewDAOImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/webapp/css/manager.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/css/manager.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/webapp/manager_animePage.jsp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/webapp/manager_mangaPage.jsp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/webapp/manager_userPage.jsp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/MangaVerse-1.0-SNAPSHOT/manager_mangaPage.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/target/MangaVerse-1.0-SNAPSHOT/manager_mangaPage.jsp" afterDir="false" />
+
       <change beforePath="$PROJECT_DIR$/target/test-classes/it/unipi/lsmsd/fnf/dao/mongo/ReviewDAOImplTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/test-classes/it/unipi/lsmsd/fnf/dao/mongo/ReviewDAOImplTest.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -80,17 +82,20 @@
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;Tomcat Server.Tomcat 10.1.16.executor&quot;: &quot;Run&quot;,
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary&quot;: &quot;JUnit5&quot;,
-    &quot;com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5&quot;: &quot;&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;noemi&quot;,
+
+    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;feyzan&quot;,
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/noemi/Desktop/GastronoMate-main&quot;,
+
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
@@ -202,9 +207,9 @@
       <option name="UPDATE_ON_FRAME_DEACTIVATION" value="true" />
       <option name="UPDATE_CLASSES_ON_FRAME_DEACTIVATION" value="true" />
       <deployment>
-        <artifact name="MangaVerse:war exploded">
+        <artifact name="MangaUniverse:war exploded">
           <settings>
-            <option name="CONTEXT_PATH" value="/MangaVerse" />
+            <option name="CONTEXT_PATH" value="/MangaUniverse" />
           </settings>
         </artifact>
       </deployment>
@@ -308,7 +313,7 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="jdk-21.0.1-openjdk-21.0.1-e1d2075fd9a7-b4911678" />
+        <option value="jdk-21.0.1-openjdk-21.0.1-249ae16d76d6-a618e4d4" />
       </set>
     </attachedChunks>
   </component>
@@ -374,9 +379,10 @@
       <workItem from="1710783533560" duration="328000" />
       <workItem from="1710783951309" duration="1724000" />
       <workItem from="1710787720153" duration="827000" />
-      <workItem from="1710940933331" duration="17860000" />
-      <workItem from="1711294507001" duration="4791000" />
-      <workItem from="1711371380230" duration="326000" />
+
+      <workItem from="1710940933331" duration="1641000" />
+      <workItem from="1710947463440" duration="11957000" />
+
     </task>
     <task id="LOCAL-00001" summary="manager controller merge to main">
       <option name="closed" value="true" />
