@@ -6,7 +6,6 @@ import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 
-
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 
 import org.junit.jupiter.api.AfterEach;
@@ -16,10 +15,9 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 import it.unipi.lsmsd.fnf.dto.PageDTO;
-
 import java.util.Map;
 
-class ReviewDAOImplTest {
+class ReviewDAOMongoImplTest {
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -33,10 +31,10 @@ class ReviewDAOImplTest {
 
     @Test
     void createReview() {
-        ReviewDAOImpl reviewDAO = new ReviewDAOImpl();
+        ReviewDAOMongoImpl reviewDAO = new ReviewDAOMongoImpl();
         ReviewDTO reviewDTO = createSampleReview();
         try {
-            reviewDAO.createReview(reviewDTO);
+            reviewDAO.saveReview(reviewDTO);
         } catch (DAOException e) {
             System.err.println(e.getMessage() + " " + e.getType());
         }
@@ -44,7 +42,7 @@ class ReviewDAOImplTest {
 
     @Test
     void updateReview() {
-        ReviewDAOImpl reviewDAO = new ReviewDAOImpl();
+        ReviewDAOMongoImpl reviewDAO = new ReviewDAOMongoImpl();
         String reviewId = "65ee58ccd956a8d91793c4ba";
         String newComment = "This is a new comment";
         Integer newRating = 4;
@@ -57,7 +55,7 @@ class ReviewDAOImplTest {
 
     @Test
     void updateMediaRedundancy() {
-        ReviewDAOImpl reviewDAO = new ReviewDAOImpl();
+        ReviewDAOMongoImpl reviewDAO = new ReviewDAOMongoImpl();
         String mediaId = "65789bbc2f5d29465d0b18b7";
         String title = "Slayers Revolution";
         MediaContentDTO media = new AnimeDTO(mediaId, title, null);
@@ -70,7 +68,7 @@ class ReviewDAOImplTest {
 
     @Test
     void updateUserRedundancy() {
-        ReviewDAOImpl reviewDAO = new ReviewDAOImpl();
+        ReviewDAOMongoImpl reviewDAO = new ReviewDAOMongoImpl();
         String userId = "65789bbc2f5d29465d0b18b7";
         String username = "giorgio2";
         String pictureUrl = "profilepic2";
@@ -84,7 +82,7 @@ class ReviewDAOImplTest {
 
     @Test
     void deleteReview() {
-        ReviewDAOImpl reviewDAO = new ReviewDAOImpl();
+        ReviewDAOMongoImpl reviewDAO = new ReviewDAOMongoImpl();
         String reviewId = "65ee58ccd956a8d91793c4ba";
         try {
             reviewDAO.deleteReview(reviewId);
@@ -95,7 +93,7 @@ class ReviewDAOImplTest {
 
     @Test
     void deleteReviewsWithNoMedia() {
-        ReviewDAOImpl reviewDAO = new ReviewDAOImpl();
+        ReviewDAOMongoImpl reviewDAO = new ReviewDAOMongoImpl();
         try {
             reviewDAO.deleteReviewsWithNoMedia();
         } catch (DAOException e) {
@@ -105,7 +103,7 @@ class ReviewDAOImplTest {
 
     @Test
     void deleteReviewsWithNoAuthor() {
-        ReviewDAOImpl reviewDAO = new ReviewDAOImpl();
+        ReviewDAOMongoImpl reviewDAO = new ReviewDAOMongoImpl();
         try {
             reviewDAO.deleteReviewsWithNoAuthor();
         } catch (DAOException e) {
@@ -116,7 +114,7 @@ class ReviewDAOImplTest {
     @Test
     void getReviewByUser() {
         String userId = "6577877be68376234760596d";
-        ReviewDAOImpl reviewDAO = new ReviewDAOImpl();
+        ReviewDAOMongoImpl reviewDAO = new ReviewDAOMongoImpl();
         try {
             System.out.println(reviewDAO.getReviewByUser(userId, 1));
         } catch (DAOException e) {
@@ -174,7 +172,7 @@ class ReviewDAOImplTest {
     @Test
     public void testAverageRatingUser() {
         try {
-            ReviewDAOImpl reviewDAO = new ReviewDAOImpl();
+            ReviewDAOMongoImpl reviewDAO = new ReviewDAOMongoImpl();
             Double averageRating = reviewDAO.averageRatingUser("6577877ce683762347606d98");
             System.out.println(averageRating);
         } catch (DAOException e) {
@@ -186,7 +184,7 @@ class ReviewDAOImplTest {
     @Test
     public void testRatingMediaContentByYearAnime() {
         try {
-            ReviewDAOImpl reviewDAO = new ReviewDAOImpl();
+            ReviewDAOMongoImpl reviewDAO = new ReviewDAOMongoImpl();
             Map<String, Double> averageRating = reviewDAO.getMediaContentRatingByYear(MediaContentType.ANIME, "65789bbd2f5d29465d0b243e", 2010, 2020);
 
             System.out.println(averageRating.toString());
@@ -200,7 +198,7 @@ class ReviewDAOImplTest {
     @Test
     public void testRatingMediaContentByYearManga() {
         try {
-            ReviewDAOImpl reviewDAO = new ReviewDAOImpl();
+            ReviewDAOMongoImpl reviewDAO = new ReviewDAOMongoImpl();
             Map<String, Double> averageRating = reviewDAO.getMediaContentRatingByYear(MediaContentType.MANGA, "65789bba2f5d29465d0af82a", 2010, 2020);
 
             System.out.println(averageRating.toString());
@@ -214,7 +212,7 @@ class ReviewDAOImplTest {
     @Test
     public void testRatingAnimeByMonth() {
         try {
-            ReviewDAOImpl reviewDAO = new ReviewDAOImpl();
+            ReviewDAOMongoImpl reviewDAO = new ReviewDAOMongoImpl();
 
             Map<String, Double> averageRating = reviewDAO.getMediaContentRatingByMonth(MediaContentType.ANIME, "65789bb72f5d29465d0ad8e8", 2022);
             System.out.println(averageRating.toString());
@@ -228,7 +226,7 @@ class ReviewDAOImplTest {
     @Test
     public void testRatingMangaByMonth() {
         try {
-            ReviewDAOImpl reviewDAO = new ReviewDAOImpl();
+            ReviewDAOMongoImpl reviewDAO = new ReviewDAOMongoImpl();
 
             Map<String, Double> averageRating = reviewDAO.getMediaContentRatingByMonth(MediaContentType.MANGA, "657ac625b34f5514b91efede", 2019);
             System.out.println(averageRating.toString());
@@ -242,8 +240,8 @@ class ReviewDAOImplTest {
     @Test
     public void testSuggestTopAnimeLocation() {
         try {
-            ReviewDAOImpl reviewDAO = new ReviewDAOImpl();
-            PageDTO<MediaContentDTO> pageDTO = reviewDAO.suggestMediaContent(MediaContentType.ANIME, "Brazil", "location");
+            ReviewDAOMongoImpl reviewDAO = new ReviewDAOMongoImpl();
+            PageDTO<MediaContentDTO> pageDTO = reviewDAO.suggestTopMediaContent(MediaContentType.ANIME, "Brazil", "location");
 
             System.out.println(pageDTO);
 
@@ -259,8 +257,8 @@ class ReviewDAOImplTest {
     @Test
     public void testSuggestTopMangaLocation() {
         try {
-            ReviewDAOImpl reviewDAO = new ReviewDAOImpl();
-            PageDTO<MediaContentDTO> pageDTO = reviewDAO.suggestMediaContent(MediaContentType.MANGA, "Hungary", "location");
+            ReviewDAOMongoImpl reviewDAO = new ReviewDAOMongoImpl();
+            PageDTO<MediaContentDTO> pageDTO = reviewDAO.suggestTopMediaContent(MediaContentType.MANGA, "Hungary", "location");
 
             System.out.println(pageDTO);
 
@@ -275,9 +273,9 @@ class ReviewDAOImplTest {
     public void testSuggestTopAnimeBirthday() {
         try {
 
-            ReviewDAOImpl reviewDAO = new ReviewDAOImpl();
+            ReviewDAOMongoImpl reviewDAO = new ReviewDAOMongoImpl();
 
-            PageDTO<MediaContentDTO> pageDTO = reviewDAO.suggestMediaContent(MediaContentType.ANIME, "1990", "birthday");
+            PageDTO<MediaContentDTO> pageDTO = reviewDAO.suggestTopMediaContent(MediaContentType.ANIME, "1990", "birthday");
 
             System.out.println(pageDTO);
 
@@ -292,9 +290,9 @@ class ReviewDAOImplTest {
     public void testSuggestTopMangaBirthday() {
         try {
 
-            ReviewDAOImpl reviewDAO = new ReviewDAOImpl();
+            ReviewDAOMongoImpl reviewDAO = new ReviewDAOMongoImpl();
 
-            PageDTO<MediaContentDTO> pageDTO = reviewDAO.suggestMediaContent(MediaContentType.MANGA, "1990", "birthday");
+            PageDTO<MediaContentDTO> pageDTO = reviewDAO.suggestTopMediaContent(MediaContentType.MANGA, "1990", "birthday");
 
             System.out.println(pageDTO);
 

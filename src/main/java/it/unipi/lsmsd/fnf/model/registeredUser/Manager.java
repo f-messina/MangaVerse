@@ -1,5 +1,8 @@
 package it.unipi.lsmsd.fnf.model.registeredUser;
 
+import it.unipi.lsmsd.fnf.dto.LoggedUserDTO;
+import it.unipi.lsmsd.fnf.model.enums.UserType;
+
 import java.time.LocalDate;
 
 public class Manager extends RegisteredUser {
@@ -33,5 +36,9 @@ public class Manager extends RegisteredUser {
                 ", hiredDate=" + hiredDate +
                 ", title='" + title + '\'' +
                 '}';
+    }
+
+    public LoggedUserDTO toLoggedUserDTO() {
+        return new LoggedUserDTO(this.getId(), this.getFullname(), this.getProfilePicUrl(), UserType.MANAGER);
     }
 }

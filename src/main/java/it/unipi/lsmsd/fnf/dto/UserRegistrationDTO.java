@@ -1,6 +1,7 @@
 package it.unipi.lsmsd.fnf.dto;
 
 import it.unipi.lsmsd.fnf.model.enums.Gender;
+import it.unipi.lsmsd.fnf.model.registeredUser.User;
 
 import java.time.LocalDate;
 
@@ -90,5 +91,17 @@ public class UserRegistrationDTO {
                 ", fullname='" + fullname + '\'' +
                 ", gender='" + gender + '\'' +
                 '}';
+    }
+
+    public User toModel() {
+        User user = new User();
+        user.setUsername(this.getUsername());
+        user.setPassword(this.getPassword());
+        user.setEmail(this.getEmail());
+        user.setFullname(this.getFullname());
+        user.setGender(this.getGender());
+        user.setLocation(this.getLocation());
+        user.setBirthday(this.getBirthday());
+        return user;
     }
 }

@@ -1,6 +1,7 @@
 package it.unipi.lsmsd.fnf.dto;
 
 import it.unipi.lsmsd.fnf.model.enums.UserType;
+import it.unipi.lsmsd.fnf.model.registeredUser.User;
 
 import java.time.LocalDate;
 
@@ -61,5 +62,13 @@ public class LoggedUserDTO {
                 ", profilePicUrl='" + profilePicUrl + '\'' +
                 ", type='" + type + '\'' +
                 '}';
+    }
+
+    public User toModel() {
+        User user = new User();
+        user.setId(this.getId());
+        user.setUsername(this.getUsername());
+        user.setProfilePicUrl(this.getProfilePicUrl());
+        return user;
     }
 }

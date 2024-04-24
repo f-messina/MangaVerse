@@ -1,7 +1,10 @@
 package it.unipi.lsmsd.fnf.model.registeredUser;
 
+import it.unipi.lsmsd.fnf.dto.LoggedUserDTO;
+import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.model.Review;
 import it.unipi.lsmsd.fnf.model.enums.Gender;
+import it.unipi.lsmsd.fnf.model.enums.UserType;
 import it.unipi.lsmsd.fnf.model.mediaContent.MediaContent;
 
 import java.time.LocalDate;
@@ -138,5 +141,13 @@ public class User extends RegisteredUser {
                 ", gender='" + gender + '\'' +
                 ", location='" + location + '\'' +
                 '}';
+    }
+
+    public UserSummaryDTO toSummaryDTO () {
+        return new UserSummaryDTO(this.getId(), this.getUsername(), this.getProfilePicUrl());
+    }
+
+    public LoggedUserDTO toLoggedUserDTO() {
+        return new LoggedUserDTO(this.getId(), this.getUsername(), this.getProfilePicUrl(), UserType.USER);
     }
 }

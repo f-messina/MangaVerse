@@ -11,20 +11,17 @@ import it.unipi.lsmsd.fnf.dao.exception.*;
 import it.unipi.lsmsd.fnf.dto.LoggedUserDTO;
 import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
-import it.unipi.lsmsd.fnf.model.enums.Gender;
 import it.unipi.lsmsd.fnf.model.enums.UserType;
-import it.unipi.lsmsd.fnf.model.registeredUser.Manager;
 import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import it.unipi.lsmsd.fnf.utils.Constants;
-import it.unipi.lsmsd.fnf.utils.ConverterUtils;
 
 import com.mongodb.client.MongoCollection;
+import it.unipi.lsmsd.fnf.utils.DocumentUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -38,6 +35,8 @@ import static com.mongodb.client.model.Sorts.metaTextScore;
 import static com.mongodb.client.model.Updates.setOnInsert;
 
 import static com.mongodb.client.model.Sorts.ascending;
+import static it.unipi.lsmsd.fnf.utils.DocumentUtils.RegisteredUserToDocument;
+import static it.unipi.lsmsd.fnf.utils.DocumentUtils.UsertToUnsetUserFieldsDocument;
 
 
 /**
@@ -45,7 +44,7 @@ import static com.mongodb.client.model.Sorts.ascending;
  * Provides methods for user registration, authentication, updating, and removal,
  * as well as methods for querying user data and performing statistical analyses.
  */
-public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
+public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
     private static final String COLLECTION_NAME = "users";
 
     /**
@@ -56,7 +55,7 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
      *                      such as email or username already in use.
      */
     @Override
-    public void createUser(UserRegistrationDTO user) throws DAOException {
+    public void saveUser(UserRegistrationDTO user) throws DAOException {
         try {
             MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
 
@@ -115,7 +114,7 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
             // Update the document in the collection and check if the update was successful
             Bson filter = eq("_id", new ObjectId(user.getId()));
             Bson update = new Document("$set", RegisteredUserToDocument(user))
-                    .append("$unset", UnsetDocument(user));
+                    .append("$unset", UsertToUnsetUserFieldsDocument(user));
             if (usersCollection.updateOne(filter, update).getModifiedCount() == 0) {
                 throw new MongoException("No user was updated");
             }
@@ -179,7 +178,7 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
             }
 
             return Optional.ofNullable(usersCollection.find(filter).projection(projection).first())
-                    .map(this::documentToRegisteredUser)
+                    .map(DocumentUtils::documentToRegisteredUser)
                     .orElseThrow(() -> new MongoException("User not found"));
         }
         catch (Exception e){
@@ -254,12 +253,12 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
             if (n == null) {
                 return usersCollection.find(filter).sort(sort).projection(projection).into(new ArrayList<>())
                         .stream()
-                        .map(this::documentToUserSummaryDTO)
+                        .map(DocumentUtils::documentToUserSummaryDTO)
                         .toList();
             } else {
                 return usersCollection.find(filter).sort(sort).projection(projection).limit(n).into(new ArrayList<>())
                         .stream()
-                        .map(this::documentToUserSummaryDTO)
+                        .map(DocumentUtils::documentToUserSummaryDTO)
                         .toList();
             }
         } catch (Exception e) {
@@ -336,7 +335,7 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
             List<Document> aggregationResult = usersCollection.aggregate(pipeline).into(new ArrayList<>());
 
             if (!aggregationResult.isEmpty()) {
-                return aggregationResult.get(0).getDouble("averageAge");
+                return aggregationResult.getFirst().getDouble("averageAge");
             } else {
                 return null; // o un valore predefinito a tua scelta
             }
@@ -446,93 +445,6 @@ public class UserDAOImpl extends BaseMongoDBDAO implements UserDAO {
         } else {
             return "50+";
         }
-    }
-
-
-    private UserSummaryDTO documentToUserSummaryDTO(Document doc) {
-        UserSummaryDTO user = new UserSummaryDTO();
-        user.setId(doc.getObjectId("_id").toString());
-        user.setUsername(doc.getString("username"));
-        user.setProfilePicUrl(doc.getString("picture"));
-        user.setLocation(doc.getString("location"));
-        Date birthDate = doc.getDate("birthday");
-        if (birthDate != null)
-            user.setBirthDate(ConverterUtils.dateToLocalDate(birthDate));
-        return user;
-    }
-
-    private RegisteredUser documentToRegisteredUser(Document doc) {
-        RegisteredUser user;
-
-        if (doc.getBoolean("is_manager") != null) {
-            Manager manager = new Manager();
-            manager.setHiredDate(ConverterUtils.dateToLocalDate(doc.getDate("hired_on")));
-            manager.setTitle(doc.getString("title"));
-            user = manager;
-        } else {
-            User normalUser = new User();
-            normalUser.setUsername(doc.getString("username"));
-            normalUser.setBirthday(ConverterUtils.dateToLocalDate(doc.getDate("birthday")));
-            normalUser.setDescription(doc.getString("description"));
-            normalUser.setGender(Gender.fromString(doc.getString("gender")));
-            normalUser.setLocation(doc.getString("location"));
-            user = normalUser;
-        }
-
-        user.setId(doc.getObjectId("_id").toString());
-        user.setPassword(doc.getString("password"));
-        user.setEmail(doc.getString("email"));
-        user.setJoinedDate(ConverterUtils.dateToLocalDate(doc.getDate("joined_on")));
-        user.setFullname(doc.getString("fullname"));
-        user.setProfilePicUrl(doc.getString("picture"));
-        return user;
-    }
-
-    private Document RegisteredUserToDocument(UserRegistrationDTO user, String image) {
-        return getDocument(user.getPassword(), user.getEmail(), LocalDate.now(),
-                user.getFullname(), image, user.getUsername(),
-                user.getBirthday(), null, user.getGender(), user.getLocation());
-    }
-
-    private Document RegisteredUserToDocument(User user) {
-        return getDocument(user.getPassword(), user.getEmail(), user.getJoinedDate(),
-                user.getFullname(), user.getProfilePicUrl(), user.getUsername(),
-                user.getBirthday(), user.getDescription(), user.getGender(), user.getLocation());
-    }
-
-    private Document getDocument(String password, String email, LocalDate joinedDate, String fullname, String profilePicUrl, String username, LocalDate birthday, String description, Gender gender, String location) {
-        Document doc = new Document();
-        appendIfNotNull(doc, "password", password);
-        appendIfNotNull(doc, "email", email);
-
-        if (joinedDate != null) {
-            appendIfNotNull(doc, "joined_on", ConverterUtils.localDateToDate(joinedDate));
-        }
-        appendIfNotNull(doc, "fullname", fullname);
-        appendIfNotNull(doc, "picture", profilePicUrl);
-        appendIfNotNull(doc, "username", username);
-        appendIfNotNull(doc, "birthday", ConverterUtils.localDateToDate(birthday));
-        appendIfNotNull(doc, "description", description);
-        appendIfNotNull(doc, "gender", gender != null ? gender.name() : null);
-        appendIfNotNull(doc, "location", location);
-
-        return doc;
-    }
-
-    private Document UnsetDocument(User registeredUser) {
-        Document doc = new Document();
-        if (registeredUser.getFullname() != null && registeredUser.getFullname().equals(Constants.NULL_STRING))
-            doc.append("fullname", 1);
-        if (registeredUser.getBirthday() != null && registeredUser.getBirthday().equals(Constants.NULL_DATE))
-            doc.append("birthday", 1);
-        if (registeredUser.getLocation() != null && registeredUser.getLocation().equals(Constants.NULL_STRING))
-            doc.append("location", 1);
-        if (registeredUser.getDescription() != null && registeredUser.getDescription().equals(Constants.NULL_STRING))
-            doc.append("description", 1);
-        if (registeredUser.getGender() != null && registeredUser.getGender().equals(Gender.UNKNOWN))
-            doc.append("gender", 1);
-
-        return doc;
     }
 
     // Methods available only in Neo4J

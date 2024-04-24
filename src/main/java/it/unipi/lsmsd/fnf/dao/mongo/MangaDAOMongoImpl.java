@@ -12,34 +12,28 @@ import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
-import it.unipi.lsmsd.fnf.model.Review;
-import it.unipi.lsmsd.fnf.model.enums.MangaDemographics;
-import it.unipi.lsmsd.fnf.model.enums.MangaType;
-import it.unipi.lsmsd.fnf.model.enums.Status;
 import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
-import it.unipi.lsmsd.fnf.model.mediaContent.MangaAuthor;
-import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import it.unipi.lsmsd.fnf.utils.Constants;
-import it.unipi.lsmsd.fnf.utils.ConverterUtils;
 
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Facet;
+import it.unipi.lsmsd.fnf.utils.DocumentUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.mongodb.client.model.Aggregates.*;
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.include;
 import static com.mongodb.client.model.Updates.setOnInsert;
+import static it.unipi.lsmsd.fnf.utils.DocumentUtils.*;
 
 /**
  * Implementation of the MediaContentDAO interface for handling Manga objects in MongoDB.
  */
-public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Manga> {
+public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO<Manga> {
     private static final String COLLECTION_NAME = "manga";
 
 
@@ -50,7 +44,7 @@ public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Mang
      * @throws DAOException If an error occurs during insertion.
      */
     @Override
-    public void createMediaContent(Manga manga) throws DAOException {
+    public void saveMediaContent(Manga manga) throws DAOException {
         try {
             MongoCollection<Document> mangaCollection = getCollection(COLLECTION_NAME);
 
@@ -208,7 +202,7 @@ public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Mang
                     .map(doc -> doc.getList(Constants.PAGINATION_FACET, Document.class))
                     .orElseThrow(() -> new DAOException("Error while searching manga"))
                     .stream()
-                    .map(this::documentToMangaDTO)
+                    .map(DocumentUtils::documentToMangaDTO)
                     .toList();
 
             int totalCount = Optional.of(result)
@@ -247,7 +241,7 @@ public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Mang
             MongoCollection<Document> mangaCollection = getCollection(COLLECTION_NAME);
 
             // Convert ReviewDTO to Document
-            Document reviewDocument = reviewDTOtoDocument(reviewDTO);
+            Document reviewDocument = reviewDTOToNestedDocument(reviewDTO);
 
             // Create a filter to check if the review with the given ID already exists in the array
             Document filter = new Document("latestReviews._id", reviewDTO.getId());
@@ -283,166 +277,7 @@ public class MangaDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Mang
         }
     }
 
-    /**
-     * Converts a Manga object to a MongoDB Document.
-     *
-     * @param manga The Manga object to be converted.
-     * @return The MongoDB Document representation of the Manga object.
-     */
-    private Document mangaToDocument(Manga manga) {
-        Document doc = new Document();
 
-        appendIfNotNull(doc, "title", manga.getTitle());
-        appendIfNotNull(doc, "status", manga.getStatus());
-        appendIfNotNull(doc, "type", manga.getType().name());
-        appendIfNotNull(doc, "picture", manga.getImageUrl());
-        appendIfNotNull(doc, "genres", manga.getGenres());
-        appendIfNotNull(doc, "start_date", ConverterUtils.localDateToDate(manga.getStartDate()));
-        appendIfNotNull(doc, "end_date", ConverterUtils.localDateToDate(manga.getEndDate()));
-        appendIfNotNull(doc, "demographics", manga.getDemographics());
-        appendIfNotNull(doc, "serializations", manga.getSerializations());
-        appendIfNotNull(doc, "synopsis", manga.getSynopsis());
-        appendIfNotNull(doc, "themes", manga.getThemes());
-        appendIfNotNull(doc, "background", manga.getBackground());
-        appendIfNotNull(doc, "title_english", manga.getTitleEnglish());
-        appendIfNotNull(doc, "title_japanese", manga.getTitleJapanese());
-        appendIfNotNull(doc, "average_rating", manga.getAverageRating());
-        appendIfNotNull(doc, "volumes", manga.getVolumes());
-        appendIfNotNull(doc, "chapters", manga.getChapters());
-
-        Optional.ofNullable(manga.getAuthors())
-                .ifPresent(authors -> {
-                    List<Document> authorsDocument = authors.stream()
-                            .map(author -> new Document()
-                                    .append("id", author.getId())
-                                    .append("name", author.getName())
-                                    .append("role", author.getRole()))
-                            .toList();
-                    appendIfNotNull(doc, "authors", authorsDocument);
-                });
-
-        Optional.ofNullable(manga.getReviews())
-                .ifPresent(reviews -> {
-                    List<Document> reviewsDocuments = reviews.stream()
-                            .map(review -> new Document()
-                                    .append("id", review.getId())
-                                    .append("user", new Document()
-                                            .append("id", review.getUser().getId())
-                                            .append("username", review.getUser().getUsername())
-                                            .append("picture", review.getUser().getProfilePicUrl()))
-                                    .append("comment", review.getComment())
-                                    .append("date", ConverterUtils.localDateToDate(review.getDate())))
-                            .toList();
-                    appendIfNotNull(doc, "recent_reviews", reviewsDocuments);
-                });
-
-        return doc;
-    }
-
-    /**
-     * Converts a MongoDB Document to a Manga object.
-     *
-     * @param document The MongoDB Document to be converted.
-     * @return The Manga object representation of the MongoDB Document.
-     */
-    private static Manga documentToManga(Document document) {
-        Manga manga = new Manga();
-        manga.setId(document.getObjectId("_id").toString());
-        manga.setTitle(document.getString("title"));
-        manga.setType(MangaType.fromString(document.getString("type")));
-        manga.setStatus(Status.valueOf(document.getString("status")));
-        manga.setThemes(document.getList("themes", String.class));
-        manga.setGenres(document.getList("genres", String.class));
-        manga.setImageUrl(document.getString("picture"));
-        manga.setDemographics(Optional.ofNullable(document.getList("demographics", String.class)).stream()
-                .flatMap(List::stream)
-                .map(MangaDemographics::fromString)
-                .collect(Collectors.toList()));
-        manga.setSerializations(document.getString("serializations"));
-        manga.setBackground(document.getString("background"));
-        manga.setTitleEnglish(document.getString("title_english"));
-        manga.setTitleJapanese(document.getString("title_japanese"));
-        manga.setStartDate(ConverterUtils.dateToLocalDate(document.getDate("start_date")));
-        manga.setEndDate(ConverterUtils.dateToLocalDate(document.getDate("end_date")));
-        manga.setVolumes(document.getInteger("volumes"));
-        manga.setChapters(document.getInteger("chapters"));
-        Object averageRatingObj = document.get("average_rating");
-        manga.setAverageRating(
-                (averageRatingObj instanceof Integer) ? ((Integer) averageRatingObj).doubleValue() :
-                        (averageRatingObj instanceof Double) ? (Double) averageRatingObj : 0.0
-        );
-
-        Optional.ofNullable(document.getList("authors", Document.class))
-                .ifPresent(authors -> {
-                    List<MangaAuthor> authorsList = authors.stream()
-                            .map(authorDocument -> {
-                                MangaAuthor author = new MangaAuthor();
-                                author.setId(authorDocument.getInteger("id"));
-                                author.setName(authorDocument.getString("name"));
-                                author.setRole(authorDocument.getString("role"));
-                                return author;
-                            })
-                            .toList();
-                    manga.setAuthors(authorsList);
-                });
-
-        Optional.ofNullable(document.getList("recent_reviews", Document.class))
-                .ifPresent(reviews -> {
-                    List<Review> reviewList = reviews.stream()
-                            .map(reviewDocument -> {
-                                Review review = new Review();
-                                User reviewer = new User();
-                                Document userDocument = reviewDocument.get("user", Document.class);
-                                reviewer.setId(userDocument.getObjectId("id").toString());
-                                reviewer.setUsername(userDocument.getString("username"));
-                                reviewer.setProfilePicUrl(userDocument.getString("picture"));
-                                review.setUser(reviewer);
-                                review.setId(reviewDocument.getObjectId("id").toString());
-                                review.setComment(reviewDocument.getString("comment"));
-                                review.setDate(ConverterUtils.dateToLocalDate(reviewDocument.getDate("date")));
-                                return review;
-                            })
-                            .toList();
-                    manga.setReviews(reviewList);
-                });
-
-        return manga;
-    }
-
-    /**
-     * Converts a MongoDB Document to a MangaDTO object.
-     *
-     * @param doc The MongoDB Document to be converted.
-     * @return The MangaDTO object representation of the MongoDB Document.
-     */
-    private MangaDTO documentToMangaDTO(Document doc) {
-        MangaDTO manga = new MangaDTO();
-        manga.setId(doc.getObjectId("_id").toString());
-        manga.setTitle(doc.getString("title"));
-        manga.setImageUrl(doc.getString("picture"));
-        Object averageRatingObj = doc.get("average_rating");
-        manga.setAverageRating(
-                (averageRatingObj instanceof Integer) ? Double.valueOf(((Integer) averageRatingObj)) :
-                        (averageRatingObj instanceof Double) ? (Double) averageRatingObj : null
-        );
-        manga.setStartDate(ConverterUtils.dateToLocalDate(doc.getDate("start_date")));
-        manga.setEndDate(ConverterUtils.dateToLocalDate(doc.getDate("end_date")));
-
-        return manga;
-    }
-
-    private Document reviewDTOtoDocument(ReviewDTO reviewDTO) {
-        Document reviewDocument = new Document();
-        appendIfNotNull(reviewDocument, "id", reviewDTO.getId());
-        appendIfNotNull(reviewDocument, "comment", reviewDTO.getComment());
-        appendIfNotNull(reviewDocument, "date", ConverterUtils.localDateToDate(reviewDTO.getDate()));
-        Document userDocument = new Document();
-        appendIfNotNull(userDocument, "id", reviewDTO.getUser().getId());
-        appendIfNotNull(userDocument, "username", reviewDTO.getUser().getUsername());
-        appendIfNotNull(userDocument, "picture", reviewDTO.getUser().getProfilePicUrl());
-        appendIfNotNull(reviewDocument, "user", userDocument);
-        return reviewDocument;
-    }
 
     //MongoDB queries
     //Best genres/themes/demographics/authors based on the average rating

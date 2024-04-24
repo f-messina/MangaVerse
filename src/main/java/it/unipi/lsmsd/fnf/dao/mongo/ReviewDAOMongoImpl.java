@@ -20,6 +20,7 @@ import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.utils.Constants;
 import it.unipi.lsmsd.fnf.utils.ConverterUtils;
 
+import it.unipi.lsmsd.fnf.utils.DocumentUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
@@ -31,13 +32,15 @@ import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.exclude;
 import static com.mongodb.client.model.Sorts.descending;
 import static com.mongodb.client.model.Updates.*;
+import static it.unipi.lsmsd.fnf.utils.DocumentUtils.appendIfNotNull;
+import static it.unipi.lsmsd.fnf.utils.DocumentUtils.reviewDTOToDocument;
 
 /**
  * Implementation of ReviewDAO interface for MongoDB data access operations related to reviews.
  * This class provides methods to insert, update, delete, and retrieve reviews from the database,
  * as well as methods to perform various analytical queries on review data.
  */
-public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
+public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
     private static final String COLLECTION_NAME = "reviews";
 
     /**
@@ -47,7 +50,7 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
      * @throws DAOException If an error occurs during the insertion or update process.
      */
     @Override
-    public void createReview(ReviewDTO reviewDTO) throws DAOException {
+    public void saveReview(ReviewDTO reviewDTO) throws DAOException {
         try {
             MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
             MongoCollection<Document> mediaCollection;
@@ -399,13 +402,13 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
             if (page == null) {
                 List<ReviewDTO> result = reviewCollection.find(filter).projection(projection)
                         .sort(descending("date"))
-                        .map(this::documentToReviewDTO).into(new ArrayList<>());
+                        .map(DocumentUtils::documentToReviewDTO).into(new ArrayList<>());
                 return new PageDTO<>(result, result.size());
             } else {
                 int offset = (page - 1) * Constants.PAGE_SIZE;
                 List<ReviewDTO> result = reviewCollection.find(filter).projection(projection)
                         .sort(descending("date")).skip(offset).limit(Constants.PAGE_SIZE)
-                        .map(this::documentToReviewDTO).into(new ArrayList<>());
+                        .map(DocumentUtils::documentToReviewDTO).into(new ArrayList<>());
                 int totalCount = (int) reviewCollection.countDocuments(filter);
                 return new PageDTO<>(result, totalCount);
             }
@@ -447,13 +450,13 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
             if (page == null) {
                 List<ReviewDTO> result = reviewCollection.find(filter).projection(projection)
                         .sort(descending("date"))
-                        .map(this::documentToReviewDTO).into(new ArrayList<>());
+                        .map(DocumentUtils::documentToReviewDTO).into(new ArrayList<>());
                 return new PageDTO<>(result, result.size());
             } else {
                 int offset = (page - 1) * Constants.PAGE_SIZE;
                 List<ReviewDTO> result = reviewCollection.find(filter).projection(projection)
                         .sort(descending("date")).skip(offset).limit(Constants.PAGE_SIZE)
-                        .map(this::documentToReviewDTO).into(new ArrayList<>());
+                        .map(DocumentUtils::documentToReviewDTO).into(new ArrayList<>());
                 int totalCount = (int) reviewCollection.countDocuments(filter);
                 return new PageDTO<>(result, totalCount);
             }
@@ -465,61 +468,6 @@ public class ReviewDAOImpl extends BaseMongoDBDAO implements ReviewDAO {
             throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
 
         }
-    }
-
-    /**
-     * Converts a ReviewDTO object to a MongoDB document for storage in the database.
-     *
-     * @param reviewDTO The ReviewDTO object to be converted.
-     * @return A MongoDB Document representing the ReviewDTO object.
-     */
-    private Document reviewDTOToDocument(ReviewDTO reviewDTO) {
-        Document reviewDocument = new Document()
-                .append("user", new Document()
-                        .append("id", new ObjectId(reviewDTO.getUser().getId()))
-                        .append("username", reviewDTO.getUser().getUsername())
-                        .append("picture", reviewDTO.getUser().getProfilePicUrl())
-                        .append("location", reviewDTO.getUser().getLocation())
-                        .append("birthday", ConverterUtils.localDateToDate(reviewDTO.getUser().getBirthDate())))
-                .append("date", ConverterUtils.localDateToDate(LocalDate.now()));
-        if (reviewDTO.getComment() != null) {
-            reviewDocument.append("comment", reviewDTO.getComment());
-        }
-        if (reviewDTO.getRating() != null) {
-            reviewDocument.append("rating", reviewDTO.getRating());
-        }
-        boolean isAnime = reviewDTO.getMediaContent() instanceof AnimeDTO;
-        reviewDocument.append(isAnime? "anime" : "manga", new Document()
-                .append("id", new ObjectId(reviewDTO.getMediaContent().getId()))
-                .append("title", reviewDTO.getMediaContent().getTitle()));
-
-        return reviewDocument;
-    }
-
-    /**
-     * Converts a MongoDB document representing a review to a ReviewDTO object.
-     *
-     * @param reviewDoc The MongoDB document representing the review.
-     * @return A ReviewDTO object representing the MongoDB document.
-     */
-    private ReviewDTO documentToReviewDTO(Document reviewDoc) {
-        String reviewId = reviewDoc.getObjectId("_id").toString();
-        LocalDate date = ConverterUtils.dateToLocalDate(reviewDoc.getDate("date"));
-        String comment = reviewDoc.getString("comment");
-        Integer rating = reviewDoc.getInteger("rating");
-
-        MediaContentDTO mediaDTO = null;
-        Document mediaDoc;
-        if ((mediaDoc = reviewDoc.get("anime", Document.class)) != null) {
-            mediaDTO = new AnimeDTO(mediaDoc.getObjectId("id").toString(), mediaDoc.getString("title"));
-        } else if ((mediaDoc = reviewDoc.get("manga", Document.class)) != null) {
-            mediaDTO = new MangaDTO(mediaDoc.getObjectId("id").toString(), mediaDoc.getString("title"));
-        }
-
-        Document userDoc = reviewDoc.get("user", Document.class);
-        UserSummaryDTO userDTO = (userDoc != null) ? new UserSummaryDTO(userDoc.getObjectId("id").toString(), userDoc.getString("username"), userDoc.getString("picture")) : null;
-
-        return new ReviewDTO(reviewId, date, comment, rating, mediaDTO, userDTO);
     }
 
     //MongoDB queries

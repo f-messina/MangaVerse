@@ -1,5 +1,6 @@
 package it.unipi.lsmsd.fnf.dto.mediaContent;
 
+import it.unipi.lsmsd.fnf.model.mediaContent.MediaContent;
 import org.bson.types.ObjectId;
 import org.neo4j.driver.Record;
 
@@ -87,4 +88,6 @@ public abstract class MediaContentDTO {
                 ", averageRating='" + averageRating + '\'' +
                 '}';
     }
+
+    public abstract MediaContent toModel();
 }
