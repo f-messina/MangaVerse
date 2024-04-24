@@ -122,6 +122,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public void deleteUser(String userId) throws BusinessException {
+        try {
+            userDAO.deleteUser(userId);
+        } catch (DAOException e) {
+            throw new BusinessException("Error while deleting user.", e);
+        }
+    }
+
+
+
+    @Override
 
     public User getUserById(String userId) throws BusinessException {
 
@@ -204,6 +215,15 @@ public class UserServiceImpl implements UserService {
             return userDAONeo4J.getFollowers(userId);
         } catch (DAOException e) {
             throw new BusinessException("Error while retrieving the follower list.");
+        }
+    }
+
+    @Override
+    public List<UserSummaryDTO> suggestUsers(String userId) throws BusinessException {
+        try {
+            return userDAONeo4J.suggestUsers(userId);
+        } catch (DAOException e) {
+            throw new BusinessException("Error while suggesting users.", e);
         }
     }
 

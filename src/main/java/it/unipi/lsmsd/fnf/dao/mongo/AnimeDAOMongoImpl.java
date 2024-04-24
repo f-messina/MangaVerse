@@ -62,9 +62,6 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
         } catch (DuplicateKeyException e) {
             throw new DAOException(DAOExceptionType.DUPLICATED_KEY, e.getMessage());
 
-        } catch (MongoException e) {
-            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
-
         } catch (Exception e) {
             throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
 
@@ -354,10 +351,6 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
 
-    @Override
-    public List<AnimeDTO> getMediaContentTrendByGenre() throws DAOException {
-        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
-    }
 
     @Override
     public List<String> getMediaContentGenresTrend() throws DAOException {

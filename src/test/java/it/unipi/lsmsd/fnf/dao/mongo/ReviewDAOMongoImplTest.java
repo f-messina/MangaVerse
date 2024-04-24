@@ -43,7 +43,7 @@ class ReviewDAOMongoImplTest {
     @Test
     void updateReview() {
         ReviewDAOMongoImpl reviewDAO = new ReviewDAOMongoImpl();
-        String reviewId = "65ee58ccd956a8d91793c4ba";
+        String reviewId = "66291409521b86ea108247f9";
         String newComment = "This is a new comment";
         Integer newRating = 4;
         try {
@@ -69,9 +69,9 @@ class ReviewDAOMongoImplTest {
     @Test
     void updateUserRedundancy() {
         ReviewDAOMongoImpl reviewDAO = new ReviewDAOMongoImpl();
-        String userId = "65789bbc2f5d29465d0b18b7";
-        String username = "giorgio2";
-        String pictureUrl = "profilepic2";
+        String userId = "6577877be68376234760596d";
+        String username = "Dragon_Empress";
+        String pictureUrl = "https://imgbox.com/7MaTkBQR";
         UserSummaryDTO user = new UserSummaryDTO(userId, username, pictureUrl);
         try {
             reviewDAO.updateUserRedundancy(user);
@@ -83,7 +83,7 @@ class ReviewDAOMongoImplTest {
     @Test
     void deleteReview() {
         ReviewDAOMongoImpl reviewDAO = new ReviewDAOMongoImpl();
-        String reviewId = "65ee58ccd956a8d91793c4ba";
+        String reviewId = "66291636521b86ea10824961";
         try {
             reviewDAO.deleteReview(reviewId);
         } catch (DAOException e) {
@@ -199,7 +199,7 @@ class ReviewDAOMongoImplTest {
     public void testRatingMediaContentByYearManga() {
         try {
             ReviewDAOMongoImpl reviewDAO = new ReviewDAOMongoImpl();
-            Map<String, Double> averageRating = reviewDAO.getMediaContentRatingByYear(MediaContentType.MANGA, "65789bba2f5d29465d0af82a", 2010, 2020);
+            Map<String, Double> averageRating = reviewDAO.getMediaContentRatingByYear(MediaContentType.MANGA, "657ac622b34f5514b91ee5f0", 2010, 2020);
 
             System.out.println(averageRating.toString());
 

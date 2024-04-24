@@ -219,22 +219,7 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
      * @return A list of MangaDTO objects representing trending Manga by genre.
      * @throws DAOException If an error occurs while retrieving trending Manga by genre.
      */
-    @Override
-    public List<MangaDTO> getMediaContentTrendByGenre() throws DAOException {
-        try (Session session = getSession()) {
-            String query = """
-                    MATCH (m:Manga)-[:BELONGS_TO]->(g:Genre)
-                    WITH m, COUNT(m) as numMediaContents\s
-                    ORDER BY numMediaContents DESC
-                    RETURN m.id as id, m.title as title, m.picture as picture
-                    LIMIT 5""";
-            List<Record> records = session.run(query).list();
 
-            return records.stream().map(this::recordToMangaDTO).collect(Collectors.toList());
-        } catch(Exception e) {
-            throw new DAOException("Error while getting trend manga by genre", e);
-        }
-    }
 
     /**
      * Retrieves a list of trending MangaDTO objects by likes from the Neo4j database.
@@ -270,20 +255,17 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
         List<String> genreNames = new ArrayList<>();
         try (Session session = getSession()) {
             String query = """
-                    MATCH (m:Manga)<-[r:LIKE]-(u:User)
-                    WITH m, count(u) AS numLikes
-                    ORDER BY numLikes DESC
-                    MATCH (m)-[b:BELONGS_TO]->(g:Genre)
-                    WITH collect(g.name) AS genreNames
-                    RETURN genreNames[..10] AS genreNames""";
+                    MATCH (:User)-[r:LIKE]->(m:Manga)-[:BELONGS_TO]->(g:Genre)
+                    WITH g.name AS genreNames, COUNT(r) AS totalLikes
+                    RETURN genreNames
+                    ORDER BY totalLikes DESC\s""";
+
             Result result = session.run(query);
 
             while (result.hasNext()) {
                 Record record = result.next();
-                List<Object> genreList = record.get("genreNames").asList(Value::asString);
-                for (Object obj : genreList) {
-                    genreNames.add((String) obj);
-                }
+                String genreName = record.get("genreNames").asString();
+                genreNames.add(genreName);
             }
 
             return genreNames;

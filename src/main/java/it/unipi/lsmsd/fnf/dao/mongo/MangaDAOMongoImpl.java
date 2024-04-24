@@ -363,10 +363,7 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
 
-    @Override
-    public List<MangaDTO> getMediaContentTrendByGenre() throws DAOException {
-        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
-    }
+
 
     @Override
     public List<? extends MediaContentDTO> getMediaContentTrendByLikes() throws DAOException {

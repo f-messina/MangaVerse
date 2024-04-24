@@ -35,6 +35,5 @@ public interface MediaContentDAO<T extends MediaContent> {
     List<? extends MediaContentDTO> getSuggested(String userId) throws DAOException;
     List<? extends MediaContentDTO> getTrendMediaContentByYear(int year) throws DAOException;
     List<String> getMediaContentGenresTrendByYear(int year) throws DAOException;
-    List<? extends MediaContentDTO> getMediaContentTrendByGenre() throws DAOException;
     List<? extends MediaContentDTO> getMediaContentTrendByLikes() throws DAOException;
 }

@@ -44,7 +44,7 @@ class MangaDAOMongoImplTest {
     void updateMediaContent() {
         MangaDAOMongoImpl mangaDAO = new MangaDAOMongoImpl();
         Manga manga = createSampleManga();
-        manga.setId("65ee545c0eae444a1cf95640");
+        manga.setId("6629135b521b86ea10824760");
         manga.setTitle("Updated Manga");
         try {
             mangaDAO.updateMediaContent(manga);
@@ -58,7 +58,7 @@ class MangaDAOMongoImplTest {
     void deleteMediaContent() {
         MangaDAOMongoImpl mangaDAO = new MangaDAOMongoImpl();
         try {
-            mangaDAO.deleteMediaContent("65ee545c0eae444a1cf95640");
+            mangaDAO.deleteMediaContent("6629135b521b86ea10824760");
             System.out.println("Manga deleted");
         } catch (Exception e) {
             System.err.println(e.getMessage());
@@ -69,7 +69,7 @@ class MangaDAOMongoImplTest {
     void readMediaContent() {
         MangaDAOMongoImpl mangaDAO = new MangaDAOMongoImpl();
         try {
-            Manga manga = mangaDAO.readMediaContent("65ee545c0eae444a1cf95640");
+            Manga manga = mangaDAO.readMediaContent("657ac61bb34f5514b91ea25f");
             System.out.println("Manga read: " + manga.toString());
         } catch (Exception e) {
             System.err.println(e.getMessage());

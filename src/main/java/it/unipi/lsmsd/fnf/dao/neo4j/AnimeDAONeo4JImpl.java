@@ -197,28 +197,6 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
         }
     }
 
-    /**
-     * Retrieves a list of trending AnimeDTO objects by genre from the Neo4j database.
-     *
-     * @return A list of AnimeDTO objects representing trending Anime by genre.
-     * @throws DAOException If an error occurs while retrieving trending Anime by genre.
-     */
-    @Override
-    public List<AnimeDTO> getMediaContentTrendByGenre() throws DAOException {
-        try (Session session = getSession()) {
-            String query = """
-                    MATCH (a:Anime)-[:BELONGS_TO]->(g:Genre)
-                    WITH a, COUNT(a) as numMediaContents\s
-                    ORDER BY numMediaContents DESC
-                    RETURN a.id as id, a.title as title, a.picture as picture
-                    LIMIT 5""";
-            List<Record> records = session.run(query).list();
-
-            return records.stream().map(this::recordToAnimeDTO).collect(Collectors.toList());
-        } catch(Exception e) {
-            throw new DAOException("Error while getting trend anime by genre", e);
-        }
-    }
 
     /**
      * Retrieves a list of trending AnimeDTO objects by likes from the Neo4j database.
@@ -253,20 +231,16 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
         List<String> genreNames = new ArrayList<>();
         try (Session session = getSession()) {
             String query = """
-                    MATCH (a:Anime)<-[r:LIKE]-(u:User)
-                    WITH a, count(u) AS numLikes
-                    ORDER BY numLikes DESC
-                    MATCH (a)-[b:BELONGS_TO]->(g:Genre)
-                    WITH collect(g.name) AS genreNames
-                    RETURN genreNames[..10] AS genreNames""";
+                    MATCH (:User)-[r:LIKE]->(m:Anime)-[:BELONGS_TO]->(g:Genre)
+                    WITH g.name AS genreNames, COUNT(r) AS totalLikes
+                    RETURN genreNames
+                    ORDER BY totalLikes DESC\s""";
             Result result = session.run(query);
 
             while (result.hasNext()) {
                 Record record = result.next();
-                List<Object> genreList = record.get("genreNames").asList(Value::asString);
-                for (Object obj : genreList) {
-                    genreNames.add((String) obj);
-                }
+                String genreName = record.get("genreNames").asString();
+                genreNames.add(genreName);
             }
 
             return genreNames;

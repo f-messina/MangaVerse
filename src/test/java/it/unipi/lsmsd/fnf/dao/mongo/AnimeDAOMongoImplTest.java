@@ -40,7 +40,7 @@ class AnimeDAOMongoImplTest {
     void updateMediaContent() {
         AnimeDAOMongoImpl animeDAO = new AnimeDAOMongoImpl();
         Anime anime = createSampleAnime();
-        anime.setId("65ee4f4f44567e63565fd124");
+        anime.setId("662912c3521b86ea108246eb");
         anime.setTitle("Updated Anime");
         try {
             animeDAO.updateMediaContent(anime);
@@ -54,7 +54,7 @@ class AnimeDAOMongoImplTest {
     void deleteMediaContent() {
         AnimeDAOMongoImpl animeDAO = new AnimeDAOMongoImpl();
         try {
-            animeDAO.deleteMediaContent("65ee4f4f44567e63565fd124");
+            animeDAO.deleteMediaContent("662912c3521b86ea108246eb");
             System.out.println("Anime deleted");
         } catch (Exception e) {
             System.err.println(e.getMessage());
@@ -65,7 +65,7 @@ class AnimeDAOMongoImplTest {
     void readMediaContent() {
         AnimeDAOMongoImpl animeDAO = new AnimeDAOMongoImpl();
         try {
-            Anime anime = animeDAO.readMediaContent("65ee4f4f44567e63565fd124");
+            Anime anime = animeDAO.readMediaContent("65789bb52f5d29465d0abd4d");
             System.out.println("Anime read: " + anime.toString());
         } catch (Exception e) {
             System.err.println(e.getMessage());

@@ -62,7 +62,9 @@ public class MediaContentServiceImpl implements MediaContentService {
                     throw new BusinessException(BusinessExceptionType.EMPTY_FIELDS,"Title, image URL, start date and type are required");
                 mangaDAO.saveMediaContent(manga);
             }
-        } catch (Exception e) {
+        } catch (DAOException e) {
+            //If it's duplicate key throw a BusinessException with a meaningful error message
+            //In general throw and catch all the different catches and exception found in the DAO for anime, manga
             throw new BusinessException("Error adding media content",e);
         }
     }
