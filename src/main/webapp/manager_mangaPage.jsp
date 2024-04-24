@@ -60,9 +60,9 @@
 <body>
 <div id="page">
     <div id="side-navbar">
-        <div><a class="options" href="">Manga</a></div>
-        <div><a class="options" href="">Anime</a></div>
-        <div><a class="options" href="">Users</a></div>
+        <div><a class="options" href="#">Manga</a></div>
+        <div><a class="options" href="manager_animePage.jsp">Anime</a></div>
+        <div><a class="options" href="manager_userPage.jsp">Users</a></div>
     </div>
 
     <div id="analytics">
@@ -400,7 +400,41 @@
         mangaInfoDiv.append(updateButton);
 
         $("#mangaInfo").append(mangaInfoDiv);
+
+       //add select button
+        const selectButton = $("<button>Select</button>");
+        selectButton.on("click", function() {
+            // Send asynchronous request to select the manga
+            selectMangaForAnalytics(media.id);
+        });
+        mangaInfoDiv.append(selectButton);
     }
+    function selectMangaForAnalytics(mediaId) {
+        // Get the selected manga's info
+        $.ajax({
+            url: "${pageContext.request.contextPath}/manager/manga",
+            method: "GET",
+            data: { mediaId: mediaId, action: "get_manga_info" },
+            success: function(response) {
+                // Handle successful response
+                console.log("Selected Manga Info:", response);
+                // You can store the selected manga info for later use
+                // For now, let's assume you store it in a global variable
+                selectedMangaInfo = response;
+                // Now, prompt the user to enter the year for analytics
+                var selectedYear = prompt("Enter year for analytics (YYYY):");
+                if (selectedYear) {
+                    // Update chart with the selected manga and year
+                    updateMonthlyChart(selectedMangaInfo, selectedYear);
+                }
+            },
+            error: function(xhr, status, error) {
+                // Handle errors
+                console.error("Error:", error);
+            }
+        });
+    }
+
 </script>
 </body>
 </html>
