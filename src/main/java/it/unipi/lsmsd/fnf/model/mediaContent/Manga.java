@@ -8,7 +8,6 @@ import it.unipi.lsmsd.fnf.model.enums.MangaType;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class Manga extends MediaContent {
     private List<String> genres;

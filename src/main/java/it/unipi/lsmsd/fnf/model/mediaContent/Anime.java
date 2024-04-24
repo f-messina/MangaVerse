@@ -1,18 +1,12 @@
 package it.unipi.lsmsd.fnf.model.mediaContent;
 
-import it.unipi.lsmsd.fnf.dto.ReviewDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.model.Review;
 import it.unipi.lsmsd.fnf.model.enums.AnimeStatus;
 import it.unipi.lsmsd.fnf.model.enums.AnimeType;
-import it.unipi.lsmsd.fnf.model.registeredUser.User;
-import it.unipi.lsmsd.fnf.utils.ConverterUtils;
-import org.bson.Document;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Represents an this media content.

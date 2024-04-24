@@ -3,8 +3,6 @@ package it.unipi.lsmsd.fnf.service.interfaces;
 import it.unipi.lsmsd.fnf.dto.LoggedUserDTO;
 import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
-import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
-import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 

@@ -3,8 +3,6 @@ package it.unipi.lsmsd.fnf.dto;
 import it.unipi.lsmsd.fnf.model.enums.UserType;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 
-import java.time.LocalDate;
-
 public class LoggedUserDTO {
 
     private String id;

@@ -1,6 +1,5 @@
 package it.unipi.lsmsd.fnf.controller;
 
-import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.model.mediaContent.MediaContent;
 import it.unipi.lsmsd.fnf.service.*;

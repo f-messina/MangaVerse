@@ -1,21 +1,19 @@
 package it.unipi.lsmsd.fnf.dao.mongo;
 
 import com.mongodb.*;
-import com.mongodb.client.*;
-
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoCollection;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
-import it.unipi.lsmsd.fnf.model.enums.Gender;
-import it.unipi.lsmsd.fnf.utils.Constants;
-import it.unipi.lsmsd.fnf.utils.ConverterUtils;
-
-import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
-import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Sorts.*;

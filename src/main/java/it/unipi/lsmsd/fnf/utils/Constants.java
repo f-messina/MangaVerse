@@ -1,7 +1,5 @@
 package it.unipi.lsmsd.fnf.utils;
 
-import it.unipi.lsmsd.fnf.model.enums.Status;
-
 import java.time.LocalDate;
 
 public class Constants {

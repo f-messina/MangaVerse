@@ -1,13 +1,6 @@
 package it.unipi.lsmsd.fnf.dto.mediaContent;
 
 import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
-import org.bson.types.ObjectId;
-import org.neo4j.driver.Record;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import java.time.LocalDate;
 

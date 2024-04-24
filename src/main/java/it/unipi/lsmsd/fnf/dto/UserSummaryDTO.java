@@ -24,7 +24,7 @@ public class UserSummaryDTO {
     }
 
     // Constructor for UserSummaryDTO to store info used in reviews
-    // (user location and birth date) to do statistics and analysis on reviews
+    // (user location and birthdate) to do statistics and analysis on reviews
     public UserSummaryDTO(String id, String username, String profilePicUrl, String location, LocalDate birthDate) {
         this.id = id;
         this.username = username;

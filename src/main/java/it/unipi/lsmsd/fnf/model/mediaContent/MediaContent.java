@@ -1,8 +1,6 @@
 package it.unipi.lsmsd.fnf.model.mediaContent;
 
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
-import it.unipi.lsmsd.fnf.model.enums.Status;
-import org.bson.types.ObjectId;
 
 public abstract class MediaContent {
     protected String id;

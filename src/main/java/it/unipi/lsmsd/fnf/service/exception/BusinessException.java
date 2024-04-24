@@ -1,7 +1,5 @@
 package it.unipi.lsmsd.fnf.service.exception;
 
-import it.unipi.lsmsd.fnf.dao.exception.DAOExceptionType;
-
 /**
  * The BusinessException class represents exceptions that occur during business logic processing.
  * These exceptions encapsulate information about the type of business exception that occurred.

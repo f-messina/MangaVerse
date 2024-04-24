@@ -182,23 +182,24 @@ public class DocumentUtils {
         List<Review> reviewList = Optional.ofNullable(doc.getList("latest_reviews", Document.class))
                 .orElse(Collections.emptyList())
                 .stream()
-                .map(reviewDocument -> {
-                    Review review = new Review();
-                    User reviewer = new User();
-                    Document userDocument = reviewDocument.get("user", Document.class);
-                    reviewer.setId(userDocument.getObjectId("id").toString());
-                    reviewer.setUsername(userDocument.getString("username"));
-                    reviewer.setProfilePicUrl(userDocument.getString("picture"));
-                    review.setUser(reviewer);
-                    review.setId(reviewDocument.getObjectId("id").toString());
-                    review.setComment(reviewDocument.getString("comment"));
-                    review.setDate(ConverterUtils.dateToLocalDate(reviewDocument.getDate("date")));
-                    return review;
-                })
+                .map(DocumentUtils::nestedDocumentToReview)
                 .toList();
         anime.setReviews(reviewList);
-
         return anime;
+    }
+
+    private static Review nestedDocumentToReview(Document doc) {
+        Review review = new Review();
+        User reviewer = new User();
+        Document userDocument = doc.get("user", Document.class);
+        reviewer.setId(userDocument.getObjectId("id").toString());
+        reviewer.setUsername(userDocument.getString("username"));
+        reviewer.setProfilePicUrl(userDocument.getString("picture"));
+        review.setUser(reviewer);
+        review.setId(doc.getObjectId("id").toString());
+        review.setComment(doc.getString("comment"));
+        review.setDate(ConverterUtils.dateToLocalDate(doc.getDate("date")));
+        return review;
     }
 
     /**
@@ -327,25 +328,12 @@ public class DocumentUtils {
                     manga.setAuthors(authorsList);
                 });
 
-        Optional.ofNullable(document.getList("latest_reviews", Document.class))
-                .ifPresent(reviews -> {
-                    List<Review> reviewList = reviews.stream()
-                            .map(reviewDocument -> {
-                                Review review = new Review();
-                                User reviewer = new User();
-                                Document userDocument = reviewDocument.get("user", Document.class);
-                                reviewer.setId(userDocument.getObjectId("id").toString());
-                                reviewer.setUsername(userDocument.getString("username"));
-                                reviewer.setProfilePicUrl(userDocument.getString("picture"));
-                                review.setUser(reviewer);
-                                review.setId(reviewDocument.getObjectId("id").toString());
-                                review.setComment(reviewDocument.getString("comment"));
-                                review.setDate(ConverterUtils.dateToLocalDate(reviewDocument.getDate("date")));
-                                return review;
-                            })
-                            .toList();
-                    manga.setReviews(reviewList);
-                });
+        List<Review> reviewList = Optional.ofNullable(document.getList("latest_reviews", Document.class))
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(DocumentUtils::nestedDocumentToReview)
+                .toList();
+        manga.setReviews(reviewList);
 
         return manga;
     }

@@ -12,12 +12,12 @@ import java.util.Map;
 
 public interface UserDAO {
     //MongoDB queries
-    public void saveUser(UserRegistrationDTO user) throws DAOException;
-    public void updateUser(User user) throws DAOException;
-    public void deleteUser(String userId) throws DAOException;
-    public LoggedUserDTO authenticate(String email, String password) throws DAOException;
-    public RegisteredUser readUser(String userId, boolean onlyStatsInfo) throws DAOException;
-    public List<UserSummaryDTO> searchFirstNUsers(String username, Integer n, String loggedUser) throws DAOException;
+    void saveUser(UserRegistrationDTO user) throws DAOException;
+    void updateUser(User user) throws DAOException;
+    void deleteUser(String userId) throws DAOException;
+    LoggedUserDTO authenticate(String email, String password) throws DAOException;
+    RegisteredUser readUser(String userId, boolean onlyStatsInfo) throws DAOException;
+    List<UserSummaryDTO> searchFirstNUsers(String username, Integer n, String loggedUser) throws DAOException;
 
     //MongoDB complex queries
     Map<String, Integer> getDistribution(String criteria) throws DAOException;

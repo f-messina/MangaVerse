@@ -1,39 +1,28 @@
 package it.unipi.lsmsd.fnf.dao.mongo;
 
 
-import com.mongodb.client.FindIterable;
-
 import com.mongodb.MongoException;
-
+import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.*;
-import it.unipi.lsmsd.fnf.dao.interfaces.UserDAO;
 import it.unipi.lsmsd.fnf.dao.exception.*;
+import it.unipi.lsmsd.fnf.dao.interfaces.UserDAO;
 import it.unipi.lsmsd.fnf.dto.LoggedUserDTO;
-import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
+import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.model.enums.UserType;
 import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import it.unipi.lsmsd.fnf.utils.Constants;
-
-import com.mongodb.client.MongoCollection;
 import it.unipi.lsmsd.fnf.utils.DocumentUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+
 import java.util.*;
 
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.*;
-
-import static com.mongodb.client.model.Sorts.metaTextScore;
-import static com.mongodb.client.model.Updates.setOnInsert;
-
 import static com.mongodb.client.model.Sorts.ascending;
 import static it.unipi.lsmsd.fnf.utils.DocumentUtils.RegisteredUserToDocument;
 import static it.unipi.lsmsd.fnf.utils.DocumentUtils.UsertToUnsetUserFieldsDocument;

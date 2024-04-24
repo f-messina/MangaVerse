@@ -1,8 +1,6 @@
 package it.unipi.lsmsd.fnf.controller;
 
 import it.unipi.lsmsd.fnf.dto.LoggedUserDTO;
-import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
-import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import it.unipi.lsmsd.fnf.service.*;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
@@ -10,7 +8,6 @@ import it.unipi.lsmsd.fnf.service.exception.BusinessExceptionType;
 import it.unipi.lsmsd.fnf.service.interfaces.MediaContentService;
 import it.unipi.lsmsd.fnf.service.interfaces.ReviewService;
 import it.unipi.lsmsd.fnf.service.interfaces.UserService;
-import it.unipi.lsmsd.fnf.utils.Constants;
 import it.unipi.lsmsd.fnf.utils.SecurityUtils;
 
 import jakarta.servlet.ServletException;
