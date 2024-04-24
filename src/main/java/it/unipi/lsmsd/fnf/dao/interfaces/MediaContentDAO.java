@@ -20,7 +20,12 @@ public interface MediaContentDAO<T extends MediaContent> {
     T readMediaContent(String id) throws DAOException;
     void deleteMediaContent(String id) throws DAOException;
     PageDTO<? extends MediaContentDTO> search(List<Map<String, Object>> filters, Map<String, Integer> orderBy, int page) throws DAOException;
-    void updateLatestReview (ReviewDTO reviewDTO) throws DAOException;
+
+    void updateLatestReview(ReviewDTO reviewDTO, boolean existingReview) throws DAOException;
+
+    boolean isInLatestReviews(String reviewId) throws DAOException;
+
+    void saveLatestReviews(String mangaId, List<ReviewDTO> latestReviews) throws DAOException;
 
     //MongoDB queries
     //Best tags based on the average rating

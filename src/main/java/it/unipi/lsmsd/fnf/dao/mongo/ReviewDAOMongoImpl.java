@@ -489,6 +489,43 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
         }
     }
 
+    @Override
+    public List<ReviewDTO> getLastNReviewByMedia(String mediaId, MediaContentType type, Integer n) throws DAOException {
+        try {
+            MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
+
+            Bson filter;
+            Bson projection;
+            if (type == MediaContentType.ANIME) {
+                filter = eq("anime.id", new ObjectId(mediaId));
+                projection = exclude("anime");
+            } else if (type == MediaContentType.MANGA) {
+                filter = eq("manga.id", new ObjectId(mediaId));
+                projection = exclude("manga");
+            } else {
+                throw new DAOException("Invalid media content type");
+            }
+
+            List<ReviewDTO> result = reviewCollection.find(filter).projection(projection)
+                    .sort(descending("date")).limit(n)
+                    .map(DocumentUtils::documentToReviewDTO).into(new ArrayList<>());
+
+            if (result.isEmpty()) {
+                throw new MongoException("No reviews found for the media");
+            } else {
+                return result;
+            }
+
+        } catch (MongoException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, "Reviews not found for the media.");
+
+        } catch (Exception e) {
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, "Error finding reviews by media");
+
+        }
+    }
+
+
     //MongoDB queries
     //Find the average rating a user has given to media contents given the userId
     @Override

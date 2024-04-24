@@ -53,9 +53,9 @@ public class ReviewServiceImpl implements ReviewService {
         try{
             reviewDAO.saveReview(review);
             if (review.getMediaContent() instanceof MangaDTO)
-                mangaDAO.updateLatestReview(review);
+                mangaDAO.updateLatestReview(review, false);
             else if (review.getMediaContent() instanceof AnimeDTO)
-                animeDAO.updateLatestReview(review);
+                animeDAO.updateLatestReview(review,false);
         } catch (DAOException e){
             DAOExceptionType type = e.getType();
             if (DAOExceptionType.DUPLICATED_KEY.equals(type))
