@@ -1,5 +1,4 @@
 *.xml
 *.class
 *.MF
-*.xd
-*.lck
+*.idea
