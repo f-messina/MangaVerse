@@ -69,9 +69,9 @@
 <body>
     <div id="page">
         <div id="side-navbar">
-            <div><a class="options" href="manager_mangaPage.jsp">Manga</a></div>
-            <div><a class="options" href="#">Anime</a></div>
-            <div><a class="options" href="manager_userPage.jsp">Users</a></div>
+            <div><a class="options" href="">Manga</a></div>
+            <div><a class="options" href="">Anime</a></div>
+            <div><a class="options" href="">Users</a></div>
         </div>
 
         <div id="analytics">
