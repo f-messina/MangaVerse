@@ -342,6 +342,50 @@ public class MediaContentServiceImpl implements MediaContentService {
         }
     }
 
+    @Override
+    public List<String> getMediaContentGenresTrendByYear(int year, MediaContentType type) throws BusinessException {
+        try {
+            if (MediaContentType.ANIME.equals(type)) {
+                return animeDAONeo4J.getMediaContentGenresTrendByYear(year);
+            } else if (MediaContentType.MANGA.equals(type)) {
+                return mangaDAONeo4J.getMediaContentGenresTrendByYear(year);
+            } else {
+                throw new BusinessException("Invalid media content type");
+            }
+        } catch (Exception e) {
+            throw new BusinessException("Error while retrieving the trend.", e);
+        }
+    }
+
+    @Override
+    public List<? extends MediaContentDTO> getMediaContentTrendByLikes(MediaContentType type) throws BusinessException {
+        try {
+            if (MediaContentType.ANIME.equals(type)) {
+                return animeDAONeo4J.getMediaContentTrendByLikes();
+            } else if (MediaContentType.MANGA.equals(type)) {
+                return mangaDAONeo4J.getMediaContentTrendByLikes();
+            } else {
+                throw new BusinessException("Invalid media content type");
+            }
+        } catch (Exception e) {
+            throw new BusinessException("Error while retrieving the trend.", e);
+        }
+    }
+
+    @Override
+    public List<String> getMediaContentGenresTrend(MediaContentType type) throws BusinessException {
+        try {
+            if (MediaContentType.ANIME.equals(type)) {
+                return animeDAONeo4J.getMediaContentGenresTrend();
+            } else if (MediaContentType.MANGA.equals(type)) {
+                return mangaDAONeo4J.getMediaContentGenresTrend();
+            } else {
+                throw new BusinessException("Invalid media content type");
+            }
+        } catch (Exception e) {
+            throw new BusinessException("Error while retrieving the trend.", e);
+        }
+    }
 
     //Service for mongoDB queries
     @Override

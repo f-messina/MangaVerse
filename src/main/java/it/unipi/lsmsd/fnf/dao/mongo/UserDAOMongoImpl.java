@@ -1,6 +1,10 @@
 package it.unipi.lsmsd.fnf.dao.mongo;
 
+
+import com.mongodb.client.FindIterable;
+
 import com.mongodb.MongoException;
+
 import com.mongodb.client.model.*;
 import it.unipi.lsmsd.fnf.dao.interfaces.UserDAO;
 import it.unipi.lsmsd.fnf.dao.exception.*;
@@ -26,9 +30,14 @@ import java.util.*;
 
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.*;
+
+import static com.mongodb.client.model.Sorts.metaTextScore;
+import static com.mongodb.client.model.Updates.setOnInsert;
+
 import static com.mongodb.client.model.Sorts.ascending;
 import static it.unipi.lsmsd.fnf.utils.DocumentUtils.RegisteredUserToDocument;
 import static it.unipi.lsmsd.fnf.utils.DocumentUtils.UsertToUnsetUserFieldsDocument;
+
 
 /**
  * Implementation of UserDAO interface for MongoDB data access.
@@ -185,8 +194,11 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
      * @return The authenticated user.
      * @throws DAOException If authentication fails due to incorrect email or password.
      */
-    @Override
+
+
+
     public LoggedUserDTO authenticate(String email, String password) throws DAOException {
+
         try {
             MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
 
@@ -374,7 +386,7 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
             List<Bson> pipeline = new ArrayList<>();
 
             Bson projectStage = Aggregates.project(
-                    Projections.fields(
+                    fields(
                             Projections.computed("age", new Document("$divide",
                                     Arrays.asList(
                                             new Document("$subtract", Arrays.asList(new Date(), "$birthday")),
