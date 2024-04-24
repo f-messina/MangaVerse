@@ -2,7 +2,4 @@ HELP.md
 target/
 
 ### IntelliJ IDEA ###
-.idea/
-# GitHub Copilot persisted chat sessions
-.idea/copilot/chatSessions
-.idea/copilot/
+/.idea/
