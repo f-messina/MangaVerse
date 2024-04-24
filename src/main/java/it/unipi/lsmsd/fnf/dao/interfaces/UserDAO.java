@@ -12,7 +12,7 @@ import java.util.Map;
 
 public interface UserDAO {
     //MongoDB queries
-    public void createUser(UserRegistrationDTO user) throws DAOException;
+    public void saveUser(UserRegistrationDTO user) throws DAOException;
     public void updateUser(User user) throws DAOException;
     public void deleteUser(String userId) throws DAOException;
     public LoggedUserDTO authenticate(String email, String password) throws DAOException;

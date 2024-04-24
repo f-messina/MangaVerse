@@ -6,6 +6,9 @@ import it.unipi.lsmsd.fnf.dao.interfaces.MediaContentDAO;
 import it.unipi.lsmsd.fnf.dao.interfaces.ReviewDAO;
 import it.unipi.lsmsd.fnf.dao.interfaces.UserDAO;
 import it.unipi.lsmsd.fnf.dao.mongo.*;
+import it.unipi.lsmsd.fnf.dao.neo4j.AnimeDAONeo4JImpl;
+import it.unipi.lsmsd.fnf.dao.neo4j.MangaDAONeo4JImpl;
+import it.unipi.lsmsd.fnf.dao.neo4j.UserDAONeo4JImpl;
 import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
 import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
 /**
@@ -22,9 +25,9 @@ public class DAOLocator {
      */
     public static MediaContentDAO<Anime> getAnimeDAO(DataRepositoryEnum dataRepositoryEnum){
         if (DataRepositoryEnum.MONGODB.equals(dataRepositoryEnum)){
-            return new it.unipi.lsmsd.fnf.dao.mongo.AnimeDAOImpl();
+            return new AnimeDAOMongoImpl();
         } else if (DataRepositoryEnum.NEO4J.equals(dataRepositoryEnum)) {
-            return new it.unipi.lsmsd.fnf.dao.neo4j.AnimeDAOImpl();
+            return new AnimeDAONeo4JImpl();
         }
         throw new UnsupportedOperationException("Data repository not supported: " + dataRepositoryEnum);
     }
@@ -38,9 +41,9 @@ public class DAOLocator {
      */
     public static MediaContentDAO<Manga> getMangaDAO(DataRepositoryEnum dataRepositoryEnum){
         if (DataRepositoryEnum.MONGODB.equals(dataRepositoryEnum)){
-            return new it.unipi.lsmsd.fnf.dao.mongo.MangaDAOImpl();
+            return new MangaDAOMongoImpl();
         } else if (DataRepositoryEnum.NEO4J.equals(dataRepositoryEnum)) {
-            return new it.unipi.lsmsd.fnf.dao.neo4j.MangaDAOImpl();
+            return new MangaDAONeo4JImpl();
         }
         throw new UnsupportedOperationException("Data repository not supported: " + dataRepositoryEnum);
     }
@@ -54,9 +57,9 @@ public class DAOLocator {
      */
     public static UserDAO getUserDAO(DataRepositoryEnum dataRepositoryEnum){
         if (DataRepositoryEnum.MONGODB.equals(dataRepositoryEnum)){
-            return new it.unipi.lsmsd.fnf.dao.mongo.UserDAOImpl();
+            return new UserDAOMongoImpl();
         } else if (DataRepositoryEnum.NEO4J.equals(dataRepositoryEnum)) {
-            return new it.unipi.lsmsd.fnf.dao.neo4j.UserDAOImpl();
+            return new UserDAONeo4JImpl();
         }
         throw new UnsupportedOperationException("Data repository not supported: " + dataRepositoryEnum);
     }
@@ -70,7 +73,7 @@ public class DAOLocator {
      */
     public static ReviewDAO getReviewDAO(DataRepositoryEnum dataRepositoryEnum){
         if (DataRepositoryEnum.MONGODB.equals(dataRepositoryEnum)){
-            return new ReviewDAOImpl();
+            return new ReviewDAOMongoImpl();
         }
         throw new UnsupportedOperationException("Data repository not supported: " + dataRepositoryEnum);
     }

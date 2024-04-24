@@ -1,5 +1,6 @@
 package it.unipi.lsmsd.fnf.dto.mediaContent;
 
+import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
 import org.bson.types.ObjectId;
 import org.neo4j.driver.Record;
 
@@ -60,5 +61,13 @@ public class AnimeDTO extends MediaContentDTO{
                 ", averageRating=" + getAverageRating() +
                 ", year=" + year +
                 '}';
+    }
+
+    public Anime toModel() {
+        Anime anime = new Anime();
+        anime.setId(this.getId());
+        anime.setTitle(this.getTitle());
+        anime.setImageUrl(this.getImageUrl());
+        return anime;
     }
 }

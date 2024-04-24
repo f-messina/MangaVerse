@@ -29,7 +29,7 @@ public class Neo4JDAOImplTest{
     @Test
     public void testLikeAnime() throws DAOException {
         try {
-            AnimeDAOImpl dao = new AnimeDAOImpl();
+            AnimeDAONeo4JImpl dao = new AnimeDAONeo4JImpl();
             dao.like("6577877be68376234760585f","65789bb52f5d29465d0abd09");
         } catch (DAOException e) {
             fail("Exception not expected: " + e.getMessage());
@@ -40,7 +40,7 @@ public class Neo4JDAOImplTest{
     @Test
     public void testLikeManga() throws DAOException {
         try {
-            MangaDAOImpl dao = new MangaDAOImpl();
+            MangaDAONeo4JImpl dao = new MangaDAONeo4JImpl();
             dao.like("6577877be68376234760585f","657ac61bb34f5514b91ea235");
         }   catch (DAOException e) {
             fail("Exception not expected: " + e.getMessage());
@@ -51,7 +51,7 @@ public class Neo4JDAOImplTest{
     @Test
     public void testFollowUser() throws DAOException {
         try {
-            UserDAOImpl neo4JDAO = new UserDAOImpl();
+            UserDAONeo4JImpl neo4JDAO = new UserDAONeo4JImpl();
             neo4JDAO.follow("6577877be68376234760585a", "6577877be683762347605859");
         } catch (DAOException e) {
             fail("Exception not expected: " + e.getMessage());
@@ -62,7 +62,7 @@ public class Neo4JDAOImplTest{
     @Test
     public void testUnlikeAnime() throws DAOException {
         try {
-            AnimeDAOImpl dao = new AnimeDAOImpl();
+            AnimeDAONeo4JImpl dao = new AnimeDAONeo4JImpl();
             dao.unlike("6577877be68376234760585f","65789bb52f5d29465d0abd09");
         } catch (DAOException e) {
             fail("Exception not expected: " + e.getMessage());
@@ -74,7 +74,7 @@ public class Neo4JDAOImplTest{
     public void testUnlikeManga() throws DAOException {
         try {
 
-            MangaDAOImpl dao = new MangaDAOImpl();
+            MangaDAONeo4JImpl dao = new MangaDAONeo4JImpl();
             dao.unlike("6577877be68376234760585f","657ac61bb34f5514b91ea233");
 
         } catch (DAOException e) {
@@ -87,7 +87,7 @@ public class Neo4JDAOImplTest{
     public void testUnfollowUser() throws DAOException {
         try {
 
-            UserDAOImpl neo4JDAO = new UserDAOImpl();
+            UserDAONeo4JImpl neo4JDAO = new UserDAONeo4JImpl();
             neo4JDAO.unfollow("6577877be68376234760585a", "6577877be683762347605859");
 
         } catch (DAOException e) {
@@ -100,7 +100,7 @@ public class Neo4JDAOImplTest{
     public void testGetLikedAnime() throws DAOException {
         try {
 
-            AnimeDAOImpl neo4JDAO = new AnimeDAOImpl();
+            AnimeDAONeo4JImpl neo4JDAO = new AnimeDAONeo4JImpl();
             List<AnimeDTO> anime = neo4JDAO.getLiked("6577877be68376234760585f");
             for (AnimeDTO animeDTO : anime) {
                 System.out.println("id: " + animeDTO.getId() + ", title: " + animeDTO.getTitle() + ", picture: " + animeDTO.getImageUrl());
@@ -117,7 +117,7 @@ public class Neo4JDAOImplTest{
     public void testGetLikedManga() throws DAOException{
         try {
 
-            MangaDAOImpl neo4JDAO = new MangaDAOImpl();
+            MangaDAONeo4JImpl neo4JDAO = new MangaDAONeo4JImpl();
             List<MangaDTO> manga = neo4JDAO.getLiked("6577877be68376234760585f");
             for (MangaDTO mangaDTO : manga) {
                 System.out.println("id: " + mangaDTO.getId() + ", title: " + mangaDTO.getTitle() + ", picture: " + mangaDTO.getImageUrl());
@@ -134,7 +134,7 @@ public class Neo4JDAOImplTest{
     public void testGetFollowing() throws DAOException {
         try {
 
-            UserDAOImpl neo4JDAO = new UserDAOImpl();
+            UserDAONeo4JImpl neo4JDAO = new UserDAONeo4JImpl();
             List<UserSummaryDTO> followingUsers = neo4JDAO.getFollowing("6577877be68376234760585d");
             for (UserSummaryDTO user : followingUsers)
                 System.out.println(user);
@@ -147,7 +147,7 @@ public class Neo4JDAOImplTest{
      @Test
     public void testGetFollowers() throws DAOException {
         try {
-            UserDAOImpl neo4JDAO = new UserDAOImpl();
+            UserDAONeo4JImpl neo4JDAO = new UserDAONeo4JImpl();
             List<UserSummaryDTO> followerUsers = neo4JDAO.getFollowers("6577877be68376234760585d");
             for(UserSummaryDTO user : followerUsers)
                 System.out.println(user);

@@ -1,7 +1,9 @@
 package it.unipi.lsmsd.fnf.model.mediaContent;
 
+import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
 import it.unipi.lsmsd.fnf.model.Review;
 import it.unipi.lsmsd.fnf.model.enums.MangaDemographics;
+import it.unipi.lsmsd.fnf.model.enums.MangaStatus;
 import it.unipi.lsmsd.fnf.model.enums.MangaType;
 
 import java.time.LocalDate;
@@ -22,8 +24,8 @@ public class Manga extends MediaContent {
     private Integer volumes;
     private Integer chapters;
     private List<Review> reviews;
-
     private MangaType type;
+    private MangaStatus status;
 
     public List<String> getGenres() {
         return genres;
@@ -62,6 +64,9 @@ public class Manga extends MediaContent {
     }
     public MangaType getType() {
         return type;
+    }
+    public MangaStatus getStatus() {
+        return status;
     }
     public void setGenres(List<String> genres) {
         this.genres = genres;
@@ -107,6 +112,9 @@ public class Manga extends MediaContent {
     public void setType(MangaType type) {
         this.type = type;
     }
+    public void setStatus(MangaStatus status) {
+        this.status = status;
+    }
 
 
     /**
@@ -131,5 +139,9 @@ public class Manga extends MediaContent {
                 ", chapters=" + chapters +
                 ", reviews=" + reviews +
                 '}';
+    }
+
+    public MangaDTO toDTO() {
+        return new MangaDTO(this.getId(), this.getTitle(), this.getImageUrl(), this.getAverageRating(), this.getStartDate(), this.getEndDate());
     }
 }

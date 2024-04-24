@@ -194,22 +194,4 @@ public abstract class BaseMongoDBDAO {
 
         return orderBy(sortList);
     }
-
-
-    /**
-     * Appends a key-value pair to a MongoDB document if the value is not null or empty.
-     *
-     * @param doc   MongoDB document to which the key-value pair is to be appended.
-     * @param key   Key of the key-value pair.
-     * @param value Value of the key-value pair.
-     */
-    protected void appendIfNotNull(Document doc, String key, Object value) {
-        if (value != null &&
-                !(value instanceof String && (value.equals(Constants.NULL_STRING) || value.equals(Gender.UNKNOWN.name()))) &&
-                !(value instanceof Date && value.equals(ConverterUtils.localDateToDate(Constants.NULL_DATE))) &&
-                (StringUtils.isNotBlank(value.toString()) ||
-                        (value instanceof List && CollectionUtils.isNotEmpty((List<?>) value)))) {
-            doc.append(key, value);
-        }
-    }
 }

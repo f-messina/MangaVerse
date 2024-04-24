@@ -11,17 +11,12 @@ import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
-import it.unipi.lsmsd.fnf.model.Review;
-import it.unipi.lsmsd.fnf.model.enums.AnimeType;
-import it.unipi.lsmsd.fnf.model.enums.Status;
 import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
-import it.unipi.lsmsd.fnf.model.registeredUser.User;
-import it.unipi.lsmsd.fnf.utils.mapper.ModelToDtoMapper;
 import it.unipi.lsmsd.fnf.utils.Constants;
-import it.unipi.lsmsd.fnf.utils.ConverterUtils;
 
 import com.mongodb.client.model.*;
 import com.mongodb.client.*;
+import it.unipi.lsmsd.fnf.utils.DocumentUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
@@ -30,11 +25,14 @@ import java.util.*;
 import static com.mongodb.client.model.Aggregates.*;
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Updates.setOnInsert;
+import static it.unipi.lsmsd.fnf.utils.DocumentUtils.animeToDocument;
+import static it.unipi.lsmsd.fnf.utils.DocumentUtils.documentToAnime;
+import static it.unipi.lsmsd.fnf.utils.DocumentUtils.reviewDTOToNestedDocument;
 
 /**
  * Implementation of the MediaContentDAO interface for Anime objects, providing CRUD operations for Anime data in MongoDB.
  */
-public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anime> {
+public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO<Anime> {
     private static final String COLLECTION_NAME = "anime";
 
     /**
@@ -44,10 +42,11 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
      * @throws DAOException If an error occurs during the insertion process.
      */
     @Override
-    public void createMediaContent(Anime anime) throws DAOException {
+    public void saveMediaContent(Anime anime) throws DAOException {
         try {
             MongoCollection<Document> animeCollection = getCollection(COLLECTION_NAME);
 
+            // save the anime in the database only if it doesn't already exist
             Bson filter = eq("title", anime.getTitle());
             Document animeDocument = animeToDocument(anime);
             Bson doc = setOnInsert(animeDocument);
@@ -81,11 +80,13 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
         try {
             MongoCollection<Document> animeCollection = getCollection(COLLECTION_NAME);
 
+            // Check if another anime with the same title exists in the database
             Bson filterTitle = and(eq("title", anime.getTitle()), ne("_id", new ObjectId(anime.getId())));
             if (animeCollection.countDocuments(filterTitle) > 0) {
                 throw new DAOException(DAOExceptionType.DUPLICATED_KEY, "An anime with the same name already exists");
             }
 
+            // Update the anime in the database
             Bson filter = Filters.eq("_id", new ObjectId(anime.getId()));
             Bson update = new Document("$set", animeToDocument(anime));
 
@@ -147,6 +148,7 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
 
             Document result = animeCollection.find(filter).first();
 
+            // Convert the Document to an Anime object and return it if found
             return (result != null)? documentToAnime(result) : null;
 
         } catch (MongoException e) {
@@ -172,6 +174,7 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
         try {
             MongoCollection<Document> animeCollection = getCollection(COLLECTION_NAME);
 
+            // Build the MongoDB query pipeline
             Bson filter = buildFilter(filters);
             Bson sort = buildSort(orderBy);
             Bson projection = Projections.include("title", "picture", "average_rating", "anime_season");
@@ -200,11 +203,12 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
             );
             Document result = animeCollection.aggregate(pipeline).first();
 
+            // Extract the list of AnimeDTO objects and the total count of results from the query result
             List<AnimeDTO> animeList = Optional.ofNullable(result)
                     .map(doc -> doc.getList(Constants.PAGINATION_FACET, Document.class))
                     .orElseThrow(() -> new DAOException("Error while searching anime"))
                     .stream()
-                    .map(this::documentToAnimeDTO)
+                    .map(DocumentUtils::documentToAnimeDTO)
                     .toList();
 
             int totalCount = Optional.of(result)
@@ -215,6 +219,7 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
                     .map(doc -> doc.getInteger("total"))
                     .orElse(0);
 
+            // Return the list of AnimeDTO objects and the total count of results
             if (totalCount > 0) {
                 return new PageDTO<>(animeList, totalCount);
             } else {
@@ -242,12 +247,10 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
             MongoCollection<Document> animeCollection = getCollection(COLLECTION_NAME);
 
             // Convert ReviewDTO to Document
-            Document reviewDocument = reviewDTOtoDocument(reviewDTO);
+            Document reviewDocument = reviewDTOToNestedDocument(reviewDTO);
 
-            // Create a filter to check if the review with the given ID already exists in the array
+            // Check if the review already exists in the latestReviews array inside the Anime document
             Document filter = new Document("latestReviews._id", reviewDTO.getId());
-
-            // Create a projection to include only the necessary fields
             Document projection = new Document("latestReviews.$", 1);
 
             // Execute the query to find the matching review
@@ -257,7 +260,6 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
 
             // Combine all update operations into a single update statement
             Document updateOperations = new Document();
-
             if (existingReview != null) {
                 // Review already exists, move it to the first position
                 updateOperations.append("$pull", new Document("latestReviews", new Document("_id", reviewDTO.getId())));
@@ -266,7 +268,6 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
                 // Review doesn't exist, add it to the first position
                 updateOperations.append("$push", new Document("latestReviews", new Document("$each", List.of(reviewDocument)).append("$position", 0)));
             }
-
             // Ensure the array has at most 5 reviews
             updateOperations.append("$push", new Document("latestReviews", new Document("$each", List.of()).append("$slice", -5)));
 
@@ -276,153 +277,6 @@ public class AnimeDAOImpl extends BaseMongoDBDAO implements MediaContentDAO<Anim
         } catch (Exception e) {
             throw new DAOException("Error updating latest review", e);
         }
-    }
-
-    /**
-     * Converts a ReviewDTO object into a Document for MongoDB storage.
-     *
-     * @param reviewDTO The ReviewDTO object to convert.
-     * @return A Document representing the ReviewDTO.
-     */
-    private Document reviewToDocument(ReviewDTO reviewDTO) {
-        Document doc = new Document();
-        doc.append("id", reviewDTO.getId());
-        doc.append("comment", reviewDTO.getComment());
-        doc.append("date", reviewDTO.getDate());
-        // Add other fields as necessary
-        return doc;
-    }
-
-
-    /**
-     * Converts an Anime object into a Document for MongoDB storage.
-     *
-     * @param anime The Anime object to convert.
-     * @return A Document representing the Anime.
-     */
-    private Document animeToDocument(Anime anime) {
-        Document doc = new Document();
-        appendIfNotNull(doc, "title", anime.getTitle());
-        appendIfNotNull(doc, "episodes", anime.getEpisodeCount());
-        appendIfNotNull(doc, "status", anime.getStatus());
-        appendIfNotNull(doc, "picture", anime.getImageUrl());
-        appendIfNotNull(doc, "average_score", anime.getAverageRating());
-        appendIfNotNull(doc, "type", anime.getType());
-        appendIfNotNull(doc, "producers", anime.getProducers());
-        appendIfNotNull(doc, "studios", anime.getStudios());
-        appendIfNotNull(doc, "synopsis", anime.getSynopsis());
-        appendIfNotNull(doc, "tags", anime.getTags());
-        appendIfNotNull(doc, "relations", anime.getRelatedAnime());
-
-        if (anime.getSeason() != null || anime.getYear() != null) {
-            Document seasonDocument = new Document();
-            appendIfNotNull(seasonDocument, "season", anime.getSeason());
-            appendIfNotNull(seasonDocument, "year", anime.getYear());
-            doc.append("anime_season", seasonDocument);
-        }
-
-        List<Document> reviewsDocuments = Optional.ofNullable(anime.getReviews())
-                .orElse(Collections.emptyList())
-                .stream()
-                .map(review -> {
-                    ReviewDTO reviewDTO = ModelToDtoMapper.convertToDTO(review);
-                    return reviewDTOtoDocument(reviewDTO);
-                })
-                .toList();
-
-        appendIfNotNull(doc, "latest_reviews", reviewsDocuments);
-
-        return doc;
-    }
-
-    /**
-     * Converts a Document from MongoDB storage into an Anime object.
-     *
-     * @param doc The Document to convert.
-     * @return An Anime object representing the Document.
-     */
-    private Anime documentToAnime(Document doc) {
-        Anime anime = new Anime();
-        anime.setId(doc.getObjectId("_id").toString());
-        anime.setTitle(doc.getString("title"));
-        anime.setEpisodeCount(doc.getInteger("episodes"));
-        anime.setStatus(Status.valueOf(doc.getString("status")));
-        anime.setImageUrl(doc.getString("picture"));
-        Object averageRatingObj = doc.get("average_rating");
-        anime.setAverageRating(
-                (averageRatingObj instanceof Integer) ? ((Integer) averageRatingObj).doubleValue() :
-                        (averageRatingObj instanceof Double) ? (Double) averageRatingObj : 0.0
-        );
-        anime.setType(AnimeType.fromString(doc.getString("type")));
-        anime.setRelatedAnime(doc.getList("relations", String.class));
-        anime.setTags(doc.getList("tags", String.class));
-        anime.setProducers(doc.getString("producers"));
-        anime.setStudios(doc.getString("studios"));
-        anime.setSynopsis(doc.getString("synopsis"));
-
-        Optional.ofNullable(doc.get("anime_season", Document.class))
-                .ifPresent(seasonDocument -> {
-                    anime.setSeason(seasonDocument.getString("season"));
-                    anime.setYear(seasonDocument.getInteger("year"));
-                });
-
-        List<Review> reviewList = Optional.ofNullable(doc.getList("latest_reviews", Document.class))
-                .orElse(Collections.emptyList())
-                .stream()
-                .map(reviewDocument -> {
-                    Review review = new Review();
-                    User reviewer = new User();
-                    Document userDocument = reviewDocument.get("user", Document.class);
-                    reviewer.setId(userDocument.getObjectId("id").toString());
-                    reviewer.setUsername(userDocument.getString("username"));
-                    reviewer.setProfilePicUrl(userDocument.getString("picture"));
-                    review.setUser(reviewer);
-                    review.setId(reviewDocument.getObjectId("id").toString());
-                    review.setComment(reviewDocument.getString("comment"));
-                    review.setDate(ConverterUtils.dateToLocalDate(reviewDocument.getDate("date")));
-                    return review;
-                })
-                .toList();
-        anime.setReviews(reviewList);
-
-        return anime;
-    }
-
-    /**
-     * Converts a Document from MongoDB storage into an AnimeDTO object.
-     *
-     * @param doc The Document to convert.
-     * @return An AnimeDTO object representing the Document.
-     */
-    private AnimeDTO documentToAnimeDTO(Document doc) {
-        AnimeDTO anime = new AnimeDTO();
-        anime.setId(doc.getObjectId("_id").toString());
-        anime.setTitle(doc.getString("title"));
-        anime.setImageUrl(doc.getString("picture"));
-        Object averageRatingObj = doc.get("average_rating");
-        anime.setAverageRating(
-                (averageRatingObj instanceof Integer) ? ((Integer) averageRatingObj).doubleValue() :
-                        (averageRatingObj instanceof Double) ? (Double) averageRatingObj : 0.0
-        );
-        if ((doc.get("anime_season", Document.class) != null)) {
-            anime.setYear(doc.get("anime_season", Document.class).getInteger("year"));
-            anime.setSeason(doc.get("anime_season", Document.class).getString("season"));
-        }
-
-        return anime;
-    }
-
-    private Document reviewDTOtoDocument(ReviewDTO reviewDTO) {
-        Document reviewDocument = new Document();
-        appendIfNotNull(reviewDocument, "id", reviewDTO.getId());
-        appendIfNotNull(reviewDocument, "comment", reviewDTO.getComment());
-        appendIfNotNull(reviewDocument, "date", ConverterUtils.localDateToDate(reviewDTO.getDate()));
-        Document userDocument = new Document();
-        appendIfNotNull(userDocument, "id", reviewDTO.getUser().getId());
-        appendIfNotNull(userDocument, "username", reviewDTO.getUser().getUsername());
-        appendIfNotNull(userDocument, "picture", reviewDTO.getUser().getProfilePicUrl());
-        appendIfNotNull(reviewDocument, "user", userDocument);
-        return reviewDocument;
     }
 
     //MongoDB queries

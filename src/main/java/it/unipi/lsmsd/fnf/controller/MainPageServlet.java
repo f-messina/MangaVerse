@@ -4,10 +4,7 @@ import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
-import it.unipi.lsmsd.fnf.model.enums.AnimeType;
-import it.unipi.lsmsd.fnf.model.enums.MangaDemographics;
-import it.unipi.lsmsd.fnf.model.enums.MangaType;
-import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
+import it.unipi.lsmsd.fnf.model.enums.*;
 import it.unipi.lsmsd.fnf.service.interfaces.MediaContentService;
 import it.unipi.lsmsd.fnf.service.ServiceLocator;
 import it.unipi.lsmsd.fnf.service.interfaces.UserService;
@@ -58,12 +55,12 @@ public class MainPageServlet extends HttpServlet {
             request.setAttribute("mangaGenres", Constants.MANGA_GENRES);
             request.setAttribute("mangaTypes", MangaType.values());
             request.setAttribute("mangaDemographics", MangaDemographics.values());
-            request.setAttribute("mangaStatus", Constants.MANGA_STATUS);
+            request.setAttribute("mangaStatus", MangaStatus.values());
             targetJSP = "/WEB-INF/jsp/manga_main_page.jsp";
         } else if((boolean) request.getAttribute("isAnime")) {
             request.setAttribute("animeTags", Constants.ANIME_TAGS);
             request.setAttribute("animeTypes", AnimeType.values())  ;
-            request.setAttribute("animeStatus", Constants.ANIME_STATUS);
+            request.setAttribute("animeStatus", AnimeStatus.values());
             targetJSP = "/WEB-INF/jsp/anime_main_page.jsp";
         } else {
             request.getRequestDispatcher("homepage.jsp").forward(request, response);

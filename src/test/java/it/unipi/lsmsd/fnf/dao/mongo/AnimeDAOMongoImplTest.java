@@ -3,7 +3,7 @@ package it.unipi.lsmsd.fnf.dao.mongo;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
-import it.unipi.lsmsd.fnf.model.enums.Status;
+import it.unipi.lsmsd.fnf.model.enums.AnimeStatus;
 import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Map;
 
-class AnimeDAOImplTest {
+class AnimeDAOMongoImplTest {
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -25,11 +25,11 @@ class AnimeDAOImplTest {
     }
     @Test
     void createMediaContent() {
-        AnimeDAOImpl animeDAO = new AnimeDAOImpl();
+        AnimeDAOMongoImpl animeDAO = new AnimeDAOMongoImpl();
         Anime anime = createSampleAnime();
         try {
 
-            animeDAO.createMediaContent(anime);
+            animeDAO.saveMediaContent(anime);
             System.out.println("Anime created: " + anime.getId());
         } catch (Exception e) {
             System.err.println(e.getMessage());
@@ -38,7 +38,7 @@ class AnimeDAOImplTest {
 
     @Test
     void updateMediaContent() {
-        AnimeDAOImpl animeDAO = new AnimeDAOImpl();
+        AnimeDAOMongoImpl animeDAO = new AnimeDAOMongoImpl();
         Anime anime = createSampleAnime();
         anime.setId("65ee4f4f44567e63565fd124");
         anime.setTitle("Updated Anime");
@@ -52,7 +52,7 @@ class AnimeDAOImplTest {
 
     @Test
     void deleteMediaContent() {
-        AnimeDAOImpl animeDAO = new AnimeDAOImpl();
+        AnimeDAOMongoImpl animeDAO = new AnimeDAOMongoImpl();
         try {
             animeDAO.deleteMediaContent("65ee4f4f44567e63565fd124");
             System.out.println("Anime deleted");
@@ -63,7 +63,7 @@ class AnimeDAOImplTest {
 
     @Test
     void readMediaContent() {
-        AnimeDAOImpl animeDAO = new AnimeDAOImpl();
+        AnimeDAOMongoImpl animeDAO = new AnimeDAOMongoImpl();
         try {
             Anime anime = animeDAO.readMediaContent("65ee4f4f44567e63565fd124");
             System.out.println("Anime read: " + anime.toString());
@@ -74,7 +74,7 @@ class AnimeDAOImplTest {
 
     @Test
     void search() {
-        AnimeDAOImpl animeDAO = new AnimeDAOImpl();
+        AnimeDAOMongoImpl animeDAO = new AnimeDAOMongoImpl();
         try {
             PageDTO<AnimeDTO> animePage = animeDAO.search(List.of(Map.of("$in",Map.of("tags", List.of("school clubs", "manwha")))), Map.of("title", 1), 1);
             System.out.println("Anime found: " + animePage.getTotalCount());
@@ -90,7 +90,7 @@ class AnimeDAOImplTest {
     @Test
     public void testGetBestCriteriaAnime() {
 
-        AnimeDAOImpl animeDAO = new AnimeDAOImpl();
+        AnimeDAOMongoImpl animeDAO = new AnimeDAOMongoImpl();
         try {
             Map<String, Double> bestAnime = animeDAO.getBestCriteria("tags", true, 2);
             for (Map.Entry<String, Double> entry : bestAnime.entrySet()) {
@@ -109,7 +109,7 @@ class AnimeDAOImplTest {
         anime.setEpisodeCount(12);
         anime.setProducers("StudioProduction I.G");
         anime.setYear(2019);
-        anime.setStatus(Status.FINISHED);
+        anime.setStatus(AnimeStatus.FINISHED);
         return anime;
     }
 }

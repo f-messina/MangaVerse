@@ -11,7 +11,7 @@ import java.util.Map;
 
 public interface MediaContentDAO<T extends MediaContent> {
     // MongoDB specific methods
-    void createMediaContent(T mediaContent) throws DAOException;
+    void saveMediaContent(T mediaContent) throws DAOException;
     void updateMediaContent(T mediaContent) throws DAOException;
     T readMediaContent(String id) throws DAOException;
     void deleteMediaContent(String id) throws DAOException;

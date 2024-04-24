@@ -15,7 +15,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class UserDAOImplTest {
+public class UserDAOMongoImplTest {
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -37,9 +37,9 @@ public class UserDAOImplTest {
         user.setUsername(username);
         user.setEmail(email);
         user.setPassword(password);
-        UserDAO userDAO = new UserDAOImpl();
+        UserDAO userDAO = new UserDAOMongoImpl();
         try {
-            userDAO.createUser(user);
+            userDAO.saveUser(user);
             System.out.println("User created: " + user.getId());
         } catch (DAOException e) {
             System.err.println(e.getMessage() + " " + e.getType());
@@ -49,7 +49,7 @@ public class UserDAOImplTest {
 
     @Test
     public void testUpdate() {
-        UserDAO userDAO = new UserDAOImpl();
+        UserDAO userDAO = new UserDAOMongoImpl();
         User user = new User();
         user.setId("65ebb6a3ccd5770d242c6f57");
         user.setUsername("flavio");
@@ -66,7 +66,7 @@ public class UserDAOImplTest {
 
     @Test
     public void testRemove() {
-        UserDAO userDAO = new UserDAOImpl();
+        UserDAO userDAO = new UserDAOMongoImpl();
         String userId = "65ebb6a3ccd5770d242c6f57";
         try {
             userDAO.deleteUser(userId);
@@ -79,7 +79,7 @@ public class UserDAOImplTest {
     public void testAuthenticate() {
         String email = "rrussell@example.com";
         String password = "08128d06e8073a8d8eb055852bf5744d3477e16fed096b86557a7a233c71d791";
-        UserDAO userDAO = new UserDAOImpl();
+        UserDAO userDAO = new UserDAOMongoImpl();
         try {
             System.out.println(userDAO.authenticate(email, password));
         } catch (DAOException e) {
@@ -90,7 +90,7 @@ public class UserDAOImplTest {
     @Test
     public void testRead() {
         String userId = "6577877be68376234760585a";
-        UserDAO userDAO = new UserDAOImpl();
+        UserDAO userDAO = new UserDAOMongoImpl();
         try {
             System.out.println(userDAO.readUser(userId, false));
         } catch (DAOException e) {
@@ -110,7 +110,7 @@ public class UserDAOImplTest {
     @Test
     public void testGetDistribution() {
         try {
-            UserDAOImpl userDAO = new UserDAOImpl();
+            UserDAOMongoImpl userDAO = new UserDAOMongoImpl();
             Map<String, Integer> distribution = userDAO.getDistribution("location");
             System.out.println(distribution.toString());
 
@@ -123,7 +123,7 @@ public class UserDAOImplTest {
     public void testAverageAgeUsers() {
         try {
 
-            UserDAOImpl userDAO = new UserDAOImpl();
+            UserDAOMongoImpl userDAO = new UserDAOMongoImpl();
             Double averageAge = userDAO.averageAgeUsers();
             System.out.println(averageAge);
 
@@ -137,7 +137,7 @@ public class UserDAOImplTest {
     public void testAverageAppRating() {
         try {
 
-            UserDAOImpl userDAO = new UserDAOImpl();
+            UserDAOMongoImpl userDAO = new UserDAOMongoImpl();
             Map<String, Double> averageRating = userDAO.averageAppRating("gender");
             System.out.println(averageRating);
 
@@ -150,7 +150,7 @@ public class UserDAOImplTest {
     public void testAverageAppRatingByAgeRange() {
         try {
 
-            UserDAOImpl userDAO = new UserDAOImpl();
+            UserDAOMongoImpl userDAO = new UserDAOMongoImpl();
             Map<String, Double> averageRating = userDAO.averageAppRatingByAgeRange();
             System.out.println(averageRating);
 

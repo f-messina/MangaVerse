@@ -96,7 +96,7 @@ public class ConverterUtils {
                 buildGenreFilter(request, "avoid", "$nin"),
                 buildEnumFilter(request.getParameterValues("mangaTypes"), MangaType.values(), "type"),
                 buildEnumFilter(request.getParameterValues("mangaDemographics"), MangaDemographics.values(), "demographics"),
-                buildEnumFilter(request.getParameterValues("status"), Constants.MANGA_STATUS, "status"),
+                buildEnumFilter(request.getParameterValues("status"), MangaStatus.values(), "status"),
                 buildScoreFilter(request),
                 buildDateFilter(request)
         )
@@ -114,7 +114,7 @@ public class ConverterUtils {
                         buildGenreFilter(request, "select", request.getParameter("genreOperator").equals("and")? "$all": "$in"),
                         buildGenreFilter(request, "avoid", "$nin"),
                         buildEnumFilter(request.getParameterValues("animeTypes"), AnimeType.values(), "type"),
-                        buildEnumFilter(request.getParameterValues("status"), Constants.ANIME_STATUS, "status"),
+                        buildEnumFilter(request.getParameterValues("status"), AnimeStatus.values(), "status"),
                         buildScoreFilter(request),
                         buildYearFilter(request),
                         buildSeasonFilter(request)

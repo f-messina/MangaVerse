@@ -1,5 +1,6 @@
 package it.unipi.lsmsd.fnf.dto.mediaContent;
 
+import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
 import org.bson.types.ObjectId;
 import org.neo4j.driver.Record;
 
@@ -57,5 +58,13 @@ public class MangaDTO extends MediaContentDTO{
                 ", startDate=" + startDate +
                 ", endDate=" + endDate +
                 '}';
+    }
+
+    public Manga toModel() {
+        Manga manga = new Manga();
+        manga.setId(this.getId());
+        manga.setTitle(this.getTitle());
+        manga.setImageUrl(this.getImageUrl());
+        return manga;
     }
 }

@@ -58,7 +58,7 @@ public class UserServiceImpl implements UserService {
                 throw new BusinessException(BusinessExceptionType.EMPTY_FIELDS,"Username, password and email cannot be empty");
             }
 
-            userDAO.createUser(userRegistrationDTO);
+            userDAO.saveUser(userRegistrationDTO);
         } catch (DAOException e) {
             DAOExceptionType type = e.getType();
 

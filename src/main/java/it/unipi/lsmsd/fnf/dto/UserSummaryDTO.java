@@ -1,5 +1,7 @@
 package it.unipi.lsmsd.fnf.dto;
 
+import it.unipi.lsmsd.fnf.model.registeredUser.User;
+
 import java.time.LocalDate;
 
 public class UserSummaryDTO {
@@ -78,5 +80,15 @@ public class UserSummaryDTO {
                 ", username='" + username + '\'' +
                 ", profilePicUrl='" + profilePicUrl + '\'' +
                 '}';
+    }
+
+    public User toModel() {
+        User user = new User();
+        user.setId(this.getId());
+        user.setUsername(this.getUsername());
+        user.setProfilePicUrl(this.getProfilePicUrl());
+        user.setLocation(this.getLocation());
+        user.setBirthday(this.getBirthDate());
+        return user;
     }
 }

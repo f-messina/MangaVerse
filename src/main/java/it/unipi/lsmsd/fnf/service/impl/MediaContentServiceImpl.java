@@ -56,11 +56,11 @@ public class MediaContentServiceImpl implements MediaContentService {
             if (mediaContent instanceof Anime anime) {
                 if (StringUtils.isAnyEmpty(anime.getTitle(), anime.getImageUrl()) || anime.getEpisodeCount() == null)
                     throw new BusinessException(BusinessExceptionType.EMPTY_FIELDS,"Title, image URL and number of episodes are required");
-                animeDAO.createMediaContent(anime);
+                animeDAO.saveMediaContent(anime);
             } else if (mediaContent instanceof Manga manga) {
                 if (StringUtils.isAnyEmpty(manga.getTitle(), manga.getImageUrl()) || manga.getStartDate() == null || manga.getType() == null)
                     throw new BusinessException(BusinessExceptionType.EMPTY_FIELDS,"Title, image URL, start date and type are required");
-                mangaDAO.createMediaContent(manga);
+                mangaDAO.saveMediaContent(manga);
             }
         } catch (Exception e) {
             throw new BusinessException("Error adding media content",e);
