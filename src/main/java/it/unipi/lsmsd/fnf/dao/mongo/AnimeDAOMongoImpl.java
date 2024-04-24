@@ -353,6 +353,12 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
     public List<String> getMediaContentGenresTrendByYear(int year) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
+
+    @Override
+    public List<AnimeDTO> getMediaContentTrendByGenre() throws DAOException {
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
+    }
+
     @Override
     public List<String> getMediaContentGenresTrend() throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");

@@ -241,7 +241,7 @@ class ReviewDAOMongoImplTest {
     public void testSuggestTopAnimeLocation() {
         try {
             ReviewDAOMongoImpl reviewDAO = new ReviewDAOMongoImpl();
-            PageDTO<MediaContentDTO> pageDTO = reviewDAO.suggestTopMediaContent(MediaContentType.ANIME, "Brazil", "location");
+            PageDTO<MediaContentDTO> pageDTO = reviewDAO.suggestMediaContent(MediaContentType.ANIME, "Brazil", "location");
 
             System.out.println(pageDTO);
 
@@ -258,7 +258,7 @@ class ReviewDAOMongoImplTest {
     public void testSuggestTopMangaLocation() {
         try {
             ReviewDAOMongoImpl reviewDAO = new ReviewDAOMongoImpl();
-            PageDTO<MediaContentDTO> pageDTO = reviewDAO.suggestTopMediaContent(MediaContentType.MANGA, "Hungary", "location");
+            PageDTO<MediaContentDTO> pageDTO = reviewDAO.suggestMediaContent(MediaContentType.MANGA, "Hungary", "location");
 
             System.out.println(pageDTO);
 
@@ -275,7 +275,7 @@ class ReviewDAOMongoImplTest {
 
             ReviewDAOMongoImpl reviewDAO = new ReviewDAOMongoImpl();
 
-            PageDTO<MediaContentDTO> pageDTO = reviewDAO.suggestTopMediaContent(MediaContentType.ANIME, "1990", "birthday");
+            PageDTO<MediaContentDTO> pageDTO = reviewDAO.suggestMediaContent(MediaContentType.ANIME, "1990", "birthday");
 
             System.out.println(pageDTO);
 
@@ -292,7 +292,7 @@ class ReviewDAOMongoImplTest {
 
             ReviewDAOMongoImpl reviewDAO = new ReviewDAOMongoImpl();
 
-            PageDTO<MediaContentDTO> pageDTO = reviewDAO.suggestTopMediaContent(MediaContentType.MANGA, "1990", "birthday");
+            PageDTO<MediaContentDTO> pageDTO = reviewDAO.suggestMediaContent(MediaContentType.MANGA, "1990", "birthday");
 
             System.out.println(pageDTO);
 
