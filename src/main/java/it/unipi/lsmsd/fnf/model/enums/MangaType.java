@@ -1,6 +1,5 @@
 package it.unipi.lsmsd.fnf.model.enums;
 
-import it.unipi.lsmsd.fnf.utils.Constants;
 /**
  * Enumeration representing different types of manga.
  */

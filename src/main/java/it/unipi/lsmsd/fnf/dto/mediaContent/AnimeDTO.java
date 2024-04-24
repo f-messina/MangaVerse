@@ -1,12 +1,6 @@
 package it.unipi.lsmsd.fnf.dto.mediaContent;
 
-import org.bson.types.ObjectId;
-import org.neo4j.driver.Record;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
 
 
 public class AnimeDTO extends MediaContentDTO{
@@ -60,5 +54,13 @@ public class AnimeDTO extends MediaContentDTO{
                 ", averageRating=" + getAverageRating() +
                 ", year=" + year +
                 '}';
+    }
+
+    public Anime toModel() {
+        Anime anime = new Anime();
+        anime.setId(this.getId());
+        anime.setTitle(this.getTitle());
+        anime.setImageUrl(this.getImageUrl());
+        return anime;
     }
 }

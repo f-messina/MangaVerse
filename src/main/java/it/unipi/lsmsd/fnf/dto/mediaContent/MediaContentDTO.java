@@ -1,12 +1,6 @@
 package it.unipi.lsmsd.fnf.dto.mediaContent;
 
-import org.bson.types.ObjectId;
-import org.neo4j.driver.Record;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import it.unipi.lsmsd.fnf.model.mediaContent.MediaContent;
 
 public abstract class MediaContentDTO {
     private String id;
@@ -87,4 +81,6 @@ public abstract class MediaContentDTO {
                 ", averageRating='" + averageRating + '\'' +
                 '}';
     }
+
+    public abstract MediaContent toModel();
 }

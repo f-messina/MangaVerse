@@ -3,6 +3,7 @@ package it.unipi.lsmsd.fnf.dao.interfaces;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
+import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.mediaContent.MediaContent;
 
@@ -14,7 +15,7 @@ public interface MediaContentDAO<T extends MediaContent> {
     List<String> getMediaContentGenresTrend() throws DAOException;
 
     // MongoDB specific methods
-    void createMediaContent(T mediaContent) throws DAOException;
+    void saveMediaContent(T mediaContent) throws DAOException;
     void updateMediaContent(T mediaContent) throws DAOException;
     T readMediaContent(String id) throws DAOException;
     void deleteMediaContent(String id) throws DAOException;
@@ -34,7 +35,6 @@ public interface MediaContentDAO<T extends MediaContent> {
     List<? extends MediaContentDTO> getSuggested(String userId) throws DAOException;
     List<? extends MediaContentDTO> getTrendMediaContentByYear(int year) throws DAOException;
     List<String> getMediaContentGenresTrendByYear(int year) throws DAOException;
-
-
+    List<? extends MediaContentDTO> getMediaContentTrendByGenre() throws DAOException;
     List<? extends MediaContentDTO> getMediaContentTrendByLikes() throws DAOException;
 }

@@ -1,5 +1,7 @@
 package it.unipi.lsmsd.fnf.dto;
 
+import it.unipi.lsmsd.fnf.model.registeredUser.User;
+
 import java.time.LocalDate;
 
 public class UserSummaryDTO {
@@ -22,7 +24,7 @@ public class UserSummaryDTO {
     }
 
     // Constructor for UserSummaryDTO to store info used in reviews
-    // (user location and birth date) to do statistics and analysis on reviews
+    // (user location and birthdate) to do statistics and analysis on reviews
     public UserSummaryDTO(String id, String username, String profilePicUrl, String location, LocalDate birthDate) {
         this.id = id;
         this.username = username;
@@ -78,5 +80,15 @@ public class UserSummaryDTO {
                 ", username='" + username + '\'' +
                 ", profilePicUrl='" + profilePicUrl + '\'' +
                 '}';
+    }
+
+    public User toModel() {
+        User user = new User();
+        user.setId(this.getId());
+        user.setUsername(this.getUsername());
+        user.setProfilePicUrl(this.getProfilePicUrl());
+        user.setLocation(this.getLocation());
+        user.setBirthday(this.getBirthDate());
+        return user;
     }
 }

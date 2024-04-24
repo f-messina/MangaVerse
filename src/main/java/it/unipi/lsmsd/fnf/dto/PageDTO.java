@@ -1,6 +1,5 @@
 package it.unipi.lsmsd.fnf.dto;
 
-import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.utils.Constants;
 
 import java.util.ArrayList;

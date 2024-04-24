@@ -1,6 +1,7 @@
 package it.unipi.lsmsd.fnf.dto;
 
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
+import it.unipi.lsmsd.fnf.model.Review;
 
 import java.time.LocalDate;
 
@@ -88,5 +89,17 @@ public class ReviewDTO {
                 ", mediaContent=" + mediaContent +
                 ", user=" + user +
                 '}';
+    }
+
+    public Review toModel() {
+        Review review = new Review();
+        review.setId(this.getId());
+        review.setDate(this.getDate());
+        review.setRating(this.getRating());
+        review.setComment(this.getComment());
+        review.setMediaContent(this.getMediaContent().toModel());
+        if (this.getUser() != null)
+            review.setUser(this.getUser().toModel());
+        return review;
     }
 }

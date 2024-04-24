@@ -10,7 +10,7 @@ import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import java.util.Map;
 
 public interface ReviewDAO {
-    void createReview(ReviewDTO reviewDTO) throws DAOException;
+    void saveReview(ReviewDTO reviewDTO) throws DAOException;
     void updateReview(String reviewId, String reviewComment, Integer reviewRating) throws DAOException;
     void updateMediaRedundancy(MediaContentDTO mediaContentDTO) throws DAOException;
     void updateUserRedundancy(UserSummaryDTO userSummaryDTO) throws DAOException;

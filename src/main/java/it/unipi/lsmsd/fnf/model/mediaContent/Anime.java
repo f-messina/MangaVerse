@@ -1,12 +1,15 @@
 package it.unipi.lsmsd.fnf.model.mediaContent;
 
+import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.model.Review;
+import it.unipi.lsmsd.fnf.model.enums.AnimeStatus;
 import it.unipi.lsmsd.fnf.model.enums.AnimeType;
 
 import java.util.ArrayList;
 import java.util.List;
+
 /**
- * Represents an anime media content.
+ * Represents an this media content.
  */
 public class Anime extends MediaContent {
     private Integer year;
@@ -18,6 +21,7 @@ public class Anime extends MediaContent {
     private String producers;
     private String studios;
     private AnimeType type;
+    private AnimeStatus status;
 
     public Integer getYear() {
         return year;
@@ -53,6 +57,10 @@ public class Anime extends MediaContent {
 
     public AnimeType getType() {
         return type;
+    }
+
+    public AnimeStatus getStatus() {
+        return status;
     }
 
     public void setYear(Integer year) {
@@ -91,9 +99,13 @@ public class Anime extends MediaContent {
         this.type = type;
     }
 
+    public void setStatus(AnimeStatus status) {
+        this.status = status;
+    }
+
 
     /**
-     * Adds a review to the list of reviews for this anime.
+     * Adds a review to the list of reviews for this this.
      * @param review The review to add.
      */
     public void addReview(Review review) {
@@ -101,7 +113,7 @@ public class Anime extends MediaContent {
     }
 
     /**
-     * Removes a review from the list of reviews for this anime.
+     * Removes a review from the list of reviews for this this.
      * @param review The review to remove.
      */
     public void removeReview(Review review) {
@@ -125,5 +137,9 @@ public class Anime extends MediaContent {
                 ", producers='" + producers + '\'' +
                 ", studios='" + studios + '\'' +
                 '}';
+    }
+
+    public AnimeDTO toDTO() {
+        return new AnimeDTO(this.getId(), this.getTitle(), this.getImageUrl(), this.getAverageRating(), this.getYear(), this.getSeason());
     }
 }

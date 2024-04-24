@@ -49,7 +49,7 @@ public class ReviewServiceImpl implements ReviewService {
             throw new BusinessException(BusinessExceptionType.EMPTY_FIELDS, "The review must have a comment or a rating");
         }
         try{
-            reviewDAO.createReview(review);
+            reviewDAO.saveReview(review);
             if (review.getMediaContent() instanceof MangaDTO)
                 mangaDAO.updateLatestReview(review);
             else if (review.getMediaContent() instanceof AnimeDTO)

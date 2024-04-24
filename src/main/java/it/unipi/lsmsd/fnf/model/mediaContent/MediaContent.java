@@ -1,7 +1,6 @@
 package it.unipi.lsmsd.fnf.model.mediaContent;
 
-import it.unipi.lsmsd.fnf.model.enums.Status;
-import org.bson.types.ObjectId;
+import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 
 public abstract class MediaContent {
     protected String id;
@@ -9,7 +8,6 @@ public abstract class MediaContent {
     protected String imageUrl;
     protected Double averageRating;
     protected String synopsis;
-    protected Status status;
 
     public String getId() {
         return id;
@@ -29,10 +27,6 @@ public abstract class MediaContent {
 
     public String getSynopsis() {
         return synopsis;
-    }
-
-    public Status getStatus() {
-        return status;
     }
 
     public void setId(String id) {
@@ -55,11 +49,6 @@ public abstract class MediaContent {
         this.synopsis = synopsis;
     }
 
-    public void setStatus(Status status) {
-        this.status = status;
-    }
-
-
     /**
      * Overrides the default toString method to provide a custom string representation of the MediaContent object.
      * @return A string representation of the MediaContent object.
@@ -72,7 +61,8 @@ public abstract class MediaContent {
                 ", imageUrl='" + imageUrl + '\'' +
                 ", averageRating='" + averageRating + '\'' +
                 ", synopsis='" + synopsis + '\'' +
-                ", status='" + status + '\'' +
                 '}';
     }
+
+    public abstract MediaContentDTO toDTO();
 }
