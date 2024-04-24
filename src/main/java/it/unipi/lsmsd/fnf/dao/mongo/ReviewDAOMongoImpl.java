@@ -247,10 +247,10 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
          */
 
         } catch (MongoException e) {
-            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, "The review is not found.");
 
         } catch (Exception e) {
-            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, "Error updating the review");
         }
     }
 
@@ -270,7 +270,7 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
             reviewCollection.deleteOne(filter);
 
         } catch (MongoException e) {
-            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR,"The review is not found.");
 
         } catch (Exception e) {
             throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
@@ -333,7 +333,6 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
 
         } catch (Exception e) {
             throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
-
         }
     }
 
@@ -403,20 +402,30 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
                 List<ReviewDTO> result = reviewCollection.find(filter).projection(projection)
                         .sort(descending("date"))
                         .map(DocumentUtils::documentToReviewDTO).into(new ArrayList<>());
-                return new PageDTO<>(result, result.size());
+
+                if (result.isEmpty()) {
+                    throw new MongoException("No reviews found for the user");
+                } else {
+                    return new PageDTO<>(result, result.size());
+                }
             } else {
                 int offset = (page - 1) * Constants.PAGE_SIZE;
                 List<ReviewDTO> result = reviewCollection.find(filter).projection(projection)
                         .sort(descending("date")).skip(offset).limit(Constants.PAGE_SIZE)
                         .map(DocumentUtils::documentToReviewDTO).into(new ArrayList<>());
                 int totalCount = (int) reviewCollection.countDocuments(filter);
-                return new PageDTO<>(result, totalCount);
+
+                if (result.isEmpty()) {
+                    throw new MongoException("No reviews found for the user");
+                } else {
+                    return new PageDTO<>(result, totalCount);
+                }
             }
         } catch (MongoException e) {
-            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR,"No reviews found for the user");
 
         } catch (Exception e) {
-            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, "Error while finding reviews by user");
 
         }
     }
@@ -451,21 +460,31 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
                 List<ReviewDTO> result = reviewCollection.find(filter).projection(projection)
                         .sort(descending("date"))
                         .map(DocumentUtils::documentToReviewDTO).into(new ArrayList<>());
-                return new PageDTO<>(result, result.size());
+
+
+                if (result.isEmpty()) {
+                    throw new MongoException("No reviews found for the media");
+                } else {
+                    return new PageDTO<>(result, result.size());
+                }
             } else {
                 int offset = (page - 1) * Constants.PAGE_SIZE;
                 List<ReviewDTO> result = reviewCollection.find(filter).projection(projection)
                         .sort(descending("date")).skip(offset).limit(Constants.PAGE_SIZE)
                         .map(DocumentUtils::documentToReviewDTO).into(new ArrayList<>());
                 int totalCount = (int) reviewCollection.countDocuments(filter);
-                return new PageDTO<>(result, totalCount);
+                if (result.isEmpty()) {
+                    throw new MongoException("No reviews found for the media");
+                } else {
+                    return new PageDTO<>(result, totalCount);
+                }
             }
 
         } catch (MongoException e) {
-            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, "Reviews not found for the media.");
 
         } catch (Exception e) {
-            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, "Error finding reviews by media");
 
         }
     }

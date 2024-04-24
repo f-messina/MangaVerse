@@ -120,6 +120,19 @@ public class UserServiceImpl implements UserService {
             }
         }
     }
+    @Override
+    public void deleteUser(String userId) throws BusinessException {
+        try {
+            userDAO.deleteUser(userId);
+        } catch (DAOException e) {
+            DAOExceptionType type = e.getType();
+            if (DAOExceptionType.DATABASE_ERROR.equals(type)) {
+                throw new BusinessException(BusinessExceptionType.NOT_FOUND, "User not found");
+            } else {
+                throw new BusinessException("Error deleting user");
+            }
+        }
+    }
 
     @Override
 
@@ -128,7 +141,12 @@ public class UserServiceImpl implements UserService {
         try {
             return (User) userDAO.readUser(userId, false);
         } catch (DAOException e) {
-            throw new BusinessException("Error while retrieving user by id.", e);
+            DAOExceptionType type = e.getType();
+            if (DAOExceptionType.DATABASE_ERROR.equals(type)) {
+                throw new BusinessException(BusinessExceptionType.NOT_FOUND, "User not found");
+            } else {
+                throw new BusinessException("Error while retrieving user by id.", e);
+            }
         }
     }
 
@@ -204,6 +222,15 @@ public class UserServiceImpl implements UserService {
             return userDAONeo4J.getFollowers(userId);
         } catch (DAOException e) {
             throw new BusinessException("Error while retrieving the follower list.");
+        }
+    }
+
+    @Override
+    public List<UserSummaryDTO> searchFirstNUsers(String username, Integer n, String loggedUser) throws BusinessException {
+        try {
+            return userDAO.searchFirstNUsers(username, n, loggedUser);
+        } catch (DAOException e) {
+            throw new BusinessException("Error while searching for users.", e);
         }
     }
 

@@ -9,5 +9,6 @@ public enum BusinessExceptionType {
     DUPLICATED_KEY,
     NO_NAME,
     NO_USER,
-    EMPTY_FIELDS
+    EMPTY_FIELDS,
+    NOT_FOUND
 }

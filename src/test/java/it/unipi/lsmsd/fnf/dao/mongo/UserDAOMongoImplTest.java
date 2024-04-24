@@ -31,7 +31,7 @@ public class UserDAOMongoImplTest {
     public void testCreateUser() throws DAOException {
 
         String username = "pa";
-        String email = "flavio@gmail.com";
+        String email = "example@gmail.com";
         String password = "password";
         UserRegistrationDTO user = new UserRegistrationDTO();
         user.setUsername(username);
@@ -51,7 +51,7 @@ public class UserDAOMongoImplTest {
     public void testUpdate() {
         UserDAO userDAO = new UserDAOMongoImpl();
         User user = new User();
-        user.setId("65ebb6a3ccd5770d242c6f57");
+        user.setId("662914825744863ee2e99217");
         user.setUsername("flavio");
         user.setProfilePicUrl("profilepic");
         user.setBirthday(LocalDate.of(1999, 12, 12));
@@ -67,7 +67,7 @@ public class UserDAOMongoImplTest {
     @Test
     public void testRemove() {
         UserDAO userDAO = new UserDAOMongoImpl();
-        String userId = "65ebb6a3ccd5770d242c6f57";
+        String userId = "65ef316a9d917e0222d8faf7";
         try {
             userDAO.deleteUser(userId);
         } catch (DAOException e) {
@@ -77,8 +77,8 @@ public class UserDAOMongoImplTest {
 
     @Test
     public void testAuthenticate() {
-        String email = "rrussell@example.com";
-        String password = "08128d06e8073a8d8eb055852bf5744d3477e16fed096b86557a7a233c71d791";
+        String email = "example@gmail.com";
+        String password = "password";
         UserDAO userDAO = new UserDAOMongoImpl();
         try {
             System.out.println(userDAO.authenticate(email, password));
@@ -89,7 +89,7 @@ public class UserDAOMongoImplTest {
 
     @Test
     public void testRead() {
-        String userId = "6577877be68376234760585a";
+        String userId = "6629128653d80671acf24d89";
         UserDAO userDAO = new UserDAOMongoImpl();
         try {
             System.out.println(userDAO.readUser(userId, false));
