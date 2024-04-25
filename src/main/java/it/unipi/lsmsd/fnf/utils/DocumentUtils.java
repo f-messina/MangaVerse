@@ -424,7 +424,7 @@ public class DocumentUtils {
         appendIfNotNull(doc, "username", username);
         appendIfNotNull(doc, "birthday", ConverterUtils.localDateToDate(birthday));
         appendIfNotNull(doc, "description", description);
-        appendIfNotNull(doc, "gender", gender != null ? gender.name() : null);
+        appendIfNotNull(doc, "gender", gender != null ? gender.toString() : null);
         appendIfNotNull(doc, "location", location);
 
         return doc;

@@ -1,5 +1,7 @@
 package it.unipi.lsmsd.fnf.service.impl;
 
+import it.unipi.lsmsd.fnf.dao.exception.DAOException;
+import it.unipi.lsmsd.fnf.dao.exception.DAOExceptionType;
 import it.unipi.lsmsd.fnf.dao.interfaces.MediaContentDAO;
 import it.unipi.lsmsd.fnf.dao.interfaces.ReviewDAO;
 import it.unipi.lsmsd.fnf.dao.enums.DataRepositoryEnum;
@@ -51,11 +53,17 @@ public class ReviewServiceImpl implements ReviewService {
         try{
             reviewDAO.saveReview(review);
             if (review.getMediaContent() instanceof MangaDTO)
-                mangaDAO.updateLatestReview(review);
+                mangaDAO.updateLatestReview(review, false);
             else if (review.getMediaContent() instanceof AnimeDTO)
-                animeDAO.updateLatestReview(review);
-        } catch (Exception e){
-            throw new BusinessException("Error adding review",e);
+                animeDAO.updateLatestReview(review,false);
+        } catch (DAOException e){
+            DAOExceptionType type = e.getType();
+            if (DAOExceptionType.DUPLICATED_KEY.equals(type))
+                throw new BusinessException(BusinessExceptionType.DUPLICATED_KEY, "The user have already reviewed this media content.");
+            else if (DAOExceptionType.DATABASE_ERROR.equals(type))
+                throw new BusinessException(BusinessExceptionType.NOT_FOUND,"The media content does not exist.");
+            else
+                throw new BusinessException(BusinessExceptionType.GENERIC, e.getMessage());
         }
     }
 
@@ -68,24 +76,40 @@ public class ReviewServiceImpl implements ReviewService {
     public void deleteReview(String reviewId) throws BusinessException {
         try {
             reviewDAO.deleteReview(reviewId);
-        } catch (Exception e){
-            throw new BusinessException("Error deleting review",e);
+        } catch (DAOException e){
+            DAOExceptionType type = e.getType();
+            if (DAOExceptionType.DATABASE_ERROR.equals(type))
+                throw new BusinessException(BusinessExceptionType.NOT_FOUND, "The review is not found.");
+            else
+                throw new BusinessException(BusinessExceptionType.GENERIC, "Error deleting the review");
+        }
+    }
+    @Override
+    public void deleteReviewWithNoMedia() throws BusinessException{
+        try {
+            reviewDAO.deleteReviewsWithNoMedia();
+        } catch (DAOException e){
+            DAOExceptionType type = e.getType();
+            if (DAOExceptionType.DATABASE_ERROR.equals(type))
+                throw new BusinessException(BusinessExceptionType.NOT_FOUND, "The review is not found.");
+            else
+                throw new BusinessException(BusinessExceptionType.GENERIC, "Error deleting the review");
         }
     }
 
-    /**
-     * Deletes all reviews associated with a particular media content.
-     * @param mediaId The ID of the media content whose reviews are to be deleted.
-     * @throws BusinessException If an error occurs during the operation.
-     */
     @Override
-    public void deleteReviewByMedia(String mediaId) throws BusinessException {
+    public void deleteReviewWithNoAuthor() throws BusinessException{
         try {
-            reviewDAO.deleteReview(mediaId);
-        } catch (Exception e){
-            throw new BusinessException("Error deleting by media",e);
+            reviewDAO.deleteReviewsWithNoAuthor();
+        } catch (DAOException e){
+            DAOExceptionType type = e.getType();
+            if (DAOExceptionType.DATABASE_ERROR.equals(type))
+                throw new BusinessException(BusinessExceptionType.NOT_FOUND, "The review is not found.");
+            else
+                throw new BusinessException(BusinessExceptionType.GENERIC, "Error deleting the review");
         }
     }
+
 
     /**
      * Updates an existing review in the data repository.
@@ -101,8 +125,12 @@ public class ReviewServiceImpl implements ReviewService {
         }
         try {
             reviewDAO.updateReview(reviewId, reviewComment, reviewRating);
-        } catch (Exception e){
-            throw new BusinessException("Error updating the review",e);
+        } catch (DAOException e){
+            DAOExceptionType type = e.getType();
+            if (DAOExceptionType.DATABASE_ERROR.equals(type))
+                throw new BusinessException(BusinessExceptionType.NOT_FOUND, "The review is not found.");
+            else
+                throw new BusinessException(BusinessExceptionType.GENERIC, "Error updating the review");
         }
     }
 
@@ -116,8 +144,12 @@ public class ReviewServiceImpl implements ReviewService {
     public PageDTO<ReviewDTO> findByUser(String userId, int page) throws BusinessException {
         try {
          return reviewDAO.getReviewByUser(userId, page);
-        } catch (Exception e){
-            throw new BusinessException("Error finding media by user",e);
+        } catch (DAOException e){
+            DAOExceptionType type = e.getType();
+            if (DAOExceptionType.DATABASE_ERROR.equals(type))
+                throw new BusinessException(BusinessExceptionType.NOT_FOUND, "Reviews not found for the user.");
+            else
+                throw new BusinessException(BusinessExceptionType.GENERIC, "Error finding reviews by user");
         }
     }
 
@@ -131,14 +163,15 @@ public class ReviewServiceImpl implements ReviewService {
     public PageDTO<ReviewDTO> findByMedia(String mediaId, MediaContentType mediaType, int page) throws BusinessException {
         try{
             return reviewDAO.getReviewByMedia(mediaId, mediaType, page);
-        } catch (Exception e){
-            throw new BusinessException("Error finding review by media",e);
+        } catch (DAOException e){
+            DAOExceptionType type = e.getType();
+            if (DAOExceptionType.DATABASE_ERROR.equals(type))
+                throw new BusinessException(BusinessExceptionType.NOT_FOUND, "Reviews not found for the media.");
+            else
+                throw new BusinessException(BusinessExceptionType.GENERIC, "Error finding reviews by media");
         }
     }
 
-    @Override
-    public void updateReview(ReviewDTO review) throws BusinessException {
-    }
 
     //Service for mongoDB queries
     @Override

@@ -234,49 +234,24 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
         }
     }
 
-    /**
-     * Updates the latest review for an Anime in the MongoDB database.
-     *
-     * @param reviewDTO The ReviewDTO object representing the latest review to update.
-     * @throws DAOException If an error occurs during the update process.
-     */
     @Override
-    public void updateLatestReview(ReviewDTO reviewDTO) throws DAOException {
-        try {
-            MongoCollection<Document> animeCollection = getCollection(COLLECTION_NAME);
+    public void updateLatestReview(ReviewDTO reviewDTO, boolean existingReview) throws DAOException {
 
-            // Convert ReviewDTO to Document
-            Document reviewDocument = reviewDTOToNestedDocument(reviewDTO);
-
-            // Check if the review already exists in the latestReviews array inside the Anime document
-            Document filter = new Document("latestReviews._id", reviewDTO.getId());
-            Document projection = new Document("latestReviews.$", 1);
-
-            // Execute the query to find the matching review
-            Document existingReview = animeCollection.find(filter)
-                    .projection(projection)
-                    .first();
-
-            // Combine all update operations into a single update statement
-            Document updateOperations = new Document();
-            if (existingReview != null) {
-                // Review already exists, move it to the first position
-                updateOperations.append("$pull", new Document("latestReviews", new Document("_id", reviewDTO.getId())));
-                updateOperations.append("$push", new Document("latestReviews", new Document("$each", List.of(reviewDocument)).append("$position", 0)));
-            } else {
-                // Review doesn't exist, add it to the first position
-                updateOperations.append("$push", new Document("latestReviews", new Document("$each", List.of(reviewDocument)).append("$position", 0)));
-            }
-            // Ensure the array has at most 5 reviews
-            updateOperations.append("$push", new Document("latestReviews", new Document("$each", List.of()).append("$slice", -5)));
-
-            // Apply the combined update operations
-            animeCollection.updateOne(filter, updateOperations);
-
-        } catch (Exception e) {
-            throw new DAOException("Error updating latest review", e);
-        }
     }
+
+    @Override
+    public boolean isInLatestReviews(String reviewId) throws DAOException {
+        return false;
+    }
+
+    @Override
+    public void saveLatestReviews(String mangaId, List<ReviewDTO> latestReviews) throws DAOException {
+
+    }
+
+
+
+
 
     //MongoDB queries
     //Best tags based on the average rating
@@ -316,7 +291,7 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
         }
 
     }
-    
+
     // Neo4J specific methods
     @Override
     public void createNode(MediaContentDTO animeDTO) throws DAOException {

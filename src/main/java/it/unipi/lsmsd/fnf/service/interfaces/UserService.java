@@ -20,6 +20,8 @@ public interface UserService {
 
     List<UserSummaryDTO> suggestUsers(String userId) throws BusinessException;
 
+    List<UserSummaryDTO> searchFirstNUsers(String username, Integer n, String loggedUser) throws BusinessException;
+
     //Service for mongoDB queries
     Map<String, Integer> getDistribution(String criteria) throws BusinessException;
     Double averageAgeUsers() throws BusinessException;

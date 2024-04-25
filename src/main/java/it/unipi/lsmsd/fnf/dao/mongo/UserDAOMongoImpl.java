@@ -170,6 +170,9 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
                     .map(DocumentUtils::documentToRegisteredUser)
                     .orElseThrow(() -> new MongoException("User not found"));
         }
+        catch (MongoException e){
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, "User not found");
+        }
         catch (Exception e){
             throw new DAOException("Error searching user by id: "+ userId, e);
         }

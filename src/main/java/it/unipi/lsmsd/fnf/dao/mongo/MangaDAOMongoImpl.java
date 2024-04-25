@@ -27,7 +27,7 @@ import java.util.*;
 import static com.mongodb.client.model.Aggregates.*;
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.include;
-import static com.mongodb.client.model.Updates.setOnInsert;
+import static com.mongodb.client.model.Updates.*;
 import static it.unipi.lsmsd.fnf.utils.DocumentUtils.*;
 
 /**
@@ -236,7 +236,7 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
      * @throws DAOException If an error occurs during update.
      */
     @Override
-    public void updateLatestReview(ReviewDTO reviewDTO) throws DAOException {
+    public void updateLatestReview(ReviewDTO reviewDTO, boolean existingReview) throws DAOException {
         try {
             MongoCollection<Document> mangaCollection = getCollection(COLLECTION_NAME);
 
@@ -246,18 +246,9 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
             // Create a filter to check if the review with the given ID already exists in the array
             Document filter = new Document("latestReviews._id", reviewDTO.getId());
 
-            // Create a projection to include only the necessary fields
-            Document projection = new Document("latestReviews.$", 1);
-
-            // Execute the query to find the matching review
-            Document existingReview = mangaCollection.find(filter)
-                    .projection(projection)
-                    .first();
-
             // Combine all update operations into a single update statement
             Document updateOperations = new Document();
-
-            if (existingReview != null) {
+            if (!existingReview) {
                 // Review already exists, move it to the first position
                 updateOperations.append("$pull", new Document("latestReviews", new Document("_id", reviewDTO.getId())));
                 updateOperations.append("$push", new Document("latestReviews", new Document("$each", List.of(reviewDocument)).append("$position", 0)));
@@ -277,6 +268,44 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
         }
     }
 
+    @Override
+    public boolean isInLatestReviews(String reviewId) throws DAOException {
+        try {
+            MongoCollection<Document> mangaCollection = getCollection(COLLECTION_NAME);
+
+            // Create a filter to check if the review with the given ID already exists in the array
+            Document filter = new Document("latestReviews._id", reviewId);
+
+            // Create a projection to include only the necessary fields
+            Document projection = new Document("latestReviews.$", 1);
+
+            // Execute the query to find the matching review
+            Document existingReview = mangaCollection.find(filter)
+                    .projection(projection)
+                    .first();
+
+            return existingReview != null;
+        } catch (Exception e) {
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+        }
+    }
+
+    @Override
+    public void saveLatestReviews(String mangaId, List<ReviewDTO> latestReviews) throws DAOException {
+        try {
+            MongoCollection<Document> mangaCollection = getCollection(COLLECTION_NAME);
+
+            // Create a filter to check if the review with the given ID already exists in the array
+            Document filter = new Document("_id", mangaId);
+            Bson update = set("latestReviews", latestReviews.stream()
+                    .map(DocumentUtils::reviewDTOToNestedDocument)
+                    .toList());
+            // Apply the update to the MongoDB collection
+            mangaCollection.updateOne(filter, update);
+        } catch (Exception e) {
+            throw new DAOException("Error updating latest review", e);
+        }
+    }
 
 
     //MongoDB queries

@@ -43,7 +43,7 @@ class ReviewDAOMongoImplTest {
     @Test
     void updateReview() {
         ReviewDAOMongoImpl reviewDAO = new ReviewDAOMongoImpl();
-        String reviewId = "66291409521b86ea108247f9";
+        String reviewId = "657b300806c134f18882f2f6";
         String newComment = "This is a new comment";
         Integer newRating = 4;
         try {
