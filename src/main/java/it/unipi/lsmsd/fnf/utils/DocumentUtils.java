@@ -95,7 +95,9 @@ public class DocumentUtils {
 
         appendIfNotNull(doc, "title", manga.getTitle());
         appendIfNotNull(doc, "status", manga.getStatus());
-        appendIfNotNull(doc, "type", manga.getType().name());
+        if (manga.getType() != null) {
+            appendIfNotNull(doc, "type", manga.getType().name());
+        }
         appendIfNotNull(doc, "picture", manga.getImageUrl());
         appendIfNotNull(doc, "genres", manga.getGenres());
         appendIfNotNull(doc, "start_date", ConverterUtils.localDateToDate(manga.getStartDate()));

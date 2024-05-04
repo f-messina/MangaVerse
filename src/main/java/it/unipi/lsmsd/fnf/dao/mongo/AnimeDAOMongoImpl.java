@@ -23,9 +23,11 @@ import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import java.util.*;
 
+import static com.mongodb.client.model.Accumulators.avg;
 import static com.mongodb.client.model.Aggregates.*;
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.include;
+import static com.mongodb.client.model.Sorts.descending;
 import static com.mongodb.client.model.Updates.*;
 import static it.unipi.lsmsd.fnf.utils.DocumentUtils.*;
 
@@ -279,7 +281,7 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
                 throw new MongoException("AnimeDAOMongoDBImpl : upsertReview: Anime not found");
             }
             if (result.getModifiedCount() == 0) {
-                throw new MongoException("MangaDAOMongoImpl: upsertReview: No review redundancy was updated or inserted");
+                throw new MongoException("AnimeDAOMongoImpl: upsertReview: No review redundancy was updated or inserted");
             }
 
         } catch (MongoException e) {
@@ -360,29 +362,35 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
     public Map<String, Double> getBestCriteria (String criteria, boolean isArray, int page) throws DAOException {
         try {
             MongoCollection<Document> animeCollection = getCollection(COLLECTION_NAME);
-            int pageOffset = (page-1)*Constants.PAGE_SIZE;
-            //criteria can be tags
-            //I have to use unwind, I don't have another way to do the query
-            List<Document> pipeline = new ArrayList<>();
+            int pageOffset = (page - 1) * Constants.PAGE_SIZE;
 
-            pipeline.add(Document.parse("{$match:{" + criteria + ": { $exists: true } } }"));
+            List<Bson> pipeline;
             if (isArray) {
-                pipeline.add(Document.parse("{$unwind: \"$" + criteria + "\"}"));
+                pipeline = List.of(
+                        match(and(exists(criteria), ne("average_rating", null))),
+                        unwind("$" + criteria),
+                        group("$" + criteria, avg("criteria_average_rating", "$average_rating")),
+                        sort(descending("criteria_average_rating")),
+                        skip(pageOffset),
+                        limit(25)
+                );
+            } else {
+                pipeline = List.of(
+                        match(Filters.exists(criteria)),
+                        group("$" + criteria, avg("criteria_average_rating", "$average_rating")),
+                        sort(new Document("criteria_average_rating", -1)),
+                        skip(pageOffset),
+                        limit(25)
+                );
             }
-
-            pipeline.add(Document.parse("{$group: {_id: \"$" + criteria + "\", max_average_rating: {$max: \"$average_rating\"} } }"));
-            pipeline.add(Document.parse("{$sort: {max_average_rating: -1}}"));
-            pipeline.add(Document.parse("{$skip: " + pageOffset + "}"));
-            //Limit to 25 results
-            pipeline.add(Document.parse("{$limit: 25}"));
 
             List <Document> document = animeCollection.aggregate(pipeline).into(new ArrayList<>());
             Map<String, Double> bestCriteria = new LinkedHashMap<>();
             for (Document doc : document) {
-                if (doc.get("max_average_rating") instanceof Integer) {
-                    bestCriteria.put(doc.get("_id").toString(), ((Integer) doc.get("max_average_rating")).doubleValue());
-                } else
-                    bestCriteria.put(doc.get("_id").toString(), doc.getDouble("max_average_rating"));
+                Double avgRating = doc.get("criteria_average_rating") instanceof Integer?
+                        doc.getInteger("criteria_average_rating").doubleValue() :
+                        doc.getDouble("criteria_average_rating");
+                bestCriteria.put(doc.get("_id").toString(), avgRating);
             }
 
             return bestCriteria;

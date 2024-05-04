@@ -486,12 +486,14 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
             MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
             String nodeType = type.equals(MediaContentType.ANIME) ? "anime" : "manga";
 
+            Date startDate = ConverterUtils.localDateToDate(LocalDate.of(startYear, 1, 1));
+            Date endDate = ConverterUtils.localDateToDate(LocalDate.of(endYear + 1, 1, 1));
             List<Bson> pipeline = List.of(
                     match(and(
                             eq(nodeType + ".id", new ObjectId(mediaContentId)),
                             exists("rating", true),
-                            gte("date", startYear + "-01-01T00:00:00.000Z"),
-                            lte("date", endYear + "-12-31T23:59:59.999Z")
+                            gte("date", startDate),
+                            lt("date", endDate)
                     )),
                     group(new Document("$year", "$date"), avg("average_rating", "$rating")),
                     project(fields(
@@ -583,20 +585,20 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
     //criteriaType is either birthday (more specifically it's the birthday year) or location
     //criteriaValue is the value of the criteriaType
     @Override
-    public PageDTO<MediaContentDTO> suggestMediaContent(MediaContentType mediaContentType, String criteriaValue, String criteriaType) throws DAOException {
+    public PageDTO<MediaContentDTO> suggestMediaContent(MediaContentType mediaContentType, String criteriaType, String criteriaValue) throws DAOException {
         try  {
             MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
             String nodeType = mediaContentType.equals(MediaContentType.ANIME) ? "anime" : "manga";
 
             List<Bson> pipeline = new ArrayList<>();
 
-            if (criteriaValue.equals("location")) {
+            if (criteriaType.equals("location")) {
                 pipeline.add(match(eq("user." + criteriaType, criteriaValue)));
 
-            } else if (criteriaValue.equals("birthday")) {
+            } else if (criteriaType.equals("birthday")) {
                 // Transform the criteriaValue into an integer
-                Date startDate = ConverterUtils.localDateToDate(LocalDate.of(Integer.parseInt(criteriaType), 1, 1));
-                Date endDate = ConverterUtils.localDateToDate(LocalDate.of(Integer.parseInt(criteriaType) + 1, 1, 1));
+                Date startDate = ConverterUtils.localDateToDate(LocalDate.of(Integer.parseInt(criteriaValue), 1, 1));
+                Date endDate = ConverterUtils.localDateToDate(LocalDate.of(Integer.parseInt(criteriaValue) + 1, 1, 1));
                 pipeline.add(match(and(
                         gte("user." + criteriaType, startDate),
                         lt("user." + criteriaType, endDate)

@@ -2,6 +2,7 @@ package it.unipi.lsmsd.fnf.dao.mongo;
 
 import com.mongodb.DuplicateKeyException;
 import com.mongodb.MongoException;
+import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.model.Updates;
 import com.mongodb.client.result.UpdateResult;
@@ -26,9 +27,11 @@ import org.bson.types.ObjectId;
 
 import java.util.*;
 
+import static com.mongodb.client.model.Accumulators.avg;
 import static com.mongodb.client.model.Aggregates.*;
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.include;
+import static com.mongodb.client.model.Sorts.descending;
 import static com.mongodb.client.model.Updates.*;
 import static it.unipi.lsmsd.fnf.utils.DocumentUtils.*;
 
@@ -244,17 +247,38 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
             // Convert ReviewDTO to Document
             Document reviewDocument = reviewDTOToNestedDocument(reviewDTO);
 
-            Bson filter = eq("_id", new ObjectId(reviewDTO.getMediaContent().getId()));
+            ObjectId reviewId = new ObjectId(reviewDTO.getId());
+            ObjectId mangaId = new ObjectId(reviewDTO.getMediaContent().getId());
 
-            // Create the combined update operations
-            Bson update = combine(
-                    pull("latestReviews", new Document("_id", new ObjectId(reviewDTO.getId()))),
-                    push("latestReviews", new Document("$each", List.of(reviewDocument)).append("$position", 0)),
-                    push("latestReviews", new Document("$each", List.of()).append("$slice", -5))
-            );
+            Bson filter = eq("_id", mangaId);
 
+            // Fetch the current document from the collection
+            Document animeDocument = mangaCollection.find(filter).first();
+
+            if (animeDocument == null) {
+                throw new MongoException("AnimeDAOMongoDBImpl : upsertReview: Anime not found");
+            }
+
+            // Get the latestReviews array from the fetched document
+            List<Document> latestReviews = animeDocument.getList("latest_reviews", Document.class);
+
+            // Update the latestReviews array in memory
+            if (latestReviews == null) {
+                latestReviews = new ArrayList<>();
+                latestReviews.addFirst(reviewDocument);
+            } else {
+                latestReviews.removeIf(review -> review.getObjectId("id").equals(reviewId));
+                latestReviews.addFirst(reviewDocument);
+                latestReviews = latestReviews.subList(0, Math.min(latestReviews.size(), Constants.LATEST_REVIEWS_SIZE));
+            }
+
+            Bson update = set("latest_reviews", latestReviews);
+            UpdateResult result = mangaCollection.updateOne(filter, update);
             // Apply the combined update operations
-            if (mangaCollection.updateOne(filter, update).getModifiedCount() == 0) {
+            if (result.getMatchedCount() == 0) {
+                throw new MongoException("MangaDAOMongoDBImpl : upsertReview: Manga not found");
+            }
+            if (result.getModifiedCount() == 0) {
                 throw new MongoException("MangaDAOMongoImpl: upsertReview: No review redundancy was updated or inserted");
             }
 
@@ -278,14 +302,22 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
             MongoCollection<Document> mangaCollection = getCollection(COLLECTION_NAME);
 
             // Convert ReviewDTOs to Documents
-            List<Document> reviewDocuments = latestReviews.stream()
-                    .map(DocumentUtils::reviewDTOToNestedDocument)
-                    .limit(Constants.LATEST_REVIEWS_SIZE)
-                    .toList();
+            List<Document> reviewDocuments = Optional.ofNullable(latestReviews)
+                    .map(reviews -> reviews.stream()
+                            .map(DocumentUtils::reviewDTOToNestedDocument)
+                            .limit(Constants.LATEST_REVIEWS_SIZE)
+                            .toList())
+                    .orElse(null);
+
 
             // Update the latest reviews in the database
             Bson filter = eq("_id", new ObjectId(mangaId));
-            Bson update = Updates.set("latest_reviews", reviewDocuments);
+            Bson update;
+            if (reviewDocuments == null) {
+                update = unset("latest_reviews");
+            } else {
+                update = set("latest_reviews", reviewDocuments);
+            }
 
             UpdateResult result = mangaCollection.updateOne(filter, update);
             if (result.getMatchedCount() == 0) {
@@ -306,7 +338,7 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
         try {
             MongoCollection<Document> mangaCollection = getCollection(COLLECTION_NAME);
 
-            Bson filter = and(eq("_id", new ObjectId(mangaId)), eq("latestReviews._id", new ObjectId(reviewId)));
+            Bson filter = and(eq("_id", new ObjectId(mangaId)), eq("latest_reviews.id", new ObjectId(reviewId)));
 
             return mangaCollection.countDocuments(filter) > 0;
 
@@ -323,38 +355,33 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
             MongoCollection<Document> mangaCollection = getCollection(COLLECTION_NAME);
             int pageOffset = (page-1)*Constants.PAGE_SIZE;
 
-            //criteria can be genres, themes, demographics, authors
-            //I have to use unwind, I don't have another way to do the query
-
-            List<Document> pipeline = new ArrayList<>();
-            pipeline.add(Document.parse("{$match:{" + criteria + ": { $exists: true } } }"));
+            List<Bson> pipeline;
             if (isArray) {
-                pipeline.add(Document.parse("{$unwind: \"$" + criteria + "\"}"));
-            }
-
-            if (criteria.equals("authors")) {
-                pipeline.add(Document.parse("{$group: {_id: \"$" + criteria + ".name\", max_average_rating: {$max: \"$average_rating\"} } }"));
-
+                pipeline = List.of(
+                        match(and(exists(criteria), ne("average_rating", null))),
+                        unwind("$" + criteria),
+                        group("$" + criteria, avg("criteria_average_rating", "$average_rating")),
+                        sort(descending("criteria_average_rating")),
+                        skip(pageOffset),
+                        limit(25)
+                );
             } else {
-                pipeline.add(Document.parse("{$group: {_id: \"$" + criteria + "\", max_average_rating: {$max: \"$average_rating\"} } }"));
-
-
+                pipeline = List.of(
+                        match(Filters.exists(criteria)),
+                        group("$" + criteria, avg("criteria_average_rating", "$average_rating")),
+                        sort(new Document("criteria_average_rating", -1)),
+                        skip(pageOffset),
+                        limit(25)
+                );
             }
-            pipeline.add(Document.parse("{$sort: {max_average_rating: -1}}"));
-            pipeline.add(Document.parse("{$skip: " + pageOffset + "}"));
-
-            //Limit to 25 results
-            pipeline.add(Document.parse("{$limit: 25}"));
-
 
             List <Document> document = mangaCollection.aggregate(pipeline).into(new ArrayList<>());
-            System.out.println("document: " + document);
             Map<String, Double> bestCriteria = new LinkedHashMap<>();
             for (Document doc : document) {
-                if (doc.get("max_average_rating") instanceof Integer) {
-                    bestCriteria.put(doc.get("_id").toString(), ((Integer) doc.get("max_average_rating")).doubleValue());
-                } else
-                    bestCriteria.put(doc.get("_id").toString(), doc.getDouble("max_average_rating"));
+                Double avgRating = doc.get("criteria_average_rating") instanceof Integer?
+                        doc.getInteger("criteria_average_rating").doubleValue() :
+                        doc.getDouble("criteria_average_rating");
+                bestCriteria.put(doc.get("_id").toString(), avgRating);
             }
 
             return bestCriteria;

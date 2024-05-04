@@ -30,7 +30,7 @@ public class UserDAOMongoImplTest {
     @Test
     public void testCreateUser() throws DAOException {
 
-        String username = "pa";
+        String username = "exampleUser";
         String email = "example@gmail.com";
         String password = "password";
         UserRegistrationDTO user = new UserRegistrationDTO();
