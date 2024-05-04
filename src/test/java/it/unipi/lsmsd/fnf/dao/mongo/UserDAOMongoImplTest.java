@@ -98,14 +98,6 @@ public class UserDAOMongoImplTest {
         }
     }
 
-    @Test
-    public void testTestFind() {
-    }
-
-    @Test
-    public void testFindAll() {
-    }
-
     //OK for gender, location, birthday and joined_on
     @Test
     public void testGetDistribution() {

@@ -405,7 +405,6 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
                 throw new MongoException("UserDAOMongoImpl: averageAppRatingByAgeRange: No data found");
             }
 
-
             Map<String, Double> map = new LinkedHashMap<>();
             for (Document doc : aggregationResult) {
                 String ageRange = convertIntegerToAgeRange(doc.getLong("_id"));
