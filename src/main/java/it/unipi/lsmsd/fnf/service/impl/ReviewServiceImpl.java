@@ -53,10 +53,10 @@ public class ReviewServiceImpl implements ReviewService {
         try{
             reviewDAO.saveReview(review);
             if (review.getMediaContent() instanceof MangaDTO)
-                mangaDAO.updateLatestReview(review, false);
+                mangaDAO.upsertReview(review);
             else if (review.getMediaContent() instanceof AnimeDTO)
-                animeDAO.updateLatestReview(review,false);
-        } catch (DAOException e){
+                animeDAO.upsertReview(review);
+        } catch (DAOException e) {
             DAOExceptionType type = e.getType();
             if (DAOExceptionType.DUPLICATED_KEY.equals(type))
                 throw new BusinessException(BusinessExceptionType.DUPLICATED_KEY, "The user have already reviewed this media content.");
@@ -68,14 +68,41 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     /**
+     * Updates an existing review in the data repository.
+     * @param reviewDTO The review to be updated.
+     * @throws BusinessException If an error occurs during the operation.
+     */
+    @Override
+    public void updateReview(ReviewDTO reviewDTO) throws BusinessException {
+        if (StringUtils.isEmpty(reviewDTO.getComment()) && reviewDTO.getRating() == null) {
+            throw new BusinessException("The review must have a comment or a rating");
+        }
+        try {
+            reviewDAO.updateReview(reviewDTO.getId(), reviewDTO.getComment(), reviewDTO.getRating());
+
+            if (reviewDTO.getMediaContent() instanceof MangaDTO)
+                mangaDAO.upsertReview(reviewDTO);
+            else if (reviewDTO.getMediaContent() instanceof AnimeDTO)
+                animeDAO.upsertReview(reviewDTO);
+        } catch (DAOException e){
+            DAOExceptionType type = e.getType();
+            if (DAOExceptionType.DATABASE_ERROR.equals(type))
+                throw new BusinessException(BusinessExceptionType.NOT_FOUND, "The review is not found.");
+            else
+                throw new BusinessException(BusinessExceptionType.GENERIC, "Error updating the review");
+        }
+    }
+
+    /**
      * Deletes a review from the data repository.
      * @param reviewId The ID of the review to be deleted.
      * @throws BusinessException If an error occurs during the operation.
      */
     @Override
-    public void deleteReview(String reviewId) throws BusinessException {
+    public void deleteReview(String reviewId, String mediaId, MediaContentType mediaContentType) throws BusinessException {
         try {
             reviewDAO.deleteReview(reviewId);
+            // TODO: delete in latest review
         } catch (DAOException e){
             DAOExceptionType type = e.getType();
             if (DAOExceptionType.DATABASE_ERROR.equals(type))
@@ -107,30 +134,6 @@ public class ReviewServiceImpl implements ReviewService {
                 throw new BusinessException(BusinessExceptionType.NOT_FOUND, "The review is not found.");
             else
                 throw new BusinessException(BusinessExceptionType.GENERIC, "Error deleting the review");
-        }
-    }
-
-
-    /**
-     * Updates an existing review in the data repository.
-     * @param reviewId The ID of the review to be updated.
-     * @param reviewComment The new comment for the review.
-     * @param reviewRating The new rating for the review.
-     * @throws BusinessException If an error occurs during the operation.
-     */
-    @Override
-    public void updateReview(String reviewId, String reviewComment, Integer reviewRating) throws BusinessException {
-        if (StringUtils.isEmpty(reviewComment) && reviewRating == null) {
-            throw new BusinessException("The review must have a comment or a rating");
-        }
-        try {
-            reviewDAO.updateReview(reviewId, reviewComment, reviewRating);
-        } catch (DAOException e){
-            DAOExceptionType type = e.getType();
-            if (DAOExceptionType.DATABASE_ERROR.equals(type))
-                throw new BusinessException(BusinessExceptionType.NOT_FOUND, "The review is not found.");
-            else
-                throw new BusinessException(BusinessExceptionType.GENERIC, "Error updating the review");
         }
     }
 

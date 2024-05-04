@@ -3,6 +3,8 @@ package it.unipi.lsmsd.fnf.dao.mongo;
 import com.mongodb.DuplicateKeyException;
 import com.mongodb.MongoException;
 import com.mongodb.client.model.UpdateOptions;
+import com.mongodb.client.model.Updates;
+import com.mongodb.client.result.UpdateResult;
 import it.unipi.lsmsd.fnf.dao.interfaces.MediaContentDAO;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dao.exception.DAOExceptionType;
@@ -56,7 +58,7 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
             Optional.ofNullable(mangaCollection.updateOne(filter,doc, options).getUpsertedId())
                     .map(result -> result.asObjectId().getValue().toHexString())
                     .map(id -> { manga.setId(id); return id; })
-                    .orElseThrow(() -> new DuplicatedException(DuplicatedExceptionType.DUPLICATED_KEY, "A manga with the same title already exists"));
+                    .orElseThrow(() -> new DuplicatedException(DuplicatedExceptionType.GENERIC, "MangaDAOMongoImpl: saveMediaContent: A manga with the same title already exists"));
 
         } catch (DuplicateKeyException e) {
             throw new DAOException(DAOExceptionType.DUPLICATED_KEY, e.getMessage());
@@ -83,14 +85,14 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
 
             Bson filterTitle = and(eq("title", manga.getTitle()), ne("_id", new ObjectId(manga.getId())));
             if (mangaCollection.countDocuments(filterTitle) > 0) {
-                throw new DAOException(DAOExceptionType.DUPLICATED_KEY, "A manga with the same name already exists");
+                throw new DAOException(DAOExceptionType.DUPLICATED_KEY, "MangaDAOMongoImpl: updateMediaContent: A manga with the same name already exists");
             }
 
             Bson filter = eq("_id", new ObjectId(manga.getId()));
             Bson update = new Document("$set", mangaToDocument(manga));
 
             if (mangaCollection.updateOne(filter, update).getModifiedCount() == 0) {
-                throw new MongoException("No manga was updated");
+                throw new MongoException("MangaDAOMongoImpl: updateMediaContent: No manga was updated");
             }
 
         } catch (DuplicateKeyException e) {
@@ -119,7 +121,7 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
             Bson filter = eq("_id", new ObjectId(mangaId));
 
             if (mangaCollection.deleteOne(filter).getDeletedCount() == 0) {
-                throw new MongoException("No manga was deleted");
+                throw new MongoException("MangaDAOMongoImpl: deleteMediaContent: No manga was deleted");
             }
 
         } catch (MongoException e) {
@@ -147,7 +149,10 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
 
             Document result = mangaCollection.find(filter).first();
 
-            return (result != null) ? documentToManga(result) : null;
+            if (result == null) {
+                throw new MongoException("MangaDAOMongoImpl: readMediaContent: No manga found");
+            }
+            return documentToManga(result);
 
         } catch (MongoException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
@@ -200,7 +205,7 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
 
             List<MangaDTO> mangaList = Optional.ofNullable(result)
                     .map(doc -> doc.getList(Constants.PAGINATION_FACET, Document.class))
-                    .orElseThrow(() -> new DAOException("Error while searching manga"))
+                    .orElseThrow(() -> new MongoException("MangaDAOMongoImpl: search: No results found"))
                     .stream()
                     .map(DocumentUtils::documentToMangaDTO)
                     .toList();
@@ -213,11 +218,7 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
                     .map(doc -> doc.getInteger("total"))
                     .orElse(0);
 
-            if (totalCount > 0) {
-                return new PageDTO<>(mangaList, totalCount);
-            } else {
-                throw new MongoException("No manga found matching the search criteria");
-            }
+            return new PageDTO<>(mangaList, totalCount);
 
         } catch (MongoException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
@@ -236,77 +237,83 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
      * @throws DAOException If an error occurs during update.
      */
     @Override
-    public void updateLatestReview(ReviewDTO reviewDTO, boolean existingReview) throws DAOException {
+    public void upsertReview(ReviewDTO reviewDTO) throws DAOException {
         try {
             MongoCollection<Document> mangaCollection = getCollection(COLLECTION_NAME);
 
             // Convert ReviewDTO to Document
             Document reviewDocument = reviewDTOToNestedDocument(reviewDTO);
 
-            // Create a filter to check if the review with the given ID already exists in the array
-            Document filter = new Document("latestReviews._id", reviewDTO.getId());
+            Bson filter = eq("_id", new ObjectId(reviewDTO.getMediaContent().getId()));
 
-            // Combine all update operations into a single update statement
-            Document updateOperations = new Document();
-            if (!existingReview) {
-                // Review already exists, move it to the first position
-                updateOperations.append("$pull", new Document("latestReviews", new Document("_id", reviewDTO.getId())));
-                updateOperations.append("$push", new Document("latestReviews", new Document("$each", List.of(reviewDocument)).append("$position", 0)));
-            } else {
-                // Review doesn't exist, add it to the first position
-                updateOperations.append("$push", new Document("latestReviews", new Document("$each", List.of(reviewDocument)).append("$position", 0)));
-            }
-
-            // Ensure the array has at most 5 reviews
-            updateOperations.append("$push", new Document("latestReviews", new Document("$each", List.of()).append("$slice", -5)));
+            // Create the combined update operations
+            Bson update = combine(
+                    pull("latestReviews", new Document("_id", new ObjectId(reviewDTO.getId()))),
+                    push("latestReviews", new Document("$each", List.of(reviewDocument)).append("$position", 0)),
+                    push("latestReviews", new Document("$each", List.of()).append("$slice", -5))
+            );
 
             // Apply the combined update operations
-            mangaCollection.updateOne(filter, updateOperations);
+            if (mangaCollection.updateOne(filter, update).getModifiedCount() == 0) {
+                throw new MongoException("MangaDAOMongoImpl: upsertReview: No review redundancy was updated or inserted");
+            }
 
+        } catch (MongoException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
         } catch (Exception e) {
-            throw new DAOException("Error updating latest review", e);
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
 
+    /**
+     * Refresh the latest review for a Manga object.
+     *
+     * @param latestReviews The ReviewDTO list with the latest reviews.
+     * @param mangaId       The ObjectId of the Manga object to update.
+     * @throws DAOException If an error occurs during update.
+     */
     @Override
-    public boolean isInLatestReviews(String reviewId) throws DAOException {
+    public void refreshLatestReviews(List<ReviewDTO> latestReviews, String mangaId) throws DAOException {
         try {
             MongoCollection<Document> mangaCollection = getCollection(COLLECTION_NAME);
 
-            // Create a filter to check if the review with the given ID already exists in the array
-            Document filter = new Document("latestReviews._id", reviewId);
+            // Convert ReviewDTOs to Documents
+            List<Document> reviewDocuments = latestReviews.stream()
+                    .map(DocumentUtils::reviewDTOToNestedDocument)
+                    .limit(Constants.LATEST_REVIEWS_SIZE)
+                    .toList();
 
-            // Create a projection to include only the necessary fields
-            Document projection = new Document("latestReviews.$", 1);
+            // Update the latest reviews in the database
+            Bson filter = eq("_id", new ObjectId(mangaId));
+            Bson update = Updates.set("latest_reviews", reviewDocuments);
 
-            // Execute the query to find the matching review
-            Document existingReview = mangaCollection.find(filter)
-                    .projection(projection)
-                    .first();
-
-            return existingReview != null;
+            UpdateResult result = mangaCollection.updateOne(filter, update);
+            if (result.getMatchedCount() == 0) {
+                throw new MongoException("MangaDAOMongoDBImpl : refreshLatestReviews: Manga not found");
+            }
+            if (result.getModifiedCount() == 0) {
+                throw new MongoException("MangaDAOMongoDBImpl : upsertReview: the reviewArray was not updated");
+            }
+        } catch (MongoException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
         } catch (Exception e) {
             throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
 
     @Override
-    public void saveLatestReviews(String mangaId, List<ReviewDTO> latestReviews) throws DAOException {
+    public boolean isInLatestReviews(String mangaId, String reviewId) throws DAOException {
         try {
             MongoCollection<Document> mangaCollection = getCollection(COLLECTION_NAME);
 
-            // Create a filter to check if the review with the given ID already exists in the array
-            Document filter = new Document("_id", mangaId);
-            Bson update = set("latestReviews", latestReviews.stream()
-                    .map(DocumentUtils::reviewDTOToNestedDocument)
-                    .toList());
-            // Apply the update to the MongoDB collection
-            mangaCollection.updateOne(filter, update);
+            Bson filter = and(eq("_id", new ObjectId(mangaId)), eq("latestReviews._id", new ObjectId(reviewId)));
+
+            return mangaCollection.countDocuments(filter) > 0;
+
         } catch (Exception e) {
-            throw new DAOException("Error updating latest review", e);
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
-
 
     //MongoDB queries
     //Best genres/themes/demographics/authors based on the average rating
@@ -353,9 +360,8 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
             return bestCriteria;
 
         } catch (Exception e) {
-            throw new DAOException("Error while searching manga", e);
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
         }
-
     }
 
     // Neo4J specific methods

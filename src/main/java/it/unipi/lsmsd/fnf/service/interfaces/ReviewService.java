@@ -12,13 +12,10 @@ import java.util.Map;
 
 public interface ReviewService {
     void addReview (ReviewDTO review) throws BusinessException;
-
+    void updateReview(ReviewDTO reviewDTO) throws BusinessException;
+    void deleteReview(String reviewId, String mediaId, MediaContentType mediaContentType) throws BusinessException;
     void deleteReviewWithNoMedia() throws BusinessException;
-
     void deleteReviewWithNoAuthor() throws BusinessException;
-
-    void updateReview(String reviewId, String reviewComment, Integer reviewRating) throws BusinessException;
-    void deleteReview (String id) throws BusinessException;
     PageDTO<ReviewDTO> findByUser(String userId, int page) throws BusinessException;
     PageDTO<ReviewDTO> findByMedia(String mediaId, MediaContentType mediaType, int page) throws BusinessException;
 

@@ -135,17 +135,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteUser(String userId) throws BusinessException {
-        try {
-            userDAO.deleteUser(userId);
-        } catch (DAOException e) {
-            throw new BusinessException("Error while deleting user.", e);
-        }
-    }
-
-
-
-    @Override
 
     public User getUserById(String userId) throws BusinessException {
 

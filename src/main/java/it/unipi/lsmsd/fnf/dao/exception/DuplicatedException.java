@@ -9,7 +9,7 @@ public class DuplicatedException extends Exception{
      */
     public DuplicatedException(String message){
         super(message);
-        this.type = DuplicatedExceptionType.DUPLICATED_KEY;
+        this.type = DuplicatedExceptionType.GENERIC;
     }
 
     /**

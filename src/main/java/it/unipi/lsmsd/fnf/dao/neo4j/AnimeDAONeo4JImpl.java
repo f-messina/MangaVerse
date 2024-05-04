@@ -283,22 +283,22 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
     @Override
-    public void updateLatestReview(ReviewDTO reviewDTO, boolean existingReviews) throws DAOException {
+    public void upsertReview(ReviewDTO reviewDTO) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
 
     @Override
-    public boolean isInLatestReviews(String reviewId) throws DAOException {
-        return false;
+    public void refreshLatestReviews(List<ReviewDTO> latestReviews, String animeId) throws DAOException {
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
 
     @Override
-    public void saveLatestReviews(String mangaId, List<ReviewDTO> latestReviews) throws DAOException {
-
+    public boolean isInLatestReviews(String animeId, String reviewId) throws DAOException {
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
 
     @Override
     public Map<String, Double> getBestCriteria(String criteria, boolean isArray, int page) throws DAOException {
-        return null;
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
 }

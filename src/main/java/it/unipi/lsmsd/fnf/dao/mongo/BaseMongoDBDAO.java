@@ -101,7 +101,7 @@ public abstract class BaseMongoDBDAO {
         if (filterList == null || filterList.isEmpty()) {
             return empty();
         } else if (filterList.getFirst().containsKey("title")) {
-            return text((String) filterList.getFirst().get("title"));
+            return regex("title", filterList.getFirst().get("title").toString(), "i");
         } else {
             List<Bson> filter = buildFilterInternal(filterList);
             return and(filter);
@@ -177,10 +177,6 @@ public abstract class BaseMongoDBDAO {
      * @return Bson object representing the constructed sort specification.
      */
     protected Bson buildSort(Map<String, Integer> orderBy) {
-        if (orderBy != null && orderBy.containsKey("score")) {
-            return metaTextScore("score");
-        }
-
         List<Bson> sortList = new ArrayList<>();
         Optional.ofNullable(orderBy)
                 .ifPresent(map ->

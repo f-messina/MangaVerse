@@ -44,6 +44,8 @@ public class DocumentUtils {
         }
     }
 
+    // Model / DTO to Document conversion methods
+
     /**
      * Converts an Anime object into a Document for MongoDB storage.
      *
@@ -136,17 +138,79 @@ public class DocumentUtils {
 
     public static Document reviewDTOToNestedDocument(ReviewDTO reviewDTO) {
         Document reviewDocument = new Document();
-        appendIfNotNull(reviewDocument, "id", reviewDTO.getId());
+        appendIfNotNull(reviewDocument, "id", new ObjectId(reviewDTO.getId()));
         appendIfNotNull(reviewDocument, "comment", reviewDTO.getComment());
         appendIfNotNull(reviewDocument, "date", ConverterUtils.localDateToDate(reviewDTO.getDate()));
         appendIfNotNull(reviewDocument, "rating", reviewDTO.getRating());
         Document userDocument = new Document();
-        appendIfNotNull(userDocument, "id", reviewDTO.getUser().getId());
+        appendIfNotNull(userDocument, "id", new ObjectId(reviewDTO.getUser().getId()));
         appendIfNotNull(userDocument, "username", reviewDTO.getUser().getUsername());
         appendIfNotNull(userDocument, "picture", reviewDTO.getUser().getProfilePicUrl());
         appendIfNotNull(reviewDocument, "user", userDocument);
         return reviewDocument;
     }
+
+    /**
+     * Converts a ReviewDTO object to a MongoDB document for storage in the database.
+     *
+     * @param reviewDTO The ReviewDTO object to be converted.
+     * @return A MongoDB Document representing the ReviewDTO object.
+     */
+    public static Document reviewDTOToDocument(ReviewDTO reviewDTO) {
+        Document reviewDocument = new Document()
+                .append("user", new Document()
+                        .append("id", new ObjectId(reviewDTO.getUser().getId()))
+                        .append("username", reviewDTO.getUser().getUsername())
+                        .append("picture", reviewDTO.getUser().getProfilePicUrl())
+                        .append("location", reviewDTO.getUser().getLocation())
+                        .append("birthday", ConverterUtils.localDateToDate(reviewDTO.getUser().getBirthDate())))
+                .append("date", ConverterUtils.localDateToDate(LocalDate.now()));
+        if (reviewDTO.getComment() != null) {
+            reviewDocument.append("comment", reviewDTO.getComment());
+        }
+        if (reviewDTO.getRating() != null) {
+            reviewDocument.append("rating", reviewDTO.getRating());
+        }
+        boolean isAnime = reviewDTO.getMediaContent() instanceof AnimeDTO;
+        reviewDocument.append(isAnime? "anime" : "manga", new Document()
+                .append("id", new ObjectId(reviewDTO.getMediaContent().getId()))
+                .append("title", reviewDTO.getMediaContent().getTitle()));
+
+        return reviewDocument;
+    }
+
+    public static Document RegisteredUserToDocument(UserRegistrationDTO user, String image) {
+        return createUserDocument(user.getPassword(), user.getEmail(), LocalDate.now(),
+                user.getFullname(), image, user.getUsername(),
+                user.getBirthday(), null, user.getGender(), user.getLocation());
+    }
+
+    public static Document RegisteredUserToDocument(User user) {
+        return createUserDocument(user.getPassword(), user.getEmail(), user.getJoinedDate(),
+                user.getFullname(), user.getProfilePicUrl(), user.getUsername(),
+                user.getBirthday(), user.getDescription(), user.getGender(), user.getLocation());
+    }
+
+    private static Document createUserDocument(String password, String email, LocalDate joinedDate, String fullname, String profilePicUrl, String username, LocalDate birthday, String description, Gender gender, String location) {
+        Document doc = new Document();
+        appendIfNotNull(doc, "password", password);
+        appendIfNotNull(doc, "email", email);
+
+        if (joinedDate != null) {
+            appendIfNotNull(doc, "joined_on", ConverterUtils.localDateToDate(joinedDate));
+        }
+        appendIfNotNull(doc, "fullname", fullname);
+        appendIfNotNull(doc, "picture", profilePicUrl);
+        appendIfNotNull(doc, "username", username);
+        appendIfNotNull(doc, "birthday", ConverterUtils.localDateToDate(birthday));
+        appendIfNotNull(doc, "description", description);
+        appendIfNotNull(doc, "gender", gender != null ? gender.toString() : null);
+        appendIfNotNull(doc, "location", location);
+
+        return doc;
+    }
+
+    // Document to Model / DTO conversion methods
 
     /**
      * Converts a Document from MongoDB storage into an Anime object.
@@ -224,35 +288,6 @@ public class DocumentUtils {
         }
 
         return anime;
-    }
-
-    /**
-     * Converts a ReviewDTO object to a MongoDB document for storage in the database.
-     *
-     * @param reviewDTO The ReviewDTO object to be converted.
-     * @return A MongoDB Document representing the ReviewDTO object.
-     */
-    public static Document reviewDTOToDocument(ReviewDTO reviewDTO) {
-        Document reviewDocument = new Document()
-                .append("user", new Document()
-                        .append("id", new ObjectId(reviewDTO.getUser().getId()))
-                        .append("username", reviewDTO.getUser().getUsername())
-                        .append("picture", reviewDTO.getUser().getProfilePicUrl())
-                        .append("location", reviewDTO.getUser().getLocation())
-                        .append("birthday", ConverterUtils.localDateToDate(reviewDTO.getUser().getBirthDate())))
-                .append("date", ConverterUtils.localDateToDate(LocalDate.now()));
-        if (reviewDTO.getComment() != null) {
-            reviewDocument.append("comment", reviewDTO.getComment());
-        }
-        if (reviewDTO.getRating() != null) {
-            reviewDocument.append("rating", reviewDTO.getRating());
-        }
-        boolean isAnime = reviewDTO.getMediaContent() instanceof AnimeDTO;
-        reviewDocument.append(isAnime? "anime" : "manga", new Document()
-                .append("id", new ObjectId(reviewDTO.getMediaContent().getId()))
-                .append("title", reviewDTO.getMediaContent().getTitle()));
-
-        return reviewDocument;
     }
 
     /**
@@ -397,37 +432,6 @@ public class DocumentUtils {
         user.setFullname(doc.getString("fullname"));
         user.setProfilePicUrl(doc.getString("picture"));
         return user;
-    }
-
-    public static Document RegisteredUserToDocument(UserRegistrationDTO user, String image) {
-        return createUserDocument(user.getPassword(), user.getEmail(), LocalDate.now(),
-                user.getFullname(), image, user.getUsername(),
-                user.getBirthday(), null, user.getGender(), user.getLocation());
-    }
-
-    public static Document RegisteredUserToDocument(User user) {
-        return createUserDocument(user.getPassword(), user.getEmail(), user.getJoinedDate(),
-                user.getFullname(), user.getProfilePicUrl(), user.getUsername(),
-                user.getBirthday(), user.getDescription(), user.getGender(), user.getLocation());
-    }
-
-    private static Document createUserDocument(String password, String email, LocalDate joinedDate, String fullname, String profilePicUrl, String username, LocalDate birthday, String description, Gender gender, String location) {
-        Document doc = new Document();
-        appendIfNotNull(doc, "password", password);
-        appendIfNotNull(doc, "email", email);
-
-        if (joinedDate != null) {
-            appendIfNotNull(doc, "joined_on", ConverterUtils.localDateToDate(joinedDate));
-        }
-        appendIfNotNull(doc, "fullname", fullname);
-        appendIfNotNull(doc, "picture", profilePicUrl);
-        appendIfNotNull(doc, "username", username);
-        appendIfNotNull(doc, "birthday", ConverterUtils.localDateToDate(birthday));
-        appendIfNotNull(doc, "description", description);
-        appendIfNotNull(doc, "gender", gender != null ? gender.toString() : null);
-        appendIfNotNull(doc, "location", location);
-
-        return doc;
     }
 
     public static Document UsertToUnsetUserFieldsDocument(User registeredUser) {

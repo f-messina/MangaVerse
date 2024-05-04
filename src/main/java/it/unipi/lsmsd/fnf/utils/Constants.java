@@ -9,6 +9,7 @@ public class Constants {
     public static final int PAGE_SIZE = 25;
     public static final String PAGINATION_FACET = "paginationResults";
     public static final String COUNT_FACET = "totalResults";
+    public static final int LATEST_REVIEWS_SIZE = 5;
     public static final String NULL_STRING = "null";
     public static final LocalDate NULL_DATE = LocalDate.of(1, 1, 1);
     public static final String NULL_GENDER = "Prefer not to say";

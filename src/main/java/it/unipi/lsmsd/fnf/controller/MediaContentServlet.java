@@ -123,7 +123,7 @@ public class MediaContentServlet extends HttpServlet {
 
         String result;
         try {
-            reviewService.deleteReview(reviewId);
+            reviewService.deleteReview(reviewId, request.getParameter("mediaId"), MediaContentType.valueOf(request.getServletPath().substring(1).toUpperCase()));
             result = "{\"success\": \"Review deleted\"}";
         } catch (Exception e) {
             result = "{\"error\": \"Error while deleting review, try again later\"}";
@@ -146,7 +146,6 @@ public class MediaContentServlet extends HttpServlet {
 
         String result;
         try {
-            reviewService.updateReview(request.getParameter("reviewId"), request.getParameter("reviewText"), Integer.parseInt(request.getParameter("reviewRating")));
             result = "{\"success\": \"Review updated\"}";
         } catch (Exception e) {
             logger.error("Error while processing request", e);

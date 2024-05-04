@@ -21,9 +21,13 @@ import org.bson.types.ObjectId;
 
 import java.util.*;
 
+import static com.mongodb.client.model.Accumulators.avg;
+import static com.mongodb.client.model.Accumulators.sum;
+import static com.mongodb.client.model.Aggregates.*;
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.*;
 import static com.mongodb.client.model.Sorts.ascending;
+import static com.mongodb.client.model.Sorts.descending;
 import static it.unipi.lsmsd.fnf.utils.DocumentUtils.RegisteredUserToDocument;
 import static it.unipi.lsmsd.fnf.utils.DocumentUtils.UsertToUnsetUserFieldsDocument;
 
@@ -51,16 +55,16 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
             boolean usernameExists = usersCollection.countDocuments(eq("username", user.getUsername())) != 0;
             boolean emailExists = usersCollection.countDocuments(eq("email", user.getEmail())) != 0;
             if(usernameExists && emailExists)
-                throw new DuplicatedException(DuplicatedExceptionType.DUPLICATED_KEY, "Username and email already in use");
+                throw new DuplicatedException(DuplicatedExceptionType.GENERIC, "UserDAOMongoImpl: saveUser: Both username and email already in use");
             else if(usernameExists)
-                throw new DuplicatedException(DuplicatedExceptionType.DUPLICATED_NAME, "Username already in use");
+                throw new DuplicatedException(DuplicatedExceptionType.DUPLICATED_NAME, "UserDAOMongoImpl: saveUser: Username already in use");
             else if(emailExists)
-                throw new DuplicatedException(DuplicatedExceptionType.DUPLICATED_EMAIL, "Email already in use");
+                throw new DuplicatedException(DuplicatedExceptionType.DUPLICATED_EMAIL, "UserDAOMongoImpl: saveUser: Email already in use");
 
             Optional.ofNullable(usersCollection.insertOne(RegisteredUserToDocument(user, Constants .DEFAULT_PROFILE_PICTURE)).getInsertedId())
                     .map(result -> result.asObjectId().getValue().toHexString())
                     .map(id -> { user.setId(id); return id; })
-                    .orElseThrow(() -> new MongoException("No user was inserted"));
+                    .orElseThrow(() -> new MongoException("UserDAOMongoImpl: saveUser: No user inserted"));
 
         } catch (MongoException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
@@ -97,15 +101,18 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
                     ne("_id", new ObjectId(user.getId()))
             );
             if (usersCollection.countDocuments(usernameExistsFilter) > 0) {
-                throw new DuplicatedException("Username already exists in the collection");
+                throw new DuplicatedException(DuplicatedExceptionType.DUPLICATED_NAME, "UserDAOMongoImpl: updateUser: Username already in use");
             }
 
             // Update the document in the collection and check if the update was successful
             Bson filter = eq("_id", new ObjectId(user.getId()));
             Bson update = new Document("$set", RegisteredUserToDocument(user))
                     .append("$unset", UsertToUnsetUserFieldsDocument(user));
+            if (usersCollection.updateOne(filter, update).getMatchedCount() == 0) {
+                throw new MongoException("UserDAOMongoImpl: updateUser: No user found");
+            }
             if (usersCollection.updateOne(filter, update).getModifiedCount() == 0) {
-                throw new MongoException("No user was updated");
+                throw new MongoException("UserDAOMongoImpl: updateUser: No user updated");
             }
 
         } catch (MongoException e) {
@@ -134,7 +141,7 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
             Bson filter = eq("_id", new ObjectId(userId));
 
             if (usersCollection.deleteOne(filter).getDeletedCount() == 0) {
-                throw new MongoException("No user was deleted");
+                throw new MongoException("UserDAOMongoImpl: deleteUser: No user found");
             }
 
         } catch (MongoException e) {
@@ -168,13 +175,13 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
 
             return Optional.ofNullable(usersCollection.find(filter).projection(projection).first())
                     .map(DocumentUtils::documentToRegisteredUser)
-                    .orElseThrow(() -> new MongoException("User not found"));
+                    .orElseThrow(() -> new MongoException("UserDAOMongoImpl: readUser: No user found"));
         }
         catch (MongoException e){
-            throw new DAOException(DAOExceptionType.DATABASE_ERROR, "User not found");
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
         }
         catch (Exception e){
-            throw new DAOException("Error searching user by id: "+ userId, e);
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
 
@@ -186,11 +193,7 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
      * @return The authenticated user.
      * @throws DAOException If authentication fails due to incorrect email or password.
      */
-
-
-
     public LoggedUserDTO authenticate(String email, String password) throws DAOException {
-
         try {
             MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
 
@@ -206,7 +209,7 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
                         user.setType(doc.getBoolean("is_manager") != null ? UserType.MANAGER : UserType.USER);
                         return user;
                     })
-                    .orElseThrow(() -> new AuthenticationException("Invalid email or password"));
+                    .orElseThrow(() -> new AuthenticationException("UserDAOMongoImpl: authenticate: Authentication failed"));
         } catch (MongoException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
 
@@ -222,7 +225,7 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
      * Searches for users based on their username.
      *
      * @param username The username to search for.
-     * @return A list of RegisteredUserDTO objects matching the search criteria.
+     * @return A list of RegisteredUserDTO objects matching the search criteriaOfSearch.
      * @throws DAOException If an error occurs while searching for users.
      */
     @Override
@@ -253,54 +256,55 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
                         .map(DocumentUtils::documentToUserSummaryDTO)
                         .toList();
             }
+
         } catch (Exception e) {
-            throw new DAOException("Error searching user by username: " + username, e);
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
 
-    //MongoDB complex queries
-    //Find the distribution of genders, of ages, of locations
     @Override
-    public Map<String, Integer> getDistribution (String criteria) throws DAOException {
+    public Map<String, Integer> getDistribution (String criteriaOfSearch) throws DAOException {
         try {
             MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
-            //criteria can be: gender, location, birthday, joined_on
+            //criteriaOfSearch can be: gender, location, birthday, joined_on
 
-            List<Document> pipeline = new ArrayList<>();
-            if (criteria.equals("birthday") || criteria.equals("joined_on")) {
-                pipeline.add(Document.parse("{$project: { year: { $year: \"$" + criteria +"\" },  app_rating: 1 }}"));
-                pipeline.add(Document.parse("{$group: {_id: \"$year\", count: { $sum: 1 }}}"));
-                pipeline.add(Document.parse("{$sort: {count: -1}}"));
-            } else if (criteria.equals("location") || criteria.equals("gender")) {
-                pipeline.add(Document.parse("{$group: {_id: \"$" + criteria + "\", count: { $sum: 1 }}}"));
-                pipeline.add(Document.parse("{$sort: {count: -1}}"));
-
-
-            } else
-                System.out.println("Criteria not valid");
-
+            List<Bson> pipeline = new ArrayList<>();
+            if (criteriaOfSearch.equals("birthday") || criteriaOfSearch.equals("joined_on")) {
+                pipeline.addAll(List.of(
+                        project(fields(computed("year", new Document("$year", "$" + criteriaOfSearch)), include("app_rating" ))),
+                        group("$year", sum("count", 1)),
+                        sort(descending("count"))));
+            } else if (criteriaOfSearch.equals("location") || criteriaOfSearch.equals("gender")) {
+                pipeline.addAll(List.of(
+                        project(fields(include(criteriaOfSearch, "app_rating"))),
+                        group("$" + criteriaOfSearch, sum("count", 1)),
+                        sort(descending("count"))));
+            } else {
+                throw new Exception("UserDAOMongoImpl: getDistribution: Invalid criteriaOfSearch");
+            }
 
             List<Document> aggregationResult = usersCollection.aggregate(pipeline).into(new ArrayList<>());
-
-            System.out.println(aggregationResult);
+            if (aggregationResult.isEmpty()) {
+                throw new MongoException("UserDAOMongoImpl: getDistribution: No data found");
+            }
 
             Map<String,Integer> map = new LinkedHashMap<>();
             for (Document doc : aggregationResult) {
-                if (criteria.equals("birthday") || criteria.equals("joined_on"))
+                if (criteriaOfSearch.equals("birthday") || criteriaOfSearch.equals("joined_on")) {
                     map.put(String.valueOf(doc.getInteger("_id")), doc.getInteger("count"));
-
-                else if (criteria.equals("location") || criteria.equals("gender"))
+                } else {
                     map.put(doc.getString("_id"), doc.getInteger("count"));
+                }
             }
             return map;
-        }
-        catch (Exception e){
-            throw new DAOException("Error getting distribution", e);
+
+        } catch (MongoException e){
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+        } catch (Exception e){
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
 
-
-    //Find the average age of users
     /**
      * Calculates the average age of users.
      *
@@ -312,114 +316,108 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
         try {
             MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
 
-            List<Bson> pipeline = new ArrayList<>();
-
-            pipeline.add(Aggregates.match(Filters.exists("birthday")));
-
-            pipeline.add(Aggregates.project(Projections.computed("age",
-                    new Document("$let", new Document("vars", new Document("dob", "$birthday"))
-                            .append("in", new Document("$floor", new Document("$divide",
-                                    Arrays.asList(new Document("$subtract", Arrays.asList(new Date(), "$$dob")),
-                                            1000L * 60 * 60 * 24 * 365))))))));
-
-            pipeline.add(Aggregates.group(null, Accumulators.avg("averageAge", "$age")));
-
+            List<Bson> pipeline = List.of(
+                    match(exists("birthday")),
+                    computed("age", new Document("$floor", new Document("$divide",
+                            Arrays.asList(
+                                    new Document("$subtract", Arrays.asList(new Date(), "$birthday")),
+                                    1000L * 60 * 60 * 24 * 365
+                            )
+                    ))),
+                    group(null, avg("averageAge", "$age"))
+            );
             List<Document> aggregationResult = usersCollection.aggregate(pipeline).into(new ArrayList<>());
 
             if (!aggregationResult.isEmpty()) {
                 return aggregationResult.getFirst().getDouble("averageAge");
             } else {
-                return null; // o un valore predefinito a tua scelta
+                throw new MongoException("UserDAOMongoImpl: averageAgeUsers: No data found");
             }
         }
+
+        catch (MongoException e){
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+        }
         catch (Exception e){
-            throw new DAOException("Error getting average age of usersCollection", e);
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
 
-    //Find average app_rating based on location and gender.
     @Override
-    public Map<String, Double> averageAppRating (String criteria) throws DAOException {
+    public Map<String, Double> averageAppRating (String criteriaOfSearch) throws DAOException {
         try {
             MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
 
-            //criteria can be: location and gender
-
-            List<Document> pipeline = new ArrayList<>();
-            pipeline.add(Document.parse("{$match: {\"" + criteria + "\": { $exists: true }}}"));
-
-            pipeline.add(Document.parse("{$group: {_id: \"$" + criteria + "\", averageAppRating: { $avg: \"$app_rating\" }}}"));
-
-            pipeline.add(Document.parse("{$sort: {averageAppRating: -1}}"));
+            List<Bson> pipeline = List.of(
+                    match(exists(criteriaOfSearch)),
+                    group("$" + criteriaOfSearch, avg("averageAppRating", "$app_rating")),
+                    sort(descending("averageAppRating"))
+            );
 
             List<Document> aggregationResult = usersCollection.aggregate(pipeline).into(new ArrayList<>());
+            if (aggregationResult.isEmpty()) {
+                throw new MongoException("UserDAOMongoImpl: averageAppRating: No data found");
+            }
 
             Map<String,Double> map = new LinkedHashMap<>();
             for (Document doc : aggregationResult) {
-
                 map.put(doc.getString("_id"), doc.getDouble("averageAppRating"));
-
             }
             return map;
 
-
+        } catch (MongoException e){
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
         }
         catch (Exception e){
-            throw new DAOException("Error getting average app rating", e);
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
 
-    //Find the average app_rating of users based on group af ages
     @Override
     public Map<String, Double> averageAppRatingByAgeRange() throws DAOException {
         try {
             MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
 
-            List<Bson> pipeline = new ArrayList<>();
-
-            Bson projectStage = Aggregates.project(
-                    fields(
-                            Projections.computed("age", new Document("$divide",
-                                    Arrays.asList(
-                                            new Document("$subtract", Arrays.asList(new Date(), "$birthday")),
-                                            1000L * 60 * 60 * 24 * 365
-                                    )
-                            )),
-                            Projections.include("app_rating")
-                    )
-            );
-            pipeline.add(projectStage);
-
-            List<Long> boundaries = Arrays.asList(0L, 13L, 20L, 40L, 50L);
+            // Define the boundaries for the age ranges and the output fields
+            List<Long> boundaries = Arrays.asList(0L, 13L, 20L, 30L, 40L, 50L);
             BsonField[] outputFields = {
                     new BsonField("averageAppRating", new Document("$avg", "$app_rating"))
             };
-
             BucketOptions options = new BucketOptions()
                     .defaultBucket(50L)
                     .output(outputFields);
 
-            Bson bucketStage = Aggregates.bucket("$age", boundaries, options);
-            pipeline.add(bucketStage);
-
+            List<Bson> pipeline = List.of(
+                    match(exists("birthday")),
+                    project(fields(
+                            computed("age", new Document("$floor", new Document("$divide",
+                                    Arrays.asList(
+                                            new Document("$subtract", Arrays.asList(new Date(), "$birthday")),
+                                            1000L * 60 * 60 * 24 * 365
+                                    )
+                            )))
+                    )),
+                    bucket("$age", boundaries, options)
+            );
 
             List<Document> aggregationResult = usersCollection.aggregate(pipeline).into(new ArrayList<>());
+            if (aggregationResult.isEmpty()) {
+                throw new MongoException("UserDAOMongoImpl: averageAppRatingByAgeRange: No data found");
+            }
+
 
             Map<String, Double> map = new LinkedHashMap<>();
-
             for (Document doc : aggregationResult) {
-
                 String ageRange = convertIntegerToAgeRange(doc.getLong("_id"));
                 map.put(ageRange, doc.getDouble("averageAppRating"));
-
-
-
             }
+
             return map;
 
-        }
-        catch (Exception e){
-            throw new DAOException("Error getting average app rating by age range", e);
+        } catch (MongoException e){
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+        } catch (Exception e){
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
 

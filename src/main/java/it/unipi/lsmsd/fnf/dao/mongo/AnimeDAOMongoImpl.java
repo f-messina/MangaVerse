@@ -2,6 +2,7 @@ package it.unipi.lsmsd.fnf.dao.mongo;
 
 import com.mongodb.DuplicateKeyException;
 import com.mongodb.MongoException;
+import com.mongodb.client.result.UpdateResult;
 import it.unipi.lsmsd.fnf.dao.interfaces.MediaContentDAO;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dao.exception.DAOExceptionType;
@@ -24,10 +25,9 @@ import java.util.*;
 
 import static com.mongodb.client.model.Aggregates.*;
 import static com.mongodb.client.model.Filters.*;
-import static com.mongodb.client.model.Updates.setOnInsert;
-import static it.unipi.lsmsd.fnf.utils.DocumentUtils.animeToDocument;
-import static it.unipi.lsmsd.fnf.utils.DocumentUtils.documentToAnime;
-import static it.unipi.lsmsd.fnf.utils.DocumentUtils.reviewDTOToNestedDocument;
+import static com.mongodb.client.model.Projections.include;
+import static com.mongodb.client.model.Updates.*;
+import static it.unipi.lsmsd.fnf.utils.DocumentUtils.*;
 
 /**
  * Implementation of the MediaContentDAO interface for Anime objects, providing CRUD operations for Anime data in MongoDB.
@@ -57,7 +57,7 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
             Optional.ofNullable(animeCollection.updateOne(filter,doc, options).getUpsertedId())
                     .map(result -> result.asObjectId().getValue().toHexString())
                     .map(id -> { anime.setId(id); return id; })
-                    .orElseThrow(() -> new DuplicatedException(DuplicatedExceptionType.DUPLICATED_KEY, "An anime with the same title already exists"));
+                    .orElseThrow(() -> new DuplicatedException(DuplicatedExceptionType.GENERIC, "AnimeDAOMongoDBImpl : saveMediaContent: An anime with the same title already exists"));
 
         } catch (DuplicateKeyException e) {
             throw new DAOException(DAOExceptionType.DUPLICATED_KEY, e.getMessage());
@@ -82,7 +82,7 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
             // Check if another anime with the same title exists in the database
             Bson filterTitle = and(eq("title", anime.getTitle()), ne("_id", new ObjectId(anime.getId())));
             if (animeCollection.countDocuments(filterTitle) > 0) {
-                throw new DAOException(DAOExceptionType.DUPLICATED_KEY, "An anime with the same name already exists");
+                throw new DuplicatedException(DuplicatedExceptionType.GENERIC, "AnimeDAOMongoDBImpl : updateMediaContent: An anime with the same name already exists");
             }
 
             // Update the anime in the database
@@ -90,7 +90,7 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
             Bson update = new Document("$set", animeToDocument(anime));
 
             if (animeCollection.updateOne(filter, update).getModifiedCount() == 0) {
-                throw new MongoException("No anime was updated");
+                throw new MongoException("AnimeDAOMongoDBImpl : updateMediaContent: No anime was updated");
             }
 
         } catch (DuplicateKeyException e) {
@@ -119,7 +119,7 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
             Bson filter = Filters.eq("_id", new ObjectId(animeId));
 
             if (animeCollection.deleteOne(filter).getDeletedCount() == 0) {
-                throw new MongoException("No anime was deleted");
+                throw new MongoException("AnimeDAOMongoDBImpl : deleteMediaContent: No anime was deleted");
             }
 
         } catch (MongoException e) {
@@ -148,7 +148,10 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
             Document result = animeCollection.find(filter).first();
 
             // Convert the Document to an Anime object and return it if found
-            return (result != null)? documentToAnime(result) : null;
+            if (result == null) {
+                throw new MongoException("AnimeDAOMongoDBImpl : readMediaContent: No anime found");
+            }
+            return documentToAnime(result);
 
         } catch (MongoException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
@@ -176,7 +179,7 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
             // Build the MongoDB query pipeline
             Bson filter = buildFilter(filters);
             Bson sort = buildSort(orderBy);
-            Bson projection = Projections.include("title", "picture", "average_rating", "anime_season");
+            Bson projection = include("title", "picture", "average_rating", "anime_season");
 
             int pageOffset = (page - 1) * Constants.PAGE_SIZE;
 
@@ -205,7 +208,7 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
             // Extract the list of AnimeDTO objects and the total count of results from the query result
             List<AnimeDTO> animeList = Optional.ofNullable(result)
                     .map(doc -> doc.getList(Constants.PAGINATION_FACET, Document.class))
-                    .orElseThrow(() -> new DAOException("Error while searching anime"))
+                    .orElseThrow(() -> new MongoException("AnimeDAOMongoDBImpl : search: No results found"))
                     .stream()
                     .map(DocumentUtils::documentToAnimeDTO)
                     .toList();
@@ -219,11 +222,7 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
                     .orElse(0);
 
             // Return the list of AnimeDTO objects and the total count of results
-            if (totalCount > 0) {
-                return new PageDTO<>(animeList, totalCount);
-            } else {
-                throw new MongoException("No anime found matching the search criteria");
-            }
+            return new PageDTO<>(animeList, totalCount);
 
         } catch (MongoException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
@@ -234,27 +233,129 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
         }
     }
 
+    /**
+     * Updates the latest review for an Anime object.
+     *
+     * @param reviewDTO The ReviewDTO object containing the review information.
+     * @throws DAOException If an error occurs during update.
+     */
     @Override
-    public void updateLatestReview(ReviewDTO reviewDTO, boolean existingReview) throws DAOException {
+    public void upsertReview(ReviewDTO reviewDTO) throws DAOException {
+        try {
+            MongoCollection<Document> animeCollection = getCollection(COLLECTION_NAME);
 
+            // Convert ReviewDTO to Document
+            Document reviewDocument = reviewDTOToNestedDocument(reviewDTO);
+
+            ObjectId reviewId = new ObjectId(reviewDTO.getId());
+            ObjectId animeId = new ObjectId(reviewDTO.getMediaContent().getId());
+
+            Bson filter = eq("_id", animeId);
+
+            // Fetch the current document from the collection
+            Document animeDocument = animeCollection.find(filter).first();
+
+            if (animeDocument == null) {
+                throw new MongoException("AnimeDAOMongoDBImpl : upsertReview: Anime not found");
+            }
+
+            // Get the latestReviews array from the fetched document
+            List<Document> latestReviews = animeDocument.getList("latest_reviews", Document.class);
+
+            // Update the latestReviews array in memory
+            if (latestReviews == null) {
+                latestReviews = new ArrayList<>();
+                latestReviews.addFirst(reviewDocument);
+            } else {
+                latestReviews.removeIf(review -> review.getObjectId("id").equals(reviewId));
+                latestReviews.addFirst(reviewDocument);
+                latestReviews = latestReviews.subList(0, Math.min(latestReviews.size(), Constants.LATEST_REVIEWS_SIZE));
+            }
+
+            Bson update = set("latest_reviews", latestReviews);
+            UpdateResult result = animeCollection.updateOne(filter, update);
+            // Apply the combined update operations
+            if (result.getMatchedCount() == 0) {
+                throw new MongoException("AnimeDAOMongoDBImpl : upsertReview: Anime not found");
+            }
+            if (result.getModifiedCount() == 0) {
+                throw new MongoException("MangaDAOMongoImpl: upsertReview: No review redundancy was updated or inserted");
+            }
+
+        } catch (MongoException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+        } catch (Exception e) {
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+        }
+    }
+
+    /**
+     * Refresh the latest review for a Manga object.
+     *
+     * @param latestReviews The ReviewDTO list with the latest reviews.
+     * @param animeId       The ObjectId of the Anime object to update.
+     * @throws DAOException If an error occurs during update.
+     */
+    @Override
+    public void refreshLatestReviews(List<ReviewDTO> latestReviews, String animeId) throws DAOException {
+        try {
+            MongoCollection<Document> mangaCollection = getCollection(COLLECTION_NAME);
+
+            // Convert ReviewDTOs to Documents
+            List<Document> reviewDocuments = Optional.ofNullable(latestReviews)
+                    .map(reviews -> reviews.stream()
+                            .map(DocumentUtils::reviewDTOToNestedDocument)
+                            .limit(Constants.LATEST_REVIEWS_SIZE)
+                            .toList())
+                    .orElse(null);
+
+
+            // Update the latest reviews in the database
+            Bson filter = eq("_id", new ObjectId(animeId));
+            Bson update;
+            if (reviewDocuments == null) {
+                update = unset("latest_reviews");
+            } else {
+                update = set("latest_reviews", reviewDocuments);
+            }
+
+            UpdateResult result = mangaCollection.updateOne(filter, update);
+            if (result.getMatchedCount() == 0) {
+                throw new MongoException("AnimeDAOMongoDBImpl : refreshLatestReviews: Anime not found");
+            }
+            if (result.getModifiedCount() == 0) {
+                throw new MongoException("AnimeDAOMongoDBImpl : upsertReview: the reviewArray was not updated");
+            }
+        } catch (MongoException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+        } catch (Exception e) {
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+        }
     }
 
     @Override
-    public boolean isInLatestReviews(String reviewId) throws DAOException {
-        return false;
+    public boolean isInLatestReviews(String animeId, String reviewId) throws DAOException {
+        try {
+            MongoCollection<Document> animeCollection = getCollection(COLLECTION_NAME);
+
+            Bson filter = and(eq("_id", new ObjectId(animeId)), eq("latest_reviews.id", new ObjectId(reviewId)));
+
+            return animeCollection.countDocuments(filter) > 0;
+
+        } catch (Exception e) {
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+        }
     }
 
-    @Override
-    public void saveLatestReviews(String mangaId, List<ReviewDTO> latestReviews) throws DAOException {
-
-    }
-
-
-
-
-
-    //MongoDB queries
-    //Best tags based on the average rating
+    /**
+     * Retrieves the best criteria based on the average rating of the Anime objects in the MongoDB database.
+     *
+     * @param criteria The criteria to search for.
+     * @param isArray  A boolean indicating whether the criteria are an array.
+     * @param page     The page number for pagination.
+     * @return A map containing the best criteria and their average rating.
+     * @throws DAOException If an error occurs during the search process.
+     */
     @Override
     public Map<String, Double> getBestCriteria (String criteria, boolean isArray, int page) throws DAOException {
         try {
@@ -287,7 +388,7 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
             return bestCriteria;
 
         } catch (Exception e) {
-            throw new DAOException("Error while searching anime", e);
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
         }
 
     }
@@ -325,8 +426,6 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
     public List<String> getMediaContentGenresTrendByYear(int year) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
-
-
     @Override
     public List<String> getMediaContentGenresTrend() throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
@@ -335,6 +434,5 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
     public List<? extends MediaContentDTO> getMediaContentTrendByLikes() throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
-
 }
 
