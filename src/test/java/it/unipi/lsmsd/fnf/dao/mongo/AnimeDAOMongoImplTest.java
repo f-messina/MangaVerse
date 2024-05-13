@@ -224,6 +224,16 @@ class AnimeDAOMongoImplTest {
     }
 
     @Test
+    void updateUserRedundancyTest() {
+        AnimeDAOMongoImpl animeDAO = new AnimeDAOMongoImpl();
+        UserSummaryDTO user = new UserSummaryDTO("66360c83bbca010b06d85602", "newUsername", "newPicture.jpg");
+        assertDoesNotThrow(() -> {
+            animeDAO.updateUserRedundancy(user);
+            System.out.println("User redundancy updated");
+        });
+    }
+
+    @Test
     public void getBestCriteriaTest() {
         AnimeDAOMongoImpl animeDAO = new AnimeDAOMongoImpl();
         assertDoesNotThrow(() -> {

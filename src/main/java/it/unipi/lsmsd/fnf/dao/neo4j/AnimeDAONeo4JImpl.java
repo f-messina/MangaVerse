@@ -2,9 +2,10 @@ package it.unipi.lsmsd.fnf.dao.neo4j;
 
 import it.unipi.lsmsd.fnf.dao.interfaces.MediaContentDAO;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
-import it.unipi.lsmsd.fnf.dao.exception.DAOExceptionType;
+import it.unipi.lsmsd.fnf.dao.exception.enums.DAOExceptionType;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
+import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
@@ -28,7 +29,7 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
      * @throws DAOException If an error occurs while creating the Anime node.
      */
     @Override
-    public void createNode(MediaContentDTO animeDTO) throws DAOException {
+    public void createMediaContentNode(MediaContentDTO animeDTO) throws DAOException {
         try (Session session = getSession()) {
             String query = "CREATE (a:Anime {id: $id, title: $title, picture: $picture})";
             session.run(query, Map.of("id", animeDTO.getId(), "title", animeDTO.getTitle(), "picture", animeDTO.getImageUrl()));
@@ -294,6 +295,11 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
 
     @Override
     public boolean isInLatestReviews(String animeId, String reviewId) throws DAOException {
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
+    }
+
+    @Override
+    public void updateUserRedundancy(UserSummaryDTO userSummaryDTO) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
 

@@ -5,7 +5,7 @@ import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
 import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.service.ServiceLocator;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
-import it.unipi.lsmsd.fnf.service.exception.BusinessExceptionType;
+import it.unipi.lsmsd.fnf.service.exception.enums.BusinessExceptionType;
 import it.unipi.lsmsd.fnf.utils.Constants;
 import it.unipi.lsmsd.fnf.utils.ConverterUtils;
 import it.unipi.lsmsd.fnf.utils.SecurityUtils;
@@ -58,7 +58,7 @@ public class AuthServlet extends HttpServlet {
         String targetJSP;
         try {
             UserRegistrationDTO user = ConverterUtils.fromRequestToUserRegDTO(request);
-            userService.registerUserAndLogin(ConverterUtils.fromRequestToUserRegDTO(request));
+            userService.signup(ConverterUtils.fromRequestToUserRegDTO(request));
 
             HttpSession session = request.getSession(true);
             session.setAttribute(Constants.AUTHENTICATED_USER_KEY, new UserSummaryDTO(user.getId(), user.getUsername(), Constants.DEFAULT_PROFILE_PICTURE));

@@ -1,4 +1,4 @@
-package it.unipi.lsmsd.fnf.dao.exception;
+package it.unipi.lsmsd.fnf.dao.exception.enums;
 
 public enum DAOExceptionType {
     DUPLICATED_KEY,
@@ -7,5 +7,6 @@ public enum DAOExceptionType {
     DUPLICATED_USERNAME,
     DUPLICATED_EMAIL,
     AUTHENTICATION_ERROR,
-    UNSUPPORTED_OPERATION
+    UNSUPPORTED_OPERATION,
+    TRANSIENT_ERROR;
 }

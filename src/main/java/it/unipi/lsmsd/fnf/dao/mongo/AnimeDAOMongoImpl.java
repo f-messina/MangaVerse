@@ -5,11 +5,12 @@ import com.mongodb.MongoException;
 import com.mongodb.client.result.UpdateResult;
 import it.unipi.lsmsd.fnf.dao.interfaces.MediaContentDAO;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
-import it.unipi.lsmsd.fnf.dao.exception.DAOExceptionType;
+import it.unipi.lsmsd.fnf.dao.exception.enums.DAOExceptionType;
 import it.unipi.lsmsd.fnf.dao.exception.DuplicatedException;
-import it.unipi.lsmsd.fnf.dao.exception.DuplicatedExceptionType;
+import it.unipi.lsmsd.fnf.dao.exception.enums.DuplicatedExceptionType;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
+import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
@@ -17,6 +18,7 @@ import it.unipi.lsmsd.fnf.utils.Constants;
 
 import com.mongodb.client.model.*;
 import com.mongodb.client.*;
+import it.unipi.lsmsd.fnf.utils.ConverterUtils;
 import it.unipi.lsmsd.fnf.utils.DocumentUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -349,6 +351,47 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
         }
     }
 
+    // anime 663606354276578429fe47e9
+    // user 66360c83bbca010b06d85602
+    @Override
+    public void updateUserRedundancy(UserSummaryDTO userSummaryDTO) throws DAOException {
+        try {
+            MongoCollection<Document> animeCollection = getCollection(COLLECTION_NAME);
+
+            Bson filter = eq("latest_reviews.user.id", new ObjectId(userSummaryDTO.getId()));
+
+            List<Bson> updateOperations = new ArrayList<>();
+            if (userSummaryDTO.getUsername() != null) {
+                updateOperations.add(set("latest_reviews.$[elem].user.username", userSummaryDTO.getUsername()));
+            }
+            if (userSummaryDTO.getProfilePicUrl() != null) {
+                updateOperations.add(set("latest_reviews.$[elem].user.picture", userSummaryDTO.getProfilePicUrl()));
+            }
+            UpdateOptions options = new UpdateOptions().arrayFilters(
+                    List.of(Filters.eq("elem.user.id", new ObjectId(userSummaryDTO.getId())))
+            );
+
+            // Combine all update operations into a single update operation and update the user redundancy
+            if (!updateOperations.isEmpty()) {
+                Bson update = combine(updateOperations);
+                UpdateResult result = animeCollection.updateMany(filter, update, options);
+                if (result.getMatchedCount() == 0) {
+                    throw new MongoException("AnimeDAOMongoDBImpl : updateUserRedundancy: No user redundancy was found");
+                }
+                if (result.getModifiedCount() == 0) {
+                    throw new MongoException("AnimeDAOMongoDBImpl : updateUserRedundancy: No user redundancy was updated");
+                }
+            } else {
+                throw new Exception("AnimeDAOMongoDBImpl : updateUserRedundancy: No updated values were provided");
+            }
+
+        } catch (MongoException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+        } catch (Exception e) {
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+        }
+    }
+
     /**
      * Retrieves the best criteria based on the average rating of the Anime objects in the MongoDB database.
      *
@@ -403,7 +446,7 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
 
     // Neo4J specific methods
     @Override
-    public void createNode(MediaContentDTO animeDTO) throws DAOException {
+    public void createMediaContentNode(MediaContentDTO animeDTO) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override

@@ -15,7 +15,7 @@ import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
 import it.unipi.lsmsd.fnf.model.mediaContent.MediaContent;
 import it.unipi.lsmsd.fnf.service.interfaces.MediaContentService;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
-import it.unipi.lsmsd.fnf.service.exception.BusinessExceptionType;
+import it.unipi.lsmsd.fnf.service.exception.enums.BusinessExceptionType;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
@@ -198,9 +198,9 @@ public class MediaContentServiceImpl implements MediaContentService {
             MediaContentType type = mediaContentDTO instanceof AnimeDTO ? MediaContentType.ANIME :
                     mediaContentDTO instanceof MangaDTO? MediaContentType.MANGA : null;
             if (MediaContentType.ANIME.equals(type))
-                animeDAONeo4J.createNode(mediaContentDTO);
+                animeDAONeo4J.createMediaContentNode(mediaContentDTO);
             else if (MediaContentType.MANGA.equals(type))
-                mangaDAONeo4J.createNode(mediaContentDTO);
+                mangaDAONeo4J.createMediaContentNode(mediaContentDTO);
             else
                 throw new BusinessException("Invalid media content type");
         } catch (Exception e) {

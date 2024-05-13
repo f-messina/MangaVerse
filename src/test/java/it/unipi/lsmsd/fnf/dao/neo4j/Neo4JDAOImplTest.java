@@ -135,7 +135,7 @@ public class Neo4JDAOImplTest{
         try {
 
             UserDAONeo4JImpl neo4JDAO = new UserDAONeo4JImpl();
-            List<UserSummaryDTO> followingUsers = neo4JDAO.getFollowing("6577877be68376234760585d");
+            List<UserSummaryDTO> followingUsers = neo4JDAO.getFollowedUsers("6577877be68376234760585d");
             for (UserSummaryDTO user : followingUsers)
                 System.out.println(user);
         }   catch (DAOException e) {

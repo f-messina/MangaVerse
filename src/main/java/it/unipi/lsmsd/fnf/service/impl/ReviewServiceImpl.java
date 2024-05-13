@@ -1,7 +1,7 @@
 package it.unipi.lsmsd.fnf.service.impl;
 
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
-import it.unipi.lsmsd.fnf.dao.exception.DAOExceptionType;
+import it.unipi.lsmsd.fnf.dao.exception.enums.DAOExceptionType;
 import it.unipi.lsmsd.fnf.dao.interfaces.MediaContentDAO;
 import it.unipi.lsmsd.fnf.dao.interfaces.ReviewDAO;
 import it.unipi.lsmsd.fnf.dao.enums.DataRepositoryEnum;
@@ -16,7 +16,7 @@ import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.service.interfaces.ReviewService;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 
-import it.unipi.lsmsd.fnf.service.exception.BusinessExceptionType;
+import it.unipi.lsmsd.fnf.service.exception.enums.BusinessExceptionType;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDate;
@@ -63,7 +63,7 @@ public class ReviewServiceImpl implements ReviewService {
             else if (DAOExceptionType.DATABASE_ERROR.equals(type))
                 throw new BusinessException(BusinessExceptionType.NOT_FOUND,"The media content does not exist.");
             else
-                throw new BusinessException(BusinessExceptionType.GENERIC, e.getMessage());
+                throw new BusinessException(BusinessExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
 
@@ -89,7 +89,7 @@ public class ReviewServiceImpl implements ReviewService {
             if (DAOExceptionType.DATABASE_ERROR.equals(type))
                 throw new BusinessException(BusinessExceptionType.NOT_FOUND, "The review is not found.");
             else
-                throw new BusinessException(BusinessExceptionType.GENERIC, "Error updating the review");
+                throw new BusinessException(BusinessExceptionType.GENERIC_ERROR, "Error updating the review");
         }
     }
 
@@ -108,7 +108,7 @@ public class ReviewServiceImpl implements ReviewService {
             if (DAOExceptionType.DATABASE_ERROR.equals(type))
                 throw new BusinessException(BusinessExceptionType.NOT_FOUND, "The review is not found.");
             else
-                throw new BusinessException(BusinessExceptionType.GENERIC, "Error deleting the review");
+                throw new BusinessException(BusinessExceptionType.GENERIC_ERROR, "Error deleting the review");
         }
     }
     @Override
@@ -120,7 +120,7 @@ public class ReviewServiceImpl implements ReviewService {
             if (DAOExceptionType.DATABASE_ERROR.equals(type))
                 throw new BusinessException(BusinessExceptionType.NOT_FOUND, "The review is not found.");
             else
-                throw new BusinessException(BusinessExceptionType.GENERIC, "Error deleting the review");
+                throw new BusinessException(BusinessExceptionType.GENERIC_ERROR, "Error deleting the review");
         }
     }
 
@@ -133,7 +133,7 @@ public class ReviewServiceImpl implements ReviewService {
             if (DAOExceptionType.DATABASE_ERROR.equals(type))
                 throw new BusinessException(BusinessExceptionType.NOT_FOUND, "The review is not found.");
             else
-                throw new BusinessException(BusinessExceptionType.GENERIC, "Error deleting the review");
+                throw new BusinessException(BusinessExceptionType.GENERIC_ERROR, "Error deleting the review");
         }
     }
 
@@ -152,7 +152,7 @@ public class ReviewServiceImpl implements ReviewService {
             if (DAOExceptionType.DATABASE_ERROR.equals(type))
                 throw new BusinessException(BusinessExceptionType.NOT_FOUND, "Reviews not found for the user.");
             else
-                throw new BusinessException(BusinessExceptionType.GENERIC, "Error finding reviews by user");
+                throw new BusinessException(BusinessExceptionType.GENERIC_ERROR, "Error finding reviews by user");
         }
     }
 
@@ -171,7 +171,7 @@ public class ReviewServiceImpl implements ReviewService {
             if (DAOExceptionType.DATABASE_ERROR.equals(type))
                 throw new BusinessException(BusinessExceptionType.NOT_FOUND, "Reviews not found for the media.");
             else
-                throw new BusinessException(BusinessExceptionType.GENERIC, "Error finding reviews by media");
+                throw new BusinessException(BusinessExceptionType.GENERIC_ERROR, "Error finding reviews by media");
         }
     }
 

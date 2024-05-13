@@ -1,4 +1,7 @@
 package it.unipi.lsmsd.fnf.dao.exception;
+
+import it.unipi.lsmsd.fnf.dao.exception.enums.DAOExceptionType;
+
 /**
  * Custom exception class for handling Data Access Object (DAO) related errors.
  */

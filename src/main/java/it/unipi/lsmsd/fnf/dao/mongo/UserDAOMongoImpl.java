@@ -5,6 +5,8 @@ import com.mongodb.MongoException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.*;
 import it.unipi.lsmsd.fnf.dao.exception.*;
+import it.unipi.lsmsd.fnf.dao.exception.enums.DAOExceptionType;
+import it.unipi.lsmsd.fnf.dao.exception.enums.DuplicatedExceptionType;
 import it.unipi.lsmsd.fnf.dao.interfaces.UserDAO;
 import it.unipi.lsmsd.fnf.dto.LoggedUserDTO;
 import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
@@ -55,7 +57,7 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
             boolean usernameExists = usersCollection.countDocuments(eq("username", user.getUsername())) != 0;
             boolean emailExists = usersCollection.countDocuments(eq("email", user.getEmail())) != 0;
             if(usernameExists && emailExists)
-                throw new DuplicatedException(DuplicatedExceptionType.GENERIC, "UserDAOMongoImpl: saveUser: Both username and email already in use");
+                throw new DuplicatedException(DuplicatedExceptionType.GENERIC, "UserDAOMongoImpl: saveUser: Username and email already in use");
             else if(usernameExists)
                 throw new DuplicatedException(DuplicatedExceptionType.DUPLICATED_NAME, "UserDAOMongoImpl: saveUser: Username already in use");
             else if(emailExists)
@@ -438,10 +440,6 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
 
     // Methods available only in Neo4J
     @Override
-    public void createNode(UserSummaryDTO userSummaryDTO) throws DAOException {
-        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
-    }
-    @Override
     public void follow(String followerUserId, String followingUserId) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
@@ -449,8 +447,14 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
     public void unfollow(String followerUserId, String followingUserId) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
+
     @Override
-    public List<UserSummaryDTO> getFollowing(String userId) throws DAOException {
+    public boolean isFollowing(String followerUserId, String followedUserId) throws DAOException {
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
+    }
+
+    @Override
+    public List<UserSummaryDTO> getFollowedUsers(String userId) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override
