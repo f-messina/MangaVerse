@@ -10,19 +10,12 @@ import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 import it.unipi.lsmsd.fnf.service.interfaces.MediaContentService;
 import it.unipi.lsmsd.fnf.service.interfaces.ReviewService;
 import it.unipi.lsmsd.fnf.service.interfaces.UserService;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.junit.Test;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 
 import static it.unipi.lsmsd.fnf.dao.mongo.BaseMongoDBDAO.closeConnection;
-import static org.junit.jupiter.api.Assertions.*;
 
 public class ManagerServletTest {
 
@@ -83,7 +76,7 @@ public class ManagerServletTest {
 
 
         try {
-            Double averageRating = reviewService.averageRatingUser (userId);
+            Double averageRating = reviewService.getUserAverageRating(userId);
             System.out.println(averageRating);
 
 
@@ -107,7 +100,7 @@ public class ManagerServletTest {
         ReviewService reviewService = ServiceLocator.getReviewService();
 
         try {
-            Map<String, Double> averageRatingByYear = reviewService.ratingMediaContentByYear(MediaContentType.ANIME, mediaContentId, startYear, endYear);
+            Map<String, Double> averageRatingByYear = reviewService.getMediaContentRatingByYear(MediaContentType.ANIME, mediaContentId, startYear, endYear);
             System.out.println(averageRatingByYear);
 
         } catch (BusinessException e) {
@@ -129,7 +122,7 @@ public class ManagerServletTest {
         ReviewService reviewService = ServiceLocator.getReviewService();
 
         try {
-            Map<String, Double> averageRatingByMonth = reviewService.ratingMediaContentByMonth(MediaContentType.MANGA, mediaContentId, year);
+            Map<String, Double> averageRatingByMonth = reviewService.getMediaContentRatingByMonth(MediaContentType.MANGA, mediaContentId, year);
             System.out.println(averageRatingByMonth);
 
         } catch (BusinessException e) {

@@ -154,6 +154,15 @@ public class UserServiceImpl implements UserService {
             DeleteUserTask task1 = new DeleteUserTask(userId);
             aperiodicExecutorTaskService.executeTask(task1);
 
+            // create a task which remove the reviews with the deleted user
+            // RemoveReviewsWithoutUserTask task2 = new RemoveReviewsWithoutUserTask(userId);
+            // aperiodicExecutorTaskService.executeTask(task2);
+
+            // create a task which remove the reviews in the latest reviews list with the deleted user
+            // RemoveLatestReviewsWithoutUserTask task3 = new RemoveLatestReviewsWithoutUserTask(userId);
+            // aperiodicExecutorTaskService.executeTask(task3);
+
+
         } catch (DAOException e) {
             if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {
                 throw new BusinessException(BusinessExceptionType.NOT_FOUND, e.getMessage());
@@ -260,7 +269,7 @@ public class UserServiceImpl implements UserService {
         try {
             return userDAO.searchFirstNUsers(username, n, loggedUser);
         } catch (DAOException e) {
-            throw new BusinessException("Error while searching for users.", e);
+            throw new BusinessException(e.getMessage());
         }
     }
 

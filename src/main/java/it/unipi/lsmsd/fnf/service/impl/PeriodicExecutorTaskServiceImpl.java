@@ -1,6 +1,7 @@
 package it.unipi.lsmsd.fnf.service.impl;
 
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
+import it.unipi.lsmsd.fnf.service.impl.asinc_media_tasks.UpdateAverageRatingTask;
 import it.unipi.lsmsd.fnf.service.interfaces.ExecutorTaskService;
 import it.unipi.lsmsd.fnf.service.interfaces.Task;
 
@@ -14,7 +15,7 @@ public class PeriodicExecutorTaskServiceImpl implements ExecutorTaskService {
     private final ScheduledExecutorService scheduledExecutorService;
 
     private PeriodicExecutorTaskServiceImpl() {
-        this.scheduledExecutorService = Executors.newScheduledThreadPool(2);
+        this.scheduledExecutorService = Executors.newScheduledThreadPool(1);
     }
 
     public static ExecutorTaskService getInstance() {
@@ -33,29 +34,14 @@ public class PeriodicExecutorTaskServiceImpl implements ExecutorTaskService {
 
     @Override
     public void start() {
-
         scheduledExecutorService.scheduleAtFixedRate(() -> {
-
             try {
-                //TODO: implement the task
-                throw new BusinessException("prova");
+                new UpdateAverageRatingTask().executeJob();
+
             } catch (BusinessException e) {
-             throw new RuntimeException(e);
+                throw new RuntimeException(e);
             }
-
-        }, 0, 1, DAYS);
-
-        scheduledExecutorService.scheduleAtFixedRate(() -> {
-
-            try {
-                //TODO: implement the task
-                throw new BusinessException("prova");
-            } catch (BusinessException e) {
-             throw new RuntimeException(e);
-            }
-
         }, 0, 12, HOURS);
-
     }
 
     @Override
@@ -65,6 +51,7 @@ public class PeriodicExecutorTaskServiceImpl implements ExecutorTaskService {
             if (!scheduledExecutorService.awaitTermination(2, MINUTES)) {
                 scheduledExecutorService.shutdownNow();
             }
+
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }

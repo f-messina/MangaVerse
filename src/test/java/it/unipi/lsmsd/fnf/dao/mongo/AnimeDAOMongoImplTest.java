@@ -177,8 +177,7 @@ class AnimeDAOMongoImplTest {
         }
     }
 
-    // test 1 : remove latest review field when the only review is removed
-    // test 2 : refresh latest reviews with the last n reviews
+    // test 1 : refresh latest reviews with the last n reviews
     @Test
     void refreshLatestReviewsTest() throws DAOException {
         AnimeDAOMongoImpl animeDAO = new AnimeDAOMongoImpl();
@@ -188,14 +187,7 @@ class AnimeDAOMongoImplTest {
 
             // test 1
             assertDoesNotThrow(() -> {
-                animeDAO.refreshLatestReviews(null, animeId);
-                System.out.println("Latest reviews removed");
-            });
-
-            // test 2
-            List<ReviewDTO> reviews = create9Review();
-            assertDoesNotThrow(() -> {
-                animeDAO.refreshLatestReviews(reviews, animeId);
+                animeDAO.refreshLatestReviews(animeId);
                 System.out.println("Latest reviews refreshed");
             });
         }
@@ -263,19 +255,5 @@ class AnimeDAOMongoImplTest {
         review.setComment("Great anime");
         review.setDate(LocalDate.now());
         return review;
-    }
-
-    private List<ReviewDTO> create9Review() {
-        List<ReviewDTO> reviews = new ArrayList<>();
-        for (int i = 0; i < 9; i++) {
-            ReviewDTO review = new ReviewDTO();
-            review.setId("6635632b4276578429f2988" + i);
-            review.setUser(new UserSummaryDTO("6635632b4276578429f2938" + i, "exampleUser", "exampleUser.jpg"));
-            review.setRating(i);
-            review.setComment("Great anime");
-            review.setDate(LocalDate.now());
-            reviews.add(review);
-        }
-        return reviews;
     }
 }

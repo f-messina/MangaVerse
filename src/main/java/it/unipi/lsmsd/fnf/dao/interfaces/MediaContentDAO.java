@@ -20,9 +20,10 @@ public interface MediaContentDAO<T extends MediaContent> {
     void deleteMediaContent(String id) throws DAOException;
     PageDTO<? extends MediaContentDTO> search(List<Map<String, Object>> filters, Map<String, Integer> orderBy, int page) throws DAOException;
     void upsertReview(ReviewDTO reviewDTO) throws DAOException;
-    void refreshLatestReviews(List<ReviewDTO> latestReviews, String mediaId) throws DAOException;
+    void refreshLatestReviews(String mediaId) throws DAOException;
     boolean isInLatestReviews(String mediaId, String reviewId) throws DAOException;
     void updateUserRedundancy(UserSummaryDTO userSummaryDTO) throws DAOException;
+
     Map<String, Double> getBestCriteria(String criteria, boolean isArray, int page) throws DAOException;
 
     // Neo4J specific methods

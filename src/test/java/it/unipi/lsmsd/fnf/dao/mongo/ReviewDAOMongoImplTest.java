@@ -125,6 +125,14 @@ class ReviewDAOMongoImplTest {
         System.out.println("Non-existent user redundancy update failed");
     }
 
+    // test 1: update average rating
+    @Test
+    void updateAverageRatingMediaTest() {
+        ReviewDAOMongoImpl reviewDAO = new ReviewDAOMongoImpl();
+        assertDoesNotThrow(reviewDAO::updateAverageRatingMedia);
+        System.out.println("Average rating updated");
+    }
+
     // test 1: delete review
     // test 2: delete non-existent review
     @Test
@@ -219,12 +227,12 @@ class ReviewDAOMongoImplTest {
 
         // test 1
         assertDoesNotThrow(() -> {
-            Double averageRating = reviewDAO.averageRatingUser("6577877be68376234760585b");
+            Double averageRating = reviewDAO.getUserAverageRating("6577877be68376234760585b");
             System.out.println(averageRating);
         });
 
         // test 2
-        assertThrows(DAOException.class, () -> reviewDAO.averageRatingUser("6577877be683762347605213"));
+        assertThrows(DAOException.class, () -> reviewDAO.getUserAverageRating("6577877be683762347605213"));
         System.out.println("Non-existent user average rating retrieval failed");
     }
 

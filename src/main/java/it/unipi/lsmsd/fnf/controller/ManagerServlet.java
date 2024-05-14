@@ -327,7 +327,7 @@ public class ManagerServlet extends HttpServlet {
         Future<Double> averageRatingUserFuture = executorService.submit(() -> {
             try {
                 ReviewService reviewService = ServiceLocator.getReviewService();
-                return reviewService.averageRatingUser("userId");
+                return reviewService.getUserAverageRating("userId");
             } catch (BusinessException e) {
                 throw new RuntimeException(e);
             }
@@ -493,7 +493,7 @@ public class ManagerServlet extends HttpServlet {
         ReviewService reviewService = ServiceLocator.getReviewService();
 
         try {
-            Double averageRating = reviewService.averageRatingUser(userId);
+            Double averageRating = reviewService.getUserAverageRating(userId);
 
             JsonObject jsonResponse = new JsonObject();
             jsonResponse.addProperty("userId", userId);
@@ -543,7 +543,7 @@ public class ManagerServlet extends HttpServlet {
         ReviewService reviewService = ServiceLocator.getReviewService();
 
         try {
-            Map<String, Double> averageRatingByYear = reviewService.ratingMediaContentByYear(isManga ? MediaContentType.MANGA : MediaContentType.ANIME, mediaContentId, startYear, endYear);
+            Map<String, Double> averageRatingByYear = reviewService.getMediaContentRatingByYear(isManga ? MediaContentType.MANGA : MediaContentType.ANIME, mediaContentId, startYear, endYear);
 
             JsonObject jsonResponse = new JsonObject();
             jsonResponse.addProperty("mediaContentId", mediaContentId);
@@ -595,7 +595,7 @@ public class ManagerServlet extends HttpServlet {
         ReviewService reviewService = ServiceLocator.getReviewService();
 
         try {
-            Map<String, Double> averageRatingByMonth = reviewService.ratingMediaContentByMonth(isManga ? MediaContentType.MANGA : MediaContentType.ANIME, mediaContentId, year);
+            Map<String, Double> averageRatingByMonth = reviewService.getMediaContentRatingByMonth(isManga ? MediaContentType.MANGA : MediaContentType.ANIME, mediaContentId, year);
 
             JsonObject jsonResponse = new JsonObject();
             jsonResponse.addProperty("mediaContentId", mediaContentId);

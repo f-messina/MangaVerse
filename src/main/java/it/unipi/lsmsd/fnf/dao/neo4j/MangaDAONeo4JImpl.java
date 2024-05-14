@@ -302,7 +302,7 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
     }
 
     @Override
-    public void refreshLatestReviews(List<ReviewDTO> latestReviews, String mangaId) throws DAOException {
+    public void refreshLatestReviews(String mangaId) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
 

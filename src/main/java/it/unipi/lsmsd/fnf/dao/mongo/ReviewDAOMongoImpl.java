@@ -2,6 +2,7 @@ package it.unipi.lsmsd.fnf.dao.mongo;
 
 import com.mongodb.MongoException;
 import com.mongodb.client.model.BsonField;
+import com.mongodb.client.model.Facet;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.result.UpdateResult;
 import com.mongodb.client.MongoCollection;
@@ -166,12 +167,9 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
         try {
             MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
             Bson filter = eq(isAnime ? "anime.id" : "manga.id", new ObjectId(mediaContentDTO.getId()));
-            UpdateResult result = reviewCollection.updateMany(filter, new Document("$set", mediaDoc));
 
-            if (result.getMatchedCount() == 0) {
-                throw new MongoException("ReviewDAOMongoImpl: updateMediaRedundancy: No reviews found");
-            }
-            if (result.getModifiedCount() == 0) {
+            UpdateResult result = reviewCollection.updateMany(filter, new Document("$set", mediaDoc));
+            if (result.getMatchedCount() != 0 && result.getModifiedCount() == 0) {
                 throw new MongoException("ReviewDAOMongoImpl: updateMediaRedundancy: No reviews modified");
             }
 
@@ -201,10 +199,7 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
             Bson filter = eq("user.id", new ObjectId(userSummaryDTO.getId()));
 
             UpdateResult result = reviewCollection.updateMany(filter, new Document("$set", userDoc));
-            if (result.getMatchedCount() == 0) {
-                throw new MongoException("ReviewDAOMongoImpl: updateUserRedundancy: No reviews found");
-            }
-            if (result.getModifiedCount() == 0) {
+            if (result.getMatchedCount() != 0 && result.getModifiedCount() == 0) {
                 throw new MongoException("ReviewDAOMongoImpl: updateUserRedundancy: No reviews modified");
             }
 
@@ -213,6 +208,49 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
 
         } catch (Exception e) {
             throw new DAOException(DAOExceptionType.GENERIC_ERROR, "Error updating the review");
+        }
+    }
+
+    @Override
+    public void updateAverageRatingMedia() throws DAOException {
+        try {
+            // get the average rating for each media content
+            MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
+
+            List<Bson> pipeline = List.of(
+                    match(exists("rating", true)),
+                    facet(
+                            // anime facet
+                            new Facet("anime", List.of(
+                                    group("$anime.id", avg("average_rating", "$rating")),
+                                    project(computed("average_rating", new Document("$round", List.of("$average_rating", 2))))
+                            )),
+                            // manga facet
+                            new Facet("manga", List.of(
+                                    group("$manga.id", avg("average_rating", "$rating")),
+                                    project(computed("average_rating", new Document("$round", List.of("$average_rating", 2))))
+                            ))
+                    )
+            );
+            Document result = reviewCollection.aggregate(pipeline).first();
+
+            // Update the average rating in the anime and manga collections
+            MongoCollection<Document> animeCollection = getCollection("anime");
+            MongoCollection<Document> mangaCollection = getCollection("manga");
+
+            Optional.ofNullable(result).orElse(new Document()).getList("anime", Document.class).forEach(document -> {
+                animeCollection.updateOne(eq("_id", document.getObjectId("_id")), set("average_rating", document.get("average_rating")));
+            });
+            Optional.ofNullable(result).orElse(new Document()).getList("manga", Document.class).forEach(document -> {
+                mangaCollection.updateOne(eq("_id", document.getObjectId("_id")), set("average_rating", document.get("average_rating")));
+            });
+
+        } catch (MongoException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
+        } catch (Exception e) {
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+
         }
     }
 
@@ -266,7 +304,7 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
 
             //update the recipe data in all the reviews
             if (reviewCollection.deleteMany(filter).getDeletedCount() == 0) {
-                throw new MongoException("ReviewDAOMongoImpl: deleteReviewsWithNoMedia: No reviews found");
+                // TODO: add a log message
             }
 
         } catch (MongoException e) {
@@ -287,15 +325,15 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
         try {
 
             MongoCollection<Document> userCollection = getCollection("users");
-
             List<ObjectId> userIds = userCollection.find().projection(new Document("_id", 1)).into(new ArrayList<>()).stream()
                     .map(document -> document.getObjectId("_id"))
                     .toList();
 
             MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
+
             //update the recipe data in all the reviews
             if (reviewCollection.deleteMany(nin("user.id", userIds)).getDeletedCount() == 0) {
-                throw new MongoException("ReviewDAOMongoImpl: deleteReviewsWithNoAuthor: No reviews found");
+                // TODO: add a log message
             }
 
         } catch (MongoException e) {
@@ -407,64 +445,26 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
         }
     }
 
-    @Override
-    public List<ReviewDTO> getLastNReviewByMedia(String mediaId, MediaContentType type, Integer n) throws DAOException {
-        try {
-            MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
-
-            Bson filter;
-            Bson projection;
-            if (type == MediaContentType.ANIME) {
-                filter = eq("anime.id", new ObjectId(mediaId));
-                projection = exclude("anime");
-            } else if (type == MediaContentType.MANGA) {
-                filter = eq("manga.id", new ObjectId(mediaId));
-                projection = exclude("manga");
-            } else {
-                throw new Exception("ReviewDAOMongoImpl: getLastNReviewByMedia: Invalid media content type");
-            }
-
-            List<ReviewDTO> result = reviewCollection.find(filter).projection(projection)
-                    .sort(descending("date")).limit(n)
-                    .map(DocumentUtils::documentToReviewDTO).into(new ArrayList<>());
-
-            if (result.isEmpty()) {
-                throw new MongoException("ReviewDAOMongoImpl: getLastNReviewByMedia: No reviews found");
-            }
-
-            return result;
-
-        } catch (MongoException e) {
-            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
-
-        } catch (Exception e) {
-            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
-
-        }
-    }
-
-
     //MongoDB queries
     //Find the average rating a user has given to media contents given the userId
     @Override
-    public Double averageRatingUser(String userId) throws DAOException {
+    public Double getUserAverageRating(String userId) throws DAOException {
         try {
             MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
 
             List<Bson> pipeline = List.of(
-                    match(eq("user.id", new ObjectId(userId))),
-                    group("$user.id", List.of(new BsonField("averageRating", new Document("$avg", "$rating"))))
+                    match(and(
+                            eq("user.id", new ObjectId(userId)),
+                            exists("rating", true)
+                    )),
+                    group("$user.id", avg("average_rating", "$rating"))
             );
 
             // Execute the aggregation
             Document result = reviewCollection.aggregate(pipeline).into(new ArrayList<>()).getFirst();
 
             // Retrieve the average rating from the aggregation result
-            if (result.isEmpty()) {
-                throw new MongoException("ReviewDAOMongoImpl: averageRatingUser: No reviews found");
-            }
-
-            return result.getDouble("averageRating");
+            return result.isEmpty() ? null : result.getDouble("average_rating");
 
         } catch (MongoException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
@@ -523,7 +523,6 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
     }
 
     //This function returns the average rating of media content by month when giving in input a certain year and the media content id
-    // 01 = 6.7, 02 = 7.5, 03 = 8.0, 04 = 4.5 (2020)
     @Override
     public Map<String, Double> getMediaContentRatingByMonth(MediaContentType type, String mediaContentId, int year) throws DAOException {
         try  {

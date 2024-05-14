@@ -30,6 +30,7 @@ import java.util.*;
 import static com.mongodb.client.model.Accumulators.avg;
 import static com.mongodb.client.model.Aggregates.*;
 import static com.mongodb.client.model.Filters.*;
+import static com.mongodb.client.model.Projections.exclude;
 import static com.mongodb.client.model.Projections.include;
 import static com.mongodb.client.model.Sorts.descending;
 import static com.mongodb.client.model.Updates.*;
@@ -94,8 +95,11 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
             Bson filter = eq("_id", new ObjectId(manga.getId()));
             Bson update = new Document("$set", mangaToDocument(manga));
 
-            if (mangaCollection.updateOne(filter, update).getModifiedCount() == 0) {
-                throw new MongoException("MangaDAOMongoImpl: updateMediaContent: No manga was updated");
+            UpdateResult result = mangaCollection.updateOne(filter, update);
+            if (result.getMatchedCount() == 0) {
+                throw new MongoException("MangaDAOMongoImpl: updateMediaContent: Manga not found");
+            } else if (result.getModifiedCount() == 0) {
+                throw new MongoException("MangaDAOMongoImpl: updateMediaContent: Error updating manga");
             }
 
         } catch (DuplicateKeyException e) {
@@ -124,7 +128,7 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
             Bson filter = eq("_id", new ObjectId(mangaId));
 
             if (mangaCollection.deleteOne(filter).getDeletedCount() == 0) {
-                throw new MongoException("MangaDAOMongoImpl: deleteMediaContent: No manga was deleted");
+                throw new MongoException("MangaDAOMongoImpl: deleteMediaContent: Manga not found");
             }
 
         } catch (MongoException e) {
@@ -153,7 +157,7 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
             Document result = mangaCollection.find(filter).first();
 
             if (result == null) {
-                throw new MongoException("MangaDAOMongoImpl: readMediaContent: No manga found");
+                throw new MongoException("MangaDAOMongoImpl: readMediaContent: Manga not found");
             }
             return documentToManga(result);
 
@@ -183,22 +187,22 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
             Bson projection = include("title", "picture", "average_rating", "start_date", "end_date");
             int pageOffset = (page - 1) * Constants.PAGE_SIZE;
 
-            List<Bson> pipeline = Arrays.asList(
+            List<Bson> pipeline = List.of(
                     match(filter),
                     facet(
-                            List.of(
-                                    new Facet(Constants.PAGINATION_FACET,
-                                            List.of(
-                                                    sort(sort),
-                                                    skip(pageOffset),
-                                                    limit(Constants.PAGE_SIZE),
-                                                    project(projection)
-                                            )
-                                    ),
-                                    new Facet(Constants.COUNT_FACET,
-                                            List.of(
-                                                    count("total")
-                                            )
+                            // Pagination facet
+                            new Facet(Constants.PAGINATION_FACET,
+                                    List.of(
+                                            sort(sort),
+                                            skip(pageOffset),
+                                            limit(Constants.PAGE_SIZE),
+                                            project(projection)
+                                    )
+                            ),
+                            // Count facet
+                            new Facet(Constants.COUNT_FACET,
+                                    List.of(
+                                            count("total")
                                     )
                             )
                     )
@@ -256,7 +260,7 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
             Document animeDocument = mangaCollection.find(filter).first();
 
             if (animeDocument == null) {
-                throw new MongoException("AnimeDAOMongoDBImpl : upsertReview: Anime not found");
+                throw new MongoException("MangaDAOMongoDBImpl : upsertReview: Manga not found");
             }
 
             // Get the latestReviews array from the fetched document
@@ -277,8 +281,7 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
             // Apply the combined update operations
             if (result.getMatchedCount() == 0) {
                 throw new MongoException("MangaDAOMongoDBImpl : upsertReview: Manga not found");
-            }
-            if (result.getModifiedCount() == 0) {
+            } else if (result.getModifiedCount() == 0) {
                 throw new MongoException("MangaDAOMongoImpl: upsertReview: No review redundancy was updated or inserted");
             }
 
@@ -292,23 +295,32 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
     /**
      * Refresh the latest review for a Manga object.
      *
-     * @param latestReviews The ReviewDTO list with the latest reviews.
      * @param mangaId       The ObjectId of the Manga object to update.
      * @throws DAOException If an error occurs during update.
      */
     @Override
-    public void refreshLatestReviews(List<ReviewDTO> latestReviews, String mangaId) throws DAOException {
+    public void refreshLatestReviews(String mangaId) throws DAOException {
         try {
+            // Get the latest reviews for the anime
+            MongoCollection<Document> reviewCollection = getCollection("reviews");
+
+            Bson reviewFilter = eq("manga.id", new ObjectId(mangaId));
+            Bson reviewProjection = exclude("manga");
+
+            List<ReviewDTO> latestReviews = reviewCollection.find(reviewFilter).projection(reviewProjection)
+                    .sort(descending("date")).limit(Constants.LATEST_REVIEWS_SIZE)
+                    .map(DocumentUtils::documentToReviewDTO).into(new ArrayList<>());
+
+            // Convert the latest reviews to nested documents
+            List<Document> reviewDocuments = null;
+            if (!latestReviews.isEmpty()) {
+                reviewDocuments = latestReviews.stream()
+                        .map(DocumentUtils::reviewDTOToNestedDocument)
+                        .toList();
+            }
+
+            // Update the latest reviews in the manga document
             MongoCollection<Document> mangaCollection = getCollection(COLLECTION_NAME);
-
-            // Convert ReviewDTOs to Documents
-            List<Document> reviewDocuments = Optional.ofNullable(latestReviews)
-                    .map(reviews -> reviews.stream()
-                            .map(DocumentUtils::reviewDTOToNestedDocument)
-                            .limit(Constants.LATEST_REVIEWS_SIZE)
-                            .toList())
-                    .orElse(null);
-
 
             // Update the latest reviews in the database
             Bson filter = eq("_id", new ObjectId(mangaId));
@@ -322,8 +334,7 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
             UpdateResult result = mangaCollection.updateOne(filter, update);
             if (result.getMatchedCount() == 0) {
                 throw new MongoException("MangaDAOMongoDBImpl : refreshLatestReviews: Manga not found");
-            }
-            if (result.getModifiedCount() == 0) {
+            } else if (result.getModifiedCount() == 0) {
                 throw new MongoException("MangaDAOMongoDBImpl : upsertReview: the reviewArray was not updated");
             }
         } catch (MongoException e) {
@@ -369,11 +380,8 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
             if (!updateOperations.isEmpty()) {
                 Bson update = combine(updateOperations);
                 UpdateResult result = mangaCollection.updateMany(filter, update, options);
-                if (result.getMatchedCount() == 0) {
-                    throw new MongoException("MangaDAOMongoDBImpl : updateUserRedundancy: No user redundancy was found");
-                }
-                if (result.getModifiedCount() == 0) {
-                    throw new MongoException("MangaDAOMongoDBImpl : updateUserRedundancy: No user redundancy was updated");
+                if (result.getMatchedCount() != 0 && result.getModifiedCount() == 0) {
+                    throw new MongoException("MangaDAOMongoDBImpl : updateUserRedundancy: Error updating user redundancy");
                 }
             } else {
                 throw new Exception("MangaDAOMongoDBImpl : updateUserRedundancy: No updated values were provided");

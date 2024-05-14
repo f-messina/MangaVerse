@@ -180,25 +180,17 @@ class MangaDAOMongoImplTest {
         }
     }
 
-    // test 1 : remove latest review field when the only review is removed
-    // test 2 : refresh latest reviews with the last n reviews
+    // test 1 : refresh latest reviews with the last n reviews
     @Test
     void refreshLatestReviewsTest() throws DAOException {
         MangaDAOMongoImpl mangaDAO = new MangaDAOMongoImpl();
         List<MangaDTO> mangaList = mangaDAO.search(List.of(Map.of("title", "Sample Manga")), Map.of("title", 1), 1).getEntries();
         if (!mangaList.isEmpty()) {
-            String animeId = mangaList.getFirst().getId();
+            String mangaId = mangaList.getFirst().getId();
 
             // test 1
             assertDoesNotThrow(() -> {
-                mangaDAO.refreshLatestReviews(null, animeId);
-                System.out.println("Latest reviews removed");
-            });
-
-            // test 2
-            List<ReviewDTO> reviews = create9Review();
-            assertDoesNotThrow(() -> {
-                mangaDAO.refreshLatestReviews(reviews, animeId);
+                mangaDAO.refreshLatestReviews(mangaId);
                 System.out.println("Latest reviews refreshed");
             });
         }
@@ -256,19 +248,5 @@ class MangaDAOMongoImplTest {
         review.setComment("Great manga");
         review.setDate(LocalDate.now());
         return review;
-    }
-
-    private List<ReviewDTO> create9Review() {
-        List<ReviewDTO> reviews = new ArrayList<>();
-        for (int i = 0; i < 9; i++) {
-            ReviewDTO review = new ReviewDTO();
-            review.setId("6635632b4276578429f2988" + i);
-            review.setUser(new UserSummaryDTO("6635632b4276578429f2938" + i, "exampleUser", "exampleUser.jpg"));
-            review.setRating(i);
-            review.setComment("Great manga");
-            review.setDate(LocalDate.now());
-            reviews.add(review);
-        }
-        return reviews;
     }
 }

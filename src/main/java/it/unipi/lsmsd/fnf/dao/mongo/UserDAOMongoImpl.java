@@ -110,10 +110,10 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
             Bson filter = eq("_id", new ObjectId(user.getId()));
             Bson update = new Document("$set", RegisteredUserToDocument(user))
                     .append("$unset", UsertToUnsetUserFieldsDocument(user));
+
             if (usersCollection.updateOne(filter, update).getMatchedCount() == 0) {
                 throw new MongoException("UserDAOMongoImpl: updateUser: No user found");
-            }
-            if (usersCollection.updateOne(filter, update).getModifiedCount() == 0) {
+            } else if (usersCollection.updateOne(filter, update).getModifiedCount() == 0) {
                 throw new MongoException("UserDAOMongoImpl: updateUser: No user updated");
             }
 
