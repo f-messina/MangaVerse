@@ -16,11 +16,11 @@ public interface ReviewDAO {
     void updateUserRedundancy(UserSummaryDTO userSummaryDTO) throws DAOException;
     void updateAverageRatingMedia() throws DAOException;
     void deleteReview(String reviewId) throws DAOException;
-
     void refreshLatestReviewsOnUserDeletion(String userId) throws DAOException;
-
     void deleteReviewsWithNoMedia() throws DAOException;
+    void deleteReviewsByMedia(String mediaId) throws DAOException;
     void deleteReviewsWithNoAuthor() throws DAOException;
+    void deleteReviewsByAuthor(String userId) throws DAOException;
     PageDTO<ReviewDTO> getReviewByUser(String userId, Integer page) throws DAOException;
     PageDTO<ReviewDTO> getReviewByMedia(String mediaId, MediaContentType type, Integer page) throws DAOException;
     Double getUserAverageRating(String userId) throws DAOException;

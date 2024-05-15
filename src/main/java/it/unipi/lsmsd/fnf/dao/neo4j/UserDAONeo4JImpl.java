@@ -269,16 +269,16 @@ public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
      * @throws DAOException If an error occurs while retrieving suggested users.
      */
     @Override
-    public List<UserSummaryDTO> suggestUsers(String userId) throws DAOException {
+    public List<UserSummaryDTO> suggestUsers(String userId, Integer limit) throws DAOException {
         try (Session session = getSession()) {
             String query = "MATCH (:User {id: $userId})-[:FOLLOWS]->(following:User)-[:FOLLOWS]->(suggested:User) " +
                     "WHERE NOT (:User{id: $userId})-[:FOLLOWS]->(suggested) " +
                     "WITH suggested, COUNT(DISTINCT following) AS commonFollowers " +
                     "WHERE commonFollowers > 5 " +
-                    "RETURN suggested.id as id, suggested.username as username, suggested.picture as picture " +
-                    "LIMIT 5";
+                    "RETURN suggested as user" +
+                    "LIMIT $n";
             List<Record> records = session.executeRead(
-                    tx -> tx.run(query, parameters("userId", userId))
+                    tx -> tx.run(query, parameters("userId", userId, "n", limit == null ? 5 : limit))
             ).list();
 
             return records.isEmpty() ? null : records.stream()

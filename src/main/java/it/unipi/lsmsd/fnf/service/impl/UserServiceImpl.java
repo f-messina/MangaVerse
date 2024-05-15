@@ -68,8 +68,7 @@ public class UserServiceImpl implements UserService {
             userDAO.saveUser(userRegistrationDTO);
 
             // Create a task which adds a new node User in Neo4j
-            CreateUserTask task = new CreateUserTask(userRegistrationDTO);
-            aperiodicExecutorTaskService.executeTask(task);
+            aperiodicExecutorTaskService.executeTask(new CreateUserTask(userRegistrationDTO));
 
         } catch (DAOException e) {
             switch (e.getType()) {
@@ -123,18 +122,15 @@ public class UserServiceImpl implements UserService {
         try {
             userDAO.updateUser(user);
 
-            //create a task which update the node User in Neo4j
+            // Create a task which update the node User in Neo4j
             if (user.getUsername() != null || user.getProfilePicUrl() != null) {
-                UpdateUserTask task1 = new UpdateUserTask(user);
-                aperiodicExecutorTaskService.executeTask(task1);
-                UpdateMediaRedundancyTask task2 = new UpdateMediaRedundancyTask(user.toSummaryDTO());
-                aperiodicExecutorTaskService.executeTask(task2);
+                aperiodicExecutorTaskService.executeTask(new UpdateUserTask(user));
+                aperiodicExecutorTaskService.executeTask(new UpdateMediaRedundancyTask(user.toSummaryDTO()));
             }
 
-            // create a task which updates the user redundancy inside reviews
+            // Create a task which updates the user redundancy inside reviews
             if (user.getUsername() != null || user.getProfilePicUrl() != null || user.getBirthday() != null || user.getLocation() != null) {
-                UpdateReviewRedundancyTask task2 = new UpdateReviewRedundancyTask(null, user.toSummaryDTO());
-                aperiodicExecutorTaskService.executeTask(task2);
+                aperiodicExecutorTaskService.executeTask(new UpdateReviewRedundancyTask(null, user.toSummaryDTO()));
             }
 
         } catch (DAOException e) {
@@ -150,18 +146,11 @@ public class UserServiceImpl implements UserService {
         try {
             userDAO.deleteUser(userId);
 
-            // create a task which deletes the node User in Neo4j
-            DeleteUserTask task1 = new DeleteUserTask(userId);
-            aperiodicExecutorTaskService.executeTask(task1);
+            // Create a task which deletes the node User in Neo4j
+            aperiodicExecutorTaskService.executeTask(new DeleteUserTask(userId));
 
-            // create a task which remove the reviews with the deleted user
-            // RemoveReviewsWithoutUserTask task2 = new RemoveReviewsWithoutUserTask(userId);
-            // aperiodicExecutorTaskService.executeTask(task2);
-
-            // create a task which remove the reviews in the latest reviews list with the deleted user
-            // RemoveLatestReviewsWithoutUserTask task3 = new RemoveLatestReviewsWithoutUserTask(userId);
-            // aperiodicExecutorTaskService.executeTask(task3);
-
+            // Create a task which remove the reviews of the reviews and the redundancy
+            // of the recent reviews of the user in the media content
 
         } catch (DAOException e) {
             if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {
@@ -222,9 +211,8 @@ public class UserServiceImpl implements UserService {
 
         } catch (DAOException e) {
             handleDAOException(e);
+            return false;
         }
-
-        return false;
     }
 
     /**
@@ -240,9 +228,8 @@ public class UserServiceImpl implements UserService {
 
         } catch (DAOException e) {
             handleDAOException(e);
+            return null;
         }
-
-        return null;
     }
 
 
@@ -259,15 +246,15 @@ public class UserServiceImpl implements UserService {
 
         } catch (DAOException e) {
             handleDAOException(e);
+            return null;
         }
-
-        return null;
     }
 
     @Override
     public List<UserSummaryDTO> searchFirstNUsers(String username, Integer n, String loggedUser) throws BusinessException {
         try {
             return userDAO.searchFirstNUsers(username, n, loggedUser);
+
         } catch (DAOException e) {
             throw new BusinessException(e.getMessage());
         }
@@ -276,7 +263,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserSummaryDTO> suggestUsers(String userId) throws BusinessException {
         try {
-            return userDAONeo4J.suggestUsers(userId);
+            return userDAONeo4J.suggestUsers(userId, null);
+
         } catch (DAOException e) {
             if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {
                 throw new BusinessException(BusinessExceptionType.DATABASE_ERROR, e.getMessage());
@@ -292,6 +280,7 @@ public class UserServiceImpl implements UserService {
                 throw new BusinessException("Invalid criteria");
             }
             return userDAO.getDistribution(criteria);
+
         } catch (DAOException e) {
             if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {
                 throw new BusinessException(BusinessExceptionType.DATABASE_ERROR, e.getMessage());
@@ -304,6 +293,7 @@ public class UserServiceImpl implements UserService {
     public Double averageAgeUsers() throws BusinessException {
         try {
             return userDAO.averageAgeUsers();
+
         } catch (DAOException e) {
             if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {
                 throw new BusinessException(BusinessExceptionType.DATABASE_ERROR, e.getMessage());
@@ -319,6 +309,7 @@ public class UserServiceImpl implements UserService {
                 throw new BusinessException("Invalid criteria");
             }
             return userDAO.averageAppRating(criteria);
+
         } catch (DAOException e) {
             if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {
                 throw new BusinessException(BusinessExceptionType.DATABASE_ERROR, e.getMessage());
@@ -331,6 +322,7 @@ public class UserServiceImpl implements UserService {
     public Map<String, Double> averageAppRatingByAgeRange() throws BusinessException {
         try {
             return userDAO.averageAppRatingByAgeRange();
+
         } catch (DAOException e) {
             if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {
                 throw new BusinessException(BusinessExceptionType.DATABASE_ERROR, e.getMessage());

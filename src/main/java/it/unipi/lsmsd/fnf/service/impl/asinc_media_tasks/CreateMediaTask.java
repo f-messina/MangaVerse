@@ -20,7 +20,6 @@ import static it.unipi.lsmsd.fnf.service.exception.BusinessException.handleDAOEx
 public class CreateMediaTask extends Task {
     private final MediaContentDAO<Anime> animeDAONeo4j;
     private final MediaContentDAO<Manga> mangaDAOMongo;
-
     private final MediaContent media;
 
     public CreateMediaTask(MediaContent media) {
@@ -33,11 +32,10 @@ public class CreateMediaTask extends Task {
     @Override
     public void executeJob() throws BusinessException {
         try {
-            if (media instanceof Anime anime) {
+            if (media instanceof Anime anime)
                 animeDAONeo4j.saveMediaContent(anime);
-            } else if (media instanceof Manga manga) {
+            else if (media instanceof Manga manga)
                 mangaDAOMongo.saveMediaContent(manga);
-            }
 
         } catch (DAOException e) {
             handleDAOException(e);

@@ -15,7 +15,12 @@ import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
 import it.unipi.lsmsd.fnf.model.mediaContent.MediaContent;
 import it.unipi.lsmsd.fnf.service.enums.ExecutorTaskServiceType;
 import it.unipi.lsmsd.fnf.service.impl.asinc_media_tasks.CreateMediaTask;
+import it.unipi.lsmsd.fnf.service.impl.asinc_media_tasks.DeleteMediaTask;
+import it.unipi.lsmsd.fnf.service.impl.asinc_media_tasks.UpdateMediaRedundancyTask;
+import it.unipi.lsmsd.fnf.service.impl.asinc_media_tasks.UpdateMediaTask;
+import it.unipi.lsmsd.fnf.service.impl.asinc_review_tasks.UpdateReviewRedundancyTask;
 import it.unipi.lsmsd.fnf.service.impl.asinc_user_tasks.CreateUserTask;
+import it.unipi.lsmsd.fnf.service.impl.asinc_user_tasks.UpdateUserTask;
 import it.unipi.lsmsd.fnf.service.interfaces.ExecutorTaskService;
 import it.unipi.lsmsd.fnf.service.interfaces.MediaContentService;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
@@ -70,9 +75,8 @@ public class MediaContentServiceImpl implements MediaContentService {
                 mangaDAOMongoDB.saveMediaContent(manga);
             }
 
-            // Create a task which adds a new node Anime in Neo4j
-            CreateMediaTask task = new CreateMediaTask(mediaContent);
-            aperiodicExecutorTaskService.executeTask(task);
+            // Create a task which adds a new node Anime/Manga in Neo4j
+            aperiodicExecutorTaskService.executeTask(new CreateMediaTask(mediaContent));
 
         } catch (DAOException e) {
             switch (e.getType()) {
@@ -101,6 +105,12 @@ public class MediaContentServiceImpl implements MediaContentService {
                     reviewDAOMongoDB.updateMediaRedundancy(new MangaDTO(manga.getId(), manga.getTitle()));
             }
 
+            // Create a task which update the node Anime/Manga in Neo4j
+            if (mediaContent.getTitle() != null || mediaContent.getImageUrl() != null) {
+                aperiodicExecutorTaskService.executeTask(new UpdateMediaTask(mediaContent));
+                aperiodicExecutorTaskService.executeTask(new UpdateReviewRedundancyTask(mediaContent.toDTO(), null));
+            }
+
         } catch (DAOException e) {
             switch (e.getType()) {
                 case DUPLICATED_KEY -> throw new BusinessException(BusinessExceptionType.DUPLICATED_KEY, e.getMessage());
@@ -124,6 +134,8 @@ public class MediaContentServiceImpl implements MediaContentService {
             else
                 mangaDAOMongoDB.deleteMediaContent(mediaId);
 
+            // Create a task which delete the node Anime/Manga in Neo4j
+            aperiodicExecutorTaskService.executeTask(new DeleteMediaTask(mediaId, type));
 
         } catch (DAOException e) {
             if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {

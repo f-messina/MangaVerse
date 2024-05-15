@@ -29,5 +29,5 @@ public interface UserDAO {
     boolean isFollowing(String followerUserId, String followedUserId) throws DAOException;
     List<UserSummaryDTO> getFollowedUsers(String userId) throws DAOException;
     List<UserSummaryDTO> getFollowers(String userId) throws DAOException;
-    List<UserSummaryDTO> suggestUsers(String userId) throws DAOException;
+    List<UserSummaryDTO> suggestUsers(String userId, Integer limit) throws DAOException;
 }

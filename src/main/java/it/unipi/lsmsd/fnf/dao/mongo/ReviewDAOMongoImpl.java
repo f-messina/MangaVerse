@@ -365,6 +365,7 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
                     update = set("latest_reviews", document.getList("latest_reviews", Document.class));
                 getCollection("manga").updateOne(eq("_id", document.getObjectId("_id")), update);
             });
+
         } catch (MongoException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
         } catch (Exception e) {
@@ -407,6 +408,26 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
         }
     }
 
+    @Override
+    public void deleteReviewsByMedia(String mediaId) throws DAOException {
+        try {
+            MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
+
+            Bson filter = or(eq("anime.id", new ObjectId(mediaId)), eq("manga.id", new ObjectId(mediaId)));
+
+            if (reviewCollection.deleteMany(filter).getDeletedCount() == 0) {
+                throw new MongoException("ReviewDAOMongoImpl: deleteReviewsByMedia: No reviews found");
+            }
+
+        } catch (MongoException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
+        } catch (Exception e) {
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+
+        }
+    }
+
     /**
      * Deletes all reviews associated with users not present in the database.
      * This method is used to clean up the database when users are deleted.
@@ -426,6 +447,26 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
             //update the recipe data in all the reviews
             if (reviewCollection.deleteMany(nin("user.id", userIds)).getDeletedCount() == 0) {
                 // TODO: add a log message
+            }
+
+        } catch (MongoException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
+        } catch (Exception e) {
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+
+        }
+    }
+
+    @Override
+    public void deleteReviewsByAuthor(String userId) throws DAOException {
+        try {
+            MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
+
+            Bson filter = eq("user.id", new ObjectId(userId));
+
+            if (reviewCollection.deleteMany(filter).getDeletedCount() == 0) {
+                throw new MongoException("ReviewDAOMongoImpl: deleteReviewsByAuthor: No reviews found");
             }
 
         } catch (MongoException e) {

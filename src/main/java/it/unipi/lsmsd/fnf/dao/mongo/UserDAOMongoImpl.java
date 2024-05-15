@@ -462,7 +462,7 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override
-    public List<UserSummaryDTO> suggestUsers(String userId) throws DAOException {
+    public List<UserSummaryDTO> suggestUsers(String userId, Integer limit) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
 }

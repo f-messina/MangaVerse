@@ -110,12 +110,10 @@ public class ReviewServiceImpl implements ReviewService {
             reviewDAO.deleteReview(reviewId);
 
             // delete the redundant data in the media content if is in latest reviews
-            if (mediaContentType.equals(MediaContentType.MANGA))
-                if (mangaDAO.isInLatestReviews(mediaId, reviewId))
-                    mangaDAO.refreshLatestReviews(mediaId);
-            else if (mediaContentType.equals(MediaContentType.ANIME))
-                if (animeDAO.isInLatestReviews(mediaId, reviewId))
-                    animeDAO.refreshLatestReviews(mediaId);
+            if (mediaContentType.equals(MediaContentType.MANGA) && mangaDAO.isInLatestReviews(mediaId, reviewId))
+                mangaDAO.refreshLatestReviews(mediaId);
+            else if (animeDAO.isInLatestReviews(mediaId, reviewId))
+                animeDAO.refreshLatestReviews(mediaId);
 
         } catch (DAOException e){
             if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {

@@ -160,7 +160,7 @@ public class Neo4JDAOImplTest{
     @Test
     public void testSuggestUsers() throws DAOException {
         UserDAONeo4JImpl  neo4JDAO = new UserDAONeo4JImpl ();
-        List<UserSummaryDTO> followerUsers = neo4JDAO.suggestUsers("6577877be68376234760585d");
+        List<UserSummaryDTO> followerUsers = neo4JDAO.suggestUsers("6577877be68376234760585d", 10);
         for(UserSummaryDTO user : followerUsers)
             System.out.println(user);
 
