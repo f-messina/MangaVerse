@@ -9,13 +9,22 @@ import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
+import it.unipi.lsmsd.fnf.model.mediaContent.MediaContent;
+import it.unipi.lsmsd.fnf.utils.Constants;
 import org.neo4j.driver.*;
 import org.neo4j.driver.Record;
+import org.neo4j.driver.exceptions.Neo4jException;
+import org.neo4j.driver.exceptions.TransientException;
+import org.neo4j.driver.types.Node;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static org.neo4j.driver.Values.parameters;
 
 /**
  * Implementation of the MediaContentDAO interface for handling Anime objects in Neo4j.
@@ -25,16 +34,115 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
     /**
      * Creates a node for an Anime in the Neo4j database.
      *
-     * @param animeDTO The AnimeDTO object containing information about the Anime to be created.
+     * @param anime The Anime object to be saved.
      * @throws DAOException If an error occurs while creating the Anime node.
      */
     @Override
-    public void createMediaContentNode(MediaContentDTO animeDTO) throws DAOException {
+    public void saveMediaContent(Anime anime) throws DAOException {
         try (Session session = getSession()) {
             String query = "CREATE (a:Anime {id: $id, title: $title, picture: $picture})";
-            session.run(query, Map.of("id", animeDTO.getId(), "title", animeDTO.getTitle(), "picture", animeDTO.getImageUrl()));
+            session.executeWrite(tx -> {
+                boolean created = tx.run(query, parameters("id", anime.getId(), "title", anime.getTitle(), "picture", anime.getImageUrl())).hasNext();
+
+                if(!created)
+                    throw new Neo4jException("Error while creating user node with username " + anime.getTitle());
+
+                return null;
+            });
+
+        } catch (TransientException e) {
+            throw new DAOException(DAOExceptionType.TRANSIENT_ERROR, e.getMessage());
+
+        } catch (Neo4jException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
         } catch (Exception e) {
-            throw new DAOException("Error while creating anime node", e);
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+        }
+    }
+
+    /**
+     * Updates an Anime node in the Neo4j database.
+     *
+     * @param anime The Anime object to be updated.
+     * @throws DAOException If an error occurs while updating the Anime node.
+     */
+    @Override
+    public void updateMediaContent(Anime anime) throws DAOException {
+        try (Session session = getSession()) {
+            StringBuilder queryBuilder = new StringBuilder("MATCH (a:Anime {id: $id}) SET");
+
+            if (anime.getTitle() == null && anime.getImageUrl() == null) {
+                throw new IllegalArgumentException("Anime object must have at least one field to update");
+            }
+            Map<String, Object> param = new HashMap<>();
+            param.put("id", anime.getId());
+            if (anime.getTitle() != null) {
+                queryBuilder.append(" a.title = $title");
+                param.put("title", anime.getTitle());
+            }
+            if (anime.getImageUrl() != null) {
+                if (anime.getTitle() != null)
+                    queryBuilder.append(",");
+                queryBuilder.append(" a.picture = $picture");
+                param.put("picture", anime.getImageUrl());
+            }
+            String query = queryBuilder.toString();
+
+            session.executeWrite(tx -> {
+                boolean updated = tx.run(query, param).hasNext();
+
+                if(!updated)
+                    throw new Neo4jException("Error while updating anime node with ID " + anime.getId());
+
+                return null;
+            });
+
+        } catch (TransientException e) {
+            throw new DAOException(DAOExceptionType.TRANSIENT_ERROR, e.getMessage());
+
+        } catch (Neo4jException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
+        } catch (Exception e) {
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+        }
+    }
+
+    /**
+     * Deletes an Anime node from the Neo4j database.
+     *
+     * @param animeId The ID of the Anime node to be deleted.
+     * @throws DAOException If an error occurs while deleting the Anime node.
+     */
+    @Override
+    public void deleteMediaContent(String animeId) throws DAOException {
+        try (Session session = getSession()) {
+            String query = "MATCH (a:Anime {id: $id}) DETACH DELETE a";
+            session.run(query, Map.of("id", animeId));
+        } catch (Exception e) {
+            throw new DAOException("Error while deleting anime node", e);
+        }
+
+        try (Session session = getSession()) {
+            String query = "MATCH (a:Anime {id: $id}) DETACH DELETE a";
+            session.executeWrite(tx -> {
+                boolean deleted = tx.run(query, parameters("id", animeId)).hasNext();
+
+                if(!deleted)
+                    throw new Neo4jException("Error while deleting anime node with ID " + animeId);
+
+                return null;
+            });
+
+        } catch (TransientException e) {
+            throw new DAOException(DAOExceptionType.TRANSIENT_ERROR, e.getMessage());
+
+        } catch (Neo4jException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
+        } catch (Exception e) {
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
 
@@ -49,12 +157,25 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
     public void like(String userId, String animeId) throws DAOException {
         try (Session session = getSession()) {
             String query = "MATCH (u:User {id: $userId}), (a:Anime {id: $animeId}) " +
-                    "MERGE (u)-[r:LIKE]->(a) " +
+                    "WHERE NOT (u)-[:LIKE]->(r) CREATE (u)-[:LIKE {date: $date} ]->(r)" +
                     "SET r.date = datetime() ";
 
-            session.run(query, Map.of("userId", userId, "animeId", animeId));
+            session.executeWrite(tx -> {
+                 boolean created = tx.run(query, parameters("userId", userId, "animeId", animeId, "date", LocalDateTime.now())).hasNext();
+                 if(!created)
+                    throw new Neo4jException("Error while creating like relationship between user " + userId + " and anime " + animeId);
+
+                return null;
+            });
+
+        } catch (TransientException e) {
+            throw new DAOException(DAOExceptionType.TRANSIENT_ERROR, e.getMessage());
+
+        } catch (Neo4jException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
         } catch (Exception e) {
-            throw new DAOException("Error while liking anime", e);
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
 
@@ -69,9 +190,24 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
     public void unlike(String userId, String animeId) throws DAOException {
         try (Session session = getSession()) {
             String query = "MATCH (u:User {id: $userId})-[r:LIKE]->(a:Anime {id: $animeId}) DELETE r";
-            session.run(query, Map.of("userId", userId, "animeId", animeId));
+
+            session.executeWrite(tx -> {
+                boolean deleted = tx.run(query, parameters("userId", userId, "animeId", animeId)).hasNext();
+
+                if(!deleted)
+                    throw new Neo4jException("Error while deleting like relationship between user " + userId + " and anime " + animeId);
+
+                return null;
+            });
+
+        } catch (TransientException e) {
+            throw new DAOException(DAOExceptionType.TRANSIENT_ERROR, e.getMessage());
+
+        } catch (Neo4jException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
         } catch (Exception e) {
-            throw new DAOException("Error while unliking anime", e);
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
 
@@ -86,12 +222,21 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
     @Override
     public boolean isLiked(String userId, String mediaId) throws DAOException {
         try (Session session = getSession()) {
+            String query = "MATCH (u:User {id: $userId})-[r:LIKE]->(m:Anime {id: $mediaId}) RETURN r";
+            Boolean liked = session.executeRead(
+                    tx -> tx.run(query, parameters("userId", userId, "mediaId", mediaId)).hasNext()
+            );
 
-            String query = "MATCH (u:User {id: $userId})-[r:LIKE]->(m:Anime {id: $mediaId}) RETURN count(r) > 0 as isLiked";
-            Record record = session.run(query, Map.of("userId", userId, "mediaId", mediaId)).single();
-            return record.get("isLiked").asBoolean();
+            if (liked == null)
+                throw new Neo4jException("Error while checking like relationship between user " + userId + " and anime " + mediaId);
+
+            return liked;
+
+        } catch (Neo4jException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
         } catch (Exception e) {
-            throw new DAOException("Error while checking if anime is liked", e);
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
 
@@ -105,11 +250,20 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
     @Override
     public List<AnimeDTO> getLiked(String userId) throws DAOException {
         try (Session session = getSession()) {
-            String query = "MATCH (u:User {id: $userId})-[:LIKE]->(a:Anime) RETURN a.id as id, a.title as title, a.picture as picture";
-            List<Record> records = session.run(query, Map.of("userId", userId)).list();
-            return records.stream().map(this::recordToAnimeDTO).collect(Collectors.toList());
+            String query = "MATCH (u:User {id: $userId})-[:LIKE]->(a:Anime) RETURN a AS anime";
+            List<Record> records = session.executeRead(
+                    tx -> tx.run(query, parameters("userId", userId))
+            ).list();
+
+            return records.isEmpty() ? null : records.stream()
+                    .map(this::recordToAnimeDTO)
+                    .toList();
+
+        } catch (Neo4jException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
         } catch (Exception e) {
-            throw new DAOException("Error while getting liked anime", e);
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
 
@@ -130,8 +284,12 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
             List<Record> records = session.run(query, Map.of("userId", userId)).list();
 
             return records.stream().map(this::recordToAnimeDTO).collect(Collectors.toList());
+
+        } catch (Neo4jException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
         } catch (Exception e) {
-            throw new DAOException("Error while getting suggested anime", e);
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
 
@@ -156,8 +314,12 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
                     LIMIT 5""";
             List<Record> records = session.run(query, Map.of("startDate", startDate, "endDate", endDate)).list();
             return records.stream().map(this::recordToAnimeDTO).collect(Collectors.toList());
+
+        } catch (Neo4jException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
         } catch (Exception e) {
-            throw new DAOException("Error while getting trend anime by year", e);
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
 
@@ -192,9 +354,12 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
             }
 
             return genreNames;
-        }
-        catch (Exception e) {
-            throw new DAOException("Error while getting trend anime genres by year", e);
+
+        } catch (Neo4jException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
+        } catch (Exception e) {
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
 
@@ -216,8 +381,12 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
             List<Record> records = session.run(query).list();
 
             return records.stream().map(this::recordToAnimeDTO).collect(Collectors.toList());
-        } catch(Exception e) {
-            throw new DAOException("Error while getting trend anime by likes", e);
+
+        } catch (Neo4jException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
+        } catch (Exception e) {
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
 
@@ -245,38 +414,28 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
             }
 
             return genreNames;
+
+        } catch (Neo4jException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
         } catch (Exception e) {
-            throw new DAOException("Error while getting trend anime genres", e);
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
 
     private AnimeDTO recordToAnimeDTO(Record record) {
-        Map<String, Object> map = record.asMap();
         AnimeDTO animeDTO = new AnimeDTO();
-        animeDTO.setId(String.valueOf(map.get("id")));
-        animeDTO.setTitle((String)map.get("title"));
-        if (map.get("picture") != null) {
-            animeDTO.setImageUrl((String)map.get("picture"));
-        }
+        Node userNode = record.get("anime").asNode();
+        animeDTO.setId(userNode.get("id").asString());
+        animeDTO.setTitle(userNode.get("title").asString());
+        animeDTO.setImageUrl(userNode.get("picture").asString());
 
         return animeDTO;
     }
 
     // Methods available only in MongoDB
     @Override
-    public void saveMediaContent(Anime mediaContent) throws DAOException {
-        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
-    }
-    @Override
-    public void updateMediaContent(Anime mediaContent) throws DAOException {
-        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
-    }
-    @Override
     public Anime readMediaContent(String id) throws DAOException {
-        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
-    }
-    @Override
-    public void deleteMediaContent(String id) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
     @Override

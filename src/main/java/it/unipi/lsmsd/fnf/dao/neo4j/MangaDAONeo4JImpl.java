@@ -12,11 +12,17 @@ import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
 
 import org.neo4j.driver.*;
 import org.neo4j.driver.Record;
+import org.neo4j.driver.exceptions.Neo4jException;
+import org.neo4j.driver.exceptions.TransientException;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static org.neo4j.driver.Values.parameters;
+
 /**
  * Implementation of the MediaContentDAO interface for handling Manga objects in Neo4j.
  */
@@ -25,18 +31,115 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
     /**
      * Creates a node for a Manga in the Neo4j database.
      *
-     * @param mangaDTO The MangaDTO object containing information about the Manga to be created.
+     * @param manga The Manga object to be saved.
      * @throws DAOException If an error occurs while creating the Manga node.
      */
     @Override
-    public void createMediaContentNode(MediaContentDTO mangaDTO) throws DAOException {
+    public void saveMediaContent(Manga manga) throws DAOException {
         try (Session session = getSession()) {
+            String query = "CREATE (a:Manga {id: $id, title: $title, picture: $picture})";
+            session.executeWrite(tx -> {
+                boolean created = tx.run(query, parameters("id", manga.getId(), "title", manga.getTitle(), "picture", manga.getImageUrl())).hasNext();
 
-            String query = "CREATE (m:Manga {id: $id, title: $title, picture: $picture})";
-            session.run(query, Map.of("id", mangaDTO.getId(), "title", mangaDTO.getTitle(), "picture", mangaDTO.getImageUrl()));
+                if(!created)
+                    throw new Neo4jException("Error while creating user node with username " + manga.getTitle());
+
+                return null;
+            });
+
+        } catch (TransientException e) {
+            throw new DAOException(DAOExceptionType.TRANSIENT_ERROR, e.getMessage());
+
+        } catch (Neo4jException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
 
         } catch (Exception e) {
-            throw new DAOException("Error while creating manga node", e);
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+        }
+    }
+
+    /**
+     * Updates an Manga node in the Neo4j database.
+     *
+     * @param manga The Manga object to be updated.
+     * @throws DAOException If an error occurs while updating the Manga node.
+     */
+    @Override
+    public void updateMediaContent(Manga manga) throws DAOException {
+        try (Session session = getSession()) {
+            StringBuilder queryBuilder = new StringBuilder("MATCH (a:Manga {id: $id}) SET");
+
+            if (manga.getTitle() == null && manga.getImageUrl() == null) {
+                throw new IllegalArgumentException("Manga object must have at least one field to update");
+            }
+            Map<String, Object> param = new HashMap<>();
+            param.put("id", manga.getId());
+            if (manga.getTitle() != null) {
+                queryBuilder.append(" a.title = $title");
+                param.put("title", manga.getTitle());
+            }
+            if (manga.getImageUrl() != null) {
+                if (manga.getTitle() != null)
+                    queryBuilder.append(",");
+                queryBuilder.append(" a.picture = $picture");
+                param.put("picture", manga.getImageUrl());
+            }
+            String query = queryBuilder.toString();
+
+            session.executeWrite(tx -> {
+                boolean updated = tx.run(query, param).hasNext();
+
+                if(!updated)
+                    throw new Neo4jException("Error while updating manga node with ID " + manga.getId());
+
+                return null;
+            });
+
+        } catch (TransientException e) {
+            throw new DAOException(DAOExceptionType.TRANSIENT_ERROR, e.getMessage());
+
+        } catch (Neo4jException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
+        } catch (Exception e) {
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+        }
+    }
+
+    /**
+     * Deletes an Manga node from the Neo4j database.
+     *
+     * @param mangaId The ID of the Manga node to be deleted.
+     * @throws DAOException If an error occurs while deleting the Manga node.
+     */
+    @Override
+    public void deleteMediaContent(String mangaId) throws DAOException {
+        try (Session session = getSession()) {
+            String query = "MATCH (a:Manga {id: $id}) DETACH DELETE a";
+            session.run(query, Map.of("id", mangaId));
+        } catch (Exception e) {
+            throw new DAOException("Error while deleting manga node", e);
+        }
+
+        try (Session session = getSession()) {
+            String query = "MATCH (a:Manga {id: $id}) DETACH DELETE a";
+            session.executeWrite(tx -> {
+                boolean deleted = tx.run(query, parameters("id", mangaId)).hasNext();
+
+                if(!deleted)
+                    throw new Neo4jException("Error while deleting manga node with ID " + mangaId);
+
+                return null;
+            });
+
+        } catch (TransientException e) {
+            throw new DAOException(DAOExceptionType.TRANSIENT_ERROR, e.getMessage());
+
+        } catch (Neo4jException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
+        } catch (Exception e) {
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
 
@@ -55,8 +158,15 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
                     "SET r.date = datetime() ";
 
             session.run(query, Map.of("userId", userId, "mangaId", mangaId));
+
+        } catch (TransientException e) {
+            throw new DAOException(DAOExceptionType.TRANSIENT_ERROR, e.getMessage());
+
+        } catch (Neo4jException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
         } catch (Exception e) {
-            throw new DAOException("Error while liking manga", e);
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
 
@@ -72,8 +182,15 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
         try (Session session = getSession()) {
             String query = "MATCH (u:User {id: $userId})-[r:LIKE]->(m:Manga {id: $mangaId}) DELETE r";
             session.run(query, Map.of("userId", userId, "mangaId", mangaId));
+
+        } catch (TransientException e) {
+            throw new DAOException(DAOExceptionType.TRANSIENT_ERROR, e.getMessage());
+
+        } catch (Neo4jException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
         } catch (Exception e) {
-            throw new DAOException("Error while unliking manga", e);
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
 
@@ -91,8 +208,12 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
             String query = "MATCH (u:User {id: $userId})-[r:LIKE]->(m:Manga {id: $mediaId}) RETURN count(r) > 0 as isLiked";
             Record record = session.run(query, Map.of("userId", userId, "mediaId", mediaId)).single();
             return record.get("isLiked").asBoolean();
+
+        } catch (Neo4jException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
         } catch (Exception e) {
-            throw new DAOException("Error while checking if manga is liked", e);
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
 
@@ -109,23 +230,14 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
             String query = "MATCH (u:User {id: $userId})-[:LIKE]->(m:Manga) RETURN m.id as id, m.title as title, m.picture as picture";
             List<Record> records = session.run(query, Map.of("userId", userId)).list();
             return records.stream().map(this::recordToMangaDTO).collect(Collectors.toList());
+
+        } catch (Neo4jException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
         } catch (Exception e) {
-            throw new DAOException("Error while getting liked manga", e);
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
-
-    private MangaDTO recordToMangaDTO(Record record) {
-        Map<String, Object> map = record.asMap();
-        MangaDTO mangaDTO = new MangaDTO();
-        mangaDTO.setId(String.valueOf(map.get("id")));
-        mangaDTO.setTitle((String)map.get("title"));
-        if (map.get("picture") != null) {
-            mangaDTO.setImageUrl((String)map.get("picture"));
-        }
-
-        return mangaDTO;
-    }
-
 
     /**
      * Retrieves a list of suggested MangaDTO objects for a user from the Neo4j database.
@@ -143,8 +255,12 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
                     "LIMIT 5";
             List<Record> records = session.run(query, Map.of("userId", userId)).list();
             return records.stream().map(this::recordToMangaDTO).collect(Collectors.toList());
+
+        } catch (Neo4jException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
         } catch (Exception e) {
-            throw new DAOException("Error while getting suggested manga", e);
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
         }
 
     }
@@ -171,8 +287,12 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
             List<Record> records = session.run(query, Map.of("startDate", startDate, "endDate", endDate)).list();
 
             return records.stream().map(this::recordToMangaDTO).collect(Collectors.toList());
+
+        } catch (Neo4jException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
         } catch (Exception e) {
-            throw new DAOException("Error while getting trend manga by year", e);
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
 
@@ -209,18 +329,14 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
             }
 
             return genreNames;
+
+        } catch (Neo4jException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
         } catch (Exception e) {
-            throw new DAOException("Error while getting trend manga genres by year", e);
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
-
-    /**
-     * Retrieves a list of trending MangaDTO objects by genre from the Neo4j database.
-     *
-     * @return A list of MangaDTO objects representing trending Manga by genre.
-     * @throws DAOException If an error occurs while retrieving trending Manga by genre.
-     */
-
 
     /**
      * Retrieves a list of trending MangaDTO objects by likes from the Neo4j database.
@@ -239,8 +355,12 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
             List<Record> records = session.run(query).list();
 
             return records.stream().map(this::recordToMangaDTO).collect(Collectors.toList());
-        } catch(Exception e) {
-            throw new DAOException("Error while getting trend manga by likes", e);
+
+        } catch (Neo4jException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
+        } catch (Exception e) {
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
 
@@ -270,26 +390,31 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
             }
 
             return genreNames;
+
+        } catch (Neo4jException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
         } catch (Exception e) {
-            throw new DAOException("Error while getting trend manga genres", e);
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
 
+    private MangaDTO recordToMangaDTO(Record record) {
+        Map<String, Object> map = record.asMap();
+        MangaDTO mangaDTO = new MangaDTO();
+        mangaDTO.setId(String.valueOf(map.get("id")));
+        mangaDTO.setTitle((String)map.get("title"));
+        if (map.get("picture") != null) {
+            mangaDTO.setImageUrl((String)map.get("picture"));
+        }
+
+        return mangaDTO;
+    }
+
+
     // Methods available only in MongoDB
     @Override
-    public void saveMediaContent(Manga mediaContent) throws DAOException {
-        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
-    }
-    @Override
-    public void updateMediaContent(Manga mediaContent) throws DAOException {
-        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
-    }
-    @Override
     public Manga readMediaContent(String id) throws DAOException {
-        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
-    }
-    @Override
-    public void deleteMediaContent(String id) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
     @Override

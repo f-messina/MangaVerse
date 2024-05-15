@@ -67,7 +67,7 @@ public class UserServiceImpl implements UserService {
 
             userDAO.saveUser(userRegistrationDTO);
 
-            //create a task which adds a new node User in Neo4j
+            // Create a task which adds a new node User in Neo4j
             CreateUserTask task = new CreateUserTask(userRegistrationDTO);
             aperiodicExecutorTaskService.executeTask(task);
 

@@ -1,8 +1,9 @@
 package it.unipi.lsmsd.fnf.dao.mongo;
 
 import com.mongodb.MongoException;
-import com.mongodb.client.model.BsonField;
+import com.mongodb.client.model.Accumulators;
 import com.mongodb.client.model.Facet;
+import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.result.UpdateResult;
 import com.mongodb.client.MongoCollection;
@@ -214,19 +215,37 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
     @Override
     public void updateAverageRatingMedia() throws DAOException {
         try {
+            // get the list of anime and manga IDs whose average rating has not been updated
+            Bson filter = or(eq("avg_rating_last_update", false), exists("avg_rating_last_update", false));
+            List<ObjectId> animeIds = getCollection("anime").find(filter)
+                    .projection(new Document("_id", 1)).into(new ArrayList<>()).stream()
+                    .map(document -> document.getObjectId("_id"))
+                    .toList();
+            List<ObjectId> mangaIds = getCollection("manga").find(filter)
+                    .projection(new Document("_id", 1)).into(new ArrayList<>()).stream()
+                    .map(document -> document.getObjectId("_id"))
+                    .toList();
+
             // get the average rating for each media content
             MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
 
             List<Bson> pipeline = List.of(
-                    match(exists("rating", true)),
                     facet(
                             // anime facet
                             new Facet("anime", List.of(
+                                    match(and(
+                                            in("anime.id", animeIds),
+                                            exists("rating", true)
+                                    )),
                                     group("$anime.id", avg("average_rating", "$rating")),
                                     project(computed("average_rating", new Document("$round", List.of("$average_rating", 2))))
                             )),
                             // manga facet
                             new Facet("manga", List.of(
+                                    match(and(
+                                            in("manga.id", mangaIds),
+                                            exists("rating", true)
+                                    )),
                                     group("$manga.id", avg("average_rating", "$rating")),
                                     project(computed("average_rating", new Document("$round", List.of("$average_rating", 2))))
                             ))
@@ -234,15 +253,14 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
             );
             Document result = reviewCollection.aggregate(pipeline).first();
 
-            // Update the average rating in the anime and manga collections
-            MongoCollection<Document> animeCollection = getCollection("anime");
-            MongoCollection<Document> mangaCollection = getCollection("manga");
-
+            // update the average rating for each media content and set the last update flag to true
             Optional.ofNullable(result).orElse(new Document()).getList("anime", Document.class).forEach(document -> {
-                animeCollection.updateOne(eq("_id", document.getObjectId("_id")), set("average_rating", document.get("average_rating")));
+                Bson update = combine(set("average_rating", document.get("average_rating")), set("avg_rating_last_update", true));
+                getCollection("anime").updateOne(eq("_id", document.getObjectId("_id")), update);
             });
             Optional.ofNullable(result).orElse(new Document()).getList("manga", Document.class).forEach(document -> {
-                mangaCollection.updateOne(eq("_id", document.getObjectId("_id")), set("average_rating", document.get("average_rating")));
+                Bson update = combine(set("average_rating", document.get("average_rating")), set("avg_rating_last_update", true));
+                getCollection("manga").updateOne(eq("_id", document.getObjectId("_id")), update);
             });
 
         } catch (MongoException e) {
@@ -277,6 +295,80 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
         } catch (Exception e) {
             throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
 
+        }
+    }
+
+    @Override
+    public void refreshLatestReviewsOnUserDeletion(String userId) throws DAOException {
+        try {
+            // Get the IDs of the anime and manga that the user has reviewed recently
+            List<ObjectId> animeIds = getCollection("anime").find(Filters.elemMatch("latest_reviews", eq("user.id", new ObjectId(userId))))
+                    .map(doc -> doc.getObjectId("_id")).into(new ArrayList<>());
+            List<ObjectId> mangaIds = getCollection("manga").find(Filters.elemMatch("latest_reviews", eq("user.id", new ObjectId(userId))))
+                    .map(doc -> doc.getObjectId("_id")).into(new ArrayList<>());
+
+            // Get the latest reviews for the anime and manga that the user has reviewed recently
+            MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
+
+            List<Bson> pipeline = List.of(
+                    facet(
+                            // anime facet
+                            new Facet("anime", List.of(
+                                    match(in("anime.id", animeIds)),
+                                    sort(descending("date")),
+                                    group("$anime.id", Accumulators.push("latest_reviews", "$$ROOT")),
+                                    project(computed("latest_reviews", new Document("$map",
+                                            new Document("input", new Document("$slice", Arrays.asList("$latest_reviews", 5)))
+                                                    .append("in", new Document()
+                                                                    .append("user", "$$this.user")
+                                                                    .append("comment", "$$this.comment")
+                                                                    .append("date", "$$this.date")
+                                                                    .append("rating", "$$this.rating")
+                                                    )
+                                    )))
+                            )),
+                            new Facet("manga", List.of(
+                                    match(in("manga.id", mangaIds)),
+                                    sort(descending("date")),
+                                    group("$manga.id", Accumulators.push("latest_reviews", "$$ROOT")),
+                                    project(computed("latest_reviews", new Document("$map",
+                                            new Document("input", new Document("$slice", Arrays.asList("$latest_reviews", 5)))
+                                                    .append("in", new Document()
+                                                            .append("user", "$$this.user")
+                                                            .append("comment", "$$this.comment")
+                                                            .append("date", "$$this.date")
+                                                            .append("rating", "$$this.rating")
+                                                    )
+                                    )))
+                            ))
+                    )
+            );
+            Document latestReviews = reviewCollection.aggregate(pipeline).first();
+
+            // Update the latest reviews for the anime and manga
+            if (latestReviews == null) {
+                return;
+            }
+            latestReviews.getList("anime", Document.class).forEach(document -> {
+                Bson update;
+                if (document.getList("latest_reviews", Document.class).isEmpty())
+                    update = unset("latest_reviews");
+                else
+                    update = set("latest_reviews", document.getList("latest_reviews", Document.class));
+                getCollection("anime").updateOne(eq("_id", document.getObjectId("_id")), update);
+            });
+            latestReviews.getList("manga", Document.class).forEach(document -> {
+                Bson update;
+                if (document.getList("latest_reviews", Document.class).isEmpty())
+                    update = unset("latest_reviews");
+                else
+                    update = set("latest_reviews", document.getList("latest_reviews", Document.class));
+                getCollection("manga").updateOne(eq("_id", document.getObjectId("_id")), update);
+            });
+        } catch (MongoException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+        } catch (Exception e) {
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
 

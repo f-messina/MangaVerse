@@ -193,6 +193,17 @@ class AnimeDAOMongoImplTest {
         }
     }
 
+    // ATTENTION: USE IT TO RESET THE LATEST REVIEWS
+    // test 1 : refresh all latest reviews
+    @Test
+    void refreshAllLatestReviewsTest(){
+        AnimeDAOMongoImpl animeDAO = new AnimeDAOMongoImpl();
+        assertDoesNotThrow(() -> {
+            animeDAO.refreshAllLatestReviews();
+            System.out.println("All latest reviews refreshed");
+        });
+    }
+
     @Test
     void isInLatestReviewsTest() throws DAOException {
         AnimeDAOMongoImpl animeDAO = new AnimeDAOMongoImpl();

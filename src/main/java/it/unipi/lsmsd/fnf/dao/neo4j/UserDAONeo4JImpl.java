@@ -11,9 +11,12 @@ import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import it.unipi.lsmsd.fnf.utils.Constants;
 import org.neo4j.driver.Record;
 import org.neo4j.driver.Session;
+import org.neo4j.driver.Value;
 import org.neo4j.driver.exceptions.Neo4jException;
 import org.neo4j.driver.exceptions.TransientException;
+import org.neo4j.driver.types.Node;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -57,20 +60,26 @@ public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
     public void updateUser(User user) throws DAOException {
         try (Session session = getSession()) {
             StringBuilder queryBuilder = new StringBuilder("MATCH (u:User {id: $id}) SET");
+
+            if (user.getUsername() == null && user.getProfilePicUrl() == null) {
+                throw new IllegalArgumentException("Manga object must have at least one field to update");
+            }
+            Map<String, Object> param = new HashMap<>();
+            param.put("id", user.getId());
             if (user.getUsername() != null) {
                 queryBuilder.append(" u.username = $username");
+                param.put("username", user.getUsername());
             }
             if (user.getProfilePicUrl() != null) {
-                if (user.getUsername() != null) {
+                if (user.getUsername() != null)
                     queryBuilder.append(",");
-                }
                 queryBuilder.append(" u.picture = $picture");
+                param.put("picture", user.getProfilePicUrl());
             }
             String query = queryBuilder.toString();
 
-
             session.executeWrite(tx -> {
-                boolean updated = tx.run(query, parameters("id", user.getId(), "username", user.getUsername(), "picture", user.getProfilePicUrl())).hasNext();
+                boolean updated = tx.run(query, param).hasNext();
 
                 if(!updated)
                     throw new Neo4jException("Error while updating user node with ID " + user.getId());
@@ -156,9 +165,14 @@ public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
     public void unfollow(String followerUserId, String followingUserId) throws DAOException {
         try (Session session = getSession()) {
             String query = "MATCH (follower:User {id: $followerUserId})-[r:FOLLOWS]->(following:User {id: $followingUserId}) DELETE r";
-            session.executeWrite(tx ->
-                    tx.run(query, parameters("followerUserId", followerUserId, "followingUserId", followingUserId))
-            );
+            session.executeWrite(tx -> {
+                    boolean deleted = tx.run(query, parameters("followerUserId", followerUserId, "followingUserId", followingUserId)).hasNext();
+
+                    if(!deleted)
+                        throw new Neo4jException("Error while deleting follow relationship between users with IDs " + followerUserId + " and " + followingUserId);
+
+                    return null;
+            });
 
         } catch (TransientException e) {
             throw new DAOException(DAOExceptionType.TRANSIENT_ERROR, e.getMessage());
@@ -174,13 +188,15 @@ public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
     @Override
     public boolean isFollowing(String followerUserId, String followingUserId) throws DAOException {
         try (Session session = getSession()) {
-            String query = "MATCH (follower:User {id: $followerUserId})-[r:FOLLOWS]->(following:User {id: $followingUserId}) RETURN COUNT(r) > 0 as isFollowed";
-            return session.executeRead(
-                    tx -> tx.run(query, parameters("followerUserId", followerUserId, "followingUserId", followingUserId))
-            ).single().get("isFollowed").asBoolean();
+            String query = "MATCH (follower:User {id: $followerUserId})-[r:FOLLOWS]->(following:User {id: $followingUserId}) RETURN r";
+            Boolean followed = session.executeRead(
+                    tx -> tx.run(query, parameters("followerUserId", followerUserId, "followingUserId", followingUserId)).hasNext()
+            );
 
-        } catch (TransientException e) {
-            throw new DAOException(DAOExceptionType.TRANSIENT_ERROR, e.getMessage());
+            if (followed == null)
+                throw new Neo4jException("Error while checking if user with ID " + followerUserId + " is following user with ID " + followingUserId);
+
+            return followed;
 
         } catch (Neo4jException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
@@ -200,18 +216,15 @@ public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
     @Override
     public List<UserSummaryDTO> getFollowedUsers(String userId) throws DAOException {
         try (Session session = getSession()) {
-            String query = "MATCH (follower:User {id: $userId})-[:FOLLOWS]-(f:User) " +
-                    "RETURN f.id as id, f.username as username, f.picture as picture";
+            String query = "MATCH (u:User {id: $userId})-[:FOLLOWS]-(followed:User) " +
+                    "RETURN followed AS user";
             List<Record> records = session.executeRead(
                     tx -> tx.run(query, parameters("userId", userId))
             ).list();
 
             return records.isEmpty() ? null : records.stream()
-                    .map(this::recordToRegisteredUserDTO)
+                    .map(this::recordToUserSummaryDTO)
                     .toList();
-
-        } catch (TransientException e) {
-            throw new DAOException(DAOExceptionType.TRANSIENT_ERROR, e.getMessage());
 
         } catch (Neo4jException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
@@ -231,17 +244,14 @@ public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
     @Override
     public List<UserSummaryDTO> getFollowers(String userId) throws DAOException {
         try (Session session = getSession()) {
-            String query = "MATCH (f:User)-[:FOLLOWS]->(following:User {id: $userId}) RETURN f.id as id, f.username as username, f.picture as picture";
+            String query = "MATCH (follower:User)-[:FOLLOWS]->(u:User {id: $userId}) RETURN follower AS user";
             List<Record> records = session.executeRead(
                     tx -> tx.run(query, parameters("userId", userId))
             ).list();
 
             return records.isEmpty() ? null : records.stream()
-                    .map(this::recordToRegisteredUserDTO)
+                    .map(this::recordToUserSummaryDTO)
                     .toList();
-
-        } catch (TransientException e) {
-            throw new DAOException(DAOExceptionType.TRANSIENT_ERROR, e.getMessage());
 
         } catch (Neo4jException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
@@ -272,11 +282,8 @@ public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
             ).list();
 
             return records.isEmpty() ? null : records.stream()
-                    .map(this::recordToRegisteredUserDTO)
+                    .map(this::recordToUserSummaryDTO)
                     .toList();
-
-        } catch (TransientException e) {
-            throw new DAOException(DAOExceptionType.TRANSIENT_ERROR, e.getMessage());
 
         } catch (Neo4jException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
@@ -286,12 +293,13 @@ public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
         }
     }
 
-    private UserSummaryDTO recordToRegisteredUserDTO(Record record) {
-        Map<String, Object> map = record.asMap();
+    private UserSummaryDTO recordToUserSummaryDTO(Record record) {
         UserSummaryDTO userSummaryDTO = new UserSummaryDTO();
-        userSummaryDTO.setId(String.valueOf(map.get("id")));
-        userSummaryDTO.setUsername((String) map.get("username"));
-        userSummaryDTO.setProfilePicUrl((String) map.get("picture"));
+        Node userNode = record.get("user").asNode();
+        userSummaryDTO.setId(userNode.get("id").asString());
+        userSummaryDTO.setUsername(userNode.get("username").asString());
+        userSummaryDTO.setProfilePicUrl(userNode.get("picture").asString());
+
         return userSummaryDTO;
     }
 

@@ -1055,7 +1055,7 @@ public class ManagerServlet extends HttpServlet {
                 String mediaId = request.getParameter("mediaId");
                 if (mediaId != null){
 
-                    mediaContentService.removeMediaContent(mediaId, MediaContentType.MANGA);
+                    mediaContentService.deleteMediaContent(mediaId, MediaContentType.MANGA);
                     response.setStatus(HttpServletResponse.SC_OK);
                     response.getWriter().write("Manga deleted successfully");
                 } else {

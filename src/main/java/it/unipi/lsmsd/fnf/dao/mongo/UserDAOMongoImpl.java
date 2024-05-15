@@ -66,7 +66,7 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
             Optional.ofNullable(usersCollection.insertOne(RegisteredUserToDocument(user, Constants .DEFAULT_PROFILE_PICTURE)).getInsertedId())
                     .map(result -> result.asObjectId().getValue().toHexString())
                     .map(id -> { user.setId(id); return id; })
-                    .orElseThrow(() -> new MongoException("UserDAOMongoImpl: saveUser: No user inserted"));
+                    .orElseThrow(() -> new MongoException("UserDAOMongoImpl: saveUser: Error saving user"));
 
         } catch (MongoException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());

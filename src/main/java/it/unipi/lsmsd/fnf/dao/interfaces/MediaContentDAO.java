@@ -23,11 +23,9 @@ public interface MediaContentDAO<T extends MediaContent> {
     void refreshLatestReviews(String mediaId) throws DAOException;
     boolean isInLatestReviews(String mediaId, String reviewId) throws DAOException;
     void updateUserRedundancy(UserSummaryDTO userSummaryDTO) throws DAOException;
-
     Map<String, Double> getBestCriteria(String criteria, boolean isArray, int page) throws DAOException;
 
     // Neo4J specific methods
-    <E extends MediaContentDTO> void createMediaContentNode(E mediaContentDTO) throws DAOException;
     void like(String userId, String mediaContentId) throws DAOException;
     void unlike(String userId, String mediaContentId) throws DAOException;
     boolean isLiked(String userId, String mediaId) throws DAOException;
