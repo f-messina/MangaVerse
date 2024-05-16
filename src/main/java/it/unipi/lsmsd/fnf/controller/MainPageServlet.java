@@ -24,6 +24,7 @@ import java.io.IOException;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -72,6 +73,7 @@ public class MainPageServlet extends HttpServlet {
             case "sortAndPaginate" -> handleSortAndPaginate(request,response);
             case "suggestions" -> handleSuggestion(request,response);
             case "toggleLike" -> handleToggleLike(request,response);
+            //TODO: add the follow and unfollow cases, I have done the handle functions
             case null, default -> request.getRequestDispatcher(targetJSP).forward(request,response);
         }
     }
@@ -184,4 +186,45 @@ public class MainPageServlet extends HttpServlet {
 
     private void handleSuggestion(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
     }
+
+    private void handleFollow(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+        Optional<String> followerUserId = Optional.ofNullable(request.getParameter("followerUserId"));
+        if (followerUserId.isEmpty()) {
+            request.getRequestDispatcher("/error.jsp").forward(request, response);
+            return;
+        }
+        Optional<String> followingUserId = Optional.ofNullable(request.getParameter("followingUserId"));
+        if (followingUserId.isEmpty()) {
+            request.getRequestDispatcher("/error.jsp").forward(request, response);
+            return;
+        }
+        try {
+            String followerId = followerUserId.get();
+            String followingId = followingUserId.get();
+            userService.follow(followerId, followingId);
+        } catch (BusinessException e) {
+            request.getRequestDispatcher("/error.jsp").forward(request, response);
+        }
+    }
+
+    private void handleUnfollow(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+        Optional<String> followerUserId = Optional.ofNullable(request.getParameter("followerUserId"));
+        if (followerUserId.isEmpty()) {
+            request.getRequestDispatcher("/error.jsp").forward(request, response);
+            return;
+        }
+        Optional<String> followingUserId = Optional.ofNullable(request.getParameter("followingUserId"));
+        if (followingUserId.isEmpty()) {
+            request.getRequestDispatcher("/error.jsp").forward(request, response);
+            return;
+        }
+        try {
+            String followerId = followerUserId.get();
+            String followingId = followingUserId.get();
+            userService.unfollow(followerId, followingId);
+        } catch (BusinessException e) {
+            request.getRequestDispatcher("/error.jsp").forward(request, response);
+        }
+    }
+
 }

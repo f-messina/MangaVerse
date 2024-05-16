@@ -10,6 +10,7 @@ import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import org.neo4j.driver.Record;
 import org.neo4j.driver.Session;
+import org.slf4j.ILoggerFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
  * Implementation of the UserDAO interface for handling User-related operations in Neo4j.
  */
 public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
+
 
     /**
      * Creates a node for a RegisteredUser in the Neo4j database.
@@ -28,7 +30,7 @@ public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
     @Override
     public void createNode(UserSummaryDTO userSummaryDTO) throws DAOException {
         try (Session session = getSession()) {
-
+            //Query is correct
             String query = "CREATE (u:User {id: $id, username: $username, picture: $picture})";
             session.run(query, Map.of("id", userSummaryDTO.getId(), "title", userSummaryDTO.getUsername(), "picture", userSummaryDTO.getProfilePicUrl()));
 
@@ -46,6 +48,9 @@ public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
      */
     @Override
     public void follow(String followerUserId, String followingUserId) throws DAOException {
+        if (followerUserId.equals(followingUserId)) {
+            throw new DAOException(DAOExceptionType.SELF_FOLLOW, "User cannot follow themselves");
+        }
         try (Session session = getSession()) {
             String query = "MATCH (follower:User {id: $followerUserId}), (following:User {id: $followingUserId}) " +
                     "MERGE (follower)-[r:FOLLOWS]->(following) ";

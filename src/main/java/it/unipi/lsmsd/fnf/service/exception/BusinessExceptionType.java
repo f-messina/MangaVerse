@@ -10,5 +10,5 @@ public enum BusinessExceptionType {
     NO_NAME,
     NO_USER,
     EMPTY_FIELDS,
-    NOT_FOUND
+    SELF_FOLLOW, NOT_FOUND
 }

@@ -140,6 +140,7 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
 
             Bson filter = eq("_id", new ObjectId(userId));
 
+            //TODO: check if this method is useful: in the launch of exception, it doesn't do anything
             if (usersCollection.deleteOne(filter).getDeletedCount() == 0) {
                 throw new MongoException("UserDAOMongoImpl: deleteUser: No user found");
             }
