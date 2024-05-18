@@ -19,6 +19,8 @@ public class User extends RegisteredUser {
     private String location;
     private List<Review> reviews = new ArrayList<>();
     private List<MediaContent> likedMediaContent = new ArrayList<>();
+    private Integer followers;
+    private Integer followed;
 
     public User() {
     }
@@ -63,6 +65,14 @@ public class User extends RegisteredUser {
         return likedMediaContent;
     }
 
+    public Integer getFollowers() {
+        return followers;
+    }
+
+    public Integer getFollowed() {
+        return followed;
+    }
+
     public void setUsername(String username) {
         this.username = username;
     }
@@ -87,50 +97,33 @@ public class User extends RegisteredUser {
         this.reviews = reviews;
     }
 
-    /**
-     * Sets the media content liked by the user.
-     * @param likedMediaContent The media content liked by the user.
-     */
+    public void setFollowers(Integer followers) {
+        this.followers = followers;
+    }
+
+    public void setFollowed(Integer followed) {
+        this.followed = followed;
+    }
     public void setLikedMediaContent(List<MediaContent> likedMediaContent) {
         this.likedMediaContent = likedMediaContent;
     }
 
-    /**
-     * Adds a new review created by the user.
-     * @param review The review created by the user.
-     */
     public void addReview(Review review) {
         this.reviews.add(review);
     }
 
-    /**
-     * Removes a review created by the user.
-     * @param review The review to be removed.
-     */
     public void removeReview(Review review) {
         this.reviews.remove(review);
     }
 
-    /**
-     * Adds new media content liked by the user.
-     * @param mediaContent The media content liked by the user.
-     */
     public void addLikedMediaContent(MediaContent mediaContent) {
         this.likedMediaContent.add(mediaContent);
     }
 
-    /**
-     * Removes media content liked by the user.
-     * @param mediaContentId The ID of the media content to be removed.
-     */
     public void removeLikedMediaContent(String mediaContentId) {
         this.likedMediaContent.removeIf(content -> content.getId().equals(mediaContentId));
     }
 
-    /**
-     * Overrides the default toString method to provide a custom string representation of the User object.
-     * @return A string representation of the User object.
-     */
     @Override
     public String toString() {
         return "User{" +
@@ -140,6 +133,10 @@ public class User extends RegisteredUser {
                 ", description='" + description + '\'' +
                 ", gender='" + gender + '\'' +
                 ", location='" + location + '\'' +
+                ", reviews=" + reviews +
+                ", likedMediaContent=" + likedMediaContent +
+                ", followers=" + followers +
+                ", followed=" + followed +
                 '}';
     }
 

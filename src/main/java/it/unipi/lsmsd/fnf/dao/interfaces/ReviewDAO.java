@@ -23,10 +23,8 @@ public interface ReviewDAO {
     void deleteReviewsByAuthor(String userId) throws DAOException;
     PageDTO<ReviewDTO> getReviewByUser(String userId, Integer page) throws DAOException;
     PageDTO<ReviewDTO> getReviewByMedia(String mediaId, MediaContentType type, Integer page) throws DAOException;
-    Double getUserAverageRating(String userId) throws DAOException;
-    Map<String, Double> getMediaContentRatingByYear(MediaContentType type, String mediaContentId, int startYear, int endYear) throws  DAOException;
-    Map<String, Double> getMediaContentRatingByMonth (MediaContentType type, String mediaContentId, int year) throws DAOException;
-    //For users: suggestions based on birthday year and location. For example: show the 25 anime or manga with the highest average ratings in Italy.
+    Map<String, Double> getMediaContentRatingByYear(MediaContentType type, String mediaContentId, int startYear, int endYear) throws  DAOException; // MANAGER
+    Map<String, Double> getMediaContentRatingByMonth (MediaContentType type, String mediaContentId, int year) throws DAOException; // MANAGER
     PageDTO<MediaContentDTO> suggestMediaContent(MediaContentType mediaContentType, String criteria, String type) throws DAOException;
 }
 

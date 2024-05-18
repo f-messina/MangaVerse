@@ -14,7 +14,6 @@ public interface ReviewService {
     void deleteReview(String reviewId, String mediaId, MediaContentType mediaContentType) throws BusinessException;
     PageDTO<ReviewDTO> findByUser(String userId, int page) throws BusinessException;
     PageDTO<ReviewDTO> findByMedia(String mediaId, MediaContentType mediaType, int page) throws BusinessException;
-    Double getUserAverageRating(String userId) throws BusinessException;
     Map<String, Double> getMediaContentRatingByYear(MediaContentType type, String mediaContentId, int startYear, int endYear) throws BusinessException;
     Map<String, Double> getMediaContentRatingByMonth(MediaContentType type, String mediaContentId, int year) throws BusinessException;
     PageDTO<MediaContentDTO> suggestMediaContent(MediaContentType mediaContentType, String criteria, String type) throws BusinessException;

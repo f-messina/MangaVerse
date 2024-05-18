@@ -229,23 +229,6 @@ class ReviewDAOMongoImplTest {
         System.out.println("Non-existent review retrieval failed");
     }
 
-    // test 1: get the average rating of a user
-    // test 2: get the average rating of a non-existent user
-    @Test
-    public void averageRatingUserTest() {
-        ReviewDAOMongoImpl reviewDAO = new ReviewDAOMongoImpl();
-
-        // test 1
-        assertDoesNotThrow(() -> {
-            Double averageRating = reviewDAO.getUserAverageRating("6577877be68376234760585b");
-            System.out.println(averageRating);
-        });
-
-        // test 2
-        assertThrows(DAOException.class, () -> reviewDAO.getUserAverageRating("6577877be683762347605213"));
-        System.out.println("Non-existent user average rating retrieval failed");
-    }
-
     // test 1: get anime rating by year
     // test 2: get manga rating by year
     // test 3: get non-existent media rating by year

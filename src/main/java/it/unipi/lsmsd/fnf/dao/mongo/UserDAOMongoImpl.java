@@ -4,6 +4,7 @@ package it.unipi.lsmsd.fnf.dao.mongo;
 import com.mongodb.MongoException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.*;
+import com.mongodb.client.result.UpdateResult;
 import it.unipi.lsmsd.fnf.dao.exception.*;
 import it.unipi.lsmsd.fnf.dao.exception.enums.DAOExceptionType;
 import it.unipi.lsmsd.fnf.dao.exception.enums.DuplicatedExceptionType;
@@ -11,6 +12,7 @@ import it.unipi.lsmsd.fnf.dao.interfaces.UserDAO;
 import it.unipi.lsmsd.fnf.dto.LoggedUserDTO;
 import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
 import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
+import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.model.enums.UserType;
 import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
@@ -70,7 +72,6 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
 
         } catch (MongoException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
-
         } catch (DuplicatedException e) {
             switch (e.getType()) {
                 case DUPLICATED_NAME:
@@ -111,9 +112,10 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
             Bson update = new Document("$set", RegisteredUserToDocument(user))
                     .append("$unset", UsertToUnsetUserFieldsDocument(user));
 
-            if (usersCollection.updateOne(filter, update).getMatchedCount() == 0) {
+            UpdateResult result = usersCollection.updateOne(filter, update);
+            if (result.getMatchedCount() == 0) {
                 throw new MongoException("UserDAOMongoImpl: updateUser: No user found");
-            } else if (usersCollection.updateOne(filter, update).getModifiedCount() == 0) {
+            } else if (result.getModifiedCount() == 0) {
                 throw new MongoException("UserDAOMongoImpl: updateUser: No user updated");
             }
 
@@ -273,11 +275,13 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
             List<Bson> pipeline = new ArrayList<>();
             if (criteriaOfSearch.equals("birthday") || criteriaOfSearch.equals("joined_on")) {
                 pipeline.addAll(List.of(
+                        match(exists(criteriaOfSearch)),
                         project(fields(computed("year", new Document("$year", "$" + criteriaOfSearch)), include("app_rating" ))),
                         group("$year", sum("count", 1)),
                         sort(descending("count"))));
             } else if (criteriaOfSearch.equals("location") || criteriaOfSearch.equals("gender")) {
                 pipeline.addAll(List.of(
+                        match(exists(criteriaOfSearch)),
                         project(fields(include(criteriaOfSearch, "app_rating"))),
                         group("$" + criteriaOfSearch, sum("count", 1)),
                         sort(descending("count"))));
@@ -307,51 +311,13 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
         }
     }
 
-    /**
-     * Calculates the average age of users.
-     *
-     * @return The average age of users.
-     * @throws DAOException If an error occurs while calculating the average age.
-     */
     @Override
-    public Double averageAgeUsers() throws DAOException {
+    public Map<String, Double> averageAppRating(String criteriaOfSearch) throws DAOException {
         try {
             MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
 
             List<Bson> pipeline = List.of(
-                    match(exists("birthday")),
-                    computed("age", new Document("$floor", new Document("$divide",
-                            Arrays.asList(
-                                    new Document("$subtract", Arrays.asList(new Date(), "$birthday")),
-                                    1000L * 60 * 60 * 24 * 365
-                            )
-                    ))),
-                    group(null, avg("averageAge", "$age"))
-            );
-            List<Document> aggregationResult = usersCollection.aggregate(pipeline).into(new ArrayList<>());
-
-            if (!aggregationResult.isEmpty()) {
-                return aggregationResult.getFirst().getDouble("averageAge");
-            } else {
-                throw new MongoException("UserDAOMongoImpl: averageAgeUsers: No data found");
-            }
-        }
-
-        catch (MongoException e){
-            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
-        }
-        catch (Exception e){
-            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
-        }
-    }
-
-    @Override
-    public Map<String, Double> averageAppRating (String criteriaOfSearch) throws DAOException {
-        try {
-            MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
-
-            List<Bson> pipeline = List.of(
-                    match(exists(criteriaOfSearch)),
+                    match(and(exists(criteriaOfSearch), exists("app_rating"))),
                     group("$" + criteriaOfSearch, avg("averageAppRating", "$app_rating")),
                     sort(descending("averageAppRating"))
             );
@@ -383,26 +349,27 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
             // Define the boundaries for the age ranges and the output fields
             List<Long> boundaries = Arrays.asList(0L, 13L, 20L, 30L, 40L, 50L);
             BsonField[] outputFields = {
-                    new BsonField("averageAppRating", new Document("$avg", "$app_rating"))
+                    new BsonField("avg_app_rating", new Document("$avg", "$app_rating"))
             };
             BucketOptions options = new BucketOptions()
                     .defaultBucket(50L)
                     .output(outputFields);
 
             List<Bson> pipeline = List.of(
-                    match(exists("birthday")),
+                    match(and(exists("birthday"), exists("app_rating"))),
                     project(fields(
                             computed("age", new Document("$floor", new Document("$divide",
-                                    Arrays.asList(
-                                            new Document("$subtract", Arrays.asList(new Date(), "$birthday")),
-                                            1000L * 60 * 60 * 24 * 365
-                                    )
-                            )))
+                            Arrays.asList(
+                                    new Document("$subtract", Arrays.asList(new Date(), "$birthday")),
+                                    1000L * 60 * 60 * 24 * 365
+                            )))),
+                            include("app_rating")
                     )),
                     bucket("$age", boundaries, options)
             );
 
             List<Document> aggregationResult = usersCollection.aggregate(pipeline).into(new ArrayList<>());
+
             if (aggregationResult.isEmpty()) {
                 throw new MongoException("UserDAOMongoImpl: averageAppRatingByAgeRange: No data found");
             }
@@ -410,7 +377,7 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
             Map<String, Double> map = new LinkedHashMap<>();
             for (Document doc : aggregationResult) {
                 String ageRange = convertIntegerToAgeRange(doc.getLong("_id"));
-                map.put(ageRange, doc.getDouble("averageAppRating"));
+                map.put(ageRange, doc.getDouble("avg_app_rating"));
             }
 
             return map;
@@ -419,6 +386,54 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
         } catch (Exception e){
             throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+        }
+    }
+
+    @Override
+    public void updateNumOfFollowers(String userId, Integer followers) throws DAOException {
+        try {
+            MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
+
+            Bson filter = eq("_id", new ObjectId(userId));
+            Bson update = new Document("$set", new Document("followers", followers));
+
+            UpdateResult result = usersCollection.updateOne(filter, update);
+            if (result.getMatchedCount() == 0) {
+                throw new MongoException("UserDAOMongoImpl: updateNumOfFollowers: User not found");
+            } else if (result.getModifiedCount() == 0) {
+                throw new MongoException("UserDAOMongoImpl: updateNumOfFollowers: Number of followers not updated");
+            }
+
+        } catch (MongoException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
+        } catch (Exception e) {
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+
+        }
+    }
+
+    @Override
+    public void updateNumOfFollowed(String userId, Integer followed) throws DAOException {
+        try {
+            MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
+
+            Bson filter = eq("_id", new ObjectId(userId));
+            Bson update = new Document("$set", new Document("followed", followed));
+
+            UpdateResult result = usersCollection.updateOne(filter, update);
+            if (result.getMatchedCount() == 0) {
+                throw new MongoException("UserDAOMongoImpl: updateNumOfFollowers: User not found");
+            } else if (result.getModifiedCount() == 0) {
+                throw new MongoException("UserDAOMongoImpl: updateNumOfFollowers: Number of followers not updated");
+            }
+
+        } catch (MongoException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
+        } catch (Exception e) {
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+
         }
     }
 
@@ -454,15 +469,32 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
     }
 
     @Override
-    public List<UserSummaryDTO> getFollowedUsers(String userId) throws DAOException {
+    public Integer getNumOfFollowers(String userId) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
+
     @Override
-    public List<UserSummaryDTO> getFollowers(String userId) throws DAOException {
+    public Integer getNumOfFollowed(String userId) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
+
     @Override
-    public List<UserSummaryDTO> suggestUsers(String userId, Integer limit) throws DAOException {
+    public List<UserSummaryDTO> getFollowedUsers(String userId, String loggedUser) throws DAOException {
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
+    }
+
+    @Override
+    public List<UserSummaryDTO> getFollowers(String userId, String loggedUserId) throws DAOException {
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
+    }
+
+    @Override
+    public List<UserSummaryDTO> suggestUsersByCommonFollows(String userId, Integer limit) throws DAOException {
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
+    }
+
+    @Override
+    public List<UserSummaryDTO> suggestUsersByCommonLikes(String userId, Integer limit, MediaContentType type) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
 }

@@ -4,6 +4,7 @@ import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dto.LoggedUserDTO;
 import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
+import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 
@@ -15,19 +16,25 @@ public interface UserDAO {
     void saveUser(UserRegistrationDTO user) throws DAOException;
     void updateUser(User user) throws DAOException;
     void deleteUser(String userId) throws DAOException;
+
+    List<UserSummaryDTO> suggestUsersByCommonLikes(String userId, Integer limit, MediaContentType type) throws DAOException;
+
     LoggedUserDTO authenticate(String email, String password) throws DAOException;
     RegisteredUser readUser(String userId, boolean onlyStatsInfo) throws DAOException;
     List<UserSummaryDTO> searchFirstNUsers(String username, Integer n, String loggedUser) throws DAOException;
-    Map<String, Integer> getDistribution(String criteria) throws DAOException;
-    Double averageAgeUsers() throws DAOException;
-    Map<String, Double> averageAppRating(String criteria) throws DAOException;
-    Map<String, Double> averageAppRatingByAgeRange() throws DAOException;
+    Map<String, Integer> getDistribution(String criteria) throws DAOException; // MANAGER
+    Map<String, Double> averageAppRating(String criteria) throws DAOException; // MANAGER
+    Map<String, Double> averageAppRatingByAgeRange() throws DAOException; // MANAGER
+    void updateNumOfFollowers(String userId, Integer followers) throws DAOException;
+    void updateNumOfFollowed(String userId, Integer followed) throws DAOException;
 
     //Neo4J queries
     void follow(String followerUserId, String followedUserId) throws DAOException;
     void unfollow(String followerUserId, String followedUserId) throws DAOException;
     boolean isFollowing(String followerUserId, String followedUserId) throws DAOException;
-    List<UserSummaryDTO> getFollowedUsers(String userId) throws DAOException;
-    List<UserSummaryDTO> getFollowers(String userId) throws DAOException;
-    List<UserSummaryDTO> suggestUsers(String userId, Integer limit) throws DAOException;
+    Integer getNumOfFollowers(String userId) throws DAOException;
+    Integer getNumOfFollowed(String userId) throws DAOException;
+    List<UserSummaryDTO> getFollowedUsers(String userId, String loggedUser) throws DAOException;
+    List<UserSummaryDTO> getFollowers(String userId, String loggedUserId) throws DAOException;
+    List<UserSummaryDTO> suggestUsersByCommonFollows(String userId, Integer limit) throws DAOException;
 }

@@ -18,12 +18,11 @@ public interface UserService {
     List<UserSummaryDTO> suggestUsers(String userId) throws BusinessException;
     List<UserSummaryDTO> searchFirstNUsers(String username, Integer n, String loggedUser) throws BusinessException;
     Map<String, Integer> getDistribution(String criteria) throws BusinessException;
-    Double averageAgeUsers() throws BusinessException;
     Map<String, Double> averageAppRating(String criteria) throws BusinessException;
     Map<String, Double> averageAppRatingByAgeRange() throws BusinessException;
     void follow(String followerUserId, String followingUserId) throws BusinessException;
     void unfollow(String followerUserId, String followingUserId) throws BusinessException;
     boolean isFollowing(String followerUserId, String followingUserId) throws BusinessException;
-    List<UserSummaryDTO> getFollowing(String userId) throws BusinessException;
-    List<UserSummaryDTO> getFollowers(String userId) throws BusinessException;
+    List<UserSummaryDTO> getFollowing(String userId, String loggedUserId) throws BusinessException;
+    List<UserSummaryDTO> getFollowers(String userId, String loggedUserId) throws BusinessException;
 }

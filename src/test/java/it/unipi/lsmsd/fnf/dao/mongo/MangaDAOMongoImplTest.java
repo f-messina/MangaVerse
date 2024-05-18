@@ -240,6 +240,19 @@ class MangaDAOMongoImplTest {
         });
     }
 
+    @Test
+    public void updateNumOfLikesTest() throws DAOException {
+        MangaDAOMongoImpl mangaDAO = new MangaDAOMongoImpl();
+        List<MangaDTO> mangaList = mangaDAO.search(List.of(Map.of("title", "Sample Manga")), Map.of("title", 1), 1).getEntries();
+        if (!mangaList.isEmpty()) {
+            String mangaId = mangaList.getFirst().getId();
+            assertDoesNotThrow(() -> {
+                mangaDAO.updateNumOfLikes(mangaId, 1);
+                System.out.println("Number of reviews updated");
+            });
+        }
+    }
+
     private Manga createSampleManga() {
         Manga manga = new Manga();
         manga.setTitle("Sample Manga");

@@ -251,6 +251,8 @@ public class DocumentUtils {
                 .map(DocumentUtils::nestedDocumentToReview)
                 .toList();
         anime.setReviews(reviewList);
+
+        anime.setLikes(doc.getInteger("likes"));
         return anime;
     }
 
@@ -372,6 +374,8 @@ public class DocumentUtils {
                 .toList();
         manga.setReviews(reviewList);
 
+        manga.setLikes(document.getInteger("likes"));
+
         return manga;
     }
 
@@ -424,6 +428,8 @@ public class DocumentUtils {
             normalUser.setDescription(doc.getString("description"));
             normalUser.setGender(Gender.fromString(doc.getString("gender")));
             normalUser.setLocation(doc.getString("location"));
+            normalUser.setFollowers(doc.getInteger("followers"));
+            normalUser.setFollowed(doc.getInteger("followed"));
             user = normalUser;
         }
 

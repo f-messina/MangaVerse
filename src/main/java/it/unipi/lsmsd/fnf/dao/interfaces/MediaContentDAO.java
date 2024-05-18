@@ -13,7 +13,6 @@ import java.util.Map;
 public interface MediaContentDAO<T extends MediaContent> {
 
     // MongoDB specific methods
-    List<String> getMediaContentGenresTrend() throws DAOException;
     void saveMediaContent(T mediaContent) throws DAOException;
     void updateMediaContent(T mediaContent) throws DAOException;
     T readMediaContent(String id) throws DAOException;
@@ -23,15 +22,17 @@ public interface MediaContentDAO<T extends MediaContent> {
     void refreshLatestReviews(String mediaId) throws DAOException;
     boolean isInLatestReviews(String mediaId, String reviewId) throws DAOException;
     void updateUserRedundancy(UserSummaryDTO userSummaryDTO) throws DAOException;
-    Map<String, Double> getBestCriteria(String criteria, boolean isArray, int page) throws DAOException;
+    Map<String, Double> getBestCriteria(String criteria, boolean isArray, int page) throws DAOException; // MANAGER OPZIONALE
+    void updateNumOfLikes(String mediaId, Integer likes) throws DAOException;
 
     // Neo4J specific methods
     void like(String userId, String mediaContentId) throws DAOException;
     void unlike(String userId, String mediaContentId) throws DAOException;
     boolean isLiked(String userId, String mediaId) throws DAOException;
+    Integer getNumOfLikes(String mediaId) throws DAOException;
     List<? extends MediaContentDTO> getLiked(String userId) throws DAOException;
     List<? extends MediaContentDTO> getSuggested(String userId) throws DAOException;
-    List<? extends MediaContentDTO> getTrendMediaContentByYear(int year) throws DAOException;
-    List<String> getMediaContentGenresTrendByYear(int year) throws DAOException;
+    Map<? extends MediaContentDTO, Integer> getTrendMediaContentByYear(int year) throws DAOException; // MANAGER OPZIONALE
+    Map<String, Integer> getMediaContentGenresTrendByYear(int year) throws DAOException; // MANAGER
     List<? extends MediaContentDTO> getMediaContentTrendByLikes() throws DAOException;
 }

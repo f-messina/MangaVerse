@@ -229,7 +229,7 @@ class AnimeDAOMongoImplTest {
     @Test
     void updateUserRedundancyTest() {
         AnimeDAOMongoImpl animeDAO = new AnimeDAOMongoImpl();
-        UserSummaryDTO user = new UserSummaryDTO("66360c83bbca010b06d85602", "newUsername", "newPicture.jpg");
+        UserSummaryDTO user = new UserSummaryDTO("66360c83bbca010b06d85602", "exampleUser", "exampleUser.jpg");
         assertDoesNotThrow(() -> {
             animeDAO.updateUserRedundancy(user);
             System.out.println("User redundancy updated");
@@ -245,6 +245,19 @@ class AnimeDAOMongoImplTest {
                 System.out.println("Tag: " + entry.getKey() + ", Average rating: " + entry.getValue());
             }
         });
+    }
+
+    @Test
+    public void updateNumOfLikesTest() throws DAOException {
+        AnimeDAOMongoImpl animeDAO = new AnimeDAOMongoImpl();
+        List<AnimeDTO> animeList = animeDAO.search(List.of(Map.of("title", "Sample Anime")), Map.of("title", 1), 1).getEntries();
+        if (!animeList.isEmpty()) {
+            String animeId = animeList.getFirst().getId();
+            assertDoesNotThrow(() -> {
+                animeDAO.updateNumOfLikes(animeId, 1);
+                System.out.println("Number of likes updated");
+            });
+        }
     }
 
     private Anime createSampleAnime() {

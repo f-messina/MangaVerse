@@ -1,4 +1,4 @@
-package it.unipi.lsmsd.fnf.service.impl.asinc_media_tasks;
+package it.unipi.lsmsd.fnf.service.impl.asinc_review_tasks;
 
 import it.unipi.lsmsd.fnf.dao.DAOLocator;
 import it.unipi.lsmsd.fnf.dao.enums.DataRepositoryEnum;

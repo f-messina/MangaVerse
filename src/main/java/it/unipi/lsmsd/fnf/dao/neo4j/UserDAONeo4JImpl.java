@@ -6,16 +6,19 @@ import it.unipi.lsmsd.fnf.dao.exception.enums.DAOExceptionType;
 import it.unipi.lsmsd.fnf.dto.LoggedUserDTO;
 import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
+import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import it.unipi.lsmsd.fnf.utils.Constants;
 import org.neo4j.driver.Record;
+import org.neo4j.driver.Result;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.Value;
 import org.neo4j.driver.exceptions.Neo4jException;
 import org.neo4j.driver.exceptions.TransientException;
 import org.neo4j.driver.types.Node;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,13 +38,14 @@ public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
     @Override
     public void saveUser(UserRegistrationDTO user) throws DAOException {
         try (Session session = getSession()) {
-            String query = "CREATE (u:User {id: $id, username: $username, picture: $picture})";
+            String query = "CREATE (u:User {id: $id, username: $username, picture: $picture}) RETURN u";
+
             session.executeWrite(tx -> {
-                boolean created = tx.run(query, parameters("id", user.getId(), "title", user.getUsername(), "picture", Constants.DEFAULT_PROFILE_PICTURE)).hasNext();
+                boolean created = tx.run(query, parameters("id", user.getId(), "username", user.getUsername(), "picture", Constants.DEFAULT_PROFILE_PICTURE)).hasNext();
 
-                if(!created)
+                if (!created) {
                     throw new Neo4jException("Error while creating user node with username " + user.getUsername());
-
+                }
                 return null;
             });
 
@@ -67,20 +71,21 @@ public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
             Map<String, Object> param = new HashMap<>();
             param.put("id", user.getId());
             if (user.getUsername() != null) {
-                queryBuilder.append(" u.username = $username");
+                queryBuilder.append(" u.username = $username ");
                 param.put("username", user.getUsername());
             }
             if (user.getProfilePicUrl() != null) {
                 if (user.getUsername() != null)
                     queryBuilder.append(",");
-                queryBuilder.append(" u.picture = $picture");
+                queryBuilder.append(" u.picture = $picture ");
                 param.put("picture", user.getProfilePicUrl());
             }
+            queryBuilder.append("RETURN u");
             String query = queryBuilder.toString();
 
             session.executeWrite(tx -> {
                 boolean updated = tx.run(query, param).hasNext();
-
+                System.out.println(updated);
                 if(!updated)
                     throw new Neo4jException("Error while updating user node with ID " + user.getId());
 
@@ -101,7 +106,8 @@ public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
     @Override
     public void deleteUser(String userId) throws DAOException {
         try (Session session = getSession()) {
-            String query = "MATCH (u:User {id: $id}) DETACH DELETE u";
+            String query = "MATCH (u:User {id: $id}) DETACH DELETE u RETURN u";
+
             session.executeWrite(tx -> {
                 boolean deleted = tx.run(query, parameters("id", userId)).hasNext();
 
@@ -125,21 +131,21 @@ public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
     /**
      * Establishes a 'follow' relationship between two users in the Neo4j database.
      *
-     * @param followerUserId   The ID of the user initiating the follow action.
-     * @param followingUserId  The ID of the user being followed.
+     * @param userId   The ID of the user initiating the follow action.
+     * @param followedUserId  The ID of the user being followed.
      * @throws DAOException If an error occurs while establishing the 'follow' relationship.
      */
     @Override
-    public void follow(String followerUserId, String followingUserId) throws DAOException {
+    public void follow(String userId, String followedUserId) throws DAOException {
         try (Session session = getSession()) {
-            String query = "MATCH (follower:User {id: $followerUserId}), (following:User {id: $followingUserId}) " +
-                    "MERGE (follower)-[r:FOLLOWS]->(following)";
+            String query = "MATCH (u:User {id: $userId}), (f:User {id: $followedUserId}) " +
+                    "WHERE NOT (u)-[:FOLLOWS]->(f) CREATE (u)-[r:FOLLOWS]->(f) RETURN r";
 
             session.executeWrite(tx -> {
-                boolean created = tx.run(query, parameters("followerUserId", followerUserId, "followingUserId", followingUserId)).hasNext();
+                boolean created = tx.run(query, parameters("userId", userId, "followedUserId", followedUserId)).hasNext();
 
                 if(!created)
-                    throw new Neo4jException("Error while creating follow relationship between users with IDs " + followerUserId + " and " + followingUserId);
+                    throw new Neo4jException("Error while creating follow relationship between users with IDs " + userId + " and " + followedUserId);
 
                 return null;
             });
@@ -164,7 +170,8 @@ public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
     @Override
     public void unfollow(String followerUserId, String followingUserId) throws DAOException {
         try (Session session = getSession()) {
-            String query = "MATCH (follower:User {id: $followerUserId})-[r:FOLLOWS]->(following:User {id: $followingUserId}) DELETE r";
+            String query = "MATCH (:User {id: $followerUserId})-[r:FOLLOWS]->(:User {id: $followingUserId}) DELETE r RETURN r";
+
             session.executeWrite(tx -> {
                     boolean deleted = tx.run(query, parameters("followerUserId", followerUserId, "followingUserId", followingUserId)).hasNext();
 
@@ -186,17 +193,61 @@ public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
     }
 
     @Override
-    public boolean isFollowing(String followerUserId, String followingUserId) throws DAOException {
+    public boolean isFollowing(String userId, String followedUserId) throws DAOException {
         try (Session session = getSession()) {
-            String query = "MATCH (follower:User {id: $followerUserId})-[r:FOLLOWS]->(following:User {id: $followingUserId}) RETURN r";
+            String query = "MATCH (:User {id: $userId})-[r:FOLLOWS]->(:User {id: $followedUserId}) RETURN r";
             Boolean followed = session.executeRead(
-                    tx -> tx.run(query, parameters("followerUserId", followerUserId, "followingUserId", followingUserId)).hasNext()
+                    tx -> tx.run(query, parameters("userId", userId, "followedUserId", followedUserId)).hasNext()
             );
 
             if (followed == null)
-                throw new Neo4jException("Error while checking if user with ID " + followerUserId + " is following user with ID " + followingUserId);
+                throw new Neo4jException("Error while checking if user with ID " + userId + " is following user with ID " + followedUserId);
 
             return followed;
+
+        } catch (Neo4jException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
+        } catch (Exception e) {
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+        }
+    }
+
+    @Override
+    public Integer getNumOfFollowers(String userId) throws DAOException {
+        try (Session session = getSession()) {
+            String query = "MATCH (follower:User)-[:FOLLOWS]->(u:User {id: $userId}) RETURN COUNT(follower) AS numOfFollowers";
+
+            Value value = session.executeRead(
+                    tx -> tx.run(query, parameters("userId", userId)).single().get("numOfFollowers")
+            );
+
+            if (value == null)
+                throw new Neo4jException("Error while retrieving number of followers for user with ID " + userId);
+
+            return value.asInt();
+
+        } catch (Neo4jException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
+        } catch (Exception e) {
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+        }
+    }
+
+    @Override
+    public Integer getNumOfFollowed(String userId) throws DAOException {
+        try (Session session = getSession()) {
+            String query = "MATCH (u:User {id: $userId})-[:FOLLOWS]->(followed:User) RETURN COUNT(followed) AS numOfFollowed";
+
+            Value value = session.executeRead(
+                    tx -> tx.run(query, parameters("userId", userId)).single().get("numOfFollowed")
+            );
+
+            if (value == null)
+                throw new Neo4jException("Error while retrieving number of followed users for user with ID " + userId);
+
+            return value.asInt();
 
         } catch (Neo4jException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
@@ -210,17 +261,29 @@ public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
      * Retrieves a list of users followed by a specific user from the Neo4j database.
      *
      * @param userId The ID of the user whose followed users are to be retrieved.
+     * @param loggedUserId The ID of the user requesting the list of followed users.
      * @return A list of RegisteredUserDTO objects representing the users followed by the specified user.
      * @throws DAOException If an error occurs while retrieving the followed users list.
      */
     @Override
-    public List<UserSummaryDTO> getFollowedUsers(String userId) throws DAOException {
+    public List<UserSummaryDTO> getFollowedUsers(String userId, String loggedUserId) throws DAOException {
         try (Session session = getSession()) {
-            String query = "MATCH (u:User {id: $userId})-[:FOLLOWS]-(followed:User) " +
-                    "RETURN followed AS user";
+            StringBuilder queryBuilder = new StringBuilder("MATCH (:User {id: $userId})-[:FOLLOWS]->(followed:User) ");
+            if (loggedUserId != null) {
+                queryBuilder.append("WHERE followed.id <> $loggedUserId ");
+            }
+            queryBuilder.append("RETURN followed AS user");
+            String query = queryBuilder.toString();
+
+            Map<String, Object> params = new HashMap<>();
+            params.put("userId", userId);
+            if (loggedUserId != null) {
+                params.put("loggedUserId", loggedUserId);
+            }
+
             List<Record> records = session.executeRead(
-                    tx -> tx.run(query, parameters("userId", userId))
-            ).list();
+                    tx -> tx.run(query, params).list()
+            );
 
             return records.isEmpty() ? null : records.stream()
                     .map(this::recordToUserSummaryDTO)
@@ -238,16 +301,29 @@ public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
      * Retrieves a list of users following a specific user from the Neo4j database.
      *
      * @param userId The ID of the user whose followers are to be retrieved.
+     * @param loggedUserId The ID of the user requesting the list of followers.
      * @return A list of RegisteredUserDTO objects representing the followers of the specified user.
      * @throws DAOException If an error occurs while retrieving the followers list.
      */
     @Override
-    public List<UserSummaryDTO> getFollowers(String userId) throws DAOException {
+    public List<UserSummaryDTO> getFollowers(String userId, String loggedUserId) throws DAOException {
         try (Session session = getSession()) {
-            String query = "MATCH (follower:User)-[:FOLLOWS]->(u:User {id: $userId}) RETURN follower AS user";
+            StringBuilder queryBuilder = new StringBuilder("MATCH (follower:User)-[:FOLLOWS]->(:User {id: $userId}) ");
+            if (loggedUserId != null) {
+                queryBuilder.append("WHERE follower.id <> $loggedUserId ");
+            }
+            queryBuilder.append("RETURN follower AS user");
+            String query = queryBuilder.toString();
+
+            Map<String, Object> params = new HashMap<>();
+            params.put("userId", userId);
+            if (loggedUserId != null) {
+                params.put("loggedUserId", loggedUserId);
+            }
+
             List<Record> records = session.executeRead(
-                    tx -> tx.run(query, parameters("userId", userId))
-            ).list();
+                    tx -> tx.run(query, params).list()
+            );
 
             return records.isEmpty() ? null : records.stream()
                     .map(this::recordToUserSummaryDTO)
@@ -269,18 +345,56 @@ public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
      * @throws DAOException If an error occurs while retrieving suggested users.
      */
     @Override
-    public List<UserSummaryDTO> suggestUsers(String userId, Integer limit) throws DAOException {
+    public List<UserSummaryDTO> suggestUsersByCommonFollows(String userId, Integer limit) throws DAOException {
         try (Session session = getSession()) {
-            String query = "MATCH (:User {id: $userId})-[:FOLLOWS]->(following:User)-[:FOLLOWS]->(suggested:User) " +
-                    "WHERE NOT (:User{id: $userId})-[:FOLLOWS]->(suggested) " +
+
+            String query = "MATCH (u:User {id: $userId})-[:FOLLOWS]->(following:User)-[:FOLLOWS]->(suggested:User) " +
+                    "WHERE NOT (u)-[:FOLLOWS]->(suggested) AND u <> suggested " +
                     "WITH suggested, COUNT(DISTINCT following) AS commonFollowers " +
                     "WHERE commonFollowers > 5 " +
-                    "RETURN suggested as user" +
+                    "RETURN suggested as user, commonFollowers " +
+                    "ORDER BY commonFollowers DESC " +
                     "LIMIT $n";
-            List<Record> records = session.executeRead(
-                    tx -> tx.run(query, parameters("userId", userId, "n", limit == null ? 5 : limit))
-            ).list();
 
+            List<Record> records = session.executeRead(
+                    tx -> tx.run(query, parameters("userId", userId, "n", limit == null ? 5 : limit)).list()
+            );
+
+            return records.isEmpty() ? null : records.stream()
+                    .map(this::recordToUserSummaryDTO)
+                    .toList();
+
+        } catch (Neo4jException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
+        } catch (Exception e) {
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+        }
+    }
+
+    @Override
+    public List<UserSummaryDTO> suggestUsersByCommonLikes(String userId, Integer limit, MediaContentType type) throws DAOException {
+        try (Session session = getSession()) {
+            if (type == null) {
+                throw new IllegalArgumentException("Media content type must be specified");
+            }
+            StringBuilder queryBuilder = new StringBuilder();
+            if (type == MediaContentType.ANIME)
+                queryBuilder.append("MATCH (u:User {id: $userId})-[r:LIKE]->(media:Anime)<-[:LIKE]-(suggested:User) ");
+            else
+                queryBuilder.append("MATCH (u:User {id: $userId})-[r:LIKE]->(media:Manga)<-[:LIKE]-(suggested:User) ");
+            queryBuilder.append(" WHERE u <> suggested AND r.date >= $date " +
+                    "WITH suggested, COUNT(DISTINCT media) AS commonLikes " +
+                    "WHERE commonLikes > $min " +
+                    "RETURN suggested AS user, commonLikes " +
+                    "ORDER BY commonLikes DESC " +
+                    "LIMIT $n");
+            String query = queryBuilder.toString();
+
+            List<Record> records = session.executeRead(
+                    tx -> tx.run(query, parameters("userId", userId, "n", limit == null ? 5 : limit, "date", LocalDateTime.now().minusMonths(1), "min", 2)).list()
+            );
+            records.forEach(System.out::println);
             return records.isEmpty() ? null : records.stream()
                     .map(this::recordToUserSummaryDTO)
                     .toList();
@@ -320,22 +434,27 @@ public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
 
     @Override
     public Map<String, Integer> getDistribution(String criteria) throws DAOException {
-        return null;
-    }
-
-    @Override
-    public Double averageAgeUsers() throws DAOException {
-        return null;
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
 
     @Override
     public Map<String, Double> averageAppRating(String criteria) throws DAOException {
-        return null;
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
 
     @Override
     public Map<String, Double> averageAppRatingByAgeRange() throws DAOException {
-        return null;
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
+    }
+
+    @Override
+    public void updateNumOfFollowers(String userId, Integer followers) throws DAOException {
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
+    }
+
+    @Override
+    public void updateNumOfFollowed(String userId, Integer followed) throws DAOException {
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
 
 }

@@ -395,10 +395,8 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
                     nin("manga.id", mangaIds)
             );
 
-            //update the recipe data in all the reviews
-            if (reviewCollection.deleteMany(filter).getDeletedCount() == 0) {
-                // TODO: add a log message
-            }
+            // Delete reviews with anime IDs or manga IDs not present in the anime or manga collection
+            System.out.println(reviewCollection.deleteMany(filter).getDeletedCount());
 
         } catch (MongoException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
@@ -415,9 +413,7 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
 
             Bson filter = or(eq("anime.id", new ObjectId(mediaId)), eq("manga.id", new ObjectId(mediaId)));
 
-            if (reviewCollection.deleteMany(filter).getDeletedCount() == 0) {
-                throw new MongoException("ReviewDAOMongoImpl: deleteReviewsByMedia: No reviews found");
-            }
+            System.out.println("Deleted reviews:" + reviewCollection.deleteMany(filter).getDeletedCount());
 
         } catch (MongoException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
@@ -444,10 +440,8 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
 
             MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
 
-            //update the recipe data in all the reviews
-            if (reviewCollection.deleteMany(nin("user.id", userIds)).getDeletedCount() == 0) {
-                // TODO: add a log message
-            }
+            // Delete reviews with user IDs not present in the users collection
+            System.out.println(reviewCollection.deleteMany(nin("user.id", userIds)).getDeletedCount());
 
         } catch (MongoException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
@@ -465,9 +459,7 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
 
             Bson filter = eq("user.id", new ObjectId(userId));
 
-            if (reviewCollection.deleteMany(filter).getDeletedCount() == 0) {
-                throw new MongoException("ReviewDAOMongoImpl: deleteReviewsByAuthor: No reviews found");
-            }
+            System.out.println("Deleted reviews:" + reviewCollection.deleteMany(filter).getDeletedCount());
 
         } catch (MongoException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
@@ -577,37 +569,6 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
 
         }
     }
-
-    //MongoDB queries
-    //Find the average rating a user has given to media contents given the userId
-    @Override
-    public Double getUserAverageRating(String userId) throws DAOException {
-        try {
-            MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
-
-            List<Bson> pipeline = List.of(
-                    match(and(
-                            eq("user.id", new ObjectId(userId)),
-                            exists("rating", true)
-                    )),
-                    group("$user.id", avg("average_rating", "$rating"))
-            );
-
-            // Execute the aggregation
-            Document result = reviewCollection.aggregate(pipeline).into(new ArrayList<>()).getFirst();
-
-            // Retrieve the average rating from the aggregation result
-            return result.isEmpty() ? null : result.getDouble("average_rating");
-
-        } catch (MongoException e) {
-            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
-
-        } catch (Exception e) {
-            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
-
-        }
-    }
-
 
     //Find the trend of an anime or manga by year, giving in input the media content id
     //It returns the average rating of the anime or manga for each year

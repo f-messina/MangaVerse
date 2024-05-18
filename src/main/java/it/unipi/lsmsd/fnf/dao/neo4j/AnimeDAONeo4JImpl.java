@@ -40,7 +40,7 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
     @Override
     public void saveMediaContent(Anime anime) throws DAOException {
         try (Session session = getSession()) {
-            String query = "CREATE (a:Anime {id: $id, title: $title, picture: $picture})";
+            String query = "CREATE (a:Anime {id: $id, title: $title, picture: $picture}) RETURN a";
             session.executeWrite(tx -> {
                 boolean created = tx.run(query, parameters("id", anime.getId(), "title", anime.getTitle(), "picture", anime.getImageUrl())).hasNext();
 
@@ -78,15 +78,16 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
             Map<String, Object> param = new HashMap<>();
             param.put("id", anime.getId());
             if (anime.getTitle() != null) {
-                queryBuilder.append(" a.title = $title");
+                queryBuilder.append(" a.title = $title ");
                 param.put("title", anime.getTitle());
             }
             if (anime.getImageUrl() != null) {
                 if (anime.getTitle() != null)
                     queryBuilder.append(",");
-                queryBuilder.append(" a.picture = $picture");
+                queryBuilder.append(" a.picture = $picture ");
                 param.put("picture", anime.getImageUrl());
             }
+            queryBuilder.append("RETURN a");
             String query = queryBuilder.toString();
 
             session.executeWrite(tx -> {
@@ -118,14 +119,8 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
     @Override
     public void deleteMediaContent(String animeId) throws DAOException {
         try (Session session = getSession()) {
-            String query = "MATCH (a:Anime {id: $id}) DETACH DELETE a";
-            session.run(query, Map.of("id", animeId));
-        } catch (Exception e) {
-            throw new DAOException("Error while deleting anime node", e);
-        }
+            String query = "MATCH (a:Anime {id: $id}) DETACH DELETE a RETURN a";
 
-        try (Session session = getSession()) {
-            String query = "MATCH (a:Anime {id: $id}) DETACH DELETE a";
             session.executeWrite(tx -> {
                 boolean deleted = tx.run(query, parameters("id", animeId)).hasNext();
 
@@ -157,8 +152,8 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
     public void like(String userId, String animeId) throws DAOException {
         try (Session session = getSession()) {
             String query = "MATCH (u:User {id: $userId}), (a:Anime {id: $animeId}) " +
-                    "WHERE NOT (u)-[:LIKE]->(r) CREATE (u)-[:LIKE {date: $date} ]->(r)" +
-                    "SET r.date = datetime() ";
+                    "WHERE NOT (u)-[:LIKE]->(a) " +
+                    "CREATE (u)-[:LIKE {date: $date} ]->(a)";
 
             session.executeWrite(tx -> {
                  boolean created = tx.run(query, parameters("userId", userId, "animeId", animeId, "date", LocalDateTime.now())).hasNext();
@@ -240,6 +235,29 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
         }
     }
 
+    @Override
+    public Integer getNumOfLikes(String animeId) throws DAOException {
+        try(Session session = getSession()){
+            String query = "MATCH (:Anime {id: $animeId})<-[r:LIKE]-() RETURN count(r) as numOfLikes";
+
+            Value value = session.executeRead(
+                    tx -> tx.run(query, parameters("animeId", animeId)).single().get("numOfLikes")
+            );
+
+            if (value == null) {
+                throw new Neo4jException("Error while retrieving number of likes for anime " + animeId);
+            }
+
+            return value.asInt();
+
+        } catch (Neo4jException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
+        } catch (Exception e) {
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+        }
+    }
+
     /**
      * Retrieves a list of AnimeDTO objects that a user has liked from the Neo4j database.
      *
@@ -279,7 +297,7 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
         try (Session session = getSession()) {
             String query = "MATCH (u:User {id: $userId})-[:FOLLOWS]->(f:User)-[:LIKE]->(a:Anime) " +
                     "WITH a, COUNT(DISTINCT f) AS num_likes " +
-                    "RETURN a.id as id, a.title as title, a.picture as picture " +
+                    "RETURN a as anime " +
                     "LIMIT 5";
             List<Record> records = session.run(query, Map.of("userId", userId)).list();
 
@@ -301,7 +319,7 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
      * @throws DAOException If an error occurs while retrieving trending Anime.
      */
     @Override
-    public List<AnimeDTO> getTrendMediaContentByYear(int year) throws DAOException {
+    public Map<AnimeDTO, Integer> getTrendMediaContentByYear(int year) throws DAOException {
         try (Session session = getSession()) {
             String startDate = year + "-01-01";
             String endDate = year + "-12-31";
@@ -309,11 +327,16 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
                     MATCH (a:Anime)<-[r:LIKE]-(u:User)
                     WHERE r.date >= $startDate AND r.date < $endDate
                     WITH a, count(u) AS numLikes\s
-                    RETURN a.id as id, a.title as title, a.picture as picture, numLikes\s
+                    RETURN a as anime, numLikes\s
                     ORDER BY numLikes DESC
                     LIMIT 5""";
             List<Record> records = session.run(query, Map.of("startDate", startDate, "endDate", endDate)).list();
-            return records.stream().map(this::recordToAnimeDTO).collect(Collectors.toList());
+
+            return records.stream().map(record -> {
+                AnimeDTO animeDTO = recordToAnimeDTO(record);
+                Integer likes = record.get("numLikes").asInt();
+                return Map.entry(animeDTO, likes);
+            }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         } catch (Neo4jException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
@@ -331,8 +354,7 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
      * @throws DAOException If an error occurs while retrieving trending Anime genres.
      */
     @Override
-    public List<String> getMediaContentGenresTrendByYear(int year) throws DAOException {
-        List<String> genreNames = new ArrayList<>();
+    public Map<String, Integer> getMediaContentGenresTrendByYear(int year) throws DAOException {
         try (Session session = getSession()) {
             String startDate = year + "-01-01";
             String endDate = year + "-12-31";
@@ -342,18 +364,14 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
                     WITH a, count(u) AS numLikes
                     ORDER BY numLikes DESC
                     MATCH (a)-[:BELONGS_TO]->(g:Genre)
-                    RETURN collect(DISTINCT g.name) AS genreNames""";
-            Result result = session.run(query, Values.parameters("startDate", startDate, "endDate", endDate));
+                    RETURN DISTINCT g.name AS genreName, numLikes""";
+            Result results = session.run(query, Values.parameters("startDate", startDate, "endDate", endDate));
 
-            while (result.hasNext()) {
-                Record record = result.next();
-                List<Object> genreList = record.get("genreNames").asList(Value::asString);
-                for (Object obj : genreList) {
-                    genreNames.add((String) obj);
-                }
-            }
-
-            return genreNames;
+            return results.stream().map(record -> {
+                String genreName = record.get("genreName").asString();
+                Integer likes = record.get("numLikes").asInt();
+                return Map.entry(genreName, likes);
+            }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         } catch (Neo4jException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
@@ -376,44 +394,11 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
             String query = "MATCH (u:User)-[r:LIKE]->(a:Anime) " +
                     "WITH a, COUNT(r) as numLikes " +
                     "ORDER BY numLikes DESC " +
-                    "RETURN a.id as id, a.title as title, a.picture as picture, numLikes " +
+                    "RETURN a as anime " +
                     "LIMIT 5";
             List<Record> records = session.run(query).list();
 
             return records.stream().map(this::recordToAnimeDTO).collect(Collectors.toList());
-
-        } catch (Neo4jException e) {
-            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
-
-        } catch (Exception e) {
-            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
-        }
-    }
-
-    /**
-     * Retrieves a list of trending Anime genres from the Neo4j database.
-     *
-     * @return A list of Strings representing trending Anime genres.
-     * @throws DAOException If an error occurs while retrieving trending Anime genres.
-     */
-    @Override
-    public List<String> getMediaContentGenresTrend() throws DAOException {
-        List<String> genreNames = new ArrayList<>();
-        try (Session session = getSession()) {
-            String query = """
-                    MATCH (:User)-[r:LIKE]->(m:Anime)-[:BELONGS_TO]->(g:Genre)
-                    WITH g.name AS genreNames, COUNT(r) AS totalLikes
-                    RETURN genreNames
-                    ORDER BY totalLikes DESC\s""";
-            Result result = session.run(query);
-
-            while (result.hasNext()) {
-                Record record = result.next();
-                String genreName = record.get("genreNames").asString();
-                genreNames.add(genreName);
-            }
-
-            return genreNames;
 
         } catch (Neo4jException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
@@ -464,6 +449,11 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
 
     @Override
     public Map<String, Double> getBestCriteria(String criteria, boolean isArray, int page) throws DAOException {
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
+    }
+
+    @Override
+    public void updateNumOfLikes(String mediaId, Integer likes) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
 }

@@ -161,21 +161,6 @@ public class ReviewServiceImpl implements ReviewService {
         }
     }
 
-
-    //Service for mongoDB queries
-    @Override
-    public Double getUserAverageRating(String userId) throws BusinessException {
-        try {
-            return reviewDAO.getUserAverageRating(userId);
-
-        } catch (DAOException e){
-            if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {
-                throw new BusinessException(BusinessExceptionType.DATABASE_ERROR, e.getMessage());
-            }
-            throw new BusinessException(BusinessExceptionType.GENERIC_ERROR, e.getMessage());
-        }
-    }
-
     @Override
     public Map<String, Double> getMediaContentRatingByYear(MediaContentType type, String mediaContentId, int startYear, int endYear) throws BusinessException {
         try {

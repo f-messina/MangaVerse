@@ -354,9 +354,9 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
 
     void refreshAllLatestReviews() throws DAOException {
         try {
-            MongoCollection<Document> animeCollection = getCollection(COLLECTION_NAME);
+            MongoCollection<Document> mangaCollection = getCollection(COLLECTION_NAME);
 
-            List<ObjectId> animeIds = animeCollection.find().map(doc -> doc.getObjectId("_id")).into(new ArrayList<>());
+            List<ObjectId> animeIds = mangaCollection.find().map(doc -> doc.getObjectId("_id")).into(new ArrayList<>());
 
             for (ObjectId animeId : animeIds) {
                 refreshLatestReviews(animeId.toHexString());
@@ -463,6 +463,30 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
         }
     }
 
+    @Override
+    public void updateNumOfLikes(String mangaId, Integer likes) throws DAOException {
+        try{
+            MongoCollection<Document> mangaCollection = getCollection(COLLECTION_NAME);
+
+            Bson filter = eq("_id", new ObjectId(mangaId));
+            Bson update = set("likes", likes);
+
+            UpdateResult result = mangaCollection.updateOne(filter, update);
+            if (result.getMatchedCount() == 0) {
+                throw new MongoException("MangaDAOMongoDBImpl : updateNumOfLikes: Manga not found");
+            } else if (result.getModifiedCount() == 0) {
+                throw new MongoException("MangaDAOMongoDBImpl : updateNumOfLikes: Error updating number of likes");
+            }
+
+        } catch (MongoException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
+        } catch (Exception e) {
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+
+        }
+    }
+
     // Neo4J specific methods
     @Override
     public void like(String userId, String mediaContentId) throws DAOException {
@@ -476,6 +500,12 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
     public boolean isLiked(String userId, String mediaId) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
+
+    @Override
+    public Integer getNumOfLikes(String mediaId) throws DAOException {
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
+    }
+
     @Override
     public List<? extends MediaContentDTO> getLiked(String userId) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
@@ -485,23 +515,16 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override
-    public List<? extends MediaContentDTO> getTrendMediaContentByYear(int year) throws DAOException {
+    public Map<? extends MediaContentDTO, Integer> getTrendMediaContentByYear(int year) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override
-    public List<String> getMediaContentGenresTrendByYear(int year) throws DAOException {
+    public Map<String, Integer> getMediaContentGenresTrendByYear(int year) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
-
-
 
     @Override
     public List<? extends MediaContentDTO> getMediaContentTrendByLikes() throws DAOException {
-        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
-    }
-
-    @Override
-    public List<String> getMediaContentGenresTrend() throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
 

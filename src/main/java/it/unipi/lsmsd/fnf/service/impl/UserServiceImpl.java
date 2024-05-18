@@ -1,34 +1,29 @@
 package it.unipi.lsmsd.fnf.service.impl;
 
-import it.unipi.lsmsd.fnf.dao.interfaces.MediaContentDAO;
-import it.unipi.lsmsd.fnf.dao.interfaces.UserDAO;
 import it.unipi.lsmsd.fnf.dao.enums.DataRepositoryEnum;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
-import it.unipi.lsmsd.fnf.dto.LoggedUserDTO;
-import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dao.exception.enums.DAOExceptionType;
+import it.unipi.lsmsd.fnf.dao.interfaces.UserDAO;
+import it.unipi.lsmsd.fnf.dto.LoggedUserDTO;
 import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
-import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
-import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
+import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import it.unipi.lsmsd.fnf.service.enums.ExecutorTaskServiceType;
-import it.unipi.lsmsd.fnf.service.impl.asinc_media_tasks.UpdateMediaRedundancyTask;
-import it.unipi.lsmsd.fnf.service.impl.asinc_review_tasks.UpdateReviewRedundancyTask;
-import it.unipi.lsmsd.fnf.service.impl.asinc_user_tasks.CreateUserTask;
-import it.unipi.lsmsd.fnf.service.impl.asinc_user_tasks.DeleteUserTask;
-import it.unipi.lsmsd.fnf.service.impl.asinc_user_tasks.UpdateUserTask;
-import it.unipi.lsmsd.fnf.service.interfaces.ExecutorTaskService;
-import it.unipi.lsmsd.fnf.service.interfaces.UserService;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 import it.unipi.lsmsd.fnf.service.exception.enums.BusinessExceptionType;
-
+import it.unipi.lsmsd.fnf.service.impl.asinc_media_tasks.UpdateMediaRedundancyTask;
+import it.unipi.lsmsd.fnf.service.impl.asinc_review_tasks.RemoveDeletedUserReviewsTask;
+import it.unipi.lsmsd.fnf.service.impl.asinc_review_tasks.UpdateReviewRedundancyTask;
+import it.unipi.lsmsd.fnf.service.impl.asinc_user_tasks.*;
+import it.unipi.lsmsd.fnf.service.interfaces.ExecutorTaskService;
+import it.unipi.lsmsd.fnf.service.interfaces.UserService;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Map;
+import java.util.Objects;
 
-import static it.unipi.lsmsd.fnf.dao.DAOLocator.*;
+import static it.unipi.lsmsd.fnf.dao.DAOLocator.getUserDAO;
 import static it.unipi.lsmsd.fnf.service.ServiceLocator.getExecutorTaskService;
 import static it.unipi.lsmsd.fnf.service.exception.BusinessException.handleDAOException;
 
@@ -135,9 +130,9 @@ public class UserServiceImpl implements UserService {
 
         } catch (DAOException e) {
             switch (e.getType()) {
-                case DATABASE_ERROR -> throw new BusinessException(BusinessExceptionType.NOT_FOUND, "User not found");
-                case DUPLICATED_USERNAME -> throw new BusinessException(BusinessExceptionType.DUPLICATED_USERNAME, "Username already in use");
-                default -> throw new BusinessException(BusinessExceptionType.GENERIC_ERROR, "Error updating user info");
+                case DATABASE_ERROR -> throw new BusinessException(BusinessExceptionType.NOT_FOUND, e.getMessage());
+                case DUPLICATED_USERNAME -> throw new BusinessException(BusinessExceptionType.DUPLICATED_USERNAME, e.getMessage());
+                default -> throw new BusinessException(BusinessExceptionType.GENERIC_ERROR, e.getMessage());
             }
         }
     }
@@ -149,8 +144,8 @@ public class UserServiceImpl implements UserService {
             // Create a task which deletes the node User in Neo4j
             aperiodicExecutorTaskService.executeTask(new DeleteUserTask(userId));
 
-            // Create a task which remove the reviews of the reviews and the redundancy
-            // of the recent reviews of the user in the media content
+            // Create a task which removes the user redundancy inside reviews
+            aperiodicExecutorTaskService.executeTask(new RemoveDeletedUserReviewsTask(userId));
 
         } catch (DAOException e) {
             if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {
@@ -184,6 +179,13 @@ public class UserServiceImpl implements UserService {
         try {
             userDAONeo4J.follow(followerUserId, followingUserId);
 
+            // Create a task which updates the number of followed and followers
+            UpdateNumberOfFollowedTask task = new UpdateNumberOfFollowedTask(followerUserId);
+            aperiodicExecutorTaskService.executeTask(task);
+
+            UpdateNumberOfFollowersTask task1 = new UpdateNumberOfFollowersTask(followingUserId);
+            aperiodicExecutorTaskService.executeTask(task1);
+
         } catch (DAOException e) {
             handleDAOException(e);
         }
@@ -200,11 +202,19 @@ public class UserServiceImpl implements UserService {
         try {
             userDAONeo4J.unfollow(followerUserId, followingUserId);
 
+            // Create a task which updates the number of followed and followers
+            UpdateNumberOfFollowedTask task = new UpdateNumberOfFollowedTask(followerUserId);
+            aperiodicExecutorTaskService.executeTask(task);
+
+            UpdateNumberOfFollowersTask task1 = new UpdateNumberOfFollowersTask(followingUserId);
+            aperiodicExecutorTaskService.executeTask(task1);
+
         } catch (DAOException e) {
             handleDAOException(e);
         }
     }
 
+    @Override
     public boolean isFollowing(String followerUserId, String followingUserId) throws BusinessException {
         try {
             return userDAONeo4J.isFollowing(followerUserId, followingUserId);
@@ -222,9 +232,9 @@ public class UserServiceImpl implements UserService {
      * @throws BusinessException If an error occurs while retrieving the list.
      */
     @Override
-    public List<UserSummaryDTO> getFollowing(String userId) throws BusinessException {
+    public List<UserSummaryDTO> getFollowing(String userId, String loggedUserId) throws BusinessException {
         try {
-            return userDAONeo4J.getFollowedUsers(userId);
+            return userDAONeo4J.getFollowedUsers(userId, loggedUserId);
 
         } catch (DAOException e) {
             handleDAOException(e);
@@ -240,9 +250,9 @@ public class UserServiceImpl implements UserService {
      * @throws BusinessException If an error occurs while retrieving the list.
      */
     @Override
-    public List<UserSummaryDTO> getFollowers(String userId) throws BusinessException {
+    public List<UserSummaryDTO> getFollowers(String userId, String loggedUserId) throws BusinessException {
         try {
-            return userDAONeo4J.getFollowers(userId);
+            return userDAONeo4J.getFollowers(userId, loggedUserId);
 
         } catch (DAOException e) {
             handleDAOException(e);
@@ -263,7 +273,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserSummaryDTO> suggestUsers(String userId) throws BusinessException {
         try {
-            return userDAONeo4J.suggestUsers(userId, null);
+            return userDAONeo4J.suggestUsersByCommonFollows(userId, null);
 
         } catch (DAOException e) {
             if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {
@@ -280,19 +290,6 @@ public class UserServiceImpl implements UserService {
                 throw new BusinessException("Invalid criteria");
             }
             return userDAO.getDistribution(criteria);
-
-        } catch (DAOException e) {
-            if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {
-                throw new BusinessException(BusinessExceptionType.DATABASE_ERROR, e.getMessage());
-            }
-            throw new BusinessException(BusinessExceptionType.GENERIC_ERROR, e.getMessage());
-        }
-    }
-
-    @Override
-    public Double averageAgeUsers() throws BusinessException {
-        try {
-            return userDAO.averageAgeUsers();
 
         } catch (DAOException e) {
             if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {

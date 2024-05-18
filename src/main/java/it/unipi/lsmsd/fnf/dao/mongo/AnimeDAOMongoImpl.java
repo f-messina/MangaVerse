@@ -28,7 +28,6 @@ import static com.mongodb.client.model.Accumulators.avg;
 import static com.mongodb.client.model.Aggregates.*;
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.*;
-import static com.mongodb.client.model.Projections.computed;
 import static com.mongodb.client.model.Sorts.descending;
 import static com.mongodb.client.model.Updates.*;
 import static it.unipi.lsmsd.fnf.utils.DocumentUtils.*;
@@ -388,8 +387,6 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
         }
     }
 
-    // anime 663606354276578429fe47e9
-    // user 66360c83bbca010b06d85602
     @Override
     public void updateUserRedundancy(UserSummaryDTO userSummaryDTO) throws DAOException {
         try {
@@ -478,7 +475,30 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
         } catch (Exception e) {
             throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
         }
+    }
 
+    @Override
+    public void updateNumOfLikes(String animeId, Integer likes) throws DAOException {
+        try{
+            MongoCollection<Document> animeCollection = getCollection(COLLECTION_NAME);
+
+            Bson filter = eq("_id", new ObjectId(animeId));
+            Bson update = set("likes", likes);
+
+            UpdateResult result = animeCollection.updateOne(filter, update);
+            if (result.getMatchedCount() == 0) {
+                throw new MongoException("AnimeDAOMongoDBImpl : updateNumOfLikes: Anime not found");
+            } else if (result.getModifiedCount() == 0) {
+                throw new MongoException("AnimeDAOMongoDBImpl : updateNumOfLikes: Error updating number of likes");
+            }
+
+        } catch (MongoException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
+        } catch (Exception e) {
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+
+        }
     }
 
     // Neo4J specific methods
@@ -494,6 +514,12 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
     public boolean isLiked(String userId, String mediaId) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
+
+    @Override
+    public Integer getNumOfLikes(String mediaId) throws DAOException {
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
+    }
+
     @Override
     public List<? extends MediaContentDTO> getLiked(String userId) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
@@ -503,17 +529,14 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override
-    public List<? extends MediaContentDTO> getTrendMediaContentByYear(int year) throws DAOException {
+    public Map<? extends MediaContentDTO, Integer> getTrendMediaContentByYear(int year) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override
-    public List<String> getMediaContentGenresTrendByYear(int year) throws DAOException {
+    public Map<String, Integer> getMediaContentGenresTrendByYear(int year) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
-    @Override
-    public List<String> getMediaContentGenresTrend() throws DAOException {
-        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
-    }
+
     @Override
     public List<? extends MediaContentDTO> getMediaContentTrendByLikes() throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");

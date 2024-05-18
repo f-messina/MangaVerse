@@ -3,6 +3,7 @@ package it.unipi.lsmsd.fnf.dao.mongo;
 import it.unipi.lsmsd.fnf.dao.interfaces.UserDAO;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
+import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.model.enums.Gender;
 
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
@@ -49,14 +50,15 @@ public class UserDAOMongoImplTest {
 
     @Test
     public void testUpdate() {
-        UserDAO userDAO = new UserDAOMongoImpl();
-        User user = new User();
-        user.setId("662914825744863ee2e99217");
-        user.setUsername("flavio");
-        user.setProfilePicUrl("profilepic");
-        user.setBirthday(LocalDate.of(1999, 12, 12));
-        user.setGender(Gender.MALE);
         try {
+            UserDAO userDAO = new UserDAOMongoImpl();
+            UserSummaryDTO userSummaryDTO = userDAO.searchFirstNUsers("exampleUser", 1, null).getFirst();
+            User user = new User();
+            user.setId(userSummaryDTO.getId());
+            user.setUsername("exampleUser2");
+            user.setProfilePicUrl("https://example.com");
+            user.setBirthday(LocalDate.of(1999, 12, 12));
+            user.setGender(Gender.MALE);
             userDAO.updateUser(user);
         } catch (DAOException e) {
             System.err.println(e.getMessage() + " " + e.getType());
@@ -66,10 +68,11 @@ public class UserDAOMongoImplTest {
 
     @Test
     public void testRemove() {
-        UserDAO userDAO = new UserDAOMongoImpl();
-        String userId = "65ef316a9d917e0222d8faf7";
         try {
-            userDAO.deleteUser(userId);
+            UserDAO userDAO = new UserDAOMongoImpl();
+            UserSummaryDTO userSummaryDTO = userDAO.searchFirstNUsers("exampleUser", 1, null).getFirst();
+
+            userDAO.deleteUser(userSummaryDTO.getId());
         } catch (DAOException e) {
             System.err.println(e.getMessage() + " " + e.getType());
         }
@@ -89,9 +92,10 @@ public class UserDAOMongoImplTest {
 
     @Test
     public void testRead() {
-        String userId = "6629128653d80671acf24d89";
-        UserDAO userDAO = new UserDAOMongoImpl();
         try {
+            UserDAO userDAO = new UserDAOMongoImpl();
+            UserSummaryDTO userSummaryDTO = userDAO.searchFirstNUsers("exampleUser", 1, null).getFirst();
+            String userId = userSummaryDTO.getId();
             System.out.println(userDAO.readUser(userId, false));
         } catch (DAOException e) {
             System.err.println(e.getMessage() + " " + e.getType());
@@ -112,20 +116,6 @@ public class UserDAOMongoImplTest {
     }
 
     @Test
-    public void testAverageAgeUsers() {
-        try {
-
-            UserDAOMongoImpl userDAO = new UserDAOMongoImpl();
-            Double averageAge = userDAO.averageAgeUsers();
-            System.out.println(averageAge);
-
-
-        } catch (DAOException e) {
-            fail("Exception not expected: " + e.getMessage());
-        }
-    }
-
-    @Test
     public void testAverageAppRating() {
         try {
 
@@ -133,6 +123,8 @@ public class UserDAOMongoImplTest {
             Map<String, Double> averageRating = userDAO.averageAppRating("gender");
             System.out.println(averageRating);
 
+            Map<String, Double> averageRating2 = userDAO.averageAppRating("location");
+            System.out.println(averageRating2);
         } catch (DAOException e) {
             fail("Exception not expected: " + e.getMessage());
         }
@@ -148,6 +140,30 @@ public class UserDAOMongoImplTest {
 
         } catch (DAOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    public void updateNumOfFollowersTest() {
+        try {
+            UserDAOMongoImpl userDAO = new UserDAOMongoImpl();
+            UserSummaryDTO userSummaryDTO = userDAO.searchFirstNUsers("exampleUser", 1, null).getFirst();
+
+            userDAO.updateNumOfFollowers(userSummaryDTO.getId(), 5);
+        } catch (DAOException e) {
+            fail("Exception not expected: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void updateNumOfFollowedTest() {
+        try {
+            UserDAOMongoImpl userDAO = new UserDAOMongoImpl();
+            UserSummaryDTO userSummaryDTO = userDAO.searchFirstNUsers("exampleUser", 1, null).getFirst();
+
+            userDAO.updateNumOfFollowed(userSummaryDTO.getId(), 10);
+        } catch (DAOException e) {
+            fail("Exception not expected: " + e.getMessage());
         }
     }
 }

@@ -100,17 +100,14 @@ public class ManagerServlet extends HttpServlet {
 
         switch (action) {
             case "bestCriteria" -> handleBestCriteria(request, response);
-            case "averageRating" -> handleUserAverageRating(request, response);
             case "averageRatingByYear" -> handleMediaContentAverageRatingByYear(request, response);
             case "averageRatingByMonth" -> handleMediaContentAverageRatingByMonth(request, response);
             case "distribution" -> handleUsersDistribution(request, response);
-            case "usersAverageAge" -> handleUsersAverageAge(request, response);
             case "averageAppRatingByCriteria" -> handleUsersAverageAppRatingCriteria(request, response);
             case "averageAppRatingByAgeRange" -> handleUsersAverageAppRatingAgeRange(request, response);
             case "trendMediaContentByYear" ->  handleTrendMediaContentByYear(request, response);
             case "trendGenresByYear" -> handleTrendGenresByYear(request, response);
             case "trendMediaContentByLikes" -> handleTrendMediaContentByLikes(request, response);
-            case "trendGenres" -> handleTrendGenres(request, response);
 
             case "show_info" -> handleShowInfo(request, response);
             case "update_info" -> handleUpdateInfo(request,response);
@@ -127,33 +124,8 @@ public class ManagerServlet extends HttpServlet {
                 //  getTrendMediaContentGenreByYear, getTrendMediaContentByLikes.
                 //  For the user we have getAverageRating, getAverageUserAge, getDistribution.
                 //  Check per manga, anime e user
-                /*defaultActions.add(() -> {
-
-                    try {
-                        handleBestCriteria(request, response);
-                    } catch (ServletException | IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
-                defaultActions.add(() -> {
-                    try {
-                        handleUsersAverageAppRatingCriteria(request, response);
-                    } catch (ServletException | IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
-                defaultActions.add(() -> {
-                    try {
-                        handleTrendMediaContentByLikes(request, response);
-                    } catch (ServletException | IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                });*/
             }
         }
-        /*for (Runnable actionToRun : defaultActions) {
-            actionToRun.run();
-        }*/
 
     }
 
@@ -174,7 +146,7 @@ public class ManagerServlet extends HttpServlet {
 
 
         //Thread 2: getTrendMediaContentByYear with year = 2021 List<? extends MediaContentDTO> getTrendMediaContentByYear
-        Future<List<? extends MediaContentDTO>> trendAnimeByYearFuture = executorService.submit(() -> {
+        Future<Map<? extends MediaContentDTO, Integer>> trendAnimeByYearFuture = executorService.submit(() -> {
             try {
                 MediaContentService mediaContentService = ServiceLocator.getMediaContentService();
                 return mediaContentService.getTrendMediaContentByYear(2021, MediaContentType.ANIME);
@@ -185,7 +157,7 @@ public class ManagerServlet extends HttpServlet {
         });
 
         //Tread 3: getTrendMediaContentGenreByYear with year = 2021 List<String> getMediaContentGenresTrendByYear
-        Future<List<String>> trendAnimeGenresByYearFuture = executorService.submit(() -> {
+        Future<Map<String, Integer>> trendAnimeGenresByYearFuture = executorService.submit(() -> {
             try {
                 MediaContentService mediaContentService = ServiceLocator.getMediaContentService();
                 return mediaContentService.getMediaContentGenresTrendByYear(2021, MediaContentType.ANIME);
@@ -209,8 +181,8 @@ public class ManagerServlet extends HttpServlet {
 
         try {
             Map<String, Double> bestAnimeCriteria = bestAnimeCriteriaFuture.get();
-            List<? extends MediaContentDTO> trendAnimeByYear = trendAnimeByYearFuture.get();
-            List<String> trendAnimeGenresByYear = trendAnimeGenresByYearFuture.get();
+            Map<? extends MediaContentDTO, Integer> trendAnimeByYear = trendAnimeByYearFuture.get();
+            Map<String, Integer> trendAnimeGenresByYear = trendAnimeGenresByYearFuture.get();
             List<? extends MediaContentDTO> trendAnimeByLikes = trendAnimeByLikesFuture.get();
 
 
@@ -255,7 +227,7 @@ public class ManagerServlet extends HttpServlet {
 
         //Thread 2: getTrendMediaContentByYear with year = 2021 List<? extends MediaContentDTO> getTrendMediaContentByYear
 
-        Future<List<? extends MediaContentDTO>> trendMangaByYearFuture = executorService.submit(() -> {
+        Future<Map<? extends MediaContentDTO, Integer>> trendMangaByYearFuture = executorService.submit(() -> {
             try {
                 MediaContentService mediaContentService = ServiceLocator.getMediaContentService();
                 return mediaContentService.getTrendMediaContentByYear(2021, MediaContentType.MANGA);
@@ -266,7 +238,7 @@ public class ManagerServlet extends HttpServlet {
         });
         //Tread 3: getTrendMediaContentGenreByYear with year = 2021 List<String> getMediaContentGenresTrendByYear
 
-        Future<List<String>> trendMangaGenresByYearFuture = executorService.submit(() -> {
+        Future<Map<String, Integer>> trendMangaGenresByYearFuture = executorService.submit(() -> {
             try {
                 MediaContentService mediaContentService = ServiceLocator.getMediaContentService();
                 return mediaContentService.getMediaContentGenresTrendByYear(2021, MediaContentType.MANGA);
@@ -289,8 +261,8 @@ public class ManagerServlet extends HttpServlet {
 
         try {
             Map<String, Double> bestMangaCriteria = bestMangaCriteriaFuture.get();
-            List<? extends MediaContentDTO> trendMangaByYear = trendMangaByYearFuture.get();
-            List<String> trendMangaGenresByYear = trendMangaGenresByYearFuture.get();
+            Map<? extends MediaContentDTO, Integer> trendMangaByYear = trendMangaByYearFuture.get();
+            Map<String, Integer> trendMangaGenresByYear = trendMangaGenresByYearFuture.get();
             List<? extends MediaContentDTO> trendMangaByLikes = trendMangaByLikesFuture.get();
 
 
@@ -321,29 +293,10 @@ public class ManagerServlet extends HttpServlet {
 
 
     public String managerDefaultPageUser(HttpServletRequest request, HttpServletResponse response) throws ExecutionException, InterruptedException {
-        ExecutorService executorService = Executors.newFixedThreadPool(3);
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
         //Create threads
-        //Thread 1: getAverageRating Double averageRatingUser
-        Future<Double> averageRatingUserFuture = executorService.submit(() -> {
-            try {
-                ReviewService reviewService = ServiceLocator.getReviewService();
-                return reviewService.getUserAverageRating("userId");
-            } catch (BusinessException e) {
-                throw new RuntimeException(e);
-            }
+        //Thread 1: getDistribution Map<String, Integer> getDistribution
 
-        });
-        //Thread 2: getAverageUserAge Double averageAgeUsers
-        Future<Double> averageAgeUsersFuture = executorService.submit(() -> {
-            try {
-                UserService userService = ServiceLocator.getUserService();
-                return userService.averageAgeUsers();
-            } catch (BusinessException e) {
-                throw new RuntimeException(e);
-            }
-
-        });
-        //Thread 3: getDistribution Map<String, Integer> getDistribution
         Future<Map<String, Integer>> distributionFuture = executorService.submit(() -> {
             try {
                 UserService userService = ServiceLocator.getUserService();
@@ -356,16 +309,10 @@ public class ManagerServlet extends HttpServlet {
 
         Gson gson = new Gson();
 
-        Double averageRatingUserResult = averageRatingUserFuture.get();
-        Double averageAgeUsersResult = averageAgeUsersFuture.get();
         Map<String, Integer> distributionResult = distributionFuture.get();
 
-        String averageRatingUserJson = gson.toJson(averageRatingUserResult);
-        String averageAgeUsersJson = gson.toJson(averageAgeUsersResult);
         String distributionJson = gson.toJson(distributionResult);
 
-        request.setAttribute("averageRatingUser", averageRatingUserJson);
-        request.setAttribute("averageAgeUsers", averageAgeUsersJson);
         request.setAttribute("distribution", distributionJson);
 
 
@@ -374,59 +321,6 @@ public class ManagerServlet extends HttpServlet {
 
         return "managerDefaultPageUser";
     }
-
-
-    //Requests for the analytics
-    //MongoDB analytics
-    //Get best criteria (anime and manga)
-    /*private void handleBestCriteria(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
-        String criteria = request.getParameter("criteria");
-        int page = Integer.parseInt(request.getParameter("page"));
-
-        boolean isManga = (boolean) request.getAttribute("isManga");
-        String targetJSP = isManga ? "/WEB-INF/jsp/manga_manager.jsp" : "/WEB-INF/jsp/anime_manager.jsp";
-
-        MediaContentService mediaContentService = ServiceLocator.getMediaContentService();
-
-        switch (criteria) {
-            case "tags" -> {
-                try {
-                    Map<String, Double> bestCriteria = mediaContentService.getBestAnimeCriteria("tags", page);
-                    request.setAttribute("bestCriteria", bestCriteria);
-                } catch (BusinessException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            case "genres" -> {
-                try {
-                    Map<String, Double> bestCriteria = mediaContentService.getBestMangaCriteria("genres", page);
-                    request.setAttribute("bestCriteria", bestCriteria);
-                } catch (BusinessException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            case "themes" -> {
-                try {
-                    Map<String, Double> bestCriteria = mediaContentService.getBestMangaCriteria("themes", page);
-                    request.setAttribute("bestCriteria", bestCriteria);
-                } catch (BusinessException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            case "demographics" -> {
-                try {
-                    Map<String, Double> bestCriteria = mediaContentService.getBestMangaCriteria("demographics", page);
-                    request.setAttribute("bestCriteria", bestCriteria);
-                } catch (BusinessException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }
-        request.getRequestDispatcher(targetJSP).forward(request, response);
-
-
-    }*/
 
     //Asynchronous request
     private void handleBestCriteria(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -468,71 +362,6 @@ public class ManagerServlet extends HttpServlet {
         response.getWriter().write(jsonResponse);
     }
 
-
-    //Average rating of specific user?(reviews)
-    /*private void handleUserAverageRating (HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String userId = request.getParameter("userId");
-        ReviewService reviewService = ServiceLocator.getReviewService();
-        String targetJSP = "/WEB-INF/jsp/user_manager.jsp";
-
-        try {
-            Double averageRating = reviewService.averageRatingUser (userId);
-            request.setAttribute("userId", userId);
-            request.setAttribute("averageRating", averageRating);
-
-
-        } catch (BusinessException e) {
-            throw new RuntimeException(e);
-        }
-        request.getRequestDispatcher(targetJSP).forward(request, response);
-
-    }*/
-    //Asynchronous request
-    private void handleUserAverageRating(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String userId = request.getParameter("userId");
-        ReviewService reviewService = ServiceLocator.getReviewService();
-
-        try {
-            Double averageRating = reviewService.getUserAverageRating(userId);
-
-            JsonObject jsonResponse = new JsonObject();
-            jsonResponse.addProperty("userId", userId);
-            jsonResponse.addProperty("averageRating", averageRating);
-
-            response.setContentType("application/json");
-            response.setCharacterEncoding("UTF-8");
-
-            response.getWriter().write(jsonResponse.toString());
-
-        } catch (BusinessException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-
-    //Get media content rating by year(reviews)
-    /*private void handleMediaContentAverageRatingByYear (HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String mediaContentId = request.getParameter("mediaContentId");
-        int startYear = Integer.parseInt(request.getParameter("startYear"));
-        int endYear = Integer.parseInt(request.getParameter("endYear"));
-
-        boolean isManga = (boolean) request.getAttribute("isManga");
-        String targetJSP = isManga ? "/WEB-INF/jsp/manga_manager.jsp" : "/WEB-INF/jsp/anime_manager.jsp";
-
-        ReviewService reviewService = ServiceLocator.getReviewService();
-
-        try {
-            Map<String, Double> averageRatingByYear = reviewService.ratingMediaContentByYear(isManga? MediaContentType.MANGA : MediaContentType.ANIME, mediaContentId, startYear, endYear);
-            request.setAttribute("averageRatingByYear", averageRatingByYear);
-
-
-        } catch (BusinessException e) {
-            throw new RuntimeException(e);
-        }
-        request.getRequestDispatcher(targetJSP).forward(request, response);
-
-    }*/
-
     //Asynchronous request
     private void handleMediaContentAverageRatingByYear(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String mediaContentId = request.getParameter("mediaContentId");
@@ -562,29 +391,6 @@ public class ManagerServlet extends HttpServlet {
         }
     }
 
-
-    //Get media content rating by month(reviews)
-    /*private void handleMediaContentAverageRatingByMonth (HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String mediaContentId = request.getParameter("mediaContentId");
-        int year = Integer.parseInt(request.getParameter("year"));
-
-        boolean isManga = (boolean) request.getAttribute("isManga");
-        String targetJSP = isManga ? "/WEB-INF/jsp/manga_manager.jsp" : "/WEB-INF/jsp/anime_manager.jsp";
-
-        ReviewService reviewService = ServiceLocator.getReviewService();
-
-        try {
-            Map<String, Double> averageRatingByMonth = reviewService.ratingMediaContentByMonth(isManga? MediaContentType.MANGA : MediaContentType.ANIME, mediaContentId, year);
-            request.setAttribute("averageRatingByMonth", averageRatingByMonth);
-
-
-        } catch (BusinessException e) {
-            throw new RuntimeException(e);
-        }
-        request.getRequestDispatcher(targetJSP).forward(request, response);
-
-    }*/
-
     //Asynchronous request
 
     private void handleMediaContentAverageRatingByMonth(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -612,61 +418,6 @@ public class ManagerServlet extends HttpServlet {
             throw new RuntimeException(e);
         }
     }
-
-
-
-    //Get distribution (users)
-    /*private void handleUsersDistribution (HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String criteria = request.getParameter("criteria");
-
-        UserService userService = ServiceLocator.getUserService();
-
-        String targetJSP = "/WEB-INF/jsp/user_manager.jsp";
-
-        switch (criteria) {
-            case "gender" -> {
-                try {
-                    Map<String, Integer> distribution = userService.getDistribution("gender");
-                    request.setAttribute("distribution", distribution);
-
-                } catch (BusinessException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            case "location" -> {
-                try {
-                    Map<String, Integer> distribution = userService.getDistribution("location");
-                    request.setAttribute("distribution", distribution);
-
-
-                } catch (BusinessException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            case "birthday" -> {
-                try {
-                    Map<String, Integer> distribution = userService.getDistribution("birthday");
-                    request.setAttribute("distribution", distribution);
-
-
-                } catch (BusinessException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            case "joined_on" -> {
-                try {
-                    Map<String, Integer> distribution = userService.getDistribution("joined_on");
-                    request.setAttribute("distribution", distribution);
-
-
-                } catch (BusinessException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }
-        request.getRequestDispatcher(targetJSP).forward(request, response);
-
-    }*/
 
     //Asynchronous request
     private void handleUsersDistribution(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -697,74 +448,6 @@ public class ManagerServlet extends HttpServlet {
         }
     }
 
-
-    //Average age of users (users)
-    /*private void handleUsersAverageAge (HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        UserService userService = ServiceLocator.getUserService();
-
-        String targetJSP = "/WEB-INF/jsp/user_manager.jsp";
-
-        try {
-            Double usersAverageAge = userService.averageAgeUsers();
-            request.setAttribute("usersAverageAge", usersAverageAge);
-
-        } catch (BusinessException e) {
-            throw new RuntimeException(e);
-        }
-        request.getRequestDispatcher(targetJSP).forward(request, response);
-
-    }*/
-
-    //Asynchronous request
-    private void handleUsersAverageAge(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        UserService userService = ServiceLocator.getUserService();
-
-        try {
-            Double usersAverageAge = userService.averageAgeUsers();
-
-            JsonObject jsonResponse = new JsonObject();
-            jsonResponse.addProperty("usersAverageAge", usersAverageAge);
-
-            response.setContentType("application/json");
-            response.setCharacterEncoding("UTF-8");
-
-            response.getWriter().write(jsonResponse.toString());
-
-        } catch (BusinessException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-
-    //Average app rating through criteria (users)
-    /*private void handleUsersAverageAppRatingCriteria (HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String criteria = request.getParameter("criteria");
-
-        UserService userService = ServiceLocator.getUserService();
-
-        String targetJSP = "/WEB-INF/jsp/user_manager.jsp";
-
-        if (criteria.equals("location")) {
-            try {
-                Map<String, Double> averageAppRatingByCriteria = userService.averageAppRating("location");
-                request.setAttribute("averageAppRatingByCriteria", averageAppRatingByCriteria);
-
-            } catch (BusinessException e) {
-                throw new RuntimeException(e);
-            }
-        } else if (criteria.equals("gender")) {
-            try {
-                Map<String, Double> averageAppRatingByCriteria = userService.averageAppRating("gender");
-                request.setAttribute("averageAppRatingByCriteria", averageAppRatingByCriteria);
-
-            } catch (BusinessException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        request.getRequestDispatcher(targetJSP).forward(request, response);
-    }*/
-
     //Asynchronous request
     private void handleUsersAverageAppRatingCriteria(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String criteria = request.getParameter("criteria");
@@ -791,25 +474,6 @@ public class ManagerServlet extends HttpServlet {
         }
     }
 
-
-    //Average app rating through age range (users)
-
-    /*private void handleUsersAverageAppRatingAgeRange (HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        UserService userService = ServiceLocator.getUserService();
-
-        String targetJSP = "/WEB-INF/jsp/user_manager.jsp";
-
-        try {
-            Map<String, Double> averageAppRatingByAgeRange = userService.averageAppRatingByAgeRange();
-            request.setAttribute("averageAppRatingByAgeRange", averageAppRatingByAgeRange);
-
-        } catch (BusinessException e) {
-            throw new RuntimeException(e);
-        }
-        request.getRequestDispatcher(targetJSP).forward(request, response);
-
-    }*/
-
     //Asynchronous request
     private void handleUsersAverageAppRatingAgeRange(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         UserService userService = ServiceLocator.getUserService();
@@ -830,29 +494,6 @@ public class ManagerServlet extends HttpServlet {
         }
     }
 
-
-
-    //Neo4J analytics
-    //List<AnimeDTO> getTrendMediaContentByYear(int year)
-    /*private void handleTrendMediaContentByYear (HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        int year = Integer.parseInt(request.getParameter("year"));
-        boolean isManga = (boolean) request.getAttribute("isManga");
-        String targetJSP = isManga ? "/WEB-INF/jsp/manga_manager.jsp" : "/WEB-INF/jsp/anime_manager.jsp";
-
-        MediaContentService mediaContentService = ServiceLocator.getMediaContentService();
-
-        try {
-            List<? extends MediaContentDTO> trendMediaContentByYear = mediaContentService.getTrendMediaContentByYear(year, isManga? MediaContentType.MANGA : MediaContentType.ANIME);
-            request.setAttribute("trendMediaContentByYear", trendMediaContentByYear);
-
-        } catch (BusinessException e) {
-            throw new RuntimeException(e);
-        }
-        request.getRequestDispatcher(targetJSP).forward(request, response);
-
-
-    }*/
-
     //Asynchronous request
 
     private void handleTrendMediaContentByYear(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -862,7 +503,7 @@ public class ManagerServlet extends HttpServlet {
         MediaContentService mediaContentService = ServiceLocator.getMediaContentService();
 
         try {
-            List<? extends MediaContentDTO> trendMediaContentByYear = mediaContentService.getTrendMediaContentByYear(year, isManga ? MediaContentType.MANGA : MediaContentType.ANIME);
+            Map<? extends MediaContentDTO, Integer> trendMediaContentByYear = mediaContentService.getTrendMediaContentByYear(year, isManga ? MediaContentType.MANGA : MediaContentType.ANIME);
 
             JsonObject jsonResponse = new JsonObject();
             jsonResponse.add("trendMediaContentByYear", new Gson().toJsonTree(trendMediaContentByYear));
@@ -877,24 +518,6 @@ public class ManagerServlet extends HttpServlet {
         }
     }
 
-
-    //List<String> getMediaContentGenresTrendByYear
-    /*private void handleTrendGenresByYear (HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        int year = Integer.parseInt(request.getParameter("year"));
-        boolean isManga = (boolean) request.getAttribute("isManga");
-        String targetJSP = isManga ? "/WEB-INF/jsp/manga_manager.jsp" : "/WEB-INF/jsp/anime_manager.jsp";
-
-        MediaContentService mediaContentService = ServiceLocator.getMediaContentService();
-
-        try {
-            List<String> trendGenresByYear = mediaContentService.getMediaContentGenresTrendByYear(year, isManga? MediaContentType.MANGA : MediaContentType.ANIME);
-            request.setAttribute("trendGenresByYear", trendGenresByYear);
-
-        } catch (BusinessException e) {
-            throw new RuntimeException(e);
-        }
-        request.getRequestDispatcher(targetJSP).forward(request, response);
-    }*/
     //Asynchronous request
     private void handleTrendGenresByYear(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         int year = Integer.parseInt(request.getParameter("year"));
@@ -903,7 +526,7 @@ public class ManagerServlet extends HttpServlet {
         MediaContentService mediaContentService = ServiceLocator.getMediaContentService();
 
         try {
-            List<String> trendGenresByYear = mediaContentService.getMediaContentGenresTrendByYear(year, isManga ? MediaContentType.MANGA : MediaContentType.ANIME);
+            Map<String, Integer> trendGenresByYear = mediaContentService.getMediaContentGenresTrendByYear(year, isManga ? MediaContentType.MANGA : MediaContentType.ANIME);
 
             JsonObject jsonResponse = new JsonObject();
             jsonResponse.add("trendGenresByYear", new Gson().toJsonTree(trendGenresByYear));
@@ -918,24 +541,6 @@ public class ManagerServlet extends HttpServlet {
         }
     }
 
-
-
-    //List<AnimeDTO> getMediaContentTrendByLikes()
-    /*private void handleTrendMediaContentByLikes (HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        boolean isManga = (boolean) request.getAttribute("isManga");
-        String targetJSP = isManga ? "/WEB-INF/jsp/manga_manager.jsp" : "/WEB-INF/jsp/anime_manager.jsp";
-
-        MediaContentService mediaContentService = ServiceLocator.getMediaContentService();
-
-        try {
-            List<? extends MediaContentDTO> trendMediaContentByLikes = mediaContentService.getMediaContentTrendByLikes(isManga? MediaContentType.MANGA : MediaContentType.ANIME);
-            request.setAttribute("trendMediaContentByLikes", trendMediaContentByLikes);
-
-        } catch (BusinessException e) {
-            throw new RuntimeException(e);
-        }
-        request.getRequestDispatcher(targetJSP).forward(request, response);
-    }*/
     //Asynchronous request
     private void handleTrendMediaContentByLikes(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         boolean isManga = (boolean) request.getAttribute("isManga");
@@ -956,45 +561,6 @@ public class ManagerServlet extends HttpServlet {
             throw new RuntimeException(e);
         }
     }
-
-
-    //List<String> getMediaContentGenresTrend()
-    /*private void handleTrendGenres (HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        boolean isManga = (boolean) request.getAttribute("isManga");
-        String targetJSP = isManga ? "/WEB-INF/jsp/manga_manager.jsp" : "/WEB-INF/jsp/anime_manager.jsp";
-
-        MediaContentService mediaContentService = ServiceLocator.getMediaContentService();
-
-        try {
-            List<String> trendGenres = mediaContentService.getMediaContentGenresTrend(isManga? MediaContentType.MANGA : MediaContentType.ANIME);
-            request.setAttribute("trendGenres", trendGenres);
-
-        } catch (BusinessException e) {
-            throw new RuntimeException(e);
-        }
-        request.getRequestDispatcher(targetJSP).forward(request, response);
-    }*/
-
-    private void handleTrendGenres(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        boolean isManga = (boolean) request.getAttribute("isManga");
-        MediaContentService mediaContentService = ServiceLocator.getMediaContentService();
-
-        try {
-            List<String> trendGenres = mediaContentService.getMediaContentGenresTrend(isManga ? MediaContentType.MANGA : MediaContentType.ANIME);
-
-            JsonObject jsonResponse = new JsonObject();
-            jsonResponse.add("trendGenres", new Gson().toJsonTree(trendGenres));
-
-            response.setContentType("application/json");
-            response.setCharacterEncoding("UTF-8");
-
-            response.getWriter().write(jsonResponse.toString());
-
-        } catch (BusinessException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
 
     //Handler for each type of task
     //Examples: analytics requests (add media content, remove media content, update media content and search will be done by Fey)
