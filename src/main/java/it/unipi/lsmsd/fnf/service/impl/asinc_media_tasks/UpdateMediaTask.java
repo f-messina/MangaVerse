@@ -16,13 +16,13 @@ import static it.unipi.lsmsd.fnf.service.exception.BusinessException.handleDAOEx
 
 public class UpdateMediaTask extends Task {
     private final MediaContentDAO<Anime> animeDAONeo4j;
-    private final MediaContentDAO<Manga> mangaDAOMongo;
+    private final MediaContentDAO<Manga> mangaDAONeo4j;
     private final MediaContent media;
 
     public UpdateMediaTask(MediaContent media) {
         super(8);
         this.animeDAONeo4j = DAOLocator.getAnimeDAO(DataRepositoryEnum.NEO4J);
-        this.mangaDAOMongo = DAOLocator.getMangaDAO(DataRepositoryEnum.MONGODB);
+        this.mangaDAONeo4j = DAOLocator.getMangaDAO(DataRepositoryEnum.NEO4J);
         this.media = media;
     }
 
@@ -32,7 +32,7 @@ public class UpdateMediaTask extends Task {
             if (media instanceof Anime anime)
                 animeDAONeo4j.updateMediaContent(anime);
             else if (media instanceof Manga manga)
-                mangaDAOMongo.updateMediaContent(manga);
+                mangaDAONeo4j.updateMediaContent(manga);
 
         } catch (DAOException e) {
             handleDAOException(e);

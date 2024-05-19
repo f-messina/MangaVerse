@@ -17,6 +17,7 @@ import org.neo4j.driver.exceptions.Neo4jException;
 import org.neo4j.driver.exceptions.TransientException;
 import org.neo4j.driver.types.Node;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,7 +41,8 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
     @Override
     public void saveMediaContent(Manga manga) throws DAOException {
         try (Session session = getSession()) {
-            String query = "CREATE (a:Manga {id: $id, title: $title, picture: $picture})";
+            String query = "CREATE (m:Manga {id: $id, title: $title, picture: $picture}) RETURN m";
+
             session.executeWrite(tx -> {
                 boolean created = tx.run(query, parameters("id", manga.getId(), "title", manga.getTitle(), "picture", manga.getImageUrl())).hasNext();
 
@@ -78,15 +80,16 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
             Map<String, Object> param = new HashMap<>();
             param.put("id", manga.getId());
             if (manga.getTitle() != null) {
-                queryBuilder.append(" a.title = $title");
+                queryBuilder.append(" a.title = $title ");
                 param.put("title", manga.getTitle());
             }
             if (manga.getImageUrl() != null) {
                 if (manga.getTitle() != null)
                     queryBuilder.append(",");
-                queryBuilder.append(" a.picture = $picture");
+                queryBuilder.append(" a.picture = $picture ");
                 param.put("picture", manga.getImageUrl());
             }
+            queryBuilder.append("RETURN a");
             String query = queryBuilder.toString();
 
             session.executeWrite(tx -> {
@@ -118,14 +121,10 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
     @Override
     public void deleteMediaContent(String mangaId) throws DAOException {
         try (Session session = getSession()) {
-            String query = "MATCH (a:Manga {id: $id}) DETACH DELETE a";
-            session.run(query, Map.of("id", mangaId));
-        } catch (Exception e) {
-            throw new DAOException("Error while deleting manga node", e);
-        }
+            String query = "MATCH (a:Manga {id: $id}) DETACH " +
+                    "DELETE a " +
+                    "RETURN a";
 
-        try (Session session = getSession()) {
-            String query = "MATCH (a:Manga {id: $id}) DETACH DELETE a";
             session.executeWrite(tx -> {
                 boolean deleted = tx.run(query, parameters("id", mangaId)).hasNext();
 
@@ -157,11 +156,18 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
     public void like(String userId, String mangaId) throws DAOException {
         try (Session session = getSession()) {
             String query = "MATCH (u:User {id: $userId}), (m:Manga {id: $mangaId}) " +
-                    "MERGE (u)-[r:LIKE]->(m) " +
-                    "SET r.date = datetime() ";
+                    "WHERE NOT (u)-[:LIKE]->(m) " +
+                    "CREATE (u)-[r:LIKE {date: $date} ]->(m)" +
+                    "RETURN r";
 
-            session.run(query, Map.of("userId", userId, "mangaId", mangaId));
+            session.executeWrite(tx -> {
+                boolean created = tx.run(query, parameters("userId", userId, "mangaId", mangaId, "date", LocalDateTime.now())).hasNext();
 
+                if(!created)
+                    throw new Neo4jException("Error while creating like relationship between user " + userId + " and manga " + mangaId);
+
+                return null;
+            });
         } catch (TransientException e) {
             throw new DAOException(DAOExceptionType.TRANSIENT_ERROR, e.getMessage());
 
@@ -183,8 +189,18 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
     @Override
     public void unlike(String userId, String mangaId) throws DAOException {
         try (Session session = getSession()) {
-            String query = "MATCH (u:User {id: $userId})-[r:LIKE]->(m:Manga {id: $mangaId}) DELETE r";
-            session.run(query, Map.of("userId", userId, "mangaId", mangaId));
+            String query = "MATCH (u:User {id: $userId})-[r:LIKE]->(m:Manga {id: $mangaId}) " +
+                    "DELETE r " +
+                    "RETURN r";
+
+            session.executeWrite(tx -> {
+                boolean deleted = tx.run(query, Map.of("userId", userId, "mangaId", mangaId)).hasNext();
+
+                if(!deleted)
+                    throw new Neo4jException("Error while deleting like relationship between user " + userId + " and manga " + mangaId);
+
+                return null;
+            });
 
         } catch (TransientException e) {
             throw new DAOException(DAOExceptionType.TRANSIENT_ERROR, e.getMessage());
@@ -201,16 +217,24 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
      * Checks if a user has liked a specific Manga in the Neo4j database.
      *
      * @param userId   The ID of the user to check.
-     * @param mediaId  The ID of the Manga to check.
+     * @param mangaId  The ID of the Manga to check.
      * @return True if the user has liked the Manga, false otherwise.
      * @throws DAOException If an error occurs while checking the like status.
      */
     @Override
-    public boolean isLiked(String userId, String mediaId) throws DAOException {
+    public boolean isLiked(String userId, String mangaId) throws DAOException {
         try (Session session = getSession()) {
-            String query = "MATCH (u:User {id: $userId})-[r:LIKE]->(m:Manga {id: $mediaId}) RETURN count(r) > 0 as isLiked";
-            Record record = session.run(query, Map.of("userId", userId, "mediaId", mediaId)).single();
-            return record.get("isLiked").asBoolean();
+            String query = "MATCH (u:User {id: $userId})-[r:LIKE]->(m:Manga {id: $mangaId}) " +
+                    "RETURN r";
+
+            Boolean liked = session.executeRead(
+                    tx -> tx.run(query, parameters("userId", userId, "mangaId", mangaId)).hasNext()
+            );
+
+            if (liked == null)
+                throw new Neo4jException("Error while checking if user with ID " + userId + " has liked manga with ID " + mangaId);
+
+            return liked;
 
         } catch (Neo4jException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
@@ -223,7 +247,8 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
     @Override
     public Integer getNumOfLikes(String mangaId) throws DAOException {
         try(Session session = getSession()){
-            String query = "MATCH (:Manga {id: $mangaId})<-[r:LIKE]-() RETURN count(r) as numOfLikes";
+            String query = "MATCH (:Manga {id: $mangaId})<-[r:LIKE]-() " +
+                    "RETURN count(r) as numOfLikes";
 
             Value value = session.executeRead(
                     tx -> tx.run(query, parameters("mangaId", mangaId)).single().get("numOfLikes")
@@ -253,9 +278,16 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
     @Override
     public List<MangaDTO> getLiked(String userId) throws DAOException {
         try (Session session = getSession()) {
-            String query = "MATCH (u:User {id: $userId})-[:LIKE]->(m:Manga) RETURN m as manga";
-            List<Record> records = session.run(query, Map.of("userId", userId)).list();
-            return records.stream().map(this::recordToMangaDTO).collect(Collectors.toList());
+            String query = "MATCH (:User {id: $userId})-[:LIKE]->(m:Manga) " +
+                    "RETURN m as manga";
+
+            List<Record> records = session.executeRead(
+                    tx -> tx.run(query, parameters("userId", userId)).list()
+            );
+
+            return records.isEmpty() ? null : records.stream()
+                    .map(this::recordToMangaDTO)
+                    .collect(Collectors.toList());
 
         } catch (Neo4jException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
@@ -273,14 +305,20 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
      * @throws DAOException If an error occurs while retrieving suggested Manga.
      */
     @Override
-    public List<MangaDTO> getSuggested(String userId) throws DAOException {
+    public List<MangaDTO> getSuggested(String userId, Integer limit) throws DAOException {
         try (Session session = getSession()) {
             String query = "MATCH (u:User {id: $userId})-[:FOLLOWS]->(f:User)-[:LIKE]->(m:Manga) " +
                     "WITH m, COUNT(DISTINCT f) AS num_likes  " +
                     "RETURN m as manga " +
-                    "LIMIT 5";
-            List<Record> records = session.run(query, Map.of("userId", userId)).list();
-            return records.stream().map(this::recordToMangaDTO).collect(Collectors.toList());
+                    "LIMIT $n";
+
+            List<Record> records = session.executeRead(
+                    tx -> tx.run(query, parameters("userId", userId, "n", limit == null ? 5 : limit)).list()
+            );
+
+            return records.isEmpty() ? null : records.stream()
+                    .map(this::recordToMangaDTO)
+                    .collect(Collectors.toList());
 
         } catch (Neo4jException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
@@ -301,22 +339,27 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
     @Override
     public Map<MangaDTO, Integer> getTrendMediaContentByYear(int year) throws DAOException {
         try (Session session = getSession()) {
-            String startDate = year + "-01-01";
-            String endDate = year + "-12-31";
+            LocalDateTime startDate = LocalDateTime.of(year, 1, 1, 0, 0);
+            LocalDateTime endDate = LocalDateTime.of(year + 1, 1, 1, 0, 0);
             String query = """
                     MATCH (m:Manga)<-[r:LIKE]-(u:User)
                     WHERE r.date >= $startDate AND r.date < $endDate
-                    WITH m, count(u) AS numLikes\s
-                    RETURN m as manga, numLikes\s
+                    WITH m, count(r) AS numLikes
                     ORDER BY numLikes DESC
-                    LIMIT 5""";
-            List<Record> records = session.run(query, Map.of("startDate", startDate, "endDate", endDate)).list();
+                    RETURN m as manga, numLikes
+                    LIMIT 5
+                    """;
+
+            List<Record> records = session.executeRead(
+                    tx -> tx.run(query, parameters("startDate", startDate, "endDate", endDate)).list()
+            );
 
             return records.stream().map(record -> {
                 MangaDTO mangaDTO = recordToMangaDTO(record);
                 Integer likes = record.get("numLikes").asInt();
                 return Map.entry(mangaDTO, likes);
             }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
         } catch (Neo4jException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
 
@@ -335,8 +378,8 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
     @Override
     public Map<String, Integer> getMediaContentGenresTrendByYear(int year) throws DAOException {
         try (Session session = getSession()) {
-            String startDate = year + "-01-01";
-            String endDate = year + "-12-31";
+            LocalDateTime startDate = LocalDateTime.of(year, 1, 1, 0, 0);
+            LocalDateTime endDate = LocalDateTime.of(year + 1, 1, 1, 0, 0);
             String query = """
                     MATCH (m:Manga)<-[r:LIKE]-(u:User)
                     WHERE r.date >= $startDate AND r.date < $endDate
@@ -344,9 +387,12 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
                     ORDER BY numLikes DESC
                     MATCH (m)-[:BELONGS_TO]->(g:Genre)
                     RETURN DISTINCT g.name AS genreName, numLikes""";
-            Result results = session.run(query, Values.parameters("startDate", startDate, "endDate", endDate));
 
-            return results.stream().map(record -> {
+            List<Record> records = session.executeRead(
+                    tx -> tx.run(query, parameters("startDate", startDate, "endDate", endDate)).list()
+            );
+
+            return records.stream().map(record -> {
                 String genreName = record.get("genreName").asString();
                 Integer likes = record.get("numLikes").asInt();
                 return Map.entry(genreName, likes);
@@ -377,7 +423,10 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
                     "RETURN m as manga, numLikes " +
                     "LIMIT 5";
             LocalDateTime today = LocalDateTime.now();
-            List<Record> records = session.run(query,parameters("startDate", today.minusMonths(6), "endDate", today)).list();
+
+            List<Record> records = session.executeRead(
+                    tx -> tx.run(query, parameters("startDate", today.minusMonths(6), "endDate", today)).list()
+            );
 
             return records.stream().map(this::recordToMangaDTO).collect(Collectors.toList());
 
@@ -405,7 +454,7 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
     @Override
-    public PageDTO<? extends MediaContentDTO> search(List<Map<String, Object>> filters, Map<String, Integer> orderBy, int page) throws DAOException {
+    public PageDTO<MediaContentDTO> search(List<Map<String, Object>> filters, Map<String, Integer> orderBy, int page) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
     @Override

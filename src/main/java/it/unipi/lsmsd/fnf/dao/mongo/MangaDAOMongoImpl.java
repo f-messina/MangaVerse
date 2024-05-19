@@ -182,7 +182,7 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
      * @return A PageDTO containing the results and total count.
      * @throws DAOException If an error occurs during search.
      */
-    public PageDTO<MangaDTO> search(List<Map<String, Object>> filters, Map<String, Integer> orderBy, int page) throws DAOException {
+    public PageDTO<MediaContentDTO> search(List<Map<String, Object>> filters, Map<String, Integer> orderBy, int page) throws DAOException {
         try {
             MongoCollection<Document> mangaCollection = getCollection(COLLECTION_NAME);
             Bson filter = buildFilter(filters);
@@ -213,12 +213,13 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
 
             Document result = mangaCollection.aggregate(pipeline).first();
 
-            List<MangaDTO> mangaList = Optional.ofNullable(result)
+            List<MediaContentDTO> mangaList = new ArrayList<>();
+            Optional.ofNullable(result)
                     .map(doc -> doc.getList(Constants.PAGINATION_FACET, Document.class))
                     .orElseThrow(() -> new MongoException("MangaDAOMongoImpl: search: No results found"))
                     .stream()
                     .map(DocumentUtils::documentToMangaDTO)
-                    .toList();
+                    .forEach(mangaList::add);
 
             int totalCount = Optional.of(result)
                     .map(doc -> doc.getList(Constants.COUNT_FACET, Document.class))
@@ -511,7 +512,7 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override
-    public List<? extends MediaContentDTO> getSuggested(String userId) throws DAOException {
+    public List<? extends MediaContentDTO> getSuggested(String userId, Integer limit) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override

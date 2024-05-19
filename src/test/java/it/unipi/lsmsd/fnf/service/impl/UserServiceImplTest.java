@@ -75,12 +75,11 @@ class UserServiceImplTest {
     void updateUserInfoTest() {
         try {
             UserService userService = new UserServiceImpl();
-            UserSummaryDTO userSummaryDTO = userService.searchFirstNUsers("exampleUser", 1, null).getFirst();
+            UserSummaryDTO userSummaryDTO = userService.searchFirstNUsers("exampleUser1", 1, null).getFirst();
             User user = new User();
             user.setId(userSummaryDTO.getId());
-            user.setUsername("exampleUser2");
-            user.setProfilePicUrl("profilePicUrl");
-            user.setBirthday(LocalDate.of(1999, 12, 12));
+            user.setUsername("exampleUser");
+            user.setLocation("Italy");
             user.setGender(Gender.MALE);
             userService.updateUserInfo(user);
             Thread.sleep(2*1000);

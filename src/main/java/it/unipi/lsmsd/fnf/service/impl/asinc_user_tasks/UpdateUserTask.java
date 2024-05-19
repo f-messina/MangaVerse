@@ -24,9 +24,8 @@ public class UpdateUserTask extends Task {
     @Override
     public void executeJob() throws BusinessException {
         try {
-            System.out.println("Updating user: " + user);
             userDAONeo4j.updateUser(user);
-            System.out.println("User updated: " + user);
+
         } catch (DAOException e) {
             handleDAOException(e);
         }

@@ -84,7 +84,8 @@ public class Review {
         dto.setComment(this.getComment());
         dto.setRating(this.getRating());
         dto.setDate(this.getDate());
-        dto.setMediaContent(this.getMediaContent().toDTO());
+        if (this.getMediaContent() != null)
+            dto.setMediaContent(this.getMediaContent().toDTO());
         dto.setUser(this.getUser().toSummaryDTO());
 
         return dto;

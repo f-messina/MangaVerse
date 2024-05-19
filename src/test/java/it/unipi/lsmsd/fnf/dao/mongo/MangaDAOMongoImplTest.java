@@ -5,6 +5,7 @@ import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
 import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
+import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.enums.MangaStatus;
 import it.unipi.lsmsd.fnf.model.enums.MangaType;
 import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
@@ -41,8 +42,8 @@ class MangaDAOMongoImplTest {
         // test 1
         System.out.println("Search by title");
         assertDoesNotThrow(() -> {
-            List<MangaDTO> mangaList = mangaDAO.search(List.of(Map.of("title", "na")), Map.of("title", 1), 1).getEntries();
-            for (MangaDTO manga : mangaList) {
+            List<MediaContentDTO> mangaList = mangaDAO.search(List.of(Map.of("title", "na")), Map.of("title", 1), 1).getEntries();
+            for (MediaContentDTO manga : mangaList) {
                 System.out.println("Id: " + manga.getId() + ", Title: " + manga.getTitle());
             }
         });
@@ -51,9 +52,9 @@ class MangaDAOMongoImplTest {
         System.out.println("Search by filters");
         assertDoesNotThrow(() -> {
             for (int i = 1; i < 5; i++) {
-                PageDTO<MangaDTO> mangaPage = mangaDAO.search(List.of(Map.of("$in",Map.of("genres", List.of("Fantasy", "Adventure")))), Map.of("title", 1), i);
+                PageDTO<MediaContentDTO> mangaPage = mangaDAO.search(List.of(Map.of("$in",Map.of("genres", List.of("Fantasy", "Adventure")))), Map.of("title", 1), i);
                 if (!mangaPage.getEntries().isEmpty()) {
-                    for (MangaDTO manga : mangaPage.getEntries()) {
+                    for (MediaContentDTO manga : mangaPage.getEntries()) {
                         System.out.println("Id: " + manga.getId() + ", Title: " + manga.getTitle());
                     }
                 }
@@ -68,7 +69,7 @@ class MangaDAOMongoImplTest {
     void saveMediaContentTest() throws DAOException {
         MangaDAOMongoImpl mangaDAO = new MangaDAOMongoImpl();
         Manga manga = createSampleManga();
-        List<MangaDTO> mangaList = mangaDAO.search(List.of(Map.of("title", "Sample Manga")), Map.of("title", 1), 1).getEntries();
+        List<MediaContentDTO> mangaList = mangaDAO.search(List.of(Map.of("title", "Sample Manga")), Map.of("title", 1), 1).getEntries();
 
         if (mangaList.isEmpty()) {
             // test 1
@@ -87,11 +88,11 @@ class MangaDAOMongoImplTest {
     @Test
     void updateMediaContentTest() throws DAOException {
         MangaDAOMongoImpl mangaDAO = new MangaDAOMongoImpl();
-        List<MangaDTO> mangaList = mangaDAO.search(List.of(Map.of("title", "Sample Manga")), Map.of("title", 1), 1).getEntries();
+        List<MediaContentDTO> mangaList = mangaDAO.search(List.of(Map.of("title", "Sample Manga")), Map.of("title", 1), 1).getEntries();
 
         // test 1
         if (!mangaList.isEmpty()) {
-            MangaDTO mangaToUpdate = mangaList.getFirst();
+            MediaContentDTO mangaToUpdate = mangaList.getFirst();
             System.out.println("Manga to update: " + mangaToUpdate);
             Manga manga = new Manga();
             manga.setId(mangaToUpdate.getId());
@@ -113,11 +114,11 @@ class MangaDAOMongoImplTest {
     @Test
     void deleteMediaContentTest() throws DAOException {
         MangaDAOMongoImpl mangaDAO = new MangaDAOMongoImpl();
-        List<MangaDTO> mangaList = mangaDAO.search(List.of(Map.of("title", "Sample Manga")), Map.of("title", 1), 1).getEntries();
+        List<MediaContentDTO> mangaList = mangaDAO.search(List.of(Map.of("title", "Sample Manga")), Map.of("title", 1), 1).getEntries();
 
         // test 1
         if (!mangaList.isEmpty()) {
-            MangaDTO mangaToDelete = mangaList.getFirst();
+            MediaContentDTO mangaToDelete = mangaList.getFirst();
             System.out.println("Manga to delete: " + mangaToDelete);
             assertDoesNotThrow(() -> mangaDAO.deleteMediaContent(mangaToDelete.getId()));
             System.out.println("Manga deleted");
@@ -133,11 +134,11 @@ class MangaDAOMongoImplTest {
     @Test
     void readMediaContentTest() throws DAOException {
         MangaDAOMongoImpl mangaDAO = new MangaDAOMongoImpl();
-        List<MangaDTO> mangaList = mangaDAO.search(List.of(Map.of("title", "Sample Manga")), Map.of("title", 1), 1).getEntries();
+        List<MediaContentDTO> mangaList = mangaDAO.search(List.of(Map.of("title", "Sample Manga")), Map.of("title", 1), 1).getEntries();
 
         // test 1
         if (!mangaList.isEmpty()) {
-            MangaDTO mangaToRead = mangaList.getFirst();
+            MediaContentDTO mangaToRead = mangaList.getFirst();
             assertDoesNotThrow(() -> {
                 Manga manga = mangaDAO.readMediaContent(mangaToRead.getId());
                 System.out.println("Manga read: " + manga.toString());
@@ -154,7 +155,7 @@ class MangaDAOMongoImplTest {
     @Test
     void upsertReviewTest() throws DAOException {
         MangaDAOMongoImpl mangaDAO = new MangaDAOMongoImpl();
-        List<MangaDTO> mangaList = mangaDAO.search(List.of(Map.of("title", "Sample Manga")), Map.of("title", 1), 1).getEntries();
+        List<MediaContentDTO> mangaList = mangaDAO.search(List.of(Map.of("title", "Sample Manga")), Map.of("title", 1), 1).getEntries();
 
         if (!mangaList.isEmpty()) {
 
@@ -184,7 +185,7 @@ class MangaDAOMongoImplTest {
     @Test
     void refreshLatestReviewsTest() throws DAOException {
         MangaDAOMongoImpl mangaDAO = new MangaDAOMongoImpl();
-        List<MangaDTO> mangaList = mangaDAO.search(List.of(Map.of("title", "Sample Manga")), Map.of("title", 1), 1).getEntries();
+        List<MediaContentDTO> mangaList = mangaDAO.search(List.of(Map.of("title", "Sample Manga")), Map.of("title", 1), 1).getEntries();
         if (!mangaList.isEmpty()) {
             String mangaId = mangaList.getFirst().getId();
 
@@ -211,7 +212,7 @@ class MangaDAOMongoImplTest {
     void isInLatestReviewsTest() throws DAOException {
         MangaDAOMongoImpl mangaDAO = new MangaDAOMongoImpl();
 
-        List<MangaDTO> mangaList = mangaDAO.search(List.of(Map.of("title", "Sample Manga")), Map.of("title", 1), 1).getEntries();
+        List<MediaContentDTO> mangaList = mangaDAO.search(List.of(Map.of("title", "Sample Manga")), Map.of("title", 1), 1).getEntries();
         if (!mangaList.isEmpty()) {
             String mangaId = mangaList.getFirst().getId();
             Manga manga = mangaDAO.readMediaContent(mangaId);
@@ -243,7 +244,7 @@ class MangaDAOMongoImplTest {
     @Test
     public void updateNumOfLikesTest() throws DAOException {
         MangaDAOMongoImpl mangaDAO = new MangaDAOMongoImpl();
-        List<MangaDTO> mangaList = mangaDAO.search(List.of(Map.of("title", "Sample Manga")), Map.of("title", 1), 1).getEntries();
+        List<MediaContentDTO> mangaList = mangaDAO.search(List.of(Map.of("title", "Sample Manga")), Map.of("title", 1), 1).getEntries();
         if (!mangaList.isEmpty()) {
             String mangaId = mangaList.getFirst().getId();
             assertDoesNotThrow(() -> {

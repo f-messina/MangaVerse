@@ -15,14 +15,14 @@ import static it.unipi.lsmsd.fnf.service.exception.BusinessException.handleDAOEx
 
 public class DeleteMediaTask extends Task {
     private final MediaContentDAO<Anime> animeDAONeo4j;
-    private final MediaContentDAO<Manga> mangaDAOMongo;
+    private final MediaContentDAO<Manga> mangaDAONeo4j;
     private final String id;
     private final MediaContentType type;
 
     public DeleteMediaTask(String id, MediaContentType type) {
         super(7);
         this.animeDAONeo4j = DAOLocator.getAnimeDAO(DataRepositoryEnum.NEO4J);
-        this.mangaDAOMongo = DAOLocator.getMangaDAO(DataRepositoryEnum.MONGODB);
+        this.mangaDAONeo4j = DAOLocator.getMangaDAO(DataRepositoryEnum.NEO4J);
         this.id = id;
         this.type = type;
     }
@@ -33,7 +33,7 @@ public class DeleteMediaTask extends Task {
             if (type.equals(MediaContentType.ANIME))
                 animeDAONeo4j.deleteMediaContent(id);
             else
-                mangaDAOMongo.deleteMediaContent(id);
+                mangaDAONeo4j.deleteMediaContent(id);
 
         } catch (DAOException e) {
             handleDAOException(e);

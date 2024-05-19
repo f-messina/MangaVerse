@@ -17,7 +17,7 @@ public interface MediaContentDAO<T extends MediaContent> {
     void updateMediaContent(T mediaContent) throws DAOException;
     T readMediaContent(String id) throws DAOException;
     void deleteMediaContent(String id) throws DAOException;
-    PageDTO<? extends MediaContentDTO> search(List<Map<String, Object>> filters, Map<String, Integer> orderBy, int page) throws DAOException;
+    PageDTO<MediaContentDTO> search(List<Map<String, Object>> filters, Map<String, Integer> orderBy, int page) throws DAOException;
     void upsertReview(ReviewDTO reviewDTO) throws DAOException;
     void refreshLatestReviews(String mediaId) throws DAOException;
     boolean isInLatestReviews(String mediaId, String reviewId) throws DAOException;
@@ -31,7 +31,7 @@ public interface MediaContentDAO<T extends MediaContent> {
     boolean isLiked(String userId, String mediaId) throws DAOException;
     Integer getNumOfLikes(String mediaId) throws DAOException;
     List<? extends MediaContentDTO> getLiked(String userId) throws DAOException;
-    List<? extends MediaContentDTO> getSuggested(String userId) throws DAOException;
+    List<? extends MediaContentDTO> getSuggested(String userId, Integer limit) throws DAOException;
     Map<? extends MediaContentDTO, Integer> getTrendMediaContentByYear(int year) throws DAOException; // MANAGER OPZIONALE
     Map<String, Integer> getMediaContentGenresTrendByYear(int year) throws DAOException; // MANAGER
     List<? extends MediaContentDTO> getMediaContentTrendByLikes() throws DAOException;

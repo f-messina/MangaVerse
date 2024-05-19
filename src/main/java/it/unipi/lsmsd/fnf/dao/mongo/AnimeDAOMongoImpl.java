@@ -60,6 +60,7 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
             UpdateResult result = animeCollection.updateOne(filter, doc, options);
             if (result.getMatchedCount() != 0) {
                 throw new DuplicatedException(DuplicatedExceptionType.GENERIC, "AnimeDAOMongoDBImpl : saveMediaContent: An anime with the same title already exists");            }
+
             Optional.ofNullable(result.getUpsertedId())
                     .map(id -> id.asObjectId().getValue().toHexString())
                     .map(StringId -> { anime.setId(StringId); return StringId; })
@@ -99,6 +100,7 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
             Bson update = new Document("$set", animeToDocument(anime));
 
             UpdateResult result = animeCollection.updateOne(filter, update);
+
             if (result.getMatchedCount() == 0) {
                 throw new MongoException("AnimeDAOMongoDBImpl : updateMediaContent: Anime not found");
             } else if (result.getModifiedCount() == 0) {
@@ -184,7 +186,7 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
      * @throws DAOException If an error occurs during the search process.
      */
     @Override
-    public PageDTO<AnimeDTO> search(List<Map<String, Object>> filters, Map<String, Integer> orderBy, int page) throws DAOException {
+    public PageDTO<MediaContentDTO> search(List<Map<String, Object>> filters, Map<String, Integer> orderBy, int page) throws DAOException {
         try {
             MongoCollection<Document> animeCollection = getCollection(COLLECTION_NAME);
 
@@ -218,12 +220,13 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
             Document result = animeCollection.aggregate(pipeline).first();
 
             // Extract the list of AnimeDTO objects and the total count of results from the query result
-            List<AnimeDTO> animeList = Optional.ofNullable(result)
+            List<MediaContentDTO> animeList = new ArrayList<>();
+            Optional.ofNullable(result)
                     .map(doc -> doc.getList(Constants.PAGINATION_FACET, Document.class))
                     .orElseThrow(() -> new MongoException("AnimeDAOMongoDBImpl : search: No results found"))
                     .stream()
                     .map(DocumentUtils::documentToAnimeDTO)
-                    .toList();
+                    .forEach(animeList::add);
 
             int totalCount = Optional.of(result)
                     .map(doc -> doc.getList(Constants.COUNT_FACET, Document.class))
@@ -525,7 +528,7 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override
-    public List<? extends MediaContentDTO> getSuggested(String userId) throws DAOException {
+    public List<? extends MediaContentDTO> getSuggested(String userId, Integer limit) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override

@@ -138,7 +138,7 @@ public class ManagerServlet extends HttpServlet {
         Future<Map<String, Double>> bestAnimeCriteriaFuture = executorService.submit(() -> {
             try {
                 MediaContentService mediaContentService = ServiceLocator.getMediaContentService();
-                return mediaContentService.getBestAnimeCriteria("tags", 1);
+                return mediaContentService.getBestCriteria("tags", 1, MediaContentType.ANIME);
             } catch (BusinessException e) {
                 throw new RuntimeException(e);
             }
@@ -218,7 +218,7 @@ public class ManagerServlet extends HttpServlet {
         Future<Map<String, Double>> bestMangaCriteriaFuture = executorService.submit(() -> {
             try {
                 MediaContentService mediaContentService = ServiceLocator.getMediaContentService();
-                return mediaContentService.getBestMangaCriteria("genres", 1);
+                return mediaContentService.getBestCriteria("genres", 1, MediaContentType.MANGA);
             } catch (BusinessException e) {
                 throw new RuntimeException(e);
             }
@@ -341,7 +341,7 @@ public class ManagerServlet extends HttpServlet {
                 if (!(criteria.equals("tags"))) {
                     throw new IllegalArgumentException("Criteria not supported");
                 }
-                bestCriteria = mediaContentService.getBestAnimeCriteria(criteria, page);
+                bestCriteria = mediaContentService.getBestCriteria(criteria, page, MediaContentType.ANIME);
             } catch (BusinessException e) {
                 throw new RuntimeException(e);
             }
@@ -350,7 +350,7 @@ public class ManagerServlet extends HttpServlet {
                 if (!(criteria.equals("genres") || criteria.equals("themes") || criteria.equals("demographics"))) {
                     throw new IllegalArgumentException("Criteria not supported");
                 }
-                bestCriteria = mediaContentService.getBestMangaCriteria(criteria, page);
+                bestCriteria = mediaContentService.getBestCriteria(criteria, page, MediaContentType.MANGA);
             } catch (BusinessException e) {
                 throw new RuntimeException(e);
             }

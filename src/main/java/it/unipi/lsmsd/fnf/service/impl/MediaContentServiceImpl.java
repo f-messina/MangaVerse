@@ -182,7 +182,7 @@ public class MediaContentServiceImpl implements MediaContentService {
      * @throws BusinessException If an error occurs during the operation.
      */
     @Override
-    public PageDTO<? extends MediaContentDTO> searchByFilter(List<Map<String, Object>> filters, Map<String, Integer> orderBy, int page, MediaContentType type) throws BusinessException {
+    public PageDTO<MediaContentDTO> searchByFilter(List<Map<String, Object>> filters, Map<String, Integer> orderBy, int page, MediaContentType type) throws BusinessException {
         try {
             if (MediaContentType.ANIME.equals(type))
                 return animeDAOMongoDB.search(filters, orderBy, page);
@@ -206,7 +206,7 @@ public class MediaContentServiceImpl implements MediaContentService {
      * @throws BusinessException If an error occurs during the operation.
      */
     @Override
-    public PageDTO<? extends MediaContentDTO> searchByTitle(String title, int page, MediaContentType type) throws BusinessException {
+    public PageDTO<MediaContentDTO> searchByTitle(String title, int page, MediaContentType type) throws BusinessException {
         try {
             if (MediaContentType.ANIME.equals(type))
                 return animeDAOMongoDB.search(List.of(Map.of("title", title)), Map.of("score", 1), page);
@@ -322,12 +322,12 @@ public class MediaContentServiceImpl implements MediaContentService {
      * @throws BusinessException If an error occurs during the operation.
      */
     @Override
-    public List<? extends MediaContentDTO> getSuggestedMediaContent(String userId, MediaContentType type) throws BusinessException {
+    public List<? extends MediaContentDTO> getSuggestedMediaContent(String userId, MediaContentType type, Integer limit) throws BusinessException {
         try {
             if (MediaContentType.ANIME.equals(type))
-                return animeDAONeo4J.getSuggested(userId);
+                return animeDAONeo4J.getSuggested(userId, limit);
             else
-                return mangaDAONeo4J.getSuggested(userId);
+                return mangaDAONeo4J.getSuggested(userId, limit);
 
         } catch (DAOException e) {
             handleDAOException(e);
@@ -384,32 +384,23 @@ public class MediaContentServiceImpl implements MediaContentService {
         }
     }
 
-    //Service for mongoDB queries
     @Override
-    public Map<String, Double> getBestAnimeCriteria (String criteria, int page) throws BusinessException {
+    public Map<String, Double> getBestCriteria (String criteria, int page, MediaContentType type) throws BusinessException {
         try {
-            if (!(criteria.equals("tags")|| criteria.equals("producers") || criteria.equals("studios")))
-                throw new BusinessException("Invalid criteria");
-            return animeDAOMongoDB.getBestCriteria(criteria, criteria.equals("tags"), page);
+            if (MediaContentType.ANIME.equals(type)) {
+                if (!(criteria.equals("tags") || criteria.equals("producers") || criteria.equals("studios")))
+                    throw new BusinessException("Invalid criteria");
+                return animeDAOMongoDB.getBestCriteria(criteria, criteria.equals("tags"), page);
+            } else {
+                if (!(criteria.equals("genres") || criteria.equals("demographics") ||
+                        criteria.equals("themes") || criteria.equals("authors") || criteria.equals("serializations")))
+                    throw new BusinessException("Invalid criteria");
 
-        } catch (DAOException e) {
-            handleDAOException(e);
-            return null;
-        }
-    }
+                boolean isArray = criteria.equals("genres") || criteria.equals("demographics") ||
+                        criteria.equals("themes") || criteria.equals("authors");
 
-    //Service for mongoDB queries
-    @Override
-    public Map<String, Double> getBestMangaCriteria (String criteria, int page) throws BusinessException {
-        try {
-            if (!(criteria.equals("genres") || criteria.equals("demographics") ||
-                    criteria.equals("themes") || criteria.equals("authors") || criteria.equals("serializations")))
-                throw new BusinessException("Invalid criteria");
-
-            boolean isArray = criteria.equals("genres") || criteria.equals("demographics") ||
-                    criteria.equals("themes") || criteria.equals("authors");
-
-            return mangaDAOMongoDB.getBestCriteria(criteria, isArray, page);
+                return mangaDAOMongoDB.getBestCriteria(criteria, isArray, page);
+            }
 
         } catch (DAOException e) {
             handleDAOException(e);

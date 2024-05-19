@@ -85,7 +85,7 @@ public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
 
             session.executeWrite(tx -> {
                 boolean updated = tx.run(query, param).hasNext();
-                System.out.println(updated);
+
                 if(!updated)
                     throw new Neo4jException("Error while updating user node with ID " + user.getId());
 
@@ -139,7 +139,9 @@ public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
     public void follow(String userId, String followedUserId) throws DAOException {
         try (Session session = getSession()) {
             String query = "MATCH (u:User {id: $userId}), (f:User {id: $followedUserId}) " +
-                    "WHERE NOT (u)-[:FOLLOWS]->(f) CREATE (u)-[r:FOLLOWS]->(f) RETURN r";
+                    "WHERE NOT (u)-[:FOLLOWS]->(f) " +
+                    "CREATE (u)-[r:FOLLOWS]->(f) " +
+                    "RETURN r";
 
             session.executeWrite(tx -> {
                 boolean created = tx.run(query, parameters("userId", userId, "followedUserId", followedUserId)).hasNext();
@@ -170,7 +172,9 @@ public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
     @Override
     public void unfollow(String followerUserId, String followingUserId) throws DAOException {
         try (Session session = getSession()) {
-            String query = "MATCH (:User {id: $followerUserId})-[r:FOLLOWS]->(:User {id: $followingUserId}) DELETE r RETURN r";
+            String query = "MATCH (:User {id: $followerUserId})-[r:FOLLOWS]->(:User {id: $followingUserId}) " +
+                    "DELETE r " +
+                    "RETURN r";
 
             session.executeWrite(tx -> {
                     boolean deleted = tx.run(query, parameters("followerUserId", followerUserId, "followingUserId", followingUserId)).hasNext();

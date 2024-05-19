@@ -62,6 +62,7 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
             MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
             MongoCollection<Document> mediaCollection;
             Bson filter;
+
             if (reviewDTO.getMediaContent() instanceof AnimeDTO) {
                 mediaCollection = getCollection("anime");
                 // Check if the anime exists
@@ -70,8 +71,8 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
                 }
                 // Create a filter based on anime.id/manga.id and user.id
                 filter = and(
-                        eq("anime.id", reviewDTO.getMediaContent().getId()),
-                        eq("user.id", reviewDTO.getUser().getId())
+                        eq("anime.id", new ObjectId(reviewDTO.getMediaContent().getId())),
+                        eq("user.id", new ObjectId(reviewDTO.getUser().getId()))
                 );
             } else if (reviewDTO.getMediaContent() instanceof MangaDTO) {
                 mediaCollection = getCollection("manga");
@@ -81,13 +82,14 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
                 }
                 // Create a filter based on anime.id/manga.id and user.id
                 filter = and(
-                        eq("manga.id", reviewDTO.getMediaContent().getId()),
-                        eq("user.id", reviewDTO.getUser().getId())
+                        eq("manga.id", new ObjectId(reviewDTO.getMediaContent().getId())),
+                        eq("user.id", new ObjectId(reviewDTO.getUser().getId()))
                 );
             } else {
                 throw new DAOException("Invalid media content type");
             }
 
+            reviewDTO.setDate(LocalDate.now());
             Bson update = setOnInsert(reviewDTOToDocument(reviewDTO));
 
             // Insert the reviewDTO if it does not exist
@@ -186,13 +188,12 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
     public void updateUserRedundancy(UserSummaryDTO userSummaryDTO) throws DAOException {
 
         //create user embedded Document
-        Document userInfo = new Document();
-        appendIfNotNull(userInfo, "id", new ObjectId(userSummaryDTO.getId()));
-        appendIfNotNull(userInfo, "username", userSummaryDTO.getUsername());
-        appendIfNotNull(userInfo, "picture", userSummaryDTO.getProfilePicUrl());
-        appendIfNotNull(userInfo, "location", userSummaryDTO.getLocation());
-        appendIfNotNull(userInfo, "birthday", ConverterUtils.localDateToDate(userSummaryDTO.getBirthDate()));
-        Document userDoc = new Document("user", userInfo);
+        Document userDoc = new Document();
+        appendIfNotNull(userDoc, "user.id", new ObjectId(userSummaryDTO.getId()));
+        appendIfNotNull(userDoc, "user.username", userSummaryDTO.getUsername());
+        appendIfNotNull(userDoc, "user.picture", userSummaryDTO.getProfilePicUrl());
+        appendIfNotNull(userDoc, "user.location", userSummaryDTO.getLocation());
+        appendIfNotNull(userDoc, "user.birthday", ConverterUtils.localDateToDate(userSummaryDTO.getBirthDate()));
 
         try {
             MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
@@ -349,6 +350,7 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
             if (latestReviews == null) {
                 return;
             }
+
             latestReviews.getList("anime", Document.class).forEach(document -> {
                 Bson update;
                 if (document.getList("latest_reviews", Document.class).isEmpty())

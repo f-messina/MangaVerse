@@ -141,7 +141,7 @@ public class User extends RegisteredUser {
     }
 
     public UserSummaryDTO toSummaryDTO () {
-        return new UserSummaryDTO(this.getId(), this.getUsername(), this.getProfilePicUrl());
+        return new UserSummaryDTO(this.getId(), this.getUsername(), this.getProfilePicUrl(), this.getLocation(), this.getBirthday());
     }
 
     public LoggedUserDTO toLoggedUserDTO() {
