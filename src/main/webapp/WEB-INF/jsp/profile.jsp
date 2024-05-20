@@ -33,9 +33,10 @@
     <title>PROFILE</title>
 </head>
 <body>
+    <c:set var="userInfo" value="${requestScope['userInfo']}" />
     <nav>
         <a href="${pageContext.request.contextPath}/mainPage"><img src="${pageContext.request.contextPath}/images/logo-with-initial.png" alt="logo" /></a>
-        <h1>Profile Page</h1>
+        <h1>Welcome ${userInfo.getUsername()}</h1>
         <div class="nav-items">
             <a href="${pageContext.request.contextPath}/mainPage/anime" class="anime">Anime</a>
             <a href="${pageContext.request.contextPath}/mainPage/manga" class="manga">Manga</a>
@@ -48,12 +49,59 @@
         </div>
     </nav>
 
-    <c:set var="userInfo" value="${requestScope['userInfo']}" />
-    <section class="profile">
-        <div class="profile-img">
-            <img alt="profile image" src="${userInfo.getProfilePicUrl()}">
+    <div id="overlay" class="overlay"></div>
+
+    <header>
+        <div class="container-px">
+            <div class="profile">
+
+                <div class="profile-image">
+                    <img src="${userInfo.getProfilePicUrl()}" alt="profile picture">
+                </div>
+
+                <div class="profile-user-settings">
+                    <h1 class="profile-user-name">${userInfo.getUsername()}</h1>
+                    <button class="btn-px profile-edit-btn" onclick="showEditForm()">Edit Profile</button>
+                </div>
+
+                <div class="profile-stats">
+                    <ul>
+                        <li>
+                            <span class="profile-stat-count">
+                                ${empty userInfo.getFollowers() ? 0 : userInfo.getFollowers()}
+                            </span> followers
+                        </li>
+                        <li>
+                            <span class="profile-stat-count">
+                                ${empty userInfo.getFollowed() ? 0 : userInfo.getFollowed()}
+                            </span> following
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="profile-bio">
+                    <c:if test="${not empty userInfo.getFullname()}">
+                        <p><span class="profile-real-name">${userInfo.getFullname()}</span></p>
+                    </c:if>
+                    <c:if test="${not empty userInfo.getDescription()}">
+                        <p>${userInfo.getDescription()}</p>
+                    </c:if>
+                    <c:if test="${not empty userInfo.getGender()}">
+                        <p>${userInfo.getGender().toString()}</p>
+                    </c:if>
+                    <c:if test="${not empty userInfo.getLocation()}">
+                        <p>${userInfo.getLocation()}</p>
+                    </c:if>
+                    <c:if test="${not empty userInfo.getBirthday()}">
+                        <p>${userInfo.getBirthday()}</p>
+                    </c:if>
+                </div>
+            </div>
         </div>
-        <div id="user-info" class="texts">
+    </header>
+
+    <div id="editPopup" class="myAlert container" style="max-width: 600px">
+        <div id="user-info" class="myAlertBody">
             <form id="profile-form" method="post" action="${pageContext.request.contextPath}/profile" autocomplete="off" class="forms">
                 <input type="hidden" name="action" value="update-info">
                 <div class="form-group">
@@ -96,47 +144,13 @@
                     <label for="joined-date"><i class="zmdi zmdi-lock"></i></label>
                     <input type="text" class="info-box" name="joined-date" id="joined-date" value="${userInfo.getJoinedDate()}" placeholder="Joined Date" disabled/>
                 </div>
-                <div class="form-group">
-                    <button type="submit" id="edit-button" class="submit-btn">Modify</button>
-                    <button type="button" id="confirm-button" class="submit-btn" style="display: none">Confirm</button>
+                <div class="py-3 text-center">
+                    <button type="button" class="btn btn-secondary" onclick="hideEditForm()">Close</button>
+                    <input class="btn btn-primary" type="submit" name="edit" id="edit" value="Edit"/>
                 </div>
             </form>
         </div>
-    </section>
-
-    <section class="likes">
-        <h1>Likes</h1>
-        <div class="likes-container">
-            <div class="likes-box">
-                <h2>Manga</h2>
-                <ul class="manga-anime-list" id="manga-list">
-                    <c:forEach var="manga" items="${requestScope.likedManga}">
-                        <li>
-                            <a class="manga-anime" href="${pageContext.request.contextPath}/manga?mediaId=${manga.getId()}"><c:out value="${manga.getTitle()}"/></a>
-                            <img class="list-img" src="${manga.getImageUrl()}" alt="${fn:escapeXml(manga.getTitle())} image" />
-                        </li>
-                    </c:forEach>
-                    <c:if test="${empty requestScope.likedManga}">
-                        <li>No liked manga found</li>
-                    </c:if>
-                </ul>
-            </div>
-            <div class="likes-box">
-                <h2>Anime</h2>
-                <ul class="manga-anime-list" id="anime-list">
-                    <c:forEach var="anime" items="${requestScope.likedAnime}">
-                        <li>
-                            <a class="manga-anime" href="${pageContext.request.contextPath}/anime?mediaId=${anime.getId()}"><c:out value="${anime.getTitle()}"/></a>
-                            <img class="list-img" src="${anime.getImageUrl()}" alt="${fn:escapeXml(anime.getTitle())} image" />
-                        </li>
-                    </c:forEach>
-                    <c:if test="${empty requestScope.likedAnime}">
-                        <li>No liked anime found</li>
-                    </c:if>
-                </ul>
-            </div>
-        </div>
-    </section>
+    </div>
 
     <section class="reviews">
         <h1>Reviews</h1>

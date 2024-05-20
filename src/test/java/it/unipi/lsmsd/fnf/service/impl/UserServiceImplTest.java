@@ -94,7 +94,7 @@ class UserServiceImplTest {
     void deleteUserTest() {
         try {
             UserService userService = new UserServiceImpl();
-            UserSummaryDTO userSummaryDTO = userService.searchFirstNUsers("exampleUser", 1, null).getFirst();
+            UserSummaryDTO userSummaryDTO = userService.searchFirstNUsers("exampleUser3", 1, null).getFirst();
             userService.deleteUser(userSummaryDTO.getId());
             System.out.println("User deleted: " + userSummaryDTO.getId());
             Thread.sleep(4*1000);

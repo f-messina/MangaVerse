@@ -8,7 +8,8 @@ html {
     box-sizing: border-box;
     font-family: "Fira Sans Condensed", sans-serif;
 }
-nav{
+
+nav {
     position: fixed;
     top: 0;
     left: 0;
@@ -44,6 +45,7 @@ nav h1{
     font-weight: 300;
     font-size: 40px;
 }
+
 .small-pic{
     display: flex;
     justify-content: center;
@@ -55,21 +57,26 @@ nav img {
     height: auto;
 }
 
-.dropdown-content {
+#country-dropdown {
     position: absolute;
+    left: 20%;
+    right: 20%;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     background-color: #fff;
-    width: 155px;
     max-height: 150px;
     overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
 }
+
 .dropdown-content a {
-    display: block;
-    padding: 10px;
     text-decoration: none;
     color: #333;
+    padding: 10px;
 }
-.options{
+
+.options {
     display: flex;
     flex-direction: column;
     gap: 25px;
@@ -77,41 +84,52 @@ nav img {
     align-items: center;
     margin-top: 150px;
 }
-.signup-form {
-    border: transparent;
-    box-shadow: 5px 5px 23px -7px rgba(0,0,0,0.84);
-    -webkit-box-shadow: 5px 5px 23px -7px rgba(0,0,0,0.84);
-    -moz-box-shadow: 5px 5px 23px -7px rgba(0,0,0,0.84);
-    border-radius: 7px;
-    padding: 20px;
+
+.myAlert {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: auto;
+    max-width: 900px; /* maximum width */
+    height: auto;
+    max-height: 900px; /* maximum height */
+    background-color: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    z-index: 9997;
+    border-radius: 20px;
+    overflow-y: scroll;
 }
-.log-in{
-    border: transparent;
-    box-shadow: 5px 5px 23px -7px rgba(0,0,0,0.84);
-    -webkit-box-shadow: 5px 5px 23px -7px rgba(0,0,0,0.84);
-    -moz-box-shadow: 5px 5px 23px -7px rgba(0,0,0,0.84);
-    border-radius: 7px;
-    padding: 20px;
+
+.myAlertBody {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+    padding: 30px;
+    overflow-y: auto;
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgb(11, 94, 215, 0.3);
+    z-index: 9996;
     display: none;
 }
-.form-title{
-    padding-bottom: 15px;
+
+.login-container {
+    height: 100vh;
+    min-height: 600px;
 }
-.form-group{
-    padding-bottom: 15px;
-}
-.type-input{
-    padding: 6px;
-}
-.open-button{
-    background-color: transparent;
-    border-style: none;
-    text-decoration: underline;
-    cursor: pointer;
-}
-.btn{
-    background-color: transparent;
-    border-style: none;
-    text-decoration: underline;
-    cursor: pointer;
+
+.login-content {
+    max-width: 500px;
+    width: 100%;
 }

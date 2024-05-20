@@ -51,6 +51,7 @@ public class ProfileServlet extends HttpServlet {
             case "logout" -> handleLogout(request, response);
             case null, default -> {
                 try {
+                    logger.info("Finding lists by user: " + authUser.getId());
                     request.setAttribute("userInfo", userService.getUserById(authUser.getId()));
                 } catch (BusinessException e) {
                     logger.error("Error during find lists by user operation.", e);

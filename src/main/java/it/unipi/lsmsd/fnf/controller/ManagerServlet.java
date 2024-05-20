@@ -106,9 +106,7 @@ public class ManagerServlet extends HttpServlet {
             case "averageAppRatingByCriteria" -> handleUsersAverageAppRatingCriteria(request, response);
             case "averageAppRatingByAgeRange" -> handleUsersAverageAppRatingAgeRange(request, response);
             case "trendMediaContentByYear" ->  handleTrendMediaContentByYear(request, response);
-            case "trendGenresByYear" -> handleTrendGenresByYear(request, response);
             case "trendMediaContentByLikes" -> handleTrendMediaContentByLikes(request, response);
-
             case "show_info" -> handleShowInfo(request, response);
             case "update_info" -> handleUpdateInfo(request,response);
             case "delete_media" -> handleDeleteMedia(request,response);
@@ -156,18 +154,7 @@ public class ManagerServlet extends HttpServlet {
 
         });
 
-        //Tread 3: getTrendMediaContentGenreByYear with year = 2021 List<String> getMediaContentGenresTrendByYear
-        Future<Map<String, Integer>> trendAnimeGenresByYearFuture = executorService.submit(() -> {
-            try {
-                MediaContentService mediaContentService = ServiceLocator.getMediaContentService();
-                return mediaContentService.getMediaContentGenresTrendByYear(2021, MediaContentType.ANIME);
-            } catch (BusinessException e) {
-                throw new RuntimeException(e);
-            }
-
-        });
-
-        //Tread 4: getTrendMediaContentByLikes List<? extends MediaContentDTO> getMediaContentTrendByLikes
+        //Tread 3: getTrendMediaContentByLikes List<? extends MediaContentDTO> getMediaContentTrendByLikes
         Future<List<? extends MediaContentDTO>> trendAnimeByLikesFuture = executorService.submit(() -> {
             try {
                 MediaContentService mediaContentService = ServiceLocator.getMediaContentService();
@@ -182,7 +169,6 @@ public class ManagerServlet extends HttpServlet {
         try {
             Map<String, Double> bestAnimeCriteria = bestAnimeCriteriaFuture.get();
             Map<? extends MediaContentDTO, Integer> trendAnimeByYear = trendAnimeByYearFuture.get();
-            Map<String, Integer> trendAnimeGenresByYear = trendAnimeGenresByYearFuture.get();
             List<? extends MediaContentDTO> trendAnimeByLikes = trendAnimeByLikesFuture.get();
 
 
@@ -190,15 +176,11 @@ public class ManagerServlet extends HttpServlet {
             // String bestAnimeCriteriaJson = gson.toJson(bestAnimeCriteria);
             String bestAnimeCriteriaJson = gson.toJson(bestAnimeCriteria);
             String trendAnimeByYearJson = gson.toJson(trendAnimeByYear);
-            String trendAnimeGenresByYearJson = gson.toJson(trendAnimeGenresByYear);
             String trendAnimeByLikesJson = gson.toJson(trendAnimeByLikes);
             // request.setAttribute("bestAnimeCriteria", bestAnimeCriteriaJson);
             request.setAttribute("bestAnimeCriteria", bestAnimeCriteriaJson);
             request.setAttribute("trendAnimeByYear", trendAnimeByYearJson);
-            request.setAttribute("trendAnimeGenresByYear", trendAnimeGenresByYearJson);
             request.setAttribute("trendAnimeByLikes", trendAnimeByLikesJson);
-
-
 
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
@@ -236,18 +218,8 @@ public class ManagerServlet extends HttpServlet {
             }
 
         });
-        //Tread 3: getTrendMediaContentGenreByYear with year = 2021 List<String> getMediaContentGenresTrendByYear
 
-        Future<Map<String, Integer>> trendMangaGenresByYearFuture = executorService.submit(() -> {
-            try {
-                MediaContentService mediaContentService = ServiceLocator.getMediaContentService();
-                return mediaContentService.getMediaContentGenresTrendByYear(2021, MediaContentType.MANGA);
-            } catch (BusinessException e) {
-                throw new RuntimeException(e);
-            }
-
-        });
-        //Tread 4: getTrendMediaContentByLikes List<? extends MediaContentDTO> getMediaContentTrendByLikes
+        //Tread 3: getTrendMediaContentByLikes List<? extends MediaContentDTO> getMediaContentTrendByLikes
 
         Future<List<? extends MediaContentDTO>> trendMangaByLikesFuture = executorService.submit(() -> {
             try {
@@ -262,7 +234,6 @@ public class ManagerServlet extends HttpServlet {
         try {
             Map<String, Double> bestMangaCriteria = bestMangaCriteriaFuture.get();
             Map<? extends MediaContentDTO, Integer> trendMangaByYear = trendMangaByYearFuture.get();
-            Map<String, Integer> trendMangaGenresByYear = trendMangaGenresByYearFuture.get();
             List<? extends MediaContentDTO> trendMangaByLikes = trendMangaByLikesFuture.get();
 
 
@@ -270,12 +241,10 @@ public class ManagerServlet extends HttpServlet {
             // String bestAnimeCriteriaJson = gson.toJson(bestAnimeCriteria);
             String bestMangaCriteriaJson = gson.toJson(bestMangaCriteria);
             String trendMangaByYearJson = gson.toJson(trendMangaByYear);
-            String trendMangaGenresByYearJson = gson.toJson(trendMangaGenresByYear);
             String trendMangaByLikesJson = gson.toJson(trendMangaByLikes);
             //request.setAttribute("bestAnimeCriteria", bestAnimeCriteriaJson);
             request.setAttribute("bestMangaCriteria", bestMangaCriteriaJson);
             request.setAttribute("trendMangaByYear", trendMangaByYearJson);
-            request.setAttribute("trendMangaGenresByYear", trendMangaGenresByYearJson);
             request.setAttribute("trendMangaByLikes", trendMangaByLikesJson);
 
 
@@ -507,29 +476,6 @@ public class ManagerServlet extends HttpServlet {
 
             JsonObject jsonResponse = new JsonObject();
             jsonResponse.add("trendMediaContentByYear", new Gson().toJsonTree(trendMediaContentByYear));
-
-            response.setContentType("application/json");
-            response.setCharacterEncoding("UTF-8");
-
-            response.getWriter().write(jsonResponse.toString());
-
-        } catch (BusinessException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    //Asynchronous request
-    private void handleTrendGenresByYear(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        int year = Integer.parseInt(request.getParameter("year"));
-        boolean isManga = (boolean) request.getAttribute("isManga");
-
-        MediaContentService mediaContentService = ServiceLocator.getMediaContentService();
-
-        try {
-            Map<String, Integer> trendGenresByYear = mediaContentService.getMediaContentGenresTrendByYear(year, isManga ? MediaContentType.MANGA : MediaContentType.ANIME);
-
-            JsonObject jsonResponse = new JsonObject();
-            jsonResponse.add("trendGenresByYear", new Gson().toJsonTree(trendGenresByYear));
 
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");

@@ -1,91 +1,3 @@
-html {
-    scroll-behavior: smooth;
-}
-
-nav {
-    position: fixed;
-    top: 0;
-    left: 0;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-    padding: 50px 40px;
-    width: 100%;
-    height: 60px;
-    background-color: white;
-    z-index: 999;
-}
-
-nav h1{
-    font-weight: 300;
-    font-size: 40px;
-}
-
-.small-pic{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-nav img {
-    width: 60px;
-    height: auto;
-}
-
-nav .nav-items {
-    display: flex;
-    align-items: center;
-    gap: 40px;
-    font-size: 1.25em;
-}
-
-nav .nav-items a {
-    text-decoration: none;
-    color: black;
-}
-
-.dropdown-content {
-    position: absolute;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    background-color: #fff;
-    width: 155px;
-    max-height: 150px;
-    overflow-y: auto;
-}
-
-.dropdown-content a {
-    display: block;
-    padding: 10px;
-    text-decoration: none;
-    color: #333;
-}
-
-.manga-anime {
-    text-decoration: none;
-    text-underline: none;
-    color: black;
-    cursor: pointer;
-}
-
-.reviews{
-
-    margin-left: 80px;
-    margin-right: 80px;
-}
-
-.review{
-    padding: 8px;
-    border: transparent;
-    box-shadow: 5px 5px 23px -7px rgba(0,0,0,0.84);
-    -webkit-box-shadow: 5px 5px 23px -7px rgba(0,0,0,0.84);
-    -moz-box-shadow: 5px 5px 23px -7px rgba(0,0,0,0.84);
-    border-radius: 7px;
-    margin-bottom: 25px;
-}
-
-/* profile stats and info css */
-
 :root {
     font-size: 13px;
 }
@@ -101,14 +13,13 @@ img {
     max-width: 250px;
 }
 
-.container-px {
+.container {
     max-width: 93.5rem;
-    margin: 120px auto 0 auto;
+    margin: 0 auto;
     padding: 0 2rem;
-
 }
 
-.btn-px {
+.btn {
     display: inline-block;
     font: inherit;
     background: none;
@@ -118,7 +29,7 @@ img {
     cursor: pointer;
 }
 
-.btn-px:focus {
+.btn:focus {
     outline: 0.5rem auto #4d90fe;
 }
 
@@ -314,10 +225,18 @@ img {
         grid-row: 1 / -1;
     }
 
+    .gallery {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr));
+        grid-gap: 2rem;
+    }
+
     .profile-image,
     .profile-user-settings,
     .profile-stats,
-    .profile-bio {
+    .profile-bio,
+    .gallery-item,
+    .gallery {
         width: auto;
         margin: 0;
     }
@@ -352,45 +271,4 @@ img {
             margin: 0;
         }
     }
-}
-
-/* edit profile css */
-
-.myAlert {
-    display: none;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: auto;
-    max-width: 900px; /* maximum width */
-    height: auto;
-    max-height: 900px; /* maximum height */
-    background-color: white;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-    z-index: 9997;
-    border-radius: 20px;
-    overflow-y: scroll;
-}
-
-.myAlertBody {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-    width: 100%;
-    padding: 30px;
-    overflow-y: auto;
-}
-
-.overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgb(11, 94, 215, 0.3);
-    z-index: 9996;
-    display: none;
 }
