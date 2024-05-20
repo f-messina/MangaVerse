@@ -291,10 +291,6 @@ class MediaContentServiceImplTest {
     }
 
     @Test
-    void getMediaContentGenresTrendByYear() {
-    }
-
-    @Test
     void getMediaContentTrendByLikes() {
         MediaContentService mediaContentService = ServiceLocator.getMediaContentService();
         try {

@@ -22,7 +22,6 @@ public interface MediaContentService {
     List<? extends MediaContentDTO> getLikedMediaContent(String userId, MediaContentType type) throws BusinessException;
     List<? extends MediaContentDTO> getSuggestedMediaContent(String userId, MediaContentType type, Integer limit) throws BusinessException;
     Map<? extends MediaContentDTO, Integer> getTrendMediaContentByYear(int year, MediaContentType type) throws BusinessException;
-    Map<String, Integer> getMediaContentGenresTrendByYear(int year, MediaContentType type) throws BusinessException;
     List<? extends MediaContentDTO> getMediaContentTrendByLikes(MediaContentType type) throws BusinessException;
     Map<String, Double> getBestCriteria(String criteria, int page, MediaContentType type) throws BusinessException;
 

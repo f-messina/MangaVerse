@@ -369,45 +369,6 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
     }
 
     /**
-     * Retrieves a list of trending Manga genres for a specific year from the Neo4j database.
-     *
-     * @param year The year for which trending Manga genres are to be retrieved.
-     * @return A list of Strings representing trending Manga genres for the specified year.
-     * @throws DAOException If an error occurs while retrieving trending Manga genres.
-     */
-    @Override
-    public Map<String, Integer> getMediaContentGenresTrendByYear(int year) throws DAOException {
-        try (Session session = getSession()) {
-            LocalDateTime startDate = LocalDateTime.of(year, 1, 1, 0, 0);
-            LocalDateTime endDate = LocalDateTime.of(year + 1, 1, 1, 0, 0);
-            String query = """
-                    MATCH (m:Manga)<-[r:LIKE]-(u:User)
-                    WHERE r.date >= $startDate AND r.date < $endDate
-                    WITH m, count(u) AS numLikes
-                    ORDER BY numLikes DESC
-                    MATCH (m)-[:BELONGS_TO]->(g:Genre)
-                    RETURN DISTINCT g.name AS genreName, numLikes""";
-
-            List<Record> records = session.executeRead(
-                    tx -> tx.run(query, parameters("startDate", startDate, "endDate", endDate)).list()
-            );
-
-            return records.stream().map(record -> {
-                String genreName = record.get("genreName").asString();
-                Integer likes = record.get("numLikes").asInt();
-                return Map.entry(genreName, likes);
-            }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-
-
-        } catch (Neo4jException e) {
-            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
-
-        } catch (Exception e) {
-            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
-        }
-    }
-
-    /**
      * Retrieves a list of trending MangaDTO objects by likes from the Neo4j database.
      *
      * @return A list of MangaDTO objects representing trending Manga by likes.

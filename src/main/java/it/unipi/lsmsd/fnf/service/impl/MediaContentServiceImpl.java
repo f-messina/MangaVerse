@@ -357,20 +357,6 @@ public class MediaContentServiceImpl implements MediaContentService {
     }
 
     @Override
-    public Map<String, Integer> getMediaContentGenresTrendByYear(int year, MediaContentType type) throws BusinessException {
-        try {
-            if (MediaContentType.ANIME.equals(type))
-                return animeDAONeo4J.getMediaContentGenresTrendByYear(year);
-            else
-                return mangaDAONeo4J.getMediaContentGenresTrendByYear(year);
-
-        } catch (DAOException e) {
-            handleDAOException(e);
-            return null;
-        }
-    }
-
-    @Override
     public List<? extends MediaContentDTO> getMediaContentTrendByLikes(MediaContentType type) throws BusinessException {
         try {
             if (MediaContentType.ANIME.equals(type))

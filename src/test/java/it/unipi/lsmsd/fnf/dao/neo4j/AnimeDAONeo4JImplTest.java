@@ -47,10 +47,6 @@ class AnimeDAONeo4JImplTest {
     }
 
     @Test
-    void getMediaContentGenresTrendByYear() {
-    }
-
-    @Test
     void getMediaContentTrendByLikes() {
     }
 

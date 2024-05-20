@@ -97,7 +97,7 @@ class UserServiceImplTest {
             UserSummaryDTO userSummaryDTO = userService.searchFirstNUsers("exampleUser", 1, null).getFirst();
             userService.deleteUser(userSummaryDTO.getId());
             System.out.println("User deleted: " + userSummaryDTO.getId());
-            Thread.sleep(2*1000);
+            Thread.sleep(4*1000);
         } catch (BusinessException e) {
             System.err.println(e.getMessage() + " " + e.getType());
         } catch (InterruptedException e) {

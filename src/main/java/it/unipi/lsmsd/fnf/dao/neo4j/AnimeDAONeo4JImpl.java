@@ -362,44 +362,6 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
         }
     }
 
-    /**
-     * Retrieves a list of trending Anime genres for a specific year from the Neo4j database.
-     *
-     * @param year The year for which trending Anime genres are to be retrieved.
-     * @return A list of Strings representing trending Anime genres for the specified year.
-     * @throws DAOException If an error occurs while retrieving trending Anime genres.
-     */
-    @Override
-    public Map<String, Integer> getMediaContentGenresTrendByYear(int year) throws DAOException {
-        try (Session session = getSession()) {
-            LocalDateTime startDate = LocalDateTime.of(year, 1, 1, 0, 0);
-            LocalDateTime endDate = LocalDateTime.of(year + 1, 1, 1, 0, 0);
-            String query = """
-                    MATCH (a:Anime)<-[r:LIKE]-(u:User)
-                    WHERE r.date >= $startDate AND r.date < $endDate
-                    WITH a, count(u) AS numLikes
-                    ORDER BY numLikes DESC
-                    MATCH (a)-[:BELONGS_TO]->(g:Genre)
-                    RETURN DISTINCT g.name AS genreName, numLikes""";
-
-            List<Record> records = session.executeRead(
-                    tx -> tx.run(query, parameters("startDate", startDate, "endDate", endDate)).list()
-            );
-
-            return records.stream().map(record -> {
-                String genreName = record.get("genreName").asString();
-                Integer likes = record.get("numLikes").asInt();
-                return Map.entry(genreName, likes);
-            }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-
-        } catch (Neo4jException e) {
-            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
-
-        } catch (Exception e) {
-            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
-        }
-    }
-
 
     /**
      * Retrieves a list of trending AnimeDTO objects by likes from the Neo4j database.

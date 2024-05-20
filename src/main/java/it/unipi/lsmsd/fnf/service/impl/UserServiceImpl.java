@@ -86,15 +86,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public LoggedUserDTO login(String email, String password) throws BusinessException {
-        // TODO: put the validation in the controller
-        // Validation checks for empty fields
-        if (StringUtils.isEmpty(email))
-            throw new BusinessException(BusinessExceptionType.EMPTY_FIELDS,"Email cannot be empty");
-        if (StringUtils.isEmpty(password))
-            throw new BusinessException(BusinessExceptionType.EMPTY_FIELDS,"Password cannot be empty");
-
         try {
-
             return userDAO.authenticate(email, password);
 
         } catch (DAOException e) {

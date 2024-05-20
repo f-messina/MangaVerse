@@ -58,6 +58,7 @@ public class ConverterUtils {
         if (StringUtils.isNotBlank(request.getParameter("birthday")))
             userRegistrationDTO.setBirthday(LocalDate.parse(request.getParameter("birthday")));
         userRegistrationDTO.setGender(Gender.fromString(request.getParameter("gender")));
+
         return userRegistrationDTO;
     }
 

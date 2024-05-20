@@ -302,7 +302,26 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
     @Override
     public void refreshLatestReviewsOnUserDeletion(String userId) throws DAOException {
         try {
-            // Get the IDs of the anime and manga that the user has reviewed recently
+
+            // Remove the latest reviews array from the anime and manga that have only the user's reviews
+            Bson filterRemoveLatestReviewsArray = and(
+                    eq("latest_reviews.user.id", new ObjectId(userId)),
+                    eq("latest_reviews", new Document("$size", 1))
+            );
+            Bson removeLatestReviewsArray = unset("latest_reviews");
+            getCollection("anime").updateMany(filterRemoveLatestReviewsArray, removeLatestReviewsArray);
+            getCollection("manga").updateMany(filterRemoveLatestReviewsArray, removeLatestReviewsArray);
+
+            // Remove the user's reviews from the latest reviews array of the anime and manga that have less than 5 reviews
+            Bson filterRemoveUserReviews = and(
+                    eq("latest_reviews.user.id", new ObjectId(userId)),
+                    not(size("latest_reviews", 5))
+            );
+            Bson removeUserReview = pull("latest_reviews", eq("user.id", new ObjectId(userId)));
+            getCollection("anime").updateMany(filterRemoveUserReviews, removeUserReview);
+            getCollection("manga").updateMany(filterRemoveUserReviews, removeUserReview);
+
+            // Get the IDs of the remaining anime and manga that the user has reviewed recently
             List<ObjectId> animeIds = getCollection("anime").find(Filters.elemMatch("latest_reviews", eq("user.id", new ObjectId(userId))))
                     .map(doc -> doc.getObjectId("_id")).into(new ArrayList<>());
             List<ObjectId> mangaIds = getCollection("manga").find(Filters.elemMatch("latest_reviews", eq("user.id", new ObjectId(userId))))
@@ -352,20 +371,14 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
             }
 
             latestReviews.getList("anime", Document.class).forEach(document -> {
-                Bson update;
-                if (document.getList("latest_reviews", Document.class).isEmpty())
-                    update = unset("latest_reviews");
-                else
-                    update = set("latest_reviews", document.getList("latest_reviews", Document.class));
-                getCollection("anime").updateOne(eq("_id", document.getObjectId("_id")), update);
+                Bson filter = eq("_id", document.getObjectId("_id"));
+                Bson update = set("latest_reviews", document.getList("latest_reviews", Document.class));
+                getCollection("anime").updateOne(filter, update);
             });
             latestReviews.getList("manga", Document.class).forEach(document -> {
-                Bson update;
-                if (document.getList("latest_reviews", Document.class).isEmpty())
-                    update = unset("latest_reviews");
-                else
-                    update = set("latest_reviews", document.getList("latest_reviews", Document.class));
-                getCollection("manga").updateOne(eq("_id", document.getObjectId("_id")), update);
+                Bson filter = eq("_id", document.getObjectId("_id"));
+                Bson update = set("latest_reviews", document.getList("latest_reviews", Document.class));
+                getCollection("manga").updateOne(filter, update);
             });
 
         } catch (MongoException e) {

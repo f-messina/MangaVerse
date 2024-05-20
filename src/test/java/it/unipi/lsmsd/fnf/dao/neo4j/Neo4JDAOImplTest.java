@@ -195,27 +195,6 @@ public class Neo4JDAOImplTest{
         }
     }
 
-
-
-    //check
-    @Test
-    public void testGetAnimeGenresTrendByYear() throws DAOException {
-        AnimeDAONeo4JImpl neo4JDAO = new AnimeDAONeo4JImpl();
-        Map<String, Integer> genre = neo4JDAO.getMediaContentGenresTrendByYear(2019);
-        System.out.println(genre);
-    }
-
-    //check
-    @Test
-    public void testGetMangaGenresTrendByYear() throws DAOException {
-        MangaDAONeo4JImpl neo4JDAO = new MangaDAONeo4JImpl();
-        Map<String, Integer> genre = neo4JDAO.getMediaContentGenresTrendByYear(2019);
-        System.out.println(genre);
-    }
-
-
-
-
     @Test
     public void testGetAnimeTrendByLikes() throws DAOException{
         AnimeDAONeo4JImpl neo4JDAO = new AnimeDAONeo4JImpl();
