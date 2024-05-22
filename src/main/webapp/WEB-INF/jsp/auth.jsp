@@ -110,9 +110,5 @@
             <button class="btn" style="color: rgba(6,9,133,0.9)" onclick="showSignUpForm()">Don't have an account? Sign up</button>
         </div>
     </div>
-
-<script>
-
-</script>
 </body>
 </html>

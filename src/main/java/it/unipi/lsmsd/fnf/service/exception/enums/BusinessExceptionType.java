@@ -12,5 +12,5 @@ public enum BusinessExceptionType {
     EMPTY_FIELDS,
     NOT_FOUND,
     RETRYABLE_ERROR,
-    DATABASE_ERROR;
+    DATABASE_ERROR, NO_CHANGE;
 }

@@ -16,6 +16,9 @@ public interface UserService {
     void deleteUser(String userId) throws BusinessException;
     User getUserById(String userId) throws BusinessException;
     List<UserSummaryDTO> suggestUsers(String userId) throws BusinessException;
+
+    List<UserSummaryDTO> searchFollowers(String userId, String username, String loggedUserId) throws BusinessException;
+
     List<UserSummaryDTO> searchFirstNUsers(String username, Integer n, String loggedUser) throws BusinessException;
     Map<String, Integer> getDistribution(String criteria) throws BusinessException;
     Map<String, Double> averageAppRating(String criteria) throws BusinessException;
@@ -24,5 +27,8 @@ public interface UserService {
     void unfollow(String followerUserId, String followingUserId) throws BusinessException;
     boolean isFollowing(String followerUserId, String followingUserId) throws BusinessException;
     List<UserSummaryDTO> getFollowing(String userId, String loggedUserId) throws BusinessException;
+
+    List<UserSummaryDTO> searchFollowing(String userId, String username, String loggedUserId) throws BusinessException;
+
     List<UserSummaryDTO> getFollowers(String userId, String loggedUserId) throws BusinessException;
 }

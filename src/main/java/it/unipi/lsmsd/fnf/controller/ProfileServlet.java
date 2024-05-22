@@ -1,6 +1,9 @@
 package it.unipi.lsmsd.fnf.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import it.unipi.lsmsd.fnf.dto.LoggedUserDTO;
+import it.unipi.lsmsd.fnf.model.enums.UserType;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import it.unipi.lsmsd.fnf.service.*;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
@@ -8,6 +11,8 @@ import it.unipi.lsmsd.fnf.service.exception.enums.BusinessExceptionType;
 import it.unipi.lsmsd.fnf.service.interfaces.MediaContentService;
 import it.unipi.lsmsd.fnf.service.interfaces.ReviewService;
 import it.unipi.lsmsd.fnf.service.interfaces.UserService;
+import it.unipi.lsmsd.fnf.utils.Constants;
+import it.unipi.lsmsd.fnf.utils.ConverterUtils;
 import it.unipi.lsmsd.fnf.utils.SecurityUtils;
 
 import jakarta.servlet.ServletException;
@@ -16,6 +21,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,20 +48,15 @@ public class ProfileServlet extends HttpServlet {
         String action = request.getParameter("action");
         String targetJSP = "WEB-INF/jsp/profile.jsp";
         LoggedUserDTO authUser = SecurityUtils.getAuthenticatedUser(request);
-
+        logger.info("Action profile: " + action);
         if (authUser == null) {
             response.sendRedirect("auth");
         } else switch (action) {
-            case "update-info" -> handleUpdate(request, response);
-            case "delete" -> handleDelete(request, response);
-            case "logout" -> handleLogout(request, response);
+            case "edit-profile" -> handleUpdate(request, response);
             case null, default -> {
                 try {
-                    logger.info("Finding lists by user: " + authUser.getId());
                     request.setAttribute("userInfo", userService.getUserById(authUser.getId()));
                 } catch (BusinessException e) {
-                    logger.error("Error during find lists by user operation.", e);
-                    request.setAttribute("errorMessage", "Error during find lists by user operation.");
                     targetJSP = "error-page.jsp";
                 }
                 request.getRequestDispatcher(targetJSP).forward(request, response);
@@ -64,41 +65,32 @@ public class ProfileServlet extends HttpServlet {
     }
 
     private void handleUpdate(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        String targetJSP;
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode jsonResponse = objectMapper.createObjectNode();
         try {
-            User user = new User();
+            User user = ConverterUtils.fromRequestToUser(request);
             userService.updateUserInfo(user);
 
-            // Redirect to a different URL after successful update
-            targetJSP = request.getContextPath() + "/profile?updateSuccess=true";
-            response.sendRedirect(targetJSP);
-            return;
+            HttpSession session = request.getSession(true);
+            LoggedUserDTO authUser = SecurityUtils.getAuthenticatedUser(request);
+            authUser.setUsername(user.getUsername());
+            authUser.setProfilePicUrl(user.getProfilePicUrl() == null ? Constants.DEFAULT_PROFILE_PICTURE : user.getProfilePicUrl());
+            session.setAttribute(Constants.AUTHENTICATED_USER_KEY, authUser);
+
+            // Set the success flag in the JSON response
+            jsonResponse.put("success", true);
+
         } catch (BusinessException e) {
-            BusinessExceptionType type = e.getType();
-            if (BusinessExceptionType.DUPLICATED_USERNAME.equals(type)) {
-                request.setAttribute("usernameError", "Username is already in use");
-            } else {
-                handleUpdateError(request, "Invalid input. Please check your data.", e);
+            switch (e.getType()) {
+                case DUPLICATED_USERNAME -> jsonResponse.put("usernameError", "Username already in use. Please choose another one.");
+                case NO_CHANGE -> jsonResponse.put("generalError", "No changes were made to the profile.");
+                default -> jsonResponse.put("generalError", "An error occurred while updating the profile. Please try again later.");
             }
-            targetJSP = "WEB-INF/jsp/profile.jsp";
-        } catch (Exception e) {
-            handleUpdateError(request, "Error during update operation.", e);
-            targetJSP = "error-page.jsp";
         }
-        request.getRequestDispatcher(targetJSP).forward(request, response);
-    }
 
-    private void handleUpdateError(HttpServletRequest request, String errorMessage, Exception e) {
-        logger.error(errorMessage, e);
-        request.setAttribute("errorMessage", errorMessage);
-    }
-
-    private void handleLogout(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        request.getRequestDispatcher("home-page.jsp").forward(request, response);
-    }
-
-    private void handleDelete(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        String targetJSP = "homepage.jsp";
-        request.getRequestDispatcher(targetJSP).forward(request, response);
+        // Write the JSON response
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(jsonResponse.toString());
     }
 }

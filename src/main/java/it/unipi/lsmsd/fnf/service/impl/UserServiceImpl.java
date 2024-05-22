@@ -123,6 +123,7 @@ public class UserServiceImpl implements UserService {
         } catch (DAOException e) {
             switch (e.getType()) {
                 case DATABASE_ERROR -> throw new BusinessException(BusinessExceptionType.NOT_FOUND, e.getMessage());
+                case NO_CHANGES -> throw new BusinessException(BusinessExceptionType.NO_CHANGE, e.getMessage());
                 case DUPLICATED_USERNAME -> throw new BusinessException(BusinessExceptionType.DUPLICATED_USERNAME, e.getMessage());
                 default -> throw new BusinessException(BusinessExceptionType.GENERIC_ERROR, e.getMessage());
             }
@@ -226,7 +227,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserSummaryDTO> getFollowing(String userId, String loggedUserId) throws BusinessException {
         try {
-            return userDAONeo4J.getFollowedUsers(userId, loggedUserId);
+            return userDAONeo4J.getFirstNFollowing(userId, loggedUserId);
 
         } catch (DAOException e) {
             handleDAOException(e);
@@ -234,6 +235,16 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    @Override
+    public List<UserSummaryDTO> searchFollowing(String userId, String username, String loggedUserId) throws BusinessException {
+        try {
+            return userDAONeo4J.searchFollowing(userId, username, loggedUserId);
+
+        } catch (DAOException e) {
+            handleDAOException(e);
+            return null;
+        }
+    }
 
     /**
      * Retrieves the list of users following a particular user.
@@ -244,7 +255,18 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserSummaryDTO> getFollowers(String userId, String loggedUserId) throws BusinessException {
         try {
-            return userDAONeo4J.getFollowers(userId, loggedUserId);
+            return userDAONeo4J.getFirstNFollowers(userId, loggedUserId);
+
+        } catch (DAOException e) {
+            handleDAOException(e);
+            return null;
+        }
+    }
+
+    @Override
+    public List<UserSummaryDTO> searchFollowers(String userId, String username, String loggedUserId) throws BusinessException {
+        try {
+            return userDAONeo4J.searchFollowers(userId, username, loggedUserId);
 
         } catch (DAOException e) {
             handleDAOException(e);

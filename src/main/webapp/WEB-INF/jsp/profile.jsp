@@ -15,17 +15,6 @@
 <head>
     <link rel="preconnect" href="https://fonts.googleapis.com%22%3E/" crossorigin />
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
-    <link
-            href="https://fonts.googleapis.com/css2?family=Fira+Sans+Condensed:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:wght@300;400&display=swap"
-            rel="stylesheet"
-    />
-    <link
-            rel="stylesheet"
-            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-            integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
-            crossorigin="anonymous"
-            referrerpolicy="no-referrer"
-    />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/profile_test.css">
     <script src="https://code.jquery.com/jquery-3.6.4.min.js" defer></script>
     <script src="${pageContext.request.contextPath}/js/profile_test.js" defer></script>
@@ -33,7 +22,9 @@
     <title>PROFILE</title>
 </head>
 <body>
+
     <c:set var="userInfo" value="${requestScope['userInfo']}" />
+    <!-- navbar -->
     <nav>
         <a href="${pageContext.request.contextPath}/mainPage"><img src="${pageContext.request.contextPath}/images/logo-with-initial.png" alt="logo" /></a>
         <h1>Welcome ${userInfo.getUsername()}</h1>
@@ -42,7 +33,7 @@
             <a href="${pageContext.request.contextPath}/mainPage/manga" class="manga">Manga</a>
             <form action="${pageContext.request.contextPath}/auth" method="post">
                 <input type="hidden" name="action" value="logout">
-                <input type="hidden" name="targetServlet" value="/auth">
+                <input type="hidden" name="targetServlet" value="auth">
                 <button type="submit" class="logout">Log Out</button>
             </form>
             <a href="#" class="small-pic"><img alt="profile bar" src="${pageContext.request.contextPath}/images/account-icon.png"> <i class="fa-solid fa-chevron-down" style="color: #000000"> </i></a>
@@ -51,37 +42,38 @@
 
     <div id="overlay" class="overlay"></div>
 
+    <!-- profile info -->
     <header>
         <div class="container-px">
-            <div class="profile">
+            <div class="profile-px">
 
-                <div class="profile-image">
+                <div class="profile-image-px">
                     <img src="${userInfo.getProfilePicUrl()}" alt="profile picture">
                 </div>
 
-                <div class="profile-user-settings">
-                    <h1 class="profile-user-name">${userInfo.getUsername()}</h1>
-                    <button class="btn-px profile-edit-btn" onclick="showEditForm()">Edit Profile</button>
+                <div class="profile-user-settings-px">
+                    <h1 class="profile-user-name-px">${userInfo.getUsername()}</h1>
+                    <button class="btn-px profile-edit-btn-px" onclick="showEditForm()">Edit Profile</button>
                 </div>
 
-                <div class="profile-stats">
+                <div class="profile-stats-px">
                     <ul>
                         <li>
-                            <span class="profile-stat-count">
+                            <span class="profile-stat-count-px">
                                 ${empty userInfo.getFollowers() ? 0 : userInfo.getFollowers()}
                             </span> followers
                         </li>
                         <li>
-                            <span class="profile-stat-count">
+                            <span class="profile-stat-count-px">
                                 ${empty userInfo.getFollowed() ? 0 : userInfo.getFollowed()}
                             </span> following
                         </li>
                     </ul>
                 </div>
 
-                <div class="profile-bio">
+                <div class="profile-bio-px">
                     <c:if test="${not empty userInfo.getFullname()}">
-                        <p><span class="profile-real-name">${userInfo.getFullname()}</span></p>
+                        <p><span class="profile-real-name-px">${userInfo.getFullname()}</span></p>
                     </c:if>
                     <c:if test="${not empty userInfo.getDescription()}">
                         <p>${userInfo.getDescription()}</p>
@@ -100,97 +92,112 @@
         </div>
     </header>
 
-    <div id="editPopup" class="myAlert container" style="max-width: 600px">
-        <div id="user-info" class="myAlertBody">
-            <form id="profile-form" method="post" action="${pageContext.request.contextPath}/profile" autocomplete="off" class="forms">
-                <input type="hidden" name="action" value="update-info">
-                <div class="form-group">
-                    <label for="username"><i class="zmdi zmdi-account material-icons-name"></i></label>
-                    <input type="text" class="editable info-box" name="username" value="${userInfo.getUsername()}" id="username" placeholder="Username" oninput="validateUsername()" required disabled/>
-                    <span id="username-error" style="color: red"><c:out value="${requestScope['usernameError']}" /></span>
+    <div id="editPopup" class="edit-container myAlert">
+        <div class="row myAlertBody">
+            <div class="col-xl-4">
+                <!-- Profile picture card-->
+                <div class="card mb-xl-0">
+                    <div class="card-header">Profile Picture</div>
+                    <div class="card-body text-center">
+                        <!-- Profile picture image-->
+                        <img class="img-account-profile" src="${userInfo.getProfilePicUrl()}" alt="">
+                        <!-- Profile picture help block-->
+                        <div class="edit-label">JPG or PNG no larger than 5 MB</div>
+                        <!-- Profile picture upload button-->
+                        <button class="btn btn-primary" type="button">Upload new image</button>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="email"><i class="zmdi zmdi-email"></i></label>
-                    <input type="email" class="info-box" name="email" id="email" value="${userInfo.getEmail()}" placeholder="Your Email" required disabled/>
+            </div>
+            <div class="col-xl-8">
+                <!-- Account details card-->
+                <div class="card">
+                    <div class="card-header">Account Details</div>
+                    <div class="card-body">
+                        <form id="edit-profile-form" method="post" action="${pageContext.request.contextPath}/profile" autocomplete="off">
+                            <input type="hidden" name="action" value="edit-profile">
+                            <input type="hidden" name="picture" value=${userInfo.getProfilePicUrl()}>
+                            <!-- Form Group (username)-->
+                            <div class="gx-3">
+                                <label class="edit-label" for="username">Username (how your name will appear to other users on the site)</label>
+                                <input class="form-control" id="username" name="username" type="text" placeholder="Enter your username" value="${userInfo.getUsername()}" oninput="validateUsername()">
+                                <span id="username-error" style="color: red"></span>
+                            </div>
+                            <!-- Form Row-->
+                            <div class="row">
+                                <!-- Form Group (Email)-->
+                                <div class="col-md-6 gx-3">
+                                    <label class="edit-label" for="email">Email (non-editable)</label>
+                                    <input class="form-control" id="email" name="email" type="email" value="${userInfo.getEmail()}" disabled>
+                                </div>
+                                <!-- Form Group (Password)-->
+                                <div class="col-md-6 gx-3">
+                                    <label class="edit-label" for="password">Password (non-editable)</label>
+                                    <input class="form-control" id="password" name="password" type="password"  value="${empty userInfo.getPassword() ? "" : userInfo.getPassword()}" disabled>
+                                </div>
+                            </div>
+                            <!-- Form Row-->
+                            <div class="row">
+                                <!-- Form Group (Fullname)-->
+                                <div class="col-md-6 gx-3">
+                                    <label class="edit-label" for="fullname">Full Name (optional)</label>
+                                    <input class="form-control" id="fullname" name="fullname" type="text" placeholder="Enter your fullname" value="${empty userInfo.getFullname() ? "" : userInfo.getFullname()}">
+                                </div>
+                                <!-- Form Group (Gender)-->
+                                <div class="col-md-6 gx-3">
+                                    <label class="edit-label" for="gender">Gender</label>
+                                    <select class="form-control" id="gender" name="gender">
+                                        <c:set var="selectedGender" value="${userInfo.getGender()}" />
+                                        <c:forEach var="gender" items="${Gender.values()}">
+                                        <option class="gender-option" value="${gender.name()}" <c:if test="${gender.name() eq selectedGender}">selected</c:if>>${gender.toString()}</option>
+                                        </c:forEach>
+                                    </select>
+                                </div>
+                            </div>
+                            <!-- Form Row        -->
+                            <div class="row">
+                                <!-- Form Group (Country)-->
+                                <div class="col-md-6 gx-3">
+                                    <label class="edit-label" for="country">Country (optional)</label>
+                                    <input class="form-control" id="country" name="country" type="text" placeholder="Enter your country" value="${empty userInfo.getLocation() ? "" : userInfo.getLocation()}" oninput="validateCountry()">
+                                    <div class="dropdown-content" id="country-dropdown" onclick="validateCountry()"></div>
+                                    <span id="country-error" style="color: red"></span>
+                                </div>
+                                <!-- Form Group (Birthday)-->
+                                <div class="col-md-6 gx-3">
+                                    <label class="edit-label" for="birthdate">Birthday (optional)</label>
+                                    <input class="form-control" type="date" value="${userInfo.getBirthday()}" id="birthdate" name="birthdate" placeholder="Enter your Birthday">
+                                </div>
+                            </div>
+                            <!-- Form Group (Description)-->
+                            <div class="textarea-group gx-3">
+                                <label class="edit-label" for="description">Description (optional - maximum 300 characters)</label>
+                                <textarea class="form-control textarea" id="description" name="description" rows="3" maxlength="300" placeholder="Enter a description">${empty userInfo.getDescription() ? "" : userInfo.getDescription()}</textarea>
+                            </div>
+                            <!-- cancel and save changes buttons-->
+                            <button class="btn btn-secondary" onclick="hideEditForm()" type="button">Cancel</button>
+                            <button class="btn btn-primary" type="button" id="edit-button">Save changes</button>
+                            <span id="general-error" style="color: red;"></span>
+                        </form>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="fullname"><i class="zmdi zmdi-lock-outline"></i></label>
-                    <input type="text" class="editable info-box" name="fullname" id="fullname" value="${userInfo.getFullname()}" placeholder="Full Name (Optional)" disabled/>
-                </div>
-                <div class="form-group">
-                    <label for="description"><i class="zmdi zmdi-lock-outline"></i></label>
-                    <input type="text" class="editable info-box" name="description" id="description" value="${userInfo.getDescription()}" placeholder="Description (Optional)" disabled/>
-                </div>
-                <div class="form-group">
-                    <label for="gender"><i class="zmdi zmdi-lock-outline"></i></label>
-                    <select id="gender" class="editable info-box" name="gender" disabled>
-                        <c:set var="selectedGender" value="${userInfo.getGender()}" />
-                        <c:forEach var="gender" items="${Gender.values()}">
-                            <option value="${gender.name()}" <c:if test="${gender.name() eq selectedGender}">selected</c:if>>${gender.toString()}</option>
-                        </c:forEach>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="birthdate"><i class="zmdi zmdi-lock-outline"></i></label>
-                    <input type="date" class="editable info-box" name="birthdate" value="${userInfo.getBirthday()}" id="birthdate" placeholder="Birthdate" disabled/>
-                </div>
-                <div class="form-group">
-                    <label for="country"><i class="zmdi zmdi-lock-outline"></i></label>
-                    <input type="text" name="country" class="editable info-box" id="country" placeholder="Country (Optional)" value="${userInfo.getLocation()}" oninput="validateCountry()" disabled/>
-                    <div class="dropdown-content" id="country-dropdown" onclick="validateCountry()"></div>
-                    <span id="country-error" style="color: red"></span>
-                </div>
-                <div class="form-group">
-                    <label for="joined-date"><i class="zmdi zmdi-lock"></i></label>
-                    <input type="text" class="info-box" name="joined-date" id="joined-date" value="${userInfo.getJoinedDate()}" placeholder="Joined Date" disabled/>
-                </div>
-                <div class="py-3 text-center">
-                    <button type="button" class="btn btn-secondary" onclick="hideEditForm()">Close</button>
-                    <input class="btn btn-primary" type="submit" name="edit" id="edit" value="Edit"/>
-                </div>
-            </form>
+            </div>
         </div>
     </div>
 
-    <section class="reviews">
-        <h1>Reviews</h1>
-        <c:set var="reviews" value="${requestScope.reviews}" />
-        <c:choose>
-            <c:when test="${not empty reviews}">
-                <c:forEach var="review" items="${reviews.getEntries()}">
-                    <div class="review ">
-                        <h2>
-                            <c:out value="${review.getMediaContent().getTitle()}" />
-                        </h2>
-                        <p>
-                            <c:out value="${review.getDate().toString()}" />
-                            <br/>
-                            <c:choose>
-                                <c:when test="${not empty review.comment}">
-                                    <c:out value="${review.comment}" />
-                                </c:when>
-                                <c:otherwise>
-                                    No comment.
-                                </c:otherwise>
-                            </c:choose>
-                            <br/>
-                            <c:choose>
-                                <c:when test="${not empty review.rating}">
-                                    <c:out value="${review.rating}" />
-                                </c:when>
-                                <c:otherwise>
-                                    No rating.
-                                </c:otherwise>
-                            </c:choose>
-                        </p>
-                    </div>
-                </c:forEach>
-                <button id="show-hide-button" onclick="toggleReviews()">Show All Reviews</button>
-            </c:when>
-            <c:otherwise>
-                <h2>No reviews found</h2>
-            </c:otherwise>
-        </c:choose>
-    </section>
+    <!-- followers -->
+    <div id="followers" class="myAlert">
+        <div class="myAlertBody">
+
+            <!-- search bar -->
+            <div class="d-flex align-items-center">
+                <label for="follower-name" class="form-label">Followers</label>
+                <input type="text" class="form-control me-2" id="follower-name" required
+                       placeholder="Search..." />
+            </div>
+
+            <!-- followers list -->
+            <div class="followers-list"></div>
+        </div>
+    </div>
 </body>
 </html>

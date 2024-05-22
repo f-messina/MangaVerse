@@ -11,7 +11,6 @@ import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import it.unipi.lsmsd.fnf.utils.Constants;
 import org.neo4j.driver.Record;
-import org.neo4j.driver.Result;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.Value;
 import org.neo4j.driver.exceptions.Neo4jException;
@@ -270,17 +269,54 @@ public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
      * @throws DAOException If an error occurs while retrieving the followed users list.
      */
     @Override
-    public List<UserSummaryDTO> getFollowedUsers(String userId, String loggedUserId) throws DAOException {
+    public List<UserSummaryDTO> getFirstNFollowing(String userId, String loggedUserId) throws DAOException {
         try (Session session = getSession()) {
             StringBuilder queryBuilder = new StringBuilder("MATCH (:User {id: $userId})-[:FOLLOWS]->(followed:User) ");
             if (loggedUserId != null) {
                 queryBuilder.append("WHERE followed.id <> $loggedUserId ");
             }
-            queryBuilder.append("RETURN followed AS user");
+            queryBuilder.append("RETURN followed AS user ");
+            queryBuilder.append("ORDER BY followed.username ");
+            queryBuilder.append("LIMIT 10");
             String query = queryBuilder.toString();
 
             Map<String, Object> params = new HashMap<>();
             params.put("userId", userId);
+            if (loggedUserId != null) {
+                params.put("loggedUserId", loggedUserId);
+            }
+
+            List<Record> records = session.executeRead(
+                    tx -> tx.run(query, params).list()
+            );
+
+            return records.isEmpty() ? null : records.stream()
+                    .map(this::recordToUserSummaryDTO)
+                    .toList();
+
+        } catch (Neo4jException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
+        } catch (Exception e) {
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+        }
+    }
+
+    @Override
+    public List<UserSummaryDTO> searchFollowing(String userId, String username, String loggedUserId) throws DAOException {
+        try (Session session = getSession()) {
+            StringBuilder queryBuilder = new StringBuilder("MATCH (:User {id: $userId})-[:FOLLOWS]->(followed:User) ");
+            queryBuilder.append("WHERE followed.username CONTAINS $username ");
+            if (loggedUserId != null) {
+                queryBuilder.append("AND followed.id <> $loggedUserId ");
+            }
+            queryBuilder.append("RETURN followed AS user ");
+            queryBuilder.append("LIMIT 10");
+            String query = queryBuilder.toString();
+
+            Map<String, Object> params = new HashMap<>();
+            params.put("userId", userId);
+            params.put("username", username);
             if (loggedUserId != null) {
                 params.put("loggedUserId", loggedUserId);
             }
@@ -310,17 +346,54 @@ public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
      * @throws DAOException If an error occurs while retrieving the followers list.
      */
     @Override
-    public List<UserSummaryDTO> getFollowers(String userId, String loggedUserId) throws DAOException {
+    public List<UserSummaryDTO> getFirstNFollowers(String userId, String loggedUserId) throws DAOException {
         try (Session session = getSession()) {
             StringBuilder queryBuilder = new StringBuilder("MATCH (follower:User)-[:FOLLOWS]->(:User {id: $userId}) ");
             if (loggedUserId != null) {
                 queryBuilder.append("WHERE follower.id <> $loggedUserId ");
             }
-            queryBuilder.append("RETURN follower AS user");
+            queryBuilder.append("RETURN follower AS user ");
+            queryBuilder.append("ORDER BY follower.username ");
+            queryBuilder.append("LIMIT 10");
             String query = queryBuilder.toString();
 
             Map<String, Object> params = new HashMap<>();
             params.put("userId", userId);
+            if (loggedUserId != null) {
+                params.put("loggedUserId", loggedUserId);
+            }
+
+            List<Record> records = session.executeRead(
+                    tx -> tx.run(query, params).list()
+            );
+
+            return records.isEmpty() ? null : records.stream()
+                    .map(this::recordToUserSummaryDTO)
+                    .toList();
+
+        } catch (Neo4jException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
+        } catch (Exception e) {
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+        }
+    }
+
+    @Override
+    public List<UserSummaryDTO> searchFollowers(String userId, String username, String loggedUserId) throws DAOException {
+        try (Session session = getSession()) {
+            StringBuilder queryBuilder = new StringBuilder("MATCH (follower:User)-[:FOLLOWS]->(:User {id: $userId}) ");
+            queryBuilder.append("WHERE follower.username CONTAINS $username ");
+            if (loggedUserId != null) {
+                queryBuilder.append("AND follower.id <> $loggedUserId ");
+            }
+            queryBuilder.append("RETURN follower AS user ");
+            queryBuilder.append("LIMIT 10");
+            String query = queryBuilder.toString();
+
+            Map<String, Object> params = new HashMap<>();
+            params.put("userId", userId);
+            params.put("username", username);
             if (loggedUserId != null) {
                 params.put("loggedUserId", loggedUserId);
             }

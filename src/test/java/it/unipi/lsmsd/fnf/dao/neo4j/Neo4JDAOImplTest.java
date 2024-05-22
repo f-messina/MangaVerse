@@ -137,7 +137,7 @@ public class Neo4JDAOImplTest{
         try {
 
             UserDAONeo4JImpl neo4JDAO = new UserDAONeo4JImpl();
-            List<UserSummaryDTO> followingUsers = neo4JDAO.getFollowedUsers("6577877be68376234760585d", null);
+            List<UserSummaryDTO> followingUsers = neo4JDAO.getFirstNFollowing("6577877be68376234760585d", null);
             for (UserSummaryDTO user : followingUsers)
                 System.out.println(user);
         }   catch (DAOException e) {
@@ -150,7 +150,7 @@ public class Neo4JDAOImplTest{
     public void testGetFollowers() throws DAOException {
         try {
             UserDAONeo4JImpl neo4JDAO = new UserDAONeo4JImpl();
-            List<UserSummaryDTO> followerUsers = neo4JDAO.getFollowers("6577877be68376234760585d", null);
+            List<UserSummaryDTO> followerUsers = neo4JDAO.getFirstNFollowers("6577877be68376234760585d", null);
             for(UserSummaryDTO user : followerUsers)
                 System.out.println(user);
         }  catch (DAOException e) {

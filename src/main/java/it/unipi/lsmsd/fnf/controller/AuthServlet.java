@@ -63,10 +63,8 @@ public class AuthServlet extends HttpServlet {
     private void handleSignUp(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode jsonResponse = objectMapper.createObjectNode();
-        logger.info("Handling signup request");
         try {
             UserRegistrationDTO user = ConverterUtils.fromRequestToUserRegDTO(request);
-            logger.info("User registration DTO: " + user);
             userService.signup(user);
             HttpSession session = request.getSession(true);
             session.setAttribute(Constants.AUTHENTICATED_USER_KEY, new LoggedUserDTO(user.getId(), user.getUsername(), Constants.DEFAULT_PROFILE_PICTURE, UserType.USER));
@@ -93,8 +91,6 @@ public class AuthServlet extends HttpServlet {
                     break;
             }
         }
-
-        logger.info("Signup response: " + jsonResponse);
 
         // Write the JSON response
         response.setContentType("application/json");
@@ -144,6 +140,6 @@ public class AuthServlet extends HttpServlet {
             request.getSession().invalidate();
         }
 
-        request.getRequestDispatcher(targetServlet).forward(request, response);
+        response.sendRedirect(targetServlet);
     }
 }

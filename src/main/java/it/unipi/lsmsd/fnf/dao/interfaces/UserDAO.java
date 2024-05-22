@@ -34,7 +34,13 @@ public interface UserDAO {
     boolean isFollowing(String followerUserId, String followedUserId) throws DAOException;
     Integer getNumOfFollowers(String userId) throws DAOException;
     Integer getNumOfFollowed(String userId) throws DAOException;
-    List<UserSummaryDTO> getFollowedUsers(String userId, String loggedUser) throws DAOException;
-    List<UserSummaryDTO> getFollowers(String userId, String loggedUserId) throws DAOException;
+    List<UserSummaryDTO> getFirstNFollowing(String userId, String loggedUser) throws DAOException;
+
+    List<UserSummaryDTO> searchFollowing(String userId, String username, String loggedUserId) throws DAOException;
+
+    List<UserSummaryDTO> getFirstNFollowers(String userId, String loggedUserId) throws DAOException;
+
+    List<UserSummaryDTO> searchFollowers(String userId, String username, String loggedUserId) throws DAOException;
+
     List<UserSummaryDTO> suggestUsersByCommonFollows(String userId, Integer limit) throws DAOException;
 }

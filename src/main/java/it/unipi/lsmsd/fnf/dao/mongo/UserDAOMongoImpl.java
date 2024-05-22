@@ -24,6 +24,7 @@ import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 
 import java.util.*;
+import java.util.logging.Logger;
 
 import static com.mongodb.client.model.Accumulators.avg;
 import static com.mongodb.client.model.Accumulators.sum;
@@ -116,7 +117,7 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
             if (result.getMatchedCount() == 0) {
                 throw new MongoException("UserDAOMongoImpl: updateUser: No user found");
             } else if (result.getModifiedCount() == 0) {
-                throw new MongoException("UserDAOMongoImpl: updateUser: No user updated");
+                throw new IllegalArgumentException("UserDAOMongoImpl: updateUser: No changes made to the user");
             }
 
         } catch (MongoException e) {
@@ -124,6 +125,9 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
 
         } catch (DuplicatedException e) {
             throw new DAOException(DAOExceptionType.DUPLICATED_USERNAME, e.getMessage());
+
+        } catch (IllegalArgumentException e) {
+            throw new DAOException(DAOExceptionType.NO_CHANGES, e.getMessage());
 
         } catch (Exception e) {
             throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
@@ -479,12 +483,22 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
     }
 
     @Override
-    public List<UserSummaryDTO> getFollowedUsers(String userId, String loggedUser) throws DAOException {
+    public List<UserSummaryDTO> getFirstNFollowing(String userId, String loggedUser) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
 
     @Override
-    public List<UserSummaryDTO> getFollowers(String userId, String loggedUserId) throws DAOException {
+    public List<UserSummaryDTO> searchFollowing(String userId, String username, String loggedUserId) throws DAOException {
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
+    }
+
+    @Override
+    public List<UserSummaryDTO> getFirstNFollowers(String userId, String loggedUserId) throws DAOException {
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
+    }
+
+    @Override
+    public List<UserSummaryDTO> searchFollowers(String userId, String username, String loggedUserId) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
 

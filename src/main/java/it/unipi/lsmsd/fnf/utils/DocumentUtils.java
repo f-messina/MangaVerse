@@ -36,7 +36,7 @@ public class DocumentUtils {
      */
     public static void appendIfNotNull(Document doc, String key, Object value) {
         if (value != null &&
-                !(value instanceof String && (value.equals(Constants.NULL_STRING) || value.equals(Gender.UNKNOWN.name()))) &&
+                !(value instanceof String && (value.equals(Constants.NULL_STRING) || value.equals(Gender.UNKNOWN.toString()))) &&
                 !(value instanceof Date && value.equals(ConverterUtils.localDateToDate(Constants.NULL_DATE))) &&
                 (StringUtils.isNotBlank(value.toString()) ||
                         (value instanceof List && CollectionUtils.isNotEmpty((List<?>) value)))) {
