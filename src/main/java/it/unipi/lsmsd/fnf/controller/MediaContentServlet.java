@@ -17,6 +17,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import org.eclipse.tags.shaded.org.apache.xpath.operations.Bool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,6 +52,7 @@ public class MediaContentServlet extends HttpServlet {
         String targetJSP = mediaType.equals(MediaContentType.ANIME) ? "WEB-INF/jsp/anime.jsp" : "WEB-INF/jsp/manga.jsp";
         try {
             MediaContent mediaContent = mediaContentService.getMediaContentById(mediaId, mediaType);
+
             if (mediaContent == null) {
                 request.setAttribute("error", "Media not found");
                 targetJSP = "error.jsp";
@@ -76,11 +78,21 @@ public class MediaContentServlet extends HttpServlet {
     }
 
     private void handleToggleLike(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        boolean isManga = (boolean) request.getAttribute("isManga");
+        MediaContentType mediaType = MediaContentType.valueOf(request.getServletPath().substring(1).toUpperCase());
+        boolean isManga = mediaType.equals(MediaContentType.MANGA);
         String userId = SecurityUtils.getAuthenticatedUser(request).getId();
         String mediaId = request.getParameter("mediaId");
         try {
-            throw new BusinessException("Error occurred during like operation");
+            //if is liked: unlike, else like
+            logger.info("User " + userId + " is toggling like on " + mediaId);
+            if (mediaContentService.isLiked(userId, mediaId, isManga ? MediaContentType.MANGA : MediaContentType.ANIME)) {
+                mediaContentService.removeLike(userId, mediaId, isManga ? MediaContentType.MANGA : MediaContentType.ANIME);
+                request.setAttribute("isLiked", false);
+            } else {
+                mediaContentService.addLike(userId, mediaId, isManga ? MediaContentType.MANGA : MediaContentType.ANIME);
+                request.setAttribute("isLiked", true);
+            }
+            logger.info(mediaContentService.isLiked(userId, mediaId, isManga ? MediaContentType.MANGA : MediaContentType.ANIME) ? "Liked" : "Unliked");
         } catch (BusinessException e) {
             logger.error("Error occurred during like operation", e);
             request.getRequestDispatcher("/error.jsp").forward(request, response);

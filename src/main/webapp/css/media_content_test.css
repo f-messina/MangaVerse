@@ -176,3 +176,30 @@ nav img {
     flex-direction: column;
     gap: 15px;
 }
+
+.like-button {
+    height: 15px;
+    width: 200px;
+    font-size: 100px;
+    border: none;
+    background: white;
+    position: relative;
+}
+
+.heart {
+    height: auto; /* Maintain aspect ratio */
+    position: absolute;
+    top: 50%; /* Center vertically */
+    left: 50%; /* Center horizontally */
+    transform: translate(-50%, -50%); /* Center the heart precisely */
+}
+
+.heart > path {
+    stroke: #EA442B;
+    stroke-width: 2;
+    fill: transparent;
+}
+
+.like-button.liked .heart > path {
+    fill: #EA442B;
+}

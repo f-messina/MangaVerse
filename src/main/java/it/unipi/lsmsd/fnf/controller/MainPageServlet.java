@@ -172,7 +172,14 @@ public class MainPageServlet extends HttpServlet {
         String userId = SecurityUtils.getAuthenticatedUser(request).getId();
         String mediaId = request.getParameter("mediaId");
         try {
-            throw new BusinessException("Error occurred during like operation");
+            //if is liked: unlike, else like
+            if (mediaContentService.isLiked(userId, mediaId, isManga ? MediaContentType.MANGA : MediaContentType.ANIME)) {
+                mediaContentService.removeLike(userId, mediaId, isManga ? MediaContentType.MANGA : MediaContentType.ANIME);
+                request.setAttribute("isLiked", false);
+            } else {
+                mediaContentService.addLike(userId, mediaId, isManga ? MediaContentType.MANGA : MediaContentType.ANIME);
+                request.setAttribute("isLiked", true);
+            }
         } catch (BusinessException e) {
             logger.error("Error occurred during like operation", e);
             request.getRequestDispatcher("/error.jsp").forward(request, response);
@@ -185,6 +192,24 @@ public class MainPageServlet extends HttpServlet {
     }
 
     private void handleSuggestion(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+        String userId = SecurityUtils.getAuthenticatedUser(request).getId();
+        boolean isManga = (boolean) request.getAttribute("isManga");
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        ObjectNode jsonResponse = objectMapper.createObjectNode();
+        try {
+            List<? extends MediaContentDTO> suggestions = mediaContentService.getSuggestedMediaContent(userId, isManga ? MediaContentType.MANGA : MediaContentType.ANIME, 5);
+            JsonNode suggestionsNode = objectMapper.valueToTree(suggestions);
+            jsonResponse.set("suggestions", suggestionsNode);
+        } catch (BusinessException e) {
+            logger.error("Error occurred during suggestion operation", e);
+            request.getRequestDispatcher("/error.jsp").forward(request, response);
+        }
+
+        // Set the content type and write the JSON response
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(jsonResponse.toString());
     }
 
     private void handleFollow(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
