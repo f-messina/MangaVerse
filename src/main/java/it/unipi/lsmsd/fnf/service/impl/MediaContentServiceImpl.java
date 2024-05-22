@@ -300,12 +300,12 @@ public class MediaContentServiceImpl implements MediaContentService {
      * @throws BusinessException If an error occurs during the operation.
      */
     @Override
-    public List<? extends MediaContentDTO> getLikedMediaContent(String userId, MediaContentType type) throws BusinessException {
+    public List<? extends MediaContentDTO> getLikedMediaContent(String userId, int page, MediaContentType type) throws BusinessException {
         try {
             if (MediaContentType.ANIME.equals(type))
-                return animeDAONeo4J.getLiked(userId);
+                return animeDAONeo4J.getLiked(userId, page);
             else
-                return mangaDAONeo4J.getLiked(userId);
+                return mangaDAONeo4J.getLiked(userId, page);
 
         } catch (DAOException e) {
             handleDAOException(e);

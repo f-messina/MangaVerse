@@ -58,12 +58,12 @@
 
                 <div class="profile-stats-px">
                     <ul>
-                        <li id="show-followers" onclick="showFollowers()">
+                        <li id="show-followers">
                             <span class="profile-stat-count-px">
                                 ${empty userInfo.getFollowers() ? 0 : userInfo.getFollowers()}
                             </span> followers
                         </li>
-                        <li>
+                        <li id="show-followings">
                             <span class="profile-stat-count-px">
                                 ${empty userInfo.getFollowed() ? 0 : userInfo.getFollowed()}
                             </span> following
@@ -190,52 +190,102 @@
 
             <!-- search bar -->
             <div class="d-flex align-items-center">
-                <label for="follower-name" class="form-label">Followers</label>
-                <input type="text" class="form-control me-2" id="follower-name" required
+                <label for="follower-search" class="form-label">Followers</label>
+                <input type="text" class="form-control me-2" id="follower-search" required
                        placeholder="Search..." />
             </div>
 
             <!-- followers list -->
-            <div id="followers-list" class="followers-list"></div>
+            <div id="followers-list" class="user-list"></div>
         </div>
     </div>
+
+    <!-- followings -->
+    <div id="followings" class="myAlert">
+        <div  id="followingsBody" class="myAlertBody">
+
+            <!-- search bar -->
+            <div class="d-flex align-items-center">
+                <label for="following-search" class="form-label">Followings</label>
+                <input type="text" class="form-control me-2" id="following-search" required
+                       placeholder="Search..." />
+            </div>
+
+            <!-- followers list -->
+            <div id="followings-list" class="user-list"></div>
+        </div>
+    </div>
+
     <section id="like-and-reviews">
         <div class="button-container">
-            <button id="anime-button" onclick="fetchData('getAnimeLikes')">Anime Like</button>
             <button id="manga-button" onclick="fetchData('getMangaLikes')">Manga Like</button>
+            <button id="anime-button" onclick="fetchData('getAnimeLikes')">Anime Like</button>
             <button id="reviews-button" onclick="fetchData('getReviews')">Reviews</button>
         </div>
         <div id="anime-like">
-            //asynchronous data will be loaded here
+            <div id="anime-list">
 
+            </div>
         </div>
 
         <div id="manga-like">
+            <div id="manga-list">
 
+            </div>
         </div>
 
         <div id="reviews">
+            <div id="reviews-list">
 
+            </div>
         </div>
-
-
-
     </section>
 <script>
-    const pageContext = "${pageContext.request.contextPath}";
-    function fetchData(action) {
-        $.post(pageContext + "/profile", {action: action}, function (response) {
+    const contextPath = "${pageContext.request.contextPath}";
+    const userId = "${userInfo.getId()}";
 
+    function fetchData(action, page = 0) {
+        const inputData = {
+            action: action,
+            userId: userId,
+            page: page
+        };
+        $.post(contextPath + "/profile", inputData, function (data) {
+            if (action === "getReviews") {
+                showReviews(data);
+            } else {
+                showLikes(data, action);
+            }
         }).fail(function (xhr) {
-            console.error(xhr.responseText);
+            console.error("Profile data fetch failed: " + xhr.responseText);
         });
     }
 
-    </script>
-
-<script>
-    const contextPath = "${pageContext.request.contextPath}";
-
+    function emptyResults() {
+        $("#anime-list").empty();
+        $("#manga-list").empty();
+        $("#reviews-list").empty();
+    }
+    function showLikes(data, action) {
+        const likeList = action === "getAnimeLikes" ? $("#anime-list") : $("#manga-list");
+        emptyResults();
+        data.mediaLikes.forEach(like => {
+            const likeLink = $("<a>").attr("href", contextPath + "/" + (action === "getAnimeLikes" ? "anime" : "manga") + "?mediaId=" + like.id);
+            const likeImage = $("<img>").attr("src", like.imageUrl).attr("alt", like.title);
+            const likeTitle = $("<p>").text(like.title);
+            likeLink.append(likeImage, likeTitle);
+            likeList.append(likeLink);
+        });
+    }
+    function showReviews(data) {
+        emptyResults();
+        data.reviews.forEach(review => {
+            const reviewLink = $("<a>").attr("href", contextPath + "/review?reviewId=" + review.id);
+            const reviewContent = $("<p>").text(review.content);
+            reviewLink.append(reviewContent);
+            $("#reviews-list").append(reviewLink);
+        });
+    }
 </script>
 </body>
 </html>

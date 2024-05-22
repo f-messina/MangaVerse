@@ -588,7 +588,8 @@ select.form-control {
 }
 
 /* follow css */
-#followers {
+#followers,
+#followings {
     background-color: white;
 }
 
