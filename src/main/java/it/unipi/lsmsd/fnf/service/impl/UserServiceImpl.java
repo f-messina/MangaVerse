@@ -225,7 +225,7 @@ public class UserServiceImpl implements UserService {
      * @throws BusinessException If an error occurs while retrieving the list.
      */
     @Override
-    public List<UserSummaryDTO> getFollowing(String userId, String loggedUserId) throws BusinessException {
+    public List<UserSummaryDTO> getFollowings(String userId, String loggedUserId) throws BusinessException {
         try {
             return userDAONeo4J.getFirstNFollowing(userId, loggedUserId);
 
@@ -236,7 +236,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserSummaryDTO> searchFollowing(String userId, String username, String loggedUserId) throws BusinessException {
+    public List<UserSummaryDTO> searchFollowings(String userId, String username, String loggedUserId) throws BusinessException {
         try {
             return userDAONeo4J.searchFollowing(userId, username, loggedUserId);
 

@@ -587,6 +587,28 @@ select.form-control {
     }
 }
 
+/* follow css */
+#followers,
+#followings {
+    background-color: white;
+}
+
+.user {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+}
+
+.user-pic {
+    width: 50px;
+    height: auto;
+    border-radius: 50%;
+}
+
+.user-username {
+    margin-left: 1rem;
+}
+
 /* like and reviews list button css */
 /* Ensure all buttons are inline and centered */
 .button-container {

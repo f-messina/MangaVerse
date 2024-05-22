@@ -11,6 +11,7 @@ import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
 
+import it.unipi.lsmsd.fnf.utils.Constants;
 import org.neo4j.driver.*;
 import org.neo4j.driver.Record;
 import org.neo4j.driver.exceptions.Neo4jException;
@@ -276,13 +277,16 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
      * @throws DAOException If an error occurs while retrieving the liked Manga.
      */
     @Override
-    public List<MangaDTO> getLiked(String userId) throws DAOException {
+    public List<MangaDTO> getLiked(String userId, int page) throws DAOException {
         try (Session session = getSession()) {
             String query = "MATCH (:User {id: $userId})-[:LIKE]->(m:Manga) " +
-                    "RETURN m as manga";
+                    "RETURN m as manga " +
+                    "SKIP $skip " +
+                    "LIMIT $limit";
 
+            Value params = parameters("userId", userId, "skip", page * Constants.PAGE_SIZE, "limit", Constants.PAGE_SIZE);
             List<Record> records = session.executeRead(
-                    tx -> tx.run(query, parameters("userId", userId)).list()
+                    tx -> tx.run(query, params).list()
             );
 
             return records.isEmpty() ? null : records.stream()

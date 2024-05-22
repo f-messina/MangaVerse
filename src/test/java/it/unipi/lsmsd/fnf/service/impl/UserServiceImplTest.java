@@ -9,29 +9,24 @@ import it.unipi.lsmsd.fnf.dao.neo4j.BaseNeo4JDAO;
 import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
 import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.model.enums.Gender;
-import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import it.unipi.lsmsd.fnf.service.ServiceLocator;
 import it.unipi.lsmsd.fnf.service.enums.ExecutorTaskServiceType;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
-import it.unipi.lsmsd.fnf.service.impl.asinc_media_tasks.UpdateNumberOfLikesTask;
 import it.unipi.lsmsd.fnf.service.impl.asinc_user_tasks.UpdateNumberOfFollowedTask;
 import it.unipi.lsmsd.fnf.service.impl.asinc_user_tasks.UpdateNumberOfFollowersTask;
 import it.unipi.lsmsd.fnf.service.interfaces.ExecutorTaskService;
 import it.unipi.lsmsd.fnf.service.interfaces.TaskManager;
 import it.unipi.lsmsd.fnf.service.interfaces.UserService;
-import it.unipi.lsmsd.fnf.utils.Constants;
 import org.bson.Document;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 import static it.unipi.lsmsd.fnf.service.ServiceLocator.getExecutorTaskService;
-import static org.junit.jupiter.api.Assertions.*;
 
 class UserServiceImplTest {
     private static final ExecutorTaskService aperiodicTaskService = ServiceLocator.getExecutorTaskService(ExecutorTaskServiceType.APERIODIC);
@@ -151,11 +146,11 @@ class UserServiceImplTest {
     }
 
     @Test
-    void getFollowingTest() {
+    void getFollowingsTest() {
         try {
             UserService userService = new UserServiceImpl();
             UserSummaryDTO userSummaryDTO = userService.searchFirstNUsers("exampleUser", 1, null).getFirst();
-            System.out.println(userService.getFollowing(userSummaryDTO.getId(), null));
+            System.out.println(userService.getFollowings(userSummaryDTO.getId(), null));
             Thread.sleep(2*1000);
         } catch (BusinessException e) {
             System.err.println(e.getMessage() + " " + e.getType());
@@ -275,7 +270,7 @@ class UserServiceImplTest {
                 UpdateNumberOfFollowedTask task = new UpdateNumberOfFollowedTask(userId);
                 aperiodicExecutorTaskService.executeTask(task);
             }
-            Thread.sleep(1000);
+            Thread.sleep(10000);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -294,7 +289,7 @@ class UserServiceImplTest {
                 UpdateNumberOfFollowersTask task1 = new UpdateNumberOfFollowersTask(userId);
                 aperiodicExecutorTaskService.executeTask(task1);
             }
-            Thread.sleep(1000);
+            Thread.sleep(10000);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }

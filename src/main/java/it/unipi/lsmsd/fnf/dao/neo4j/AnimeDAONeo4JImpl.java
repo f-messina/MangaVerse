@@ -273,13 +273,16 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
      * @throws DAOException If an error occurs while retrieving the liked Anime.
      */
     @Override
-    public List<AnimeDTO> getLiked(String userId) throws DAOException {
+    public List<AnimeDTO> getLiked(String userId, int page) throws DAOException {
         try (Session session = getSession()) {
             String query = "MATCH (u:User {id: $userId})-[:LIKE]->(a:Anime) " +
-                    "RETURN a AS anime";
+                    "RETURN a AS anime " +
+                    "SKIP $skip " +
+                    "LIMIT $limit";
 
+            Value params = parameters("userId", userId, "skip", page * Constants.PAGE_SIZE, "limit", Constants.PAGE_SIZE);
             List<Record> records = session.executeRead(
-                    tx -> tx.run(query, parameters("userId", userId)).list()
+                    tx -> tx.run(query, params).list()
             );
 
             return records.isEmpty() ? null : records.stream()

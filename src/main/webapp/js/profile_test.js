@@ -1,6 +1,17 @@
 const overlay = $("#overlay");
 const editProfileDiv = $("#editPopup");
 const editButton = $("#edit-button");
+
+const followers = $("#followers");
+const followersList = $("#followers-list");
+const showFollowerButton = $("#show-followers");
+const followerSearch = $("#follower-search");
+
+const followings = $("#followings");
+const followingsList = $("#followings-list");
+const showFollowingButton = $("#show-followings");
+const followingSearch = $("#following-search");
+
 // Helper function to check if a string starts with another string in a case-insensitive manner
 function startsWithCaseInsensitive(str, prefix) {
     return str.toUpperCase().indexOf(prefix) === 0;
@@ -75,6 +86,113 @@ function hideEditForm() {
     editProfileDiv.hide();
 }
 
+function showFollowers(){
+    overlay.show();
+    $("body").css("overflow-y", "hidden");
+    getFollowers();
+    followers.show();
+    overlay.click(hideFollowers);
+}
+
+function getFollowers(searchValue) {
+    const inputData = {action: "getFollowers", userId: userId};
+    if (searchValue) {
+        inputData.searchValue = searchValue;
+    }
+    $.post(contextPath+"/profile", inputData, function(data) {
+            if (data.success) {
+                followersList.empty();
+                for (let i = 0; i < data.followers.length; i++) {
+                    const follower = data.followers[i];
+                    const followerDiv = $("<div>").addClass("user");
+                    // Create the image element and set the source
+                    const img = $("<img src='" + follower.profilePicUrl + "'>").addClass("user-pic");
+                    followerDiv.append(img);
+
+                    // Create the paragraph element and set the text
+                    const p = $("<p>").addClass("user-username").text(follower.username);
+                    followerDiv.append(p);
+                    followersList.append(followerDiv);
+                }
+            } else if (data.notFoundError && searchValue) {
+                followersList.empty();
+                followersList.append("<p>No results found.</p>");
+            } else if (data.notFoundError) {
+                followersList.empty();
+                followersList.append("<p>No Followers found.</p>");
+            }
+        }
+    ).fail(function() {
+        followersList.empty();
+        followersList.append("<p>An error occurred. Please try again later.</p>");
+    });
+}
+
+function hideFollowers(){
+    overlay.hide();
+    $("body").css("overflow-y", "auto");
+    followers.hide();
+}
+
+showFollowerButton.click(() => {
+        showFollowers();
+    }
+);
+
+function showFollowings(){
+    overlay.show();
+    $("body").css("overflow-y", "hidden");
+    getFollowings();
+    followings.show();
+    overlay.click(hideFollowings);
+}
+
+function getFollowings(searchValue) {
+    const inputData = {action: "getFollowings", userId: userId};
+    if (searchValue) {
+        inputData.searchValue = searchValue;
+    }
+    $.post(contextPath+"/profile", inputData, function(data) {
+        if (data.success) {
+                followingsList.empty();
+                for (let i = 0; i < data.followings.length; i++) {
+                    const following = data.followings[i];
+                    const followingDiv = $("<div>").addClass("user");
+                    // Create the image element and set the source
+                    const img = $("<img src='" + following.profilePicUrl + "'>").addClass("user-pic");
+                    followingDiv.append(img);
+
+                    // Create the paragraph element and set the text
+                    const p = $("<p>").addClass("user-username").text(following.username);
+                    followingDiv.append(p);
+                    followingsList.append(followingDiv);
+                }
+            } else if (data.notFoundError && searchValue) {
+                followingsList.empty();
+                followingsList.append("<p>No results found.</p>");
+            } else if (data.notFoundError) {
+                followingsList.empty();
+                followingsList.append("<p>No Followers found.</p>");
+            }
+        }
+    ).fail(function() {
+        console.log("fail");
+        followingsList.empty();
+        followingsList.append("<p>An error occurred. Please try again later.</p>");
+    });
+}
+
+function hideFollowings(){
+    overlay.hide();
+    $("body").css("overflow-y", "auto");
+    followings.hide();
+}
+
+showFollowingButton.click(() => {
+        showFollowings();
+    }
+);
+
 editButton.click(function(event) {
     console.log("clicked");
     event.preventDefault();
@@ -90,4 +208,12 @@ editButton.click(function(event) {
     }).fail(function() {
         $("#general-error").text("An error occurred. Please try again later.");
     });
+});
+
+followerSearch.on("input", function() {
+    getFollowers(followerSearch.val());
+});
+
+followingSearch.on("input", function() {
+    getFollowings(followingSearch.val());
 });

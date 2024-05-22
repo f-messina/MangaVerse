@@ -103,7 +103,7 @@ public class Neo4JDAOImplTest{
         try {
 
             AnimeDAONeo4JImpl neo4JDAO = new AnimeDAONeo4JImpl();
-            List<AnimeDTO> anime = neo4JDAO.getLiked("6577877be68376234760585f");
+            List<AnimeDTO> anime = neo4JDAO.getLiked("6577877be68376234760585f", 0);
             for (AnimeDTO animeDTO : anime) {
                 System.out.println("id: " + animeDTO.getId() + ", title: " + animeDTO.getTitle() + ", picture: " + animeDTO.getImageUrl());
             }
@@ -120,7 +120,7 @@ public class Neo4JDAOImplTest{
         try {
 
             MangaDAONeo4JImpl neo4JDAO = new MangaDAONeo4JImpl();
-            List<MangaDTO> manga = neo4JDAO.getLiked("6577877be68376234760585f");
+            List<MangaDTO> manga = neo4JDAO.getLiked("6577877be68376234760585f", 0);
             for (MangaDTO mangaDTO : manga) {
                 System.out.println("id: " + mangaDTO.getId() + ", title: " + mangaDTO.getTitle() + ", picture: " + mangaDTO.getImageUrl());
             }
