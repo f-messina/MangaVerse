@@ -199,5 +199,38 @@
             <div class="followers-list"></div>
         </div>
     </div>
+    <section id="like-and-reviews">
+        <div class="button-container">
+            <button id="anime-button" onclick="fetchData('getAnimeLikes')">Anime Like</button>
+            <button id="manga-button" onclick="fetchData('getMangaLikes')">Manga Like</button>
+            <button id="reviews-button" onclick="fetchData('getReviews')">Reviews</button>
+        </div>
+        <div id="anime-like">
+            //asynchronous data will be loaded here
+
+        </div>
+
+        <div id="manga-like">
+
+        </div>
+
+        <div id="reviews">
+
+        </div>
+
+
+
+    </section>
+<script>
+    const pageContext = "${pageContext.request.contextPath}";
+    function fetchData(action) {
+        $.post(pageContext + "/profile", {action: action}, function (response) {
+
+        }).fail(function (xhr) {
+            console.error(xhr.responseText);
+        });
+    }
+
+    </script>
 </body>
 </html>
