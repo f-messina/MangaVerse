@@ -1,6 +1,13 @@
 const overlay = $("#overlay");
 const editProfileDiv = $("#editPopup");
 const editButton = $("#edit-button");
+
+const followers = $("#followers");
+const followersList = $("#followers-list");
+
+const showFollowerButton = $("#show-followers");
+
+
 // Helper function to check if a string starts with another string in a case-insensitive manner
 function startsWithCaseInsensitive(str, prefix) {
     return str.toUpperCase().indexOf(prefix) === 0;
@@ -74,6 +81,51 @@ function hideEditForm() {
     $("body").css("overflow-y", "auto");
     editProfileDiv.hide();
 }
+
+function showFollowers(){
+    overlay.show();
+    $("body").css("overflow-y", "hidden");
+    $.post(contextPath+"/profile", {action: "getFollowers"}, function(data) {
+        if (data.success) {
+            followersList.empty();
+            for (let i = 0; i < data.followers.length; i++) {
+                console.log(data.followers[i]);
+                const follower = data.followers[i];
+                const followerDiv = $("<div>").addClass("user");
+                // Create the image element and set the source
+                const img = $("<img src='" + follower.profilePicUrl + "'>").addClass("user-pic");
+                followerDiv.append(img);
+
+                // Create the paragraph element and set the text
+                const p = $("<p>").addClass("user-username").text(follower.username);
+                followerDiv.append(p);
+                followersList.append(followerDiv);
+            }
+        } else if (data.notFoundError) {
+            followersList.empty();
+            followersList.append("<p>No Followers</p>");
+        }
+    }
+    ).fail(function() {
+        followersList.empty();
+        followersList.append("<p>An error occurred. Please try again later.</p>");
+    });
+
+    followers.show();
+    overlay.click(hideFollowers);
+}
+
+function hideFollowers(){
+    overlay.hide();
+    $("body").css("overflow-y", "auto");
+    followers.hide();
+}
+
+showFollowerButton.click(() => {
+        showFollowers();
+    }
+);
+
 
 editButton.click(function(event) {
     console.log("clicked");

@@ -1,8 +1,10 @@
 package it.unipi.lsmsd.fnf.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import it.unipi.lsmsd.fnf.dto.LoggedUserDTO;
+import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.model.enums.UserType;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import it.unipi.lsmsd.fnf.service.*;
@@ -26,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.List;
 
 @WebServlet("/profile")
 public class ProfileServlet extends HttpServlet {
@@ -53,6 +56,7 @@ public class ProfileServlet extends HttpServlet {
             response.sendRedirect("auth");
         } else switch (action) {
             case "edit-profile" -> handleUpdate(request, response);
+            case "getFollowers" -> handleGetFollowers(request, response);
             case null, default -> {
                 try {
                     request.setAttribute("userInfo", userService.getUserById(authUser.getId()));
@@ -63,6 +67,7 @@ public class ProfileServlet extends HttpServlet {
             }
         }
     }
+
 
     private void handleUpdate(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         ObjectMapper objectMapper = new ObjectMapper();
@@ -86,6 +91,36 @@ public class ProfileServlet extends HttpServlet {
                 case NO_CHANGE -> jsonResponse.put("generalError", "No changes were made to the profile.");
                 default -> jsonResponse.put("generalError", "An error occurred while updating the profile. Please try again later.");
             }
+        }
+
+        // Write the JSON response
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(jsonResponse.toString());
+    }
+
+    private void handleGetFollowers(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode jsonResponse = objectMapper.createObjectNode();
+
+        LoggedUserDTO authUser = SecurityUtils.getAuthenticatedUser(request);
+
+        try {
+            // Get the list of followers
+            List<UserSummaryDTO> followers = userService.getFollowers(authUser.getId(), authUser.getId());
+
+            // Convert the list to a JSON array
+            if (followers == null) {
+                jsonResponse.put("notFoundError", true);
+            } else {
+                ArrayNode followersJsonArray = objectMapper.valueToTree(followers);
+
+                // Add the JSON array to the response
+                jsonResponse.set("followers", followersJsonArray);
+                jsonResponse.put("success", true);
+            }
+        } catch (BusinessException e) {
+            jsonResponse.put("error", e.getMessage());
         }
 
         // Write the JSON response

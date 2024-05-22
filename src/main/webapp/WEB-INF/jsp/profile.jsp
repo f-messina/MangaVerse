@@ -58,7 +58,7 @@
 
                 <div class="profile-stats-px">
                     <ul>
-                        <li>
+                        <li id="show-followers" onclick="showFollowers()">
                             <span class="profile-stat-count-px">
                                 ${empty userInfo.getFollowers() ? 0 : userInfo.getFollowers()}
                             </span> followers
@@ -186,7 +186,7 @@
 
     <!-- followers -->
     <div id="followers" class="myAlert">
-        <div class="myAlertBody">
+        <div  id="followersBody" class="myAlertBody">
 
             <!-- search bar -->
             <div class="d-flex align-items-center">
@@ -196,8 +196,13 @@
             </div>
 
             <!-- followers list -->
-            <div class="followers-list"></div>
+            <div id="followers-list" class="followers-list"></div>
         </div>
     </div>
+
+<script>
+    const contextPath = "${pageContext.request.contextPath}";
+
+</script>
 </body>
 </html>

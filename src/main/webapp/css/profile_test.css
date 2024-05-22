@@ -586,3 +586,24 @@ select.form-control {
         max-width: 1500px;
     }
 }
+
+/* follow css */
+#followers {
+    background-color: white;
+}
+
+.user {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+}
+
+.user-pic {
+    width: 50px;
+    height: auto;
+    border-radius: 50%;
+}
+
+.user-username {
+    margin-left: 1rem;
+}
