@@ -1,25 +1,34 @@
 package it.unipi.lsmsd.fnf.service.impl;
 
+import com.mongodb.client.MongoCollection;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dao.mongo.BaseMongoDBDAO;
 import it.unipi.lsmsd.fnf.dao.neo4j.BaseNeo4JDAO;
 import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
 import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.model.enums.Gender;
+import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import it.unipi.lsmsd.fnf.service.ServiceLocator;
 import it.unipi.lsmsd.fnf.service.enums.ExecutorTaskServiceType;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
+import it.unipi.lsmsd.fnf.service.impl.asinc_media_tasks.UpdateNumberOfLikesTask;
+import it.unipi.lsmsd.fnf.service.impl.asinc_user_tasks.UpdateNumberOfFollowedTask;
+import it.unipi.lsmsd.fnf.service.impl.asinc_user_tasks.UpdateNumberOfFollowersTask;
 import it.unipi.lsmsd.fnf.service.interfaces.ExecutorTaskService;
 import it.unipi.lsmsd.fnf.service.interfaces.TaskManager;
 import it.unipi.lsmsd.fnf.service.interfaces.UserService;
 import it.unipi.lsmsd.fnf.utils.Constants;
+import org.bson.Document;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
+import static it.unipi.lsmsd.fnf.service.ServiceLocator.getExecutorTaskService;
 import static org.junit.jupiter.api.Assertions.*;
 
 class UserServiceImplTest {
@@ -250,5 +259,55 @@ class UserServiceImplTest {
         } catch (BusinessException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    //Get the number of following of the users
+
+    @Test
+    void getNumberOfFollowingsTest() {
+        ExecutorTaskService aperiodicExecutorTaskService = getExecutorTaskService(ExecutorTaskServiceType.APERIODIC);
+
+        try {
+            List<String> usersIds = getUserIds();
+            for(String userId : usersIds) {
+                UpdateNumberOfFollowedTask task = new UpdateNumberOfFollowedTask(userId);
+                aperiodicExecutorTaskService.executeTask(task);
+            }
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+
+    }
+
+    //Get the number of followers of the users
+    @Test
+    void getNumberOfFollowersTest() {
+        ExecutorTaskService aperiodicExecutorTaskService = getExecutorTaskService(ExecutorTaskServiceType.APERIODIC);
+
+        try {
+            List<String> usersIds = getUserIds();
+            for(String userId : usersIds) {
+                UpdateNumberOfFollowersTask task1 = new UpdateNumberOfFollowersTask(userId);
+                aperiodicExecutorTaskService.executeTask(task1);
+            }
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    //Get users Ids
+    List<String> getUserIds() {
+        MongoCollection<Document> usersCollection = BaseMongoDBDAO.getCollection("users");
+        List<String> usersIds = new ArrayList<>();
+        usersCollection.find().projection(new Document("_id", 1))
+                .map(doc -> doc.getObjectId("_id").toHexString())
+                .into(usersIds);
+
+
+        return usersIds;
     }
 }

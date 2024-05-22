@@ -57,6 +57,9 @@ public class ProfileServlet extends HttpServlet {
         } else switch (action) {
             case "edit-profile" -> handleUpdate(request, response);
             case "getFollowers" -> handleGetFollowers(request, response);
+            case "getAnimeLikes" -> handleGetAnimeLikes(request, response, authUser);
+            case "getMangaLikes" -> handleGetMangaLikes(request, response, authUser);
+            case "getReviews" -> handleGetReviews(request, response, authUser);
             case null, default -> {
                 try {
                     request.setAttribute("userInfo", userService.getUserById(authUser.getId()));
@@ -127,5 +130,15 @@ public class ProfileServlet extends HttpServlet {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         response.getWriter().write(jsonResponse.toString());
+    }
+    private void handleGetAnimeLikes(HttpServletRequest request, HttpServletResponse response, LoggedUserDTO authUser) {
+
+    }
+
+    private void handleGetMangaLikes(HttpServletRequest request, HttpServletResponse response, LoggedUserDTO authUser) {
+
+    }
+    private void handleGetReviews(HttpServletRequest request, HttpServletResponse response, LoggedUserDTO authUser) {
+
     }
 }

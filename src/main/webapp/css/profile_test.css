@@ -607,3 +607,28 @@ select.form-control {
 .user-username {
     margin-left: 1rem;
 }
+
+/* like and reviews list button css */
+/* Ensure all buttons are inline and centered */
+.button-container {
+    display: flex;
+    justify-content: center; /* Center the buttons horizontally */
+    gap: 10px; /* Space between buttons */
+    margin: 20px 0; /* Space above and below the buttons */
+}
+
+/* Optional: Style the buttons for better appearance */
+.button-container button {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+    transition: background-color 0.3s ease;
+}
+
+.button-container button:hover {
+    background-color: #e9e9e9;
+}
+

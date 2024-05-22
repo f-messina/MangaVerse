@@ -1,5 +1,6 @@
 package it.unipi.lsmsd.fnf.service.impl;
 
+import com.mongodb.client.MongoCollection;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dao.mongo.BaseMongoDBDAO;
 import it.unipi.lsmsd.fnf.dao.neo4j.BaseNeo4JDAO;
@@ -16,18 +17,22 @@ import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
 import it.unipi.lsmsd.fnf.service.ServiceLocator;
 import it.unipi.lsmsd.fnf.service.enums.ExecutorTaskServiceType;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
+import it.unipi.lsmsd.fnf.service.impl.asinc_media_tasks.UpdateNumberOfLikesTask;
 import it.unipi.lsmsd.fnf.service.interfaces.ExecutorTaskService;
 import it.unipi.lsmsd.fnf.service.interfaces.MediaContentService;
 import it.unipi.lsmsd.fnf.service.interfaces.TaskManager;
 import it.unipi.lsmsd.fnf.service.interfaces.UserService;
+import org.bson.Document;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static it.unipi.lsmsd.fnf.service.ServiceLocator.getExecutorTaskService;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 class MediaContentServiceImplTest {
@@ -316,6 +321,56 @@ class MediaContentServiceImplTest {
         } catch (BusinessException e) {
             System.out.println("Error getting best criteria: " + e.getMessage());
         }
+    }
+
+    @Test
+    void reloadNumberOfLikes() {
+        ExecutorTaskService aperiodicExecutorTaskService = getExecutorTaskService(ExecutorTaskServiceType.APERIODIC);
+        try {
+            //Get all anime and manga ids
+            List<String> animeIds = getAnimeIds();
+            List<String> mangaIds = getMangaIds();
+            // Create a task which updates the number of likes in MongoDB
+
+            for(String animeId : animeIds) {
+                UpdateNumberOfLikesTask task = new UpdateNumberOfLikesTask(animeId, MediaContentType.ANIME);
+                aperiodicExecutorTaskService.executeTask(task);
+            }
+
+            // Create a task which updates the number of likes in MongoDB
+            for(String mangaId : mangaIds) {
+                UpdateNumberOfLikesTask task = new UpdateNumberOfLikesTask(mangaId, MediaContentType.MANGA);
+                aperiodicExecutorTaskService.executeTask(task);
+            }
+
+            Thread.sleep(1000);
+
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    List <String> getAnimeIds() {
+
+        MongoCollection<Document> animeCollection = BaseMongoDBDAO.getCollection("anime");
+        List<String> animeIds = new ArrayList<>();
+        animeCollection.find().projection(new Document("_id", 1))
+                .map(doc -> doc.getObjectId("_id").toHexString())
+                .into(animeIds);
+
+
+        return animeIds;
+    }
+
+    List <String> getMangaIds() {
+
+        MongoCollection<Document> mangaCollection = BaseMongoDBDAO.getCollection("manga");
+        List<String> mangaIds = new ArrayList<>();
+        mangaCollection.find().projection(new Document("_id", 1))
+                .map(doc -> doc.getObjectId("_id").toHexString())
+                .into(mangaIds);
+        return mangaIds;
     }
 
     private Anime createSampleAnime() {
