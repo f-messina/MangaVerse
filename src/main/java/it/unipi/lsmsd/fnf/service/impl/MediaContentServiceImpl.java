@@ -2,9 +2,9 @@ package it.unipi.lsmsd.fnf.service.impl;
 
 import it.unipi.lsmsd.fnf.dao.enums.DataRepositoryEnum;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
+import it.unipi.lsmsd.fnf.dao.exception.enums.DAOExceptionType;
 import it.unipi.lsmsd.fnf.dao.interfaces.MediaContentDAO;
 import it.unipi.lsmsd.fnf.dao.interfaces.ReviewDAO;
-import it.unipi.lsmsd.fnf.dao.interfaces.UserDAO;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
@@ -13,36 +13,45 @@ import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
 import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
 import it.unipi.lsmsd.fnf.model.mediaContent.MediaContent;
+import it.unipi.lsmsd.fnf.service.enums.ExecutorTaskServiceType;
+import it.unipi.lsmsd.fnf.service.impl.asinc_media_tasks.*;
+import it.unipi.lsmsd.fnf.service.impl.asinc_review_tasks.RemoveDeletedMediaReviewsTask;
+import it.unipi.lsmsd.fnf.service.impl.asinc_review_tasks.UpdateReviewRedundancyTask;
+import it.unipi.lsmsd.fnf.service.impl.asinc_user_tasks.CreateUserTask;
+import it.unipi.lsmsd.fnf.service.impl.asinc_user_tasks.UpdateUserTask;
+import it.unipi.lsmsd.fnf.service.interfaces.ExecutorTaskService;
 import it.unipi.lsmsd.fnf.service.interfaces.MediaContentService;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
-import it.unipi.lsmsd.fnf.service.exception.BusinessExceptionType;
+import it.unipi.lsmsd.fnf.service.exception.enums.BusinessExceptionType;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static it.unipi.lsmsd.fnf.dao.DAOLocator.*;
+import static it.unipi.lsmsd.fnf.service.ServiceLocator.getExecutorTaskService;
+import static it.unipi.lsmsd.fnf.service.exception.BusinessException.handleDAOException;
 
 /**
  * The MediaContentServiceImpl class provides implementation for the MediaContentService interface.
  * It interacts with various DAOs to perform CRUD operations on media content entities and related operations.
  */
 public class MediaContentServiceImpl implements MediaContentService {
-    private static final MediaContentDAO<Anime> animeDAO;
-    private static final MediaContentDAO<Manga> mangaDAO;
-    private static final ReviewDAO reviewDAO;
-
-    private static final UserDAO userDAO;
+    private static final MediaContentDAO<Anime> animeDAOMongoDB;
+    private static final MediaContentDAO<Manga> mangaDAOMongoDB;
+    private static final ReviewDAO reviewDAOMongoDB;
     private static final MediaContentDAO<Anime> animeDAONeo4J;
     private static final MediaContentDAO<Manga> mangaDAONeo4J;
+    private static final ExecutorTaskService aperiodicExecutorTaskService;
 
     static {
-        animeDAO = getAnimeDAO(DataRepositoryEnum.MONGODB);
-        mangaDAO = getMangaDAO(DataRepositoryEnum.MONGODB);
-        reviewDAO = getReviewDAO(DataRepositoryEnum.MONGODB);
-        userDAO = getUserDAO(DataRepositoryEnum.MONGODB);
+        animeDAOMongoDB = getAnimeDAO(DataRepositoryEnum.MONGODB);
+        mangaDAOMongoDB = getMangaDAO(DataRepositoryEnum.MONGODB);
+        reviewDAOMongoDB = getReviewDAO(DataRepositoryEnum.MONGODB);
         animeDAONeo4J = getAnimeDAO(DataRepositoryEnum.NEO4J);
         mangaDAONeo4J = getMangaDAO(DataRepositoryEnum.NEO4J);
+        aperiodicExecutorTaskService = getExecutorTaskService(ExecutorTaskServiceType.APERIODIC);
     }
 
     /**
@@ -51,21 +60,29 @@ public class MediaContentServiceImpl implements MediaContentService {
      * @throws BusinessException If an error occurs during the operation.
      */
     @Override
-    public void addMediaContent(MediaContent mediaContent) throws BusinessException {
+    public void saveMediaContent(MediaContent mediaContent) throws BusinessException {
         try {
+            // Check if the media content has all the required fields and save it in the data repository
             if (mediaContent instanceof Anime anime) {
                 if (StringUtils.isAnyEmpty(anime.getTitle(), anime.getImageUrl()) || anime.getEpisodeCount() == null)
                     throw new BusinessException(BusinessExceptionType.EMPTY_FIELDS,"Title, image URL and number of episodes are required");
-                animeDAO.saveMediaContent(anime);
+                animeDAOMongoDB.saveMediaContent(anime);
+
             } else if (mediaContent instanceof Manga manga) {
                 if (StringUtils.isAnyEmpty(manga.getTitle(), manga.getImageUrl()) || manga.getStartDate() == null || manga.getType() == null)
                     throw new BusinessException(BusinessExceptionType.EMPTY_FIELDS,"Title, image URL, start date and type are required");
-                mangaDAO.saveMediaContent(manga);
+                mangaDAOMongoDB.saveMediaContent(manga);
             }
+
+            // Create a task which adds a new node Anime/Manga in Neo4j
+            aperiodicExecutorTaskService.executeTask(new CreateMediaTask(mediaContent));
+
         } catch (DAOException e) {
-            //If it's duplicate key throw a BusinessException with a meaningful error message
-            //In general throw and catch all the different catches and exception found in the DAO for anime, manga
-            throw new BusinessException("Error adding media content",e);
+            switch (e.getType()) {
+                case DUPLICATED_KEY -> throw new BusinessException(BusinessExceptionType.DUPLICATED_KEY, e.getMessage());
+                case DATABASE_ERROR -> throw new BusinessException(BusinessExceptionType.DATABASE_ERROR, e.getMessage());
+                default -> throw new BusinessException(BusinessExceptionType.GENERIC_ERROR, e.getMessage());
+            }
         }
     }
 
@@ -78,18 +95,27 @@ public class MediaContentServiceImpl implements MediaContentService {
     public void updateMediaContent(MediaContent mediaContent) throws BusinessException {
         try {
             if (mediaContent instanceof Anime anime) {
-                animeDAO.updateMediaContent(anime);
-                if (mediaContent.getTitle() != null) {
-                    reviewDAO.updateMediaRedundancy(new AnimeDTO(anime.getId(), anime.getTitle()));
-                }
+                animeDAOMongoDB.updateMediaContent(anime);
+                if (mediaContent.getTitle() != null)
+                    reviewDAOMongoDB.updateMediaRedundancy(new AnimeDTO(anime.getId(), anime.getTitle()));
             } else if (mediaContent instanceof Manga manga) {
-                mangaDAO.updateMediaContent(manga);
-                if (mediaContent.getTitle() != null) {
-                    reviewDAO.updateMediaRedundancy(new MangaDTO(manga.getId(), manga.getTitle()));
-                }
+                mangaDAOMongoDB.updateMediaContent(manga);
+                if (mediaContent.getTitle() != null)
+                    reviewDAOMongoDB.updateMediaRedundancy(new MangaDTO(manga.getId(), manga.getTitle()));
             }
-        } catch (Exception e) {
-            throw new BusinessException("Error updating the media content",e);
+
+            // Create a task which update the node Anime/Manga in Neo4j
+            if (mediaContent.getTitle() != null || mediaContent.getImageUrl() != null) {
+                aperiodicExecutorTaskService.executeTask(new UpdateMediaTask(mediaContent));
+                aperiodicExecutorTaskService.executeTask(new UpdateReviewRedundancyTask(mediaContent.toDTO(), null));
+            }
+
+        } catch (DAOException e) {
+            switch (e.getType()) {
+                case DUPLICATED_KEY -> throw new BusinessException(BusinessExceptionType.DUPLICATED_KEY, e.getMessage());
+                case DATABASE_ERROR -> throw new BusinessException(BusinessExceptionType.DATABASE_ERROR, e.getMessage());
+                default -> throw new BusinessException(BusinessExceptionType.GENERIC_ERROR, e.getMessage());
+            }
         }
     }
 
@@ -100,19 +126,24 @@ public class MediaContentServiceImpl implements MediaContentService {
      * @throws BusinessException If an error occurs during the operation.
      */
     @Override
-    public void removeMediaContent(String mediaId, MediaContentType type) throws BusinessException {
+    public void deleteMediaContent(String mediaId, MediaContentType type) throws BusinessException {
         try {
-            if (MediaContentType.ANIME.equals(type)) {
-                animeDAO.deleteMediaContent(mediaId);
-            } else if (MediaContentType.MANGA.equals(type)) {
-                mangaDAO.deleteMediaContent(mediaId);
-            } else {
-                throw new BusinessException(BusinessExceptionType.INVALID_TYPE,"Invalid media content type");
+            if (MediaContentType.ANIME.equals(type))
+                animeDAOMongoDB.deleteMediaContent(mediaId);
+            else
+                mangaDAOMongoDB.deleteMediaContent(mediaId);
+
+            // Create a task which delete the node Anime/Manga in Neo4j
+            aperiodicExecutorTaskService.executeTask(new DeleteMediaTask(mediaId, type));
+
+            // Create a task which delete the reviews of the media content in MongoDB
+            aperiodicExecutorTaskService.executeTask(new RemoveDeletedMediaReviewsTask(mediaId));
+
+        } catch (DAOException e) {
+            if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {
+                throw new BusinessException(BusinessExceptionType.NOT_FOUND, e.getMessage());
             }
-            // TODO: userDAO.removeElementInListWithoutMedia();
-            // TODO: reviewDAO.deleteReviewsWithNoMedia();
-        } catch (Exception e) {
-            throw new BusinessException("Error removing the media content",e);
+            throw new BusinessException(BusinessExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
 
@@ -127,15 +158,16 @@ public class MediaContentServiceImpl implements MediaContentService {
     @Override
     public MediaContent getMediaContentById(String mediaId, MediaContentType type) throws BusinessException {
         try {
-            if (MediaContentType.ANIME.equals(type)) {
-                return animeDAO.readMediaContent(mediaId);
-            } else if (MediaContentType.MANGA.equals(type)) {
-                return mangaDAO.readMediaContent(mediaId);
-            } else {
-                throw new BusinessException(BusinessExceptionType.INVALID_TYPE,"Invalid media content type");
+            if (MediaContentType.ANIME.equals(type))
+                return animeDAOMongoDB.readMediaContent(mediaId);
+            else
+                return mangaDAOMongoDB.readMediaContent(mediaId);
+
+        } catch (DAOException e) {
+            if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {
+                throw new BusinessException(BusinessExceptionType.NOT_FOUND, e.getMessage());
             }
-        } catch (Exception e) {
-            throw new BusinessException("Error finding media content by id",e);
+            throw new BusinessException(BusinessExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
 
@@ -150,17 +182,18 @@ public class MediaContentServiceImpl implements MediaContentService {
      * @throws BusinessException If an error occurs during the operation.
      */
     @Override
-    public PageDTO<? extends MediaContentDTO> searchByFilter(List<Map<String, Object>> filters, Map<String, Integer> orderBy, int page, MediaContentType type) throws BusinessException {
+    public PageDTO<MediaContentDTO> searchByFilter(List<Map<String, Object>> filters, Map<String, Integer> orderBy, int page, MediaContentType type) throws BusinessException {
         try {
-            if (MediaContentType.ANIME.equals(type)) {
-                return animeDAO.search(filters, orderBy, page);
-            } else if (MediaContentType.MANGA.equals(type)) {
-                return mangaDAO.search(filters, orderBy, page);
-            } else {
-                throw new BusinessException(BusinessExceptionType.INVALID_TYPE,"Invalid media content type");
+            if (MediaContentType.ANIME.equals(type))
+                return animeDAOMongoDB.search(filters, orderBy, page);
+            else
+                return mangaDAOMongoDB.search(filters, orderBy, page);
+
+        } catch (DAOException e) {
+            if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {
+                throw new BusinessException(BusinessExceptionType.NOT_FOUND, e.getMessage());
             }
-        } catch (Exception e) {
-            throw new BusinessException("Error while searching",e);
+            throw new BusinessException(BusinessExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
 
@@ -173,38 +206,18 @@ public class MediaContentServiceImpl implements MediaContentService {
      * @throws BusinessException If an error occurs during the operation.
      */
     @Override
-    public PageDTO<? extends MediaContentDTO> searchByTitle(String title, int page, MediaContentType type) throws BusinessException {
+    public PageDTO<MediaContentDTO> searchByTitle(String title, int page, MediaContentType type) throws BusinessException {
         try {
-            if (MediaContentType.ANIME.equals(type)) {
-                return animeDAO.search(List.of(Map.of("title", title)), Map.of("score", 1), page);
-            } else if (MediaContentType.MANGA.equals(type)) {
-                return mangaDAO.search(List.of(Map.of("title", title)), Map.of("score", 1), page);
-            } else {
-                throw new BusinessException(BusinessExceptionType.INVALID_TYPE,"Invalid media content type");
-            }
-        } catch (Exception e) {
-            throw new BusinessException("Error while searching",e);
-        }
-    }
-
-    /**
-     * Creates a node in the Neo4j database for the provided media content.
-     * @param mediaContentDTO The media content DTO representing the node to be created.
-     * @throws BusinessException If an error occurs during the operation.
-     */
-    @Override
-    public void createNode(MediaContentDTO mediaContentDTO) throws BusinessException {
-        try {
-            MediaContentType type = mediaContentDTO instanceof AnimeDTO ? MediaContentType.ANIME :
-                    mediaContentDTO instanceof MangaDTO? MediaContentType.MANGA : null;
             if (MediaContentType.ANIME.equals(type))
-                animeDAONeo4J.createNode(mediaContentDTO);
-            else if (MediaContentType.MANGA.equals(type))
-                mangaDAONeo4J.createNode(mediaContentDTO);
+                return animeDAOMongoDB.search(List.of(Map.of("title", title)), Map.of("score", 1), page);
             else
-                throw new BusinessException("Invalid media content type");
-        } catch (Exception e) {
-            throw new BusinessException(e);
+                return mangaDAOMongoDB.search(List.of(Map.of("title", title)), Map.of("score", 1), page);
+
+        } catch (DAOException e) {
+            if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {
+                throw new BusinessException(BusinessExceptionType.NOT_FOUND, e.getMessage());
+            }
+            throw new BusinessException(BusinessExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
 
@@ -218,15 +231,17 @@ public class MediaContentServiceImpl implements MediaContentService {
     @Override
     public void addLike(String userId, String mediaId, MediaContentType type) throws BusinessException {
         try {
-            if (MediaContentType.ANIME.equals(type)) {
+            if (MediaContentType.ANIME.equals(type))
                 animeDAONeo4J.like(userId, mediaId);
-            } else if (MediaContentType.MANGA.equals(type)) {
+            else
                 mangaDAONeo4J.like(userId, mediaId);
-            } else {
-                throw new BusinessException("Invalid media content type");
-            }
-        } catch (Exception e) {
-            throw new BusinessException("Error while liking the media content.", e);
+
+            // Create a task which updates the number of likes in MongoDB
+            UpdateNumberOfLikesTask task = new UpdateNumberOfLikesTask(mediaId, type);
+            aperiodicExecutorTaskService.executeTask(task);
+
+        } catch (DAOException e) {
+            handleDAOException(e);
         }
     }
 
@@ -241,16 +256,39 @@ public class MediaContentServiceImpl implements MediaContentService {
     @Override
     public void removeLike(String userId, String mediaId, MediaContentType type) throws BusinessException {
         try {
-            if (MediaContentType.ANIME.equals(type)) {
+            if (MediaContentType.ANIME.equals(type))
                 animeDAONeo4J.unlike(userId, mediaId);
-            } else if (MediaContentType.MANGA.equals(type)) {
+            else
                 mangaDAONeo4J.unlike(userId, mediaId);
-            } else {
-                throw new BusinessException("Invalid media content type");
-            }
 
-        } catch (Exception e) {
-            throw new BusinessException("Error while unliking media content.", e);
+            // Create a task which updates the number of likes in MongoDB
+            UpdateNumberOfLikesTask task = new UpdateNumberOfLikesTask(mediaId, type);
+            aperiodicExecutorTaskService.executeTask(task);
+
+        } catch (DAOException e) {
+            handleDAOException(e);
+        }
+    }
+
+    /**
+     * Checks if a user has liked a particular media content.
+     * @param userId The ID of the user.
+     * @param mediaId The ID of the media content to check.
+     * @param type The type of media content (Anime or Manga).
+     * @return True if the user has liked the media content, false otherwise.
+     * @throws BusinessException If an error occurs during the operation.
+     */
+    @Override
+    public boolean isLiked(String userId, String mediaId, MediaContentType type) throws BusinessException {
+        try {
+            if (MediaContentType.ANIME.equals(type))
+                return animeDAONeo4J.isLiked(userId, mediaId);
+            else
+                return mangaDAONeo4J.isLiked(userId, mediaId);
+
+        } catch (DAOException e) {
+            handleDAOException(e);
+            return false;
         }
     }
 
@@ -264,41 +302,17 @@ public class MediaContentServiceImpl implements MediaContentService {
     @Override
     public List<? extends MediaContentDTO> getLikedMediaContent(String userId, MediaContentType type) throws BusinessException {
         try {
-            if (MediaContentType.ANIME.equals(type)) {
+            if (MediaContentType.ANIME.equals(type))
                 return animeDAONeo4J.getLiked(userId);
-            } else if (MediaContentType.MANGA.equals(type)) {
+            else
                 return mangaDAONeo4J.getLiked(userId);
-            } else {
-                throw new BusinessException("Invalid media content type");
-            }
-        } catch (Exception e) {
-            throw new BusinessException("Error while retrieving liked media contents.", e);
+
+        } catch (DAOException e) {
+            handleDAOException(e);
+            return null;
         }
     }
 
-
-    /**
-     * Checks if a user has liked a particular media content.
-     * @param userId The ID of the user.
-     * @param mediaId The ID of the media content to check.
-     * @param type The type of media content (Anime or Manga).
-     * @return True if the user has liked the media content, false otherwise.
-     * @throws BusinessException If an error occurs during the operation.
-     */
-    @Override
-    public boolean isLiked(String userId, String mediaId, MediaContentType type) throws BusinessException {
-        try {
-            if (MediaContentType.ANIME.equals(type)) {
-                return animeDAONeo4J.isLiked(userId, mediaId);
-            } else if (MediaContentType.MANGA.equals(type)) {
-                return mangaDAONeo4J.isLiked(userId, mediaId);
-            } else {
-                throw new BusinessException("Invalid media content type");
-            }
-        } catch (Exception e) {
-            throw new BusinessException("Error while checking like.", e);
-        }
-    }
 
     /**
      * Retrieves a list of suggested media content for a given user.
@@ -308,17 +322,16 @@ public class MediaContentServiceImpl implements MediaContentService {
      * @throws BusinessException If an error occurs during the operation.
      */
     @Override
-    public List<? extends MediaContentDTO> getSuggestedMediaContent(String userId, MediaContentType type) throws BusinessException {
+    public List<? extends MediaContentDTO> getSuggestedMediaContent(String userId, MediaContentType type, Integer limit) throws BusinessException {
         try {
-            if (MediaContentType.ANIME.equals(type)) {
-                return animeDAONeo4J.getSuggested(userId);
-            } else if (MediaContentType.MANGA.equals(type)) {
-                return mangaDAONeo4J.getSuggested(userId);
-            } else {
-                throw new BusinessException("Invalid media content type");
-            }
-        } catch (Exception e) {
-            throw new BusinessException("Error while suggesting anime.", e);
+            if (MediaContentType.ANIME.equals(type))
+                return animeDAONeo4J.getSuggested(userId, limit);
+            else
+                return mangaDAONeo4J.getSuggested(userId, limit);
+
+        } catch (DAOException e) {
+            handleDAOException(e);
+            return null;
         }
     }
 
@@ -330,91 +343,54 @@ public class MediaContentServiceImpl implements MediaContentService {
      * @throws BusinessException If an error occurs during the operation.
      */
     @Override
-    public List<? extends MediaContentDTO> getTrendMediaContentByYear(int year, MediaContentType type) throws BusinessException {
+    public Map<? extends MediaContentDTO, Integer> getTrendMediaContentByYear(int year, MediaContentType type) throws BusinessException {
         try {
-            if (MediaContentType.ANIME.equals(type)) {
+            if (MediaContentType.ANIME.equals(type))
                 return animeDAONeo4J.getTrendMediaContentByYear(year);
-            } else if (MediaContentType.MANGA.equals(type)) {
+            else
                 return mangaDAONeo4J.getTrendMediaContentByYear(year);
-            } else {
-                throw new BusinessException("Invalid media content type");
-            }
-        } catch (Exception e) {
-            throw new BusinessException("Error while retrieving the trend.", e);
-        }
-    }
 
-    @Override
-    public List<String> getMediaContentGenresTrendByYear(int year, MediaContentType type) throws BusinessException {
-        try {
-            if (MediaContentType.ANIME.equals(type)) {
-                return animeDAONeo4J.getMediaContentGenresTrendByYear(year);
-            } else if (MediaContentType.MANGA.equals(type)) {
-                return mangaDAONeo4J.getMediaContentGenresTrendByYear(year);
-            } else {
-                throw new BusinessException("Invalid media content type");
-            }
-        } catch (Exception e) {
-            throw new BusinessException("Error while retrieving the trend.", e);
+        } catch (DAOException e) {
+            handleDAOException(e);
+            return null;
         }
     }
 
     @Override
     public List<? extends MediaContentDTO> getMediaContentTrendByLikes(MediaContentType type) throws BusinessException {
         try {
-            if (MediaContentType.ANIME.equals(type)) {
+            if (MediaContentType.ANIME.equals(type))
                 return animeDAONeo4J.getMediaContentTrendByLikes();
-            } else if (MediaContentType.MANGA.equals(type)) {
+            else
                 return mangaDAONeo4J.getMediaContentTrendByLikes();
-            } else {
-                throw new BusinessException("Invalid media content type");
-            }
-        } catch (Exception e) {
-            throw new BusinessException("Error while retrieving the trend.", e);
+
+        } catch (DAOException e) {
+            handleDAOException(e);
+            return null;
         }
     }
 
     @Override
-    public List<String> getMediaContentGenresTrend(MediaContentType type) throws BusinessException {
+    public Map<String, Double> getBestCriteria (String criteria, int page, MediaContentType type) throws BusinessException {
         try {
             if (MediaContentType.ANIME.equals(type)) {
-                return animeDAONeo4J.getMediaContentGenresTrend();
-            } else if (MediaContentType.MANGA.equals(type)) {
-                return mangaDAONeo4J.getMediaContentGenresTrend();
+                if (!(criteria.equals("tags") || criteria.equals("producers") || criteria.equals("studios")))
+                    throw new BusinessException("Invalid criteria");
+                return animeDAOMongoDB.getBestCriteria(criteria, criteria.equals("tags"), page);
             } else {
-                throw new BusinessException("Invalid media content type");
+                if (!(criteria.equals("genres") || criteria.equals("demographics") ||
+                        criteria.equals("themes") || criteria.equals("authors") || criteria.equals("serializations")))
+                    throw new BusinessException("Invalid criteria");
+
+                boolean isArray = criteria.equals("genres") || criteria.equals("demographics") ||
+                        criteria.equals("themes") || criteria.equals("authors");
+
+                return mangaDAOMongoDB.getBestCriteria(criteria, isArray, page);
             }
-        } catch (Exception e) {
-            throw new BusinessException("Error while retrieving the trend.", e);
-        }
-    }
 
-    //Service for mongoDB queries
-    @Override
-    public Map<String, Double> getBestAnimeCriteria (String criteria, int page) throws BusinessException {
-        try {
-            if (!(criteria.equals("tags")|| criteria.equals("producers") || criteria.equals("studios")))
-                throw new BusinessException("Invalid criteria");
-            return animeDAO.getBestCriteria(criteria, criteria.equals("tags"), page);
         } catch (DAOException e) {
-            throw new BusinessException("Error while retrieving the best criteria.", e);
-        }
-    }
-
-    //Service for mongoDB queries
-    @Override
-    public Map<String, Double> getBestMangaCriteria (String criteria, int page) throws BusinessException {
-        try {
-            if (!(criteria.equals("genres") || criteria.equals("demographics") ||
-                    criteria.equals("themes") || criteria.equals("authors") || criteria.equals("serializations")))
-                throw new BusinessException("Invalid criteria");
-
-            boolean isArray = criteria.equals("genres") || criteria.equals("demographics") ||
-                    criteria.equals("themes") || criteria.equals("authors");
-
-            return mangaDAO.getBestCriteria(criteria, isArray, page);
-        } catch (DAOException e) {
-            throw new BusinessException("Error while retrieving the best criteria.", e);
+            handleDAOException(e);
+            return null;
         }
     }
 }

@@ -1,7 +1,6 @@
 package it.unipi.lsmsd.fnf.dao.mongo;
 
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
-import it.unipi.lsmsd.fnf.dao.exception.DAOExceptionType;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
 import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
@@ -126,6 +125,14 @@ class ReviewDAOMongoImplTest {
         System.out.println("Non-existent user redundancy update failed");
     }
 
+    // test 1: update average rating
+    @Test
+    void updateAverageRatingMediaTest() {
+        ReviewDAOMongoImpl reviewDAO = new ReviewDAOMongoImpl();
+        assertDoesNotThrow(reviewDAO::updateAverageRatingMedia);
+        System.out.println("Average rating updated");
+    }
+
     // test 1: delete review
     // test 2: delete non-existent review
     @Test
@@ -162,6 +169,16 @@ class ReviewDAOMongoImplTest {
         } catch (DAOException e) {
             System.err.println(e.getMessage() + " " + e.getType());
         }
+    }
+
+    // test 1 : refresh latest reviews on user deletion
+    @Test
+    void refreshLatestReviewsOnUserDeletionTest() throws DAOException {
+        ReviewDAOMongoImpl reviewDAO = new ReviewDAOMongoImpl();
+        assertDoesNotThrow(() -> {
+            reviewDAO.refreshLatestReviewsOnUserDeletion("6647f6fd47d52d299e9ebf23");
+            System.out.println("Latest reviews refreshed on user deletion");
+        });
     }
 
     // test 1: get review by user
@@ -210,23 +227,6 @@ class ReviewDAOMongoImplTest {
         // test 3
         assertThrows(DAOException.class, () -> reviewDAO.getReviewByMedia("6635fe844276578429fe4422", MediaContentType.MANGA, 1));
         System.out.println("Non-existent review retrieval failed");
-    }
-
-    // test 1: get the average rating of a user
-    // test 2: get the average rating of a non-existent user
-    @Test
-    public void averageRatingUserTest() {
-        ReviewDAOMongoImpl reviewDAO = new ReviewDAOMongoImpl();
-
-        // test 1
-        assertDoesNotThrow(() -> {
-            Double averageRating = reviewDAO.averageRatingUser("6577877be68376234760585b");
-            System.out.println(averageRating);
-        });
-
-        // test 2
-        assertThrows(DAOException.class, () -> reviewDAO.averageRatingUser("6577877be683762347605213"));
-        System.out.println("Non-existent user average rating retrieval failed");
     }
 
     // test 1: get anime rating by year

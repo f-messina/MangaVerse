@@ -24,67 +24,63 @@ const countryOptions = ["Afghanistan", "Albania", "Algeria", "Andorra", "Angola"
     "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan",
     "Vanuatu", "Vatican City", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"];
 
-const input = document.getElementById("country");
-const dropdown = document.getElementById("country-dropdown");
+const input = $("#country");
+const dropdown = $("#country-dropdown");
 
 // Add an input event listener
-input.addEventListener("input", function() {
-    const filter = input.value.trim().toUpperCase();
+input.on("input", function() {
+    const filter = input.val().trim().toUpperCase();
 
     // Remove existing country options in the dropdown
-    dropdown.innerHTML = "";
+    dropdown.empty();
 
     // If input is empty, do not filter countryOptions
     if (filter === "") {
-        dropdown.style.display = "none";
+        dropdown.hide();
         return;
     }
 
     for (let i = 0; i < countryOptions.length; i++) {
         if (startsWithCaseInsensitive(countryOptions[i], filter)) {
-            let optionElement = document.createElement("a");
-            optionElement.href = "#";
-            optionElement.textContent = countryOptions[i];
-            optionElement.addEventListener("click", function() {
-                input.value = this.textContent;
-                dropdown.style.display = "none";
+            let optionElement = $("<a href='#'>" + countryOptions[i] + "</a>");
+            optionElement.on("click", function() {
+                input.val($(this).text());
+                dropdown.hide();
             });
 
-            dropdown.appendChild(optionElement);
+            dropdown.append(optionElement);
         }
     }
 
     // Display the dropdown
-    if (dropdown.children.length > 0) {
-        dropdown.style.display = "block";
+    if (dropdown.children().length > 0) {
+        dropdown.show();
     } else {
-        dropdown.style.display = "none";
+        dropdown.hide();
     }
 });
 
 // Add a click event listener for the dropdown
-dropdown.addEventListener("click", function() {
+dropdown.on("click", function() {
     // Show all country options when the dropdown is clicked
-    dropdown.innerHTML = "";
+    dropdown.empty();
 
     for (let i = 0; i < countryOptions.length; i++) {
-        let optionElement = document.createElement("a");
-        optionElement.href = "#";
-        optionElement.textContent = countryOptions[i];
-        optionElement.addEventListener("click", function() {
-            input.value = this.textContent;
-            dropdown.style.display = "none";
+        let optionElement = $("<a href='#'>" + countryOptions[i] + "</a>");
+        optionElement.on("click", function() {
+            input.val($(this).text());
+            dropdown.hide();
         });
 
-        dropdown.appendChild(optionElement);
+        dropdown.append(optionElement);
     }
 
-    dropdown.style.display = "block";
+    dropdown.show();
 });
 
 // Close the dropdown when clicking elsewhere on the page
-window.addEventListener("click", function(event) {
-    if (!event.target.matches('#myInput') && !event.target.matches('.dropdown-content a')) {
-        dropdown.style.display = "none";
+$(document).on("click", function(event) {
+    if (!$(event.target).is(input) && !$(event.target).is(".dropdown-content a")) {
+        dropdown.hide();
     }
 });

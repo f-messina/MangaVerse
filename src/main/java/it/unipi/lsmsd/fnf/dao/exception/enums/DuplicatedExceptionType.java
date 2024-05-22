@@ -1,4 +1,4 @@
-package it.unipi.lsmsd.fnf.dao.exception;
+package it.unipi.lsmsd.fnf.dao.exception.enums;
 
 public enum DuplicatedExceptionType {
     GENERIC,

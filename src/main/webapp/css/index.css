@@ -34,22 +34,47 @@ html {
     width: 80%;
 }
 
-.section-home a {
+.section-home span, .section-home a {
     font-size: 2em;
     font-weight: 300;
     text-decoration: none;
     color: black;
 }
 
-.manga a:hover,
-.anime a:hover{
-    font-size: 2.4em;
+.active-page,
+.selection-page-link {
+    width: 90px;
+    display: flex;
+    justify-content: center;
+}
+
+.active-page span {
+    font-size: 2em;
+    font-weight: 400;
+    color: rgba(66, 28, 142, 0.8);
+    cursor: default;
+    border-radius: 45%;
+    padding: 0.5rem 1rem;
+    border-color: rgba(66, 28, 142, 0.8);
+    border-width: 2px;
+    border-style: solid;
+}
+
+.selection-page-link a:hover{
+    font-size: 2em;
     font-weight: 400;
 }
 
-.section-home .down-arrow {
+.down-arrow {
     position: relative;
+    height: 30px;
     top: 220px;
+}
+
+.down-arrow i:hover {
+    cursor: pointer;
+    color: rgba(66, 28, 142, 0.8);
+    font-size: 1.5em;
 }
 
 .welcome {

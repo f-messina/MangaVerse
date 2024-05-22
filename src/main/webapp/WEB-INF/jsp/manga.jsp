@@ -43,7 +43,7 @@
                         <c:otherwise>
                             <form action="${pageContext.request.contextPath}/auth" method="post">
                                 <input type="hidden" name="action" value="logout">
-                                <input type="hidden" name="targetServlet" value="/manga?mediaId=${requestScope.manga.id}">
+                                <input type="hidden" name="targetServlet" value="manga?mediaId=${requestScope.manga.id}">
                                 <button type="submit" class="logout">Log Out</button>
                             </form>
                             <a href="${pageContext.request.contextPath}/profile">Profile</a>

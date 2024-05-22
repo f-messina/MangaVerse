@@ -64,7 +64,7 @@ public class MainPageServlet extends HttpServlet {
             request.setAttribute("animeStatus", AnimeStatus.values());
             targetJSP = "/WEB-INF/jsp/anime_main_page.jsp";
         } else {
-            request.getRequestDispatcher("homepage.jsp").forward(request, response);
+            response.sendRedirect("mainPage/manga");
             return;
         }
 

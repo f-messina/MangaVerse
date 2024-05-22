@@ -8,6 +8,7 @@ public abstract class MediaContent {
     protected String imageUrl;
     protected Double averageRating;
     protected String synopsis;
+    protected Integer likes;
 
     public String getId() {
         return id;
@@ -27,6 +28,10 @@ public abstract class MediaContent {
 
     public String getSynopsis() {
         return synopsis;
+    }
+
+    public Integer getLikes() {
+        return likes;
     }
 
     public void setId(String id) {
@@ -49,6 +54,10 @@ public abstract class MediaContent {
         this.synopsis = synopsis;
     }
 
+    public void setLikes(Integer likes) {
+        this.likes = likes;
+    }
+
     /**
      * Overrides the default toString method to provide a custom string representation of the MediaContent object.
      * @return A string representation of the MediaContent object.
@@ -61,6 +70,7 @@ public abstract class MediaContent {
                 ", imageUrl='" + imageUrl + '\'' +
                 ", averageRating='" + averageRating + '\'' +
                 ", synopsis='" + synopsis + '\'' +
+                ", likes='" + likes + '\'' +
                 '}';
     }
 

@@ -1,5 +1,7 @@
 package it.unipi.lsmsd.fnf.dao.exception;
 
+import it.unipi.lsmsd.fnf.dao.exception.enums.DuplicatedExceptionType;
+
 public class DuplicatedException extends Exception{
     private final DuplicatedExceptionType type;
     /**

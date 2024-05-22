@@ -7,7 +7,6 @@ import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 
-import java.util.List;
 import java.util.Map;
 
 public interface ReviewDAO {
@@ -15,19 +14,17 @@ public interface ReviewDAO {
     void updateReview(String reviewId, String reviewComment, Integer reviewRating) throws DAOException;
     void updateMediaRedundancy(MediaContentDTO mediaContentDTO) throws DAOException;
     void updateUserRedundancy(UserSummaryDTO userSummaryDTO) throws DAOException;
+    void updateAverageRatingMedia() throws DAOException;
     void deleteReview(String reviewId) throws DAOException;
+    void refreshLatestReviewsOnUserDeletion(String userId) throws DAOException;
     void deleteReviewsWithNoMedia() throws DAOException;
+    void deleteReviewsByMedia(String mediaId) throws DAOException;
     void deleteReviewsWithNoAuthor() throws DAOException;
+    void deleteReviewsByAuthor(String userId) throws DAOException;
     PageDTO<ReviewDTO> getReviewByUser(String userId, Integer page) throws DAOException;
     PageDTO<ReviewDTO> getReviewByMedia(String mediaId, MediaContentType type, Integer page) throws DAOException;
-
-    List<ReviewDTO> getLastNReviewByMedia(String mediaId, MediaContentType type, Integer n)throws DAOException;
-
-    Double averageRatingUser(String userId) throws DAOException;
-    Map<String, Double> getMediaContentRatingByYear(MediaContentType type, String mediaContentId, int startYear, int endYear) throws  DAOException;
-    Map<String, Double> getMediaContentRatingByMonth (MediaContentType type, String mediaContentId, int year) throws DAOException;
-
-    //For users: suggestions based on birthday year and location. For example: show the 25 anime or manga with the highest average ratings in Italy.
+    Map<String, Double> getMediaContentRatingByYear(MediaContentType type, String mediaContentId, int startYear, int endYear) throws  DAOException; // MANAGER
+    Map<String, Double> getMediaContentRatingByMonth (MediaContentType type, String mediaContentId, int year) throws DAOException; // MANAGER
     PageDTO<MediaContentDTO> suggestMediaContent(MediaContentType mediaContentType, String criteria, String type) throws DAOException;
 }
 

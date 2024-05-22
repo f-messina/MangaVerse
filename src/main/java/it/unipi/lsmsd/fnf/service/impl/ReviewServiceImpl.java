@@ -1,7 +1,7 @@
 package it.unipi.lsmsd.fnf.service.impl;
 
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
-import it.unipi.lsmsd.fnf.dao.exception.DAOExceptionType;
+import it.unipi.lsmsd.fnf.dao.exception.enums.DAOExceptionType;
 import it.unipi.lsmsd.fnf.dao.interfaces.MediaContentDAO;
 import it.unipi.lsmsd.fnf.dao.interfaces.ReviewDAO;
 import it.unipi.lsmsd.fnf.dao.enums.DataRepositoryEnum;
@@ -16,11 +16,12 @@ import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.service.interfaces.ReviewService;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 
-import it.unipi.lsmsd.fnf.service.exception.BusinessExceptionType;
+import it.unipi.lsmsd.fnf.service.exception.enums.BusinessExceptionType;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDate;
 import java.util.Map;
+import java.util.Objects;
 
 import static it.unipi.lsmsd.fnf.dao.DAOLocator.*;
 
@@ -52,18 +53,22 @@ public class ReviewServiceImpl implements ReviewService {
         }
         try{
             reviewDAO.saveReview(review);
+
+            // add the redundant data to the media content
             if (review.getMediaContent() instanceof MangaDTO)
                 mangaDAO.upsertReview(review);
             else if (review.getMediaContent() instanceof AnimeDTO)
                 animeDAO.upsertReview(review);
+
         } catch (DAOException e) {
-            DAOExceptionType type = e.getType();
-            if (DAOExceptionType.DUPLICATED_KEY.equals(type))
-                throw new BusinessException(BusinessExceptionType.DUPLICATED_KEY, "The user have already reviewed this media content.");
-            else if (DAOExceptionType.DATABASE_ERROR.equals(type))
-                throw new BusinessException(BusinessExceptionType.NOT_FOUND,"The media content does not exist.");
-            else
-                throw new BusinessException(BusinessExceptionType.GENERIC, e.getMessage());
+            switch (e.getType()) {
+                case DATABASE_ERROR:
+                    throw new BusinessException(BusinessExceptionType.NOT_FOUND, e.getMessage());
+                case DUPLICATED_KEY:
+                    throw new BusinessException(BusinessExceptionType.DUPLICATED_KEY, e.getMessage());
+                default:
+                    throw new BusinessException(BusinessExceptionType.GENERIC_ERROR, e.getMessage());
+            }
         }
     }
 
@@ -80,16 +85,17 @@ public class ReviewServiceImpl implements ReviewService {
         try {
             reviewDAO.updateReview(reviewDTO.getId(), reviewDTO.getComment(), reviewDTO.getRating());
 
+            // update the redundant data in the media content
             if (reviewDTO.getMediaContent() instanceof MangaDTO)
                 mangaDAO.upsertReview(reviewDTO);
             else if (reviewDTO.getMediaContent() instanceof AnimeDTO)
                 animeDAO.upsertReview(reviewDTO);
+
         } catch (DAOException e){
-            DAOExceptionType type = e.getType();
-            if (DAOExceptionType.DATABASE_ERROR.equals(type))
-                throw new BusinessException(BusinessExceptionType.NOT_FOUND, "The review is not found.");
-            else
-                throw new BusinessException(BusinessExceptionType.GENERIC, "Error updating the review");
+            if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {
+                throw new BusinessException(BusinessExceptionType.NOT_FOUND, e.getMessage());
+            }
+            throw new BusinessException(BusinessExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
 
@@ -102,38 +108,18 @@ public class ReviewServiceImpl implements ReviewService {
     public void deleteReview(String reviewId, String mediaId, MediaContentType mediaContentType) throws BusinessException {
         try {
             reviewDAO.deleteReview(reviewId);
-            // TODO: delete in latest review
-        } catch (DAOException e){
-            DAOExceptionType type = e.getType();
-            if (DAOExceptionType.DATABASE_ERROR.equals(type))
-                throw new BusinessException(BusinessExceptionType.NOT_FOUND, "The review is not found.");
-            else
-                throw new BusinessException(BusinessExceptionType.GENERIC, "Error deleting the review");
-        }
-    }
-    @Override
-    public void deleteReviewWithNoMedia() throws BusinessException{
-        try {
-            reviewDAO.deleteReviewsWithNoMedia();
-        } catch (DAOException e){
-            DAOExceptionType type = e.getType();
-            if (DAOExceptionType.DATABASE_ERROR.equals(type))
-                throw new BusinessException(BusinessExceptionType.NOT_FOUND, "The review is not found.");
-            else
-                throw new BusinessException(BusinessExceptionType.GENERIC, "Error deleting the review");
-        }
-    }
 
-    @Override
-    public void deleteReviewWithNoAuthor() throws BusinessException{
-        try {
-            reviewDAO.deleteReviewsWithNoAuthor();
+            // delete the redundant data in the media content if is in latest reviews
+            if (mediaContentType.equals(MediaContentType.MANGA) && mangaDAO.isInLatestReviews(mediaId, reviewId))
+                mangaDAO.refreshLatestReviews(mediaId);
+            else if (animeDAO.isInLatestReviews(mediaId, reviewId))
+                animeDAO.refreshLatestReviews(mediaId);
+
         } catch (DAOException e){
-            DAOExceptionType type = e.getType();
-            if (DAOExceptionType.DATABASE_ERROR.equals(type))
-                throw new BusinessException(BusinessExceptionType.NOT_FOUND, "The review is not found.");
-            else
-                throw new BusinessException(BusinessExceptionType.GENERIC, "Error deleting the review");
+            if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {
+                throw new BusinessException(BusinessExceptionType.NOT_FOUND, e.getMessage());
+            }
+            throw new BusinessException(BusinessExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
 
@@ -147,12 +133,12 @@ public class ReviewServiceImpl implements ReviewService {
     public PageDTO<ReviewDTO> findByUser(String userId, int page) throws BusinessException {
         try {
          return reviewDAO.getReviewByUser(userId, page);
+
         } catch (DAOException e){
-            DAOExceptionType type = e.getType();
-            if (DAOExceptionType.DATABASE_ERROR.equals(type))
-                throw new BusinessException(BusinessExceptionType.NOT_FOUND, "Reviews not found for the user.");
-            else
-                throw new BusinessException(BusinessExceptionType.GENERIC, "Error finding reviews by user");
+            if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {
+                throw new BusinessException(BusinessExceptionType.NOT_FOUND, e.getMessage());
+            }
+            throw new BusinessException(BusinessExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
 
@@ -166,65 +152,56 @@ public class ReviewServiceImpl implements ReviewService {
     public PageDTO<ReviewDTO> findByMedia(String mediaId, MediaContentType mediaType, int page) throws BusinessException {
         try{
             return reviewDAO.getReviewByMedia(mediaId, mediaType, page);
+
         } catch (DAOException e){
-            DAOExceptionType type = e.getType();
-            if (DAOExceptionType.DATABASE_ERROR.equals(type))
-                throw new BusinessException(BusinessExceptionType.NOT_FOUND, "Reviews not found for the media.");
-            else
-                throw new BusinessException(BusinessExceptionType.GENERIC, "Error finding reviews by media");
-        }
-    }
-
-
-    //Service for mongoDB queries
-    @Override
-    public Double averageRatingUser(String userId) throws BusinessException {
-        try {
-            return reviewDAO.averageRatingUser(userId);
-        } catch (Exception e){
-            throw new BusinessException(e);
+            if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {
+                throw new BusinessException(BusinessExceptionType.NOT_FOUND, e.getMessage());
+            }
+            throw new BusinessException(BusinessExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
 
     @Override
-    public Map<String, Double> ratingMediaContentByYear(MediaContentType type, String mediaContentId, int startYear, int endYear) throws BusinessException {
+    public Map<String, Double> getMediaContentRatingByYear(MediaContentType type, String mediaContentId, int startYear, int endYear) throws BusinessException {
         try {
             if (startYear < 0 || endYear < 0 || startYear > LocalDate.now().getYear() || endYear > LocalDate.now().getYear()) {
                 throw new BusinessException("Invalid year");
             }
             return reviewDAO.getMediaContentRatingByYear(type, mediaContentId, startYear, endYear);
-        } catch (Exception e){
-            throw new BusinessException(e);
+        } catch (DAOException e){
+            if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {
+                throw new BusinessException(BusinessExceptionType.NOT_FOUND, e.getMessage());
+            }
+            throw new BusinessException(BusinessExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
 
     @Override
-    public Map<String, Double> ratingMediaContentByMonth(MediaContentType type, String mediaContentId, int year) throws BusinessException {
+    public Map<String, Double> getMediaContentRatingByMonth(MediaContentType type, String mediaContentId, int year) throws BusinessException {
         try {
             if (year < 0 || year > LocalDate.now().getYear()) {
                 throw new BusinessException("Invalid year");
             }
             return reviewDAO.getMediaContentRatingByMonth(type, mediaContentId, year);
-        } catch (Exception e) {
-            throw new BusinessException(e);
+
+        } catch (DAOException e){
+            if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {
+                throw new BusinessException(BusinessExceptionType.NOT_FOUND, e.getMessage());
+            }
+            throw new BusinessException(BusinessExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
 
     @Override
-    public PageDTO<MediaContentDTO> suggestTopMediaContent(MediaContentType mediaContentType, String criteria, String type) throws BusinessException {
+    public PageDTO<MediaContentDTO> suggestMediaContent(MediaContentType mediaContentType, String criteria, String type) throws BusinessException {
         try {
             return reviewDAO.suggestMediaContent(mediaContentType, criteria, type);
-        } catch (Exception e){
-            throw new BusinessException(e);
+
+        } catch (DAOException e){
+            if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {
+                throw new BusinessException(BusinessExceptionType.NOT_FOUND, e.getMessage());
+            }
+            throw new BusinessException(BusinessExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
-
-    /*@Override
-    public Map<String, Double> averageRatingByCriteria(String type) throws BusinessException {
-        try {
-            return reviewDAO.averageRatingByCriteria(type);
-        } catch (Exception e){
-            throw new BusinessException(e);
-        }
-    }*/
 }

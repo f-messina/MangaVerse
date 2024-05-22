@@ -4,15 +4,15 @@ import com.mongodb.DuplicateKeyException;
 import com.mongodb.MongoException;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.UpdateOptions;
-import com.mongodb.client.model.Updates;
 import com.mongodb.client.result.UpdateResult;
 import it.unipi.lsmsd.fnf.dao.interfaces.MediaContentDAO;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
-import it.unipi.lsmsd.fnf.dao.exception.DAOExceptionType;
+import it.unipi.lsmsd.fnf.dao.exception.enums.DAOExceptionType;
 import it.unipi.lsmsd.fnf.dao.exception.DuplicatedException;
-import it.unipi.lsmsd.fnf.dao.exception.DuplicatedExceptionType;
+import it.unipi.lsmsd.fnf.dao.exception.enums.DuplicatedExceptionType;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
+import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
@@ -30,6 +30,7 @@ import java.util.*;
 import static com.mongodb.client.model.Accumulators.avg;
 import static com.mongodb.client.model.Aggregates.*;
 import static com.mongodb.client.model.Filters.*;
+import static com.mongodb.client.model.Projections.exclude;
 import static com.mongodb.client.model.Projections.include;
 import static com.mongodb.client.model.Sorts.descending;
 import static com.mongodb.client.model.Updates.*;
@@ -58,10 +59,13 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
             Bson doc = setOnInsert(mangaDocument);
             UpdateOptions options = new UpdateOptions().upsert(true);
 
-            Optional.ofNullable(mangaCollection.updateOne(filter,doc, options).getUpsertedId())
-                    .map(result -> result.asObjectId().getValue().toHexString())
-                    .map(id -> { manga.setId(id); return id; })
-                    .orElseThrow(() -> new DuplicatedException(DuplicatedExceptionType.GENERIC, "MangaDAOMongoImpl: saveMediaContent: A manga with the same title already exists"));
+            UpdateResult result = mangaCollection.updateOne(filter, doc, options);
+            if (result.getMatchedCount() != 0) {
+                throw new DuplicatedException(DuplicatedExceptionType.GENERIC, "MangaDAOMongoDBImpl : saveMediaContent: A manga with the same title already exists");            }
+            Optional.ofNullable(result.getUpsertedId())
+                    .map(id -> id.asObjectId().getValue().toHexString())
+                    .map(StringId -> { manga.setId(StringId); return StringId; })
+                    .orElseThrow(() -> new MongoException("MangaDAOMongoDBImpl : saveMediaContent: Error saving manga"));
 
         } catch (DuplicateKeyException e) {
             throw new DAOException(DAOExceptionType.DUPLICATED_KEY, e.getMessage());
@@ -94,8 +98,11 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
             Bson filter = eq("_id", new ObjectId(manga.getId()));
             Bson update = new Document("$set", mangaToDocument(manga));
 
-            if (mangaCollection.updateOne(filter, update).getModifiedCount() == 0) {
-                throw new MongoException("MangaDAOMongoImpl: updateMediaContent: No manga was updated");
+            UpdateResult result = mangaCollection.updateOne(filter, update);
+            if (result.getMatchedCount() == 0) {
+                throw new MongoException("MangaDAOMongoImpl: updateMediaContent: Manga not found");
+            } else if (result.getModifiedCount() == 0) {
+                throw new MongoException("MangaDAOMongoImpl: updateMediaContent: Error updating manga");
             }
 
         } catch (DuplicateKeyException e) {
@@ -124,7 +131,7 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
             Bson filter = eq("_id", new ObjectId(mangaId));
 
             if (mangaCollection.deleteOne(filter).getDeletedCount() == 0) {
-                throw new MongoException("MangaDAOMongoImpl: deleteMediaContent: No manga was deleted");
+                throw new MongoException("MangaDAOMongoImpl: deleteMediaContent: Manga not found");
             }
 
         } catch (MongoException e) {
@@ -153,7 +160,7 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
             Document result = mangaCollection.find(filter).first();
 
             if (result == null) {
-                throw new MongoException("MangaDAOMongoImpl: readMediaContent: No manga found");
+                throw new MongoException("MangaDAOMongoImpl: readMediaContent: Manga not found");
             }
             return documentToManga(result);
 
@@ -175,7 +182,7 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
      * @return A PageDTO containing the results and total count.
      * @throws DAOException If an error occurs during search.
      */
-    public PageDTO<MangaDTO> search(List<Map<String, Object>> filters, Map<String, Integer> orderBy, int page) throws DAOException {
+    public PageDTO<MediaContentDTO> search(List<Map<String, Object>> filters, Map<String, Integer> orderBy, int page) throws DAOException {
         try {
             MongoCollection<Document> mangaCollection = getCollection(COLLECTION_NAME);
             Bson filter = buildFilter(filters);
@@ -183,22 +190,22 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
             Bson projection = include("title", "picture", "average_rating", "start_date", "end_date");
             int pageOffset = (page - 1) * Constants.PAGE_SIZE;
 
-            List<Bson> pipeline = Arrays.asList(
+            List<Bson> pipeline = List.of(
                     match(filter),
                     facet(
-                            List.of(
-                                    new Facet(Constants.PAGINATION_FACET,
-                                            List.of(
-                                                    sort(sort),
-                                                    skip(pageOffset),
-                                                    limit(Constants.PAGE_SIZE),
-                                                    project(projection)
-                                            )
-                                    ),
-                                    new Facet(Constants.COUNT_FACET,
-                                            List.of(
-                                                    count("total")
-                                            )
+                            // Pagination facet
+                            new Facet(Constants.PAGINATION_FACET,
+                                    List.of(
+                                            sort(sort),
+                                            skip(pageOffset),
+                                            limit(Constants.PAGE_SIZE),
+                                            project(projection)
+                                    )
+                            ),
+                            // Count facet
+                            new Facet(Constants.COUNT_FACET,
+                                    List.of(
+                                            count("total")
                                     )
                             )
                     )
@@ -206,12 +213,13 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
 
             Document result = mangaCollection.aggregate(pipeline).first();
 
-            List<MangaDTO> mangaList = Optional.ofNullable(result)
+            List<MediaContentDTO> mangaList = new ArrayList<>();
+            Optional.ofNullable(result)
                     .map(doc -> doc.getList(Constants.PAGINATION_FACET, Document.class))
                     .orElseThrow(() -> new MongoException("MangaDAOMongoImpl: search: No results found"))
                     .stream()
                     .map(DocumentUtils::documentToMangaDTO)
-                    .toList();
+                    .forEach(mangaList::add);
 
             int totalCount = Optional.of(result)
                     .map(doc -> doc.getList(Constants.COUNT_FACET, Document.class))
@@ -256,7 +264,7 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
             Document animeDocument = mangaCollection.find(filter).first();
 
             if (animeDocument == null) {
-                throw new MongoException("AnimeDAOMongoDBImpl : upsertReview: Anime not found");
+                throw new MongoException("MangaDAOMongoDBImpl : upsertReview: Manga not found");
             }
 
             // Get the latestReviews array from the fetched document
@@ -273,12 +281,15 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
             }
 
             Bson update = set("latest_reviews", latestReviews);
+            if (reviewDTO.getRating() != null) {
+                update = combine(update, set("avg_rating_last_update", false));
+            }
+
+            // Update the latestReviews array in the database and set the flag to recalculate the average rating
             UpdateResult result = mangaCollection.updateOne(filter, update);
-            // Apply the combined update operations
             if (result.getMatchedCount() == 0) {
                 throw new MongoException("MangaDAOMongoDBImpl : upsertReview: Manga not found");
-            }
-            if (result.getModifiedCount() == 0) {
+            } else if (result.getModifiedCount() == 0) {
                 throw new MongoException("MangaDAOMongoImpl: upsertReview: No review redundancy was updated or inserted");
             }
 
@@ -291,24 +302,34 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
 
     /**
      * Refresh the latest review for a Manga object.
+     * This method is called when a review is deleted.
      *
-     * @param latestReviews The ReviewDTO list with the latest reviews.
      * @param mangaId       The ObjectId of the Manga object to update.
      * @throws DAOException If an error occurs during update.
      */
     @Override
-    public void refreshLatestReviews(List<ReviewDTO> latestReviews, String mangaId) throws DAOException {
+    public void refreshLatestReviews(String mangaId) throws DAOException {
         try {
+            // Get the latest reviews for the anime
+            MongoCollection<Document> reviewCollection = getCollection("reviews");
+
+            Bson reviewFilter = eq("manga.id", new ObjectId(mangaId));
+            Bson reviewProjection = exclude("manga");
+
+            List<ReviewDTO> latestReviews = reviewCollection.find(reviewFilter).projection(reviewProjection)
+                    .sort(descending("date")).limit(Constants.LATEST_REVIEWS_SIZE)
+                    .map(DocumentUtils::documentToReviewDTO).into(new ArrayList<>());
+
+            // Convert the latest reviews to nested documents
+            List<Document> reviewDocuments = null;
+            if (!latestReviews.isEmpty()) {
+                reviewDocuments = latestReviews.stream()
+                        .map(DocumentUtils::reviewDTOToNestedDocument)
+                        .toList();
+            }
+
+            // Update the latest reviews in the manga document
             MongoCollection<Document> mangaCollection = getCollection(COLLECTION_NAME);
-
-            // Convert ReviewDTOs to Documents
-            List<Document> reviewDocuments = Optional.ofNullable(latestReviews)
-                    .map(reviews -> reviews.stream()
-                            .map(DocumentUtils::reviewDTOToNestedDocument)
-                            .limit(Constants.LATEST_REVIEWS_SIZE)
-                            .toList())
-                    .orElse(null);
-
 
             // Update the latest reviews in the database
             Bson filter = eq("_id", new ObjectId(mangaId));
@@ -322,10 +343,26 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
             UpdateResult result = mangaCollection.updateOne(filter, update);
             if (result.getMatchedCount() == 0) {
                 throw new MongoException("MangaDAOMongoDBImpl : refreshLatestReviews: Manga not found");
-            }
-            if (result.getModifiedCount() == 0) {
+            } else if (result.getModifiedCount() == 0) {
                 throw new MongoException("MangaDAOMongoDBImpl : upsertReview: the reviewArray was not updated");
             }
+        } catch (MongoException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+        } catch (Exception e) {
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+        }
+    }
+
+    void refreshAllLatestReviews() throws DAOException {
+        try {
+            MongoCollection<Document> mangaCollection = getCollection(COLLECTION_NAME);
+
+            List<ObjectId> animeIds = mangaCollection.find().map(doc -> doc.getObjectId("_id")).into(new ArrayList<>());
+
+            for (ObjectId animeId : animeIds) {
+                refreshLatestReviews(animeId.toHexString());
+            }
+
         } catch (MongoException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
         } catch (Exception e) {
@@ -342,6 +379,42 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
 
             return mangaCollection.countDocuments(filter) > 0;
 
+        } catch (Exception e) {
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+        }
+    }
+
+    @Override
+    public void updateUserRedundancy(UserSummaryDTO userSummaryDTO) throws DAOException {
+        try {
+            MongoCollection<Document> mangaCollection = getCollection(COLLECTION_NAME);
+
+            Bson filter = eq("latest_reviews.user.id", new ObjectId(userSummaryDTO.getId()));
+
+            List<Bson> updateOperations = new ArrayList<>();
+            if (userSummaryDTO.getUsername() != null) {
+                updateOperations.add(set("latest_reviews.$[elem].user.username", userSummaryDTO.getUsername()));
+            }
+            if (userSummaryDTO.getProfilePicUrl() != null) {
+                updateOperations.add(set("latest_reviews.$[elem].user.picture", userSummaryDTO.getProfilePicUrl()));
+            }
+            UpdateOptions options = new UpdateOptions().arrayFilters(
+                    List.of(Filters.eq("elem.user.id", new ObjectId(userSummaryDTO.getId())))
+            );
+
+            // Combine all update operations into a single update operation and update the user redundancy
+            if (!updateOperations.isEmpty()) {
+                Bson update = combine(updateOperations);
+                UpdateResult result = mangaCollection.updateMany(filter, update, options);
+                if (result.getMatchedCount() != 0 && result.getModifiedCount() == 0) {
+                    throw new MongoException("MangaDAOMongoDBImpl : updateUserRedundancy: Error updating user redundancy");
+                }
+            } else {
+                throw new Exception("MangaDAOMongoDBImpl : updateUserRedundancy: No updated values were provided");
+            }
+
+        } catch (MongoException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
         } catch (Exception e) {
             throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
         }
@@ -391,11 +464,31 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
         }
     }
 
-    // Neo4J specific methods
     @Override
-    public void createNode(MediaContentDTO mangaDTO) throws DAOException {
-        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
+    public void updateNumOfLikes(String mangaId, Integer likes) throws DAOException {
+        try{
+            MongoCollection<Document> mangaCollection = getCollection(COLLECTION_NAME);
+
+            Bson filter = eq("_id", new ObjectId(mangaId));
+            Bson update = set("likes", likes);
+
+            UpdateResult result = mangaCollection.updateOne(filter, update);
+            if (result.getMatchedCount() == 0) {
+                throw new MongoException("MangaDAOMongoDBImpl : updateNumOfLikes: Manga not found");
+            } else if (result.getModifiedCount() == 0) {
+                throw new MongoException("MangaDAOMongoDBImpl : updateNumOfLikes: Error updating number of likes");
+            }
+
+        } catch (MongoException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
+        } catch (Exception e) {
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+
+        }
     }
+
+    // Neo4J specific methods
     @Override
     public void like(String userId, String mediaContentId) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
@@ -408,32 +501,27 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
     public boolean isLiked(String userId, String mediaId) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
+
+    @Override
+    public Integer getNumOfLikes(String mediaId) throws DAOException {
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
+    }
+
     @Override
     public List<? extends MediaContentDTO> getLiked(String userId) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override
-    public List<? extends MediaContentDTO> getSuggested(String userId) throws DAOException {
+    public List<? extends MediaContentDTO> getSuggested(String userId, Integer limit) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override
-    public List<? extends MediaContentDTO> getTrendMediaContentByYear(int year) throws DAOException {
+    public Map<? extends MediaContentDTO, Integer> getTrendMediaContentByYear(int year) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
-    @Override
-    public List<String> getMediaContentGenresTrendByYear(int year) throws DAOException {
-        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
-    }
-
-
 
     @Override
     public List<? extends MediaContentDTO> getMediaContentTrendByLikes() throws DAOException {
-        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
-    }
-
-    @Override
-    public List<String> getMediaContentGenresTrend() throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
 

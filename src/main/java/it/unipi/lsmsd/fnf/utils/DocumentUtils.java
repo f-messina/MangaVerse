@@ -36,7 +36,7 @@ public class DocumentUtils {
      */
     public static void appendIfNotNull(Document doc, String key, Object value) {
         if (value != null &&
-                !(value instanceof String && (value.equals(Constants.NULL_STRING) || value.equals(Gender.UNKNOWN.name()))) &&
+                !(value instanceof String && (value.equals(Constants.NULL_STRING) || value.equals(Gender.UNKNOWN.toString()))) &&
                 !(value instanceof Date && value.equals(ConverterUtils.localDateToDate(Constants.NULL_DATE))) &&
                 (StringUtils.isNotBlank(value.toString()) ||
                         (value instanceof List && CollectionUtils.isNotEmpty((List<?>) value)))) {
@@ -159,24 +159,22 @@ public class DocumentUtils {
      * @return A MongoDB Document representing the ReviewDTO object.
      */
     public static Document reviewDTOToDocument(ReviewDTO reviewDTO) {
-        Document reviewDocument = new Document()
-                .append("user", new Document()
-                        .append("id", new ObjectId(reviewDTO.getUser().getId()))
-                        .append("username", reviewDTO.getUser().getUsername())
-                        .append("picture", reviewDTO.getUser().getProfilePicUrl())
-                        .append("location", reviewDTO.getUser().getLocation())
-                        .append("birthday", ConverterUtils.localDateToDate(reviewDTO.getUser().getBirthDate())))
-                .append("date", ConverterUtils.localDateToDate(LocalDate.now()));
-        if (reviewDTO.getComment() != null) {
-            reviewDocument.append("comment", reviewDTO.getComment());
-        }
-        if (reviewDTO.getRating() != null) {
-            reviewDocument.append("rating", reviewDTO.getRating());
-        }
+        Document reviewDocument = new Document();
+        Document userDocument = new Document();
+        appendIfNotNull(userDocument, "id", new ObjectId(reviewDTO.getUser().getId()));
+        appendIfNotNull(userDocument, "username", reviewDTO.getUser().getUsername());
+        appendIfNotNull(userDocument, "picture", reviewDTO.getUser().getProfilePicUrl());
+        appendIfNotNull(userDocument, "location", reviewDTO.getUser().getLocation());
+        appendIfNotNull(userDocument, "birthday", ConverterUtils.localDateToDate(reviewDTO.getUser().getBirthDate()));
+        appendIfNotNull(reviewDocument, "user", userDocument);
+        appendIfNotNull(reviewDocument, "date", ConverterUtils.localDateToDate(reviewDTO.getDate()));
+        appendIfNotNull(reviewDocument, "comment", reviewDTO.getComment());
+        appendIfNotNull(reviewDocument, "rating", reviewDTO.getRating());
         boolean isAnime = reviewDTO.getMediaContent() instanceof AnimeDTO;
-        reviewDocument.append(isAnime? "anime" : "manga", new Document()
-                .append("id", new ObjectId(reviewDTO.getMediaContent().getId()))
-                .append("title", reviewDTO.getMediaContent().getTitle()));
+        Document mediaDocument = new Document();
+        appendIfNotNull(mediaDocument, "id", new ObjectId(reviewDTO.getMediaContent().getId()));
+        appendIfNotNull(mediaDocument, "title", reviewDTO.getMediaContent().getTitle());
+        appendIfNotNull(reviewDocument, isAnime ? "anime" : "manga", mediaDocument);
 
         return reviewDocument;
     }
@@ -251,6 +249,8 @@ public class DocumentUtils {
                 .map(DocumentUtils::nestedDocumentToReview)
                 .toList();
         anime.setReviews(reviewList);
+
+        anime.setLikes(doc.getInteger("likes"));
         return anime;
     }
 
@@ -372,6 +372,8 @@ public class DocumentUtils {
                 .toList();
         manga.setReviews(reviewList);
 
+        manga.setLikes(document.getInteger("likes"));
+
         return manga;
     }
 
@@ -424,6 +426,8 @@ public class DocumentUtils {
             normalUser.setDescription(doc.getString("description"));
             normalUser.setGender(Gender.fromString(doc.getString("gender")));
             normalUser.setLocation(doc.getString("location"));
+            normalUser.setFollowers(doc.getInteger("followers"));
+            normalUser.setFollowed(doc.getInteger("followed"));
             user = normalUser;
         }
 

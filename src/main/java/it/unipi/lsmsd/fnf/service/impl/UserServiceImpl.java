@@ -1,28 +1,31 @@
 package it.unipi.lsmsd.fnf.service.impl;
 
-import it.unipi.lsmsd.fnf.dao.interfaces.MediaContentDAO;
-import it.unipi.lsmsd.fnf.dao.interfaces.UserDAO;
 import it.unipi.lsmsd.fnf.dao.enums.DataRepositoryEnum;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
+import it.unipi.lsmsd.fnf.dao.exception.enums.DAOExceptionType;
+import it.unipi.lsmsd.fnf.dao.interfaces.UserDAO;
 import it.unipi.lsmsd.fnf.dto.LoggedUserDTO;
-import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
-import it.unipi.lsmsd.fnf.dao.exception.DAOExceptionType;
 import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
-import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
-import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
-import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
+import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
-import it.unipi.lsmsd.fnf.service.interfaces.UserService;
+import it.unipi.lsmsd.fnf.service.enums.ExecutorTaskServiceType;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
-import it.unipi.lsmsd.fnf.service.exception.BusinessExceptionType;
-
+import it.unipi.lsmsd.fnf.service.exception.enums.BusinessExceptionType;
+import it.unipi.lsmsd.fnf.service.impl.asinc_media_tasks.UpdateMediaRedundancyTask;
+import it.unipi.lsmsd.fnf.service.impl.asinc_review_tasks.RemoveDeletedUserReviewsTask;
+import it.unipi.lsmsd.fnf.service.impl.asinc_review_tasks.UpdateReviewRedundancyTask;
+import it.unipi.lsmsd.fnf.service.impl.asinc_user_tasks.*;
+import it.unipi.lsmsd.fnf.service.interfaces.ExecutorTaskService;
+import it.unipi.lsmsd.fnf.service.interfaces.UserService;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Map;
+import java.util.Objects;
 
-import static it.unipi.lsmsd.fnf.dao.DAOLocator.*;
+import static it.unipi.lsmsd.fnf.dao.DAOLocator.getUserDAO;
+import static it.unipi.lsmsd.fnf.service.ServiceLocator.getExecutorTaskService;
+import static it.unipi.lsmsd.fnf.service.exception.BusinessException.handleDAOException;
 
 /**
  * The UserServiceImpl class provides implementation for the UserService interface.
@@ -32,14 +35,12 @@ public class UserServiceImpl implements UserService {
 
     private static final UserDAO userDAO;
     private static final UserDAO userDAONeo4J;
-    private static final MediaContentDAO<Anime> animeDAONeo4J;
-    private static final MediaContentDAO<Manga> mangaDAONeo4J;
+    private static final ExecutorTaskService aperiodicExecutorTaskService;
 
     static {
         userDAO = getUserDAO(DataRepositoryEnum.MONGODB);
         userDAONeo4J = getUserDAO(DataRepositoryEnum.NEO4J);
-        animeDAONeo4J = getAnimeDAO(DataRepositoryEnum.NEO4J);
-        mangaDAONeo4J = getMangaDAO(DataRepositoryEnum.NEO4J);
+        aperiodicExecutorTaskService = getExecutorTaskService(ExecutorTaskServiceType.APERIODIC);
     }
 
     /**
@@ -48,7 +49,7 @@ public class UserServiceImpl implements UserService {
      * @throws BusinessException If an error occurs during the registration process.
      */
     @Override
-    public void registerUserAndLogin(UserRegistrationDTO userRegistrationDTO) throws BusinessException {
+    public void signup(UserRegistrationDTO userRegistrationDTO) throws BusinessException {
         try {
             // Validation checks for empty fields
             if (StringUtils.isAnyEmpty(
@@ -60,14 +61,17 @@ public class UserServiceImpl implements UserService {
             }
 
             userDAO.saveUser(userRegistrationDTO);
-        } catch (DAOException e) {
-            DAOExceptionType type = e.getType();
 
-            switch (type) {
-                case DUPLICATED_EMAIL -> throw new BusinessException(BusinessExceptionType.DUPLICATED_EMAIL,"Email is already taken");
-                case DUPLICATED_USERNAME -> throw new BusinessException(BusinessExceptionType.DUPLICATED_USERNAME,"Username is taken");
-                case DUPLICATED_KEY -> throw new BusinessException(BusinessExceptionType.DUPLICATED_KEY,"Email and username are already taken");
-                case null, default -> throw new BusinessException("DAOException during registration operation");
+            // Create a task which adds a new node User in Neo4j
+            aperiodicExecutorTaskService.executeTask(new CreateUserTask(userRegistrationDTO));
+
+        } catch (DAOException e) {
+            switch (e.getType()) {
+                case DUPLICATED_EMAIL -> throw new BusinessException(BusinessExceptionType.DUPLICATED_EMAIL,e.getMessage());
+                case DUPLICATED_USERNAME -> throw new BusinessException(BusinessExceptionType.DUPLICATED_USERNAME, e.getMessage());
+                case DUPLICATED_KEY -> throw new BusinessException(BusinessExceptionType.DUPLICATED_KEY, e.getMessage());
+                case DATABASE_ERROR -> throw new BusinessException(BusinessExceptionType.DATABASE_ERROR, e.getMessage());
+                default -> throw new BusinessException(BusinessExceptionType.GENERIC_ERROR, e.getMessage());
             }
         }
     }
@@ -82,22 +86,15 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public LoggedUserDTO login(String email, String password) throws BusinessException {
-        // Validation checks for empty fields
-        if (StringUtils.isEmpty(email))
-            throw new BusinessException(BusinessExceptionType.EMPTY_FIELDS,"Email cannot be empty");
-        if (StringUtils.isEmpty(password))
-            throw new BusinessException(BusinessExceptionType.EMPTY_FIELDS,"Password cannot be empty");
-
         try {
-
             return userDAO.authenticate(email, password);
 
         } catch (DAOException e) {
-            DAOExceptionType type = e.getType();
-            if (Objects.requireNonNull(type) == DAOExceptionType.AUTHENTICATION_ERROR)
-                throw new BusinessException(BusinessExceptionType.AUTHENTICATION_ERROR, "Email or password is incorrect");
-            else
-                throw new BusinessException("DAOException during authenticating operation");
+            switch (e.getType()) {
+                case DATABASE_ERROR -> throw new BusinessException(BusinessExceptionType.NOT_FOUND, e.getMessage());
+                case AUTHENTICATION_ERROR -> throw new BusinessException(BusinessExceptionType.AUTHENTICATION_ERROR, e.getMessage());
+                default -> throw new BusinessException(BusinessExceptionType.GENERIC_ERROR, e.getMessage());
+            }
         }
     }
 
@@ -112,69 +109,55 @@ public class UserServiceImpl implements UserService {
         try {
             userDAO.updateUser(user);
 
+            // Create a task which update the node User in Neo4j
+            if (user.getUsername() != null || user.getProfilePicUrl() != null) {
+                aperiodicExecutorTaskService.executeTask(new UpdateUserTask(user));
+                aperiodicExecutorTaskService.executeTask(new UpdateMediaRedundancyTask(user.toSummaryDTO()));
+            }
+
+            // Create a task which updates the user redundancy inside reviews
+            if (user.getUsername() != null || user.getProfilePicUrl() != null || user.getBirthday() != null || user.getLocation() != null) {
+                aperiodicExecutorTaskService.executeTask(new UpdateReviewRedundancyTask(null, user.toSummaryDTO()));
+            }
+
         } catch (DAOException e) {
-            DAOExceptionType type = e.getType();
-            if (DAOExceptionType.DUPLICATED_USERNAME.equals(type)) {
-                throw new BusinessException(BusinessExceptionType.DUPLICATED_USERNAME, "Username already in use");
-            } else {
-                throw new BusinessException("Error updating user info");
+            switch (e.getType()) {
+                case DATABASE_ERROR -> throw new BusinessException(BusinessExceptionType.NOT_FOUND, e.getMessage());
+                case NO_CHANGES -> throw new BusinessException(BusinessExceptionType.NO_CHANGE, e.getMessage());
+                case DUPLICATED_USERNAME -> throw new BusinessException(BusinessExceptionType.DUPLICATED_USERNAME, e.getMessage());
+                default -> throw new BusinessException(BusinessExceptionType.GENERIC_ERROR, e.getMessage());
             }
         }
     }
-
-
     @Override
     public void deleteUser(String userId) throws BusinessException {
         try {
             userDAO.deleteUser(userId);
+
+            // Create a task which deletes the node User in Neo4j
+            aperiodicExecutorTaskService.executeTask(new DeleteUserTask(userId));
+
+            // Create a task which removes the user redundancy inside reviews
+            aperiodicExecutorTaskService.executeTask(new RemoveDeletedUserReviewsTask(userId));
+
         } catch (DAOException e) {
-
-            DAOExceptionType type = e.getType();
-
-            if (DAOExceptionType.NOT_FOUND.equals(type)) {
-                throw new BusinessException(BusinessExceptionType.NO_USER, "User with id " + userId + " does not exist");
-            } else {
-                throw new BusinessException("Error while deleting user.", e);
+            if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {
+                throw new BusinessException(BusinessExceptionType.NOT_FOUND, e.getMessage());
             }
-
-
+            throw new BusinessException(BusinessExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
 
-
     @Override
-
     public User getUserById(String userId) throws BusinessException {
-
         try {
             return (User) userDAO.readUser(userId, false);
-        } catch (DAOException e) {
-            DAOExceptionType type = e.getType();
 
-            if (DAOExceptionType.NOT_FOUND.equals(type)) {
-                throw new BusinessException(BusinessExceptionType.NO_USER, "User with id " + userId + " does not exist");
-            } else {
-                throw new BusinessException("Error while retrieving user by id.", e);
-            }
-        }
-    }
-
-    /**
-     * Creates a node for a registered user in the Neo4j graph database.
-     * @param userSummaryDTO The user summary data.
-     * @throws BusinessException If an error occurs during the node creation process.
-     */
-    @Override
-    public void createNode(UserSummaryDTO userSummaryDTO) throws BusinessException {
-        try {
-            userDAONeo4J.createNode(userSummaryDTO);
         } catch (DAOException e) {
-            DAOExceptionType type = e.getType();
-            if (DAOExceptionType.DUPLICATED_KEY.equals(type)) {
-                throw new BusinessException(BusinessExceptionType.DUPLICATED_KEY, "User node already exists");
-            } else {
-                throw new BusinessException("Error while creating the user node.", e);
+            if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {
+                throw new BusinessException(BusinessExceptionType.NOT_FOUND, e.getMessage());
             }
+            throw new BusinessException(BusinessExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
 
@@ -188,20 +171,16 @@ public class UserServiceImpl implements UserService {
     public void follow(String followerUserId, String followingUserId) throws BusinessException {
         try {
             userDAONeo4J.follow(followerUserId, followingUserId);
+
+            // Create a task which updates the number of followed and followers
+            UpdateNumberOfFollowedTask task = new UpdateNumberOfFollowedTask(followerUserId);
+            aperiodicExecutorTaskService.executeTask(task);
+
+            UpdateNumberOfFollowersTask task1 = new UpdateNumberOfFollowersTask(followingUserId);
+            aperiodicExecutorTaskService.executeTask(task1);
+
         } catch (DAOException e) {
-            if (e.getType() == DAOExceptionType.SELF_FOLLOW) {
-                throw new BusinessException(BusinessExceptionType.SELF_FOLLOW, "User cannot follow themselves");
-            }
-            //if the user is already following the other user
-            else if (e.getType() == DAOExceptionType.DUPLICATED_KEY) {
-                throw new BusinessException(BusinessExceptionType.DUPLICATED_KEY, "User is already following the other user");
-            }  //if the user is trying to follow a non-existent user
-            else if (e.getType() == DAOExceptionType.NOT_FOUND) {
-                throw new BusinessException(BusinessExceptionType.NO_USER, "User with id " + followingUserId + " does not exist");
-            }
-            else {
-                throw new BusinessException("Error while following the user.", e);
-            }
+            handleDAOException(e);
         }
     }
 
@@ -215,16 +194,27 @@ public class UserServiceImpl implements UserService {
     public void unfollow(String followerUserId, String followingUserId) throws BusinessException {
         try {
             userDAONeo4J.unfollow(followerUserId, followingUserId);
+
+            // Create a task which updates the number of followed and followers
+            UpdateNumberOfFollowedTask task = new UpdateNumberOfFollowedTask(followerUserId);
+            aperiodicExecutorTaskService.executeTask(task);
+
+            UpdateNumberOfFollowersTask task1 = new UpdateNumberOfFollowersTask(followingUserId);
+            aperiodicExecutorTaskService.executeTask(task1);
+
         } catch (DAOException e) {
-            //if the user is already not following the other user
-            if (e.getType() == DAOExceptionType.DUPLICATED_KEY) {
-                throw new BusinessException(BusinessExceptionType.DUPLICATED_KEY, "User is already not following the other user");
-            }  //if the user is trying to unfollow a non-existent user
-            else if (e.getType() == DAOExceptionType.NOT_FOUND) {
-                throw new BusinessException(BusinessExceptionType.NO_USER, "User with id " + followingUserId + " does not exist");
-            } else {
-                throw new BusinessException("Error while following the user.", e);
-            }
+            handleDAOException(e);
+        }
+    }
+
+    @Override
+    public boolean isFollowing(String followerUserId, String followingUserId) throws BusinessException {
+        try {
+            return userDAONeo4J.isFollowing(followerUserId, followingUserId);
+
+        } catch (DAOException e) {
+            handleDAOException(e);
+            return false;
         }
     }
 
@@ -235,19 +225,26 @@ public class UserServiceImpl implements UserService {
      * @throws BusinessException If an error occurs while retrieving the list.
      */
     @Override
-    public List<UserSummaryDTO> getFollowing(String userId) throws BusinessException {
+    public List<UserSummaryDTO> getFollowing(String userId, String loggedUserId) throws BusinessException {
         try {
-            return userDAONeo4J.getFollowing(userId);
+            return userDAONeo4J.getFirstNFollowing(userId, loggedUserId);
+
         } catch (DAOException e) {
-            //check if the user exists
-            if (e.getType() == DAOExceptionType.NOT_FOUND) {
-                throw new BusinessException(BusinessExceptionType.NO_USER, "User with id " + userId + " does not exist");
-            } else {
-                throw new BusinessException("Error while retrieving the following list.");
-            }
+            handleDAOException(e);
+            return null;
         }
     }
 
+    @Override
+    public List<UserSummaryDTO> searchFollowing(String userId, String username, String loggedUserId) throws BusinessException {
+        try {
+            return userDAONeo4J.searchFollowing(userId, username, loggedUserId);
+
+        } catch (DAOException e) {
+            handleDAOException(e);
+            return null;
+        }
+    }
 
     /**
      * Retrieves the list of users following a particular user.
@@ -256,80 +253,92 @@ public class UserServiceImpl implements UserService {
      * @throws BusinessException If an error occurs while retrieving the list.
      */
     @Override
-    public List<UserSummaryDTO> getFollowers(String userId) throws BusinessException {
+    public List<UserSummaryDTO> getFollowers(String userId, String loggedUserId) throws BusinessException {
         try {
-            return userDAONeo4J.getFollowers(userId);
-        } catch (DAOException e) {
-            //check if the user exists
-            if (e.getType() == DAOExceptionType.NOT_FOUND) {
-                throw new BusinessException(BusinessExceptionType.NO_USER, "User with id " + userId + " does not exist");
-            } else {
-                throw new BusinessException("Error while retrieving the follower list.");
+            return userDAONeo4J.getFirstNFollowers(userId, loggedUserId);
 
-            }
+        } catch (DAOException e) {
+            handleDAOException(e);
+            return null;
+        }
+    }
+
+    @Override
+    public List<UserSummaryDTO> searchFollowers(String userId, String username, String loggedUserId) throws BusinessException {
+        try {
+            return userDAONeo4J.searchFollowers(userId, username, loggedUserId);
+
+        } catch (DAOException e) {
+            handleDAOException(e);
+            return null;
+        }
+    }
+
+    @Override
+    public List<UserSummaryDTO> searchFirstNUsers(String username, Integer n, String loggedUser) throws BusinessException {
+        try {
+            return userDAO.searchFirstNUsers(username, n, loggedUser);
+
+        } catch (DAOException e) {
+            throw new BusinessException(e.getMessage());
         }
     }
 
     @Override
     public List<UserSummaryDTO> suggestUsers(String userId) throws BusinessException {
         try {
-            return userDAONeo4J.suggestUsers(userId);
-        } catch (DAOException e) {
-            //no users to be suggested
-            if (e.getType() == DAOExceptionType.NOT_FOUND) {
-                return null;
-            } else {
-                throw new BusinessException("Error while suggesting users.", e);
+            return userDAONeo4J.suggestUsersByCommonFollows(userId, null);
 
+        } catch (DAOException e) {
+            if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {
+                throw new BusinessException(BusinessExceptionType.DATABASE_ERROR, e.getMessage());
             }
+            throw new BusinessException(BusinessExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
 
     @Override
-    public List<UserSummaryDTO> searchFirstNUsers(String username, Integer n, String loggedUser) throws BusinessException {
-        return null;
-    }
-
-    //Service for mongoDB queries
-    @Override
-    public Map<String, Integer> getDistribution (String criteria) throws BusinessException {
+    public Map<String, Integer> getDistribution(String criteria) throws BusinessException {
         try {
             if(!(criteria.equals("location") || (criteria.equals("gender")) || (criteria.equals("birthday") || (criteria.equals("joined_on"))))) {
                 throw new BusinessException("Invalid criteria");
             }
             return userDAO.getDistribution(criteria);
-        } catch (Exception e) {
-           throw new BusinessException("Error while retrieving the distribution.", e);
+
+        } catch (DAOException e) {
+            if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {
+                throw new BusinessException(BusinessExceptionType.DATABASE_ERROR, e.getMessage());
+            }
+            throw new BusinessException(BusinessExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
 
     @Override
-    public Double averageAgeUsers() throws BusinessException {
-        try {
-            return userDAO.averageAgeUsers();
-        } catch (Exception e) {
-            throw new BusinessException("Error while retrieving the average age of users.", e);
-        }
-    }
-
-    @Override
-    public Map<String, Double> averageAppRating (String criteria) throws BusinessException {
+    public Map<String, Double> averageAppRating(String criteria) throws BusinessException {
         try {
             if(!(criteria.equals("location") || (criteria.equals("gender")))) {
                 throw new BusinessException("Invalid criteria");
             }
             return userDAO.averageAppRating(criteria);
-        } catch (Exception e) {
-            throw new BusinessException("Error while retrieving the average app rating.", e);
+
+        } catch (DAOException e) {
+            if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {
+                throw new BusinessException(BusinessExceptionType.DATABASE_ERROR, e.getMessage());
+            }
+            throw new BusinessException(BusinessExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
 
     @Override
-    public Map<String, Double> averageAppRatingByAgeRange () throws BusinessException {
+    public Map<String, Double> averageAppRatingByAgeRange() throws BusinessException {
         try {
             return userDAO.averageAppRatingByAgeRange();
-        } catch (Exception e) {
-            throw new BusinessException("Error while retrieving the average app rating by age range.", e);
+
+        } catch (DAOException e) {
+            if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {
+                throw new BusinessException(BusinessExceptionType.DATABASE_ERROR, e.getMessage());
+            }
+            throw new BusinessException(BusinessExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
 }

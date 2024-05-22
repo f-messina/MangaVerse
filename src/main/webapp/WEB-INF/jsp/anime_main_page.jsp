@@ -45,20 +45,20 @@
     <section id="home" class="section-home">
         <div class="home-container">
             <div class="home-wrapper">
-                <div class="anime"><a href="${pageContext.request.contextPath}/mainPage/anime" id="animeLink">Anime</a></div>
+                <div class="selection-page-link"><a href="${pageContext.request.contextPath}/mainPage/manga" id="mangaLink">Manga</a></div>
                 <div class="welcome">
                     <div class="welcome-text">
                         <p>Welcome to</p>
                     </div>
                     <img src="${pageContext.request.contextPath}/images/logo-with-name.png" alt="middle" />
                 </div>
-                <div class="manga"><a href="${pageContext.request.contextPath}/mainPage/manga" id="mangaLink">Manga</a></div>
+                <div class="active-page"><span id="animeLink">Anime</span></div>
             </div>
         </div>
         <div class="down-arrow">
-            <a data-scroll="list" id="down-arrow" href="#navbar">
-                <i class="fa-solid fa-chevron-down" style="color: #000000"> </i>
-            </a>
+            <span data-scroll="list" id="down-arrow">
+                <i class="fa-solid fa-chevron-down"></i>
+            </span>
         </div>
     </section>
     <span id="scroll-point"></span>
@@ -81,7 +81,7 @@
                     <c:otherwise>
                         <form action="${pageContext.request.contextPath}/auth" method="post">
                             <input type="hidden" name="action" value="logout">
-                            <input type="hidden" name="targetServlet" value="/mainPage/anime">
+                            <input type="hidden" name="targetServlet" value="mainPage/anime">
                             <button type="submit" class="logout">Log Out</button>
                         </form>
                         <a href="${pageContext.request.contextPath}/profile" class="profile">Profile</a>

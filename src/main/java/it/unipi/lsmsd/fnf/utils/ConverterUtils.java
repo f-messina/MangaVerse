@@ -1,5 +1,6 @@
 package it.unipi.lsmsd.fnf.utils;
 
+import it.unipi.lsmsd.fnf.dto.LoggedUserDTO;
 import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
 import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
@@ -8,14 +9,18 @@ import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.enums.*;
 
+import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Stream;
+
+import static org.slf4j.LoggerFactory.getLogger;
 
 public class ConverterUtils {
 
@@ -58,7 +63,44 @@ public class ConverterUtils {
         if (StringUtils.isNotBlank(request.getParameter("birthday")))
             userRegistrationDTO.setBirthday(LocalDate.parse(request.getParameter("birthday")));
         userRegistrationDTO.setGender(Gender.fromString(request.getParameter("gender")));
+
         return userRegistrationDTO;
+    }
+
+    public static User fromRequestToUser(HttpServletRequest request){
+        Logger logger = getLogger(ConverterUtils.class.getName());
+        logger.info(request.getParameter("birthdate"));
+
+        User user = new User();
+        LoggedUserDTO loggedUser = SecurityUtils.getAuthenticatedUser(request);
+        user.setId(loggedUser.getId());
+        if (StringUtils.isNotBlank(request.getParameter("picture")) &&
+                !request.getParameter("picture").equals(loggedUser.getProfilePicUrl()))
+            user.setProfilePicUrl(request.getParameter("picture"));
+        else if (StringUtils.isBlank(request.getParameter("picture")))
+            user.setProfilePicUrl(Constants.DEFAULT_PROFILE_PICTURE);
+        if (StringUtils.isNotBlank(request.getParameter("username")) &&
+                !request.getParameter("username").equals(loggedUser.getUsername()))
+            user.setUsername(request.getParameter("username"));
+        if (StringUtils.isNotBlank(request.getParameter("fullname")))
+            user.setFullname(request.getParameter("fullname"));
+        else
+            user.setFullname(Constants.NULL_STRING);
+        if (StringUtils.isNotBlank(request.getParameter("country")))
+            user.setLocation(request.getParameter("country"));
+        else
+            user.setLocation(Constants.NULL_STRING);
+        if (StringUtils.isNotBlank(request.getParameter("birthdate")))
+            user.setBirthday(LocalDate.parse(request.getParameter("birthdate")));
+        else
+            user.setBirthday(Constants.NULL_DATE);
+        user.setGender(Gender.fromString(request.getParameter("gender")));
+        if (StringUtils.isNotBlank(request.getParameter("description")))
+            user.setDescription(request.getParameter("description"));
+        else
+            user.setDescription(Constants.NULL_STRING);
+
+        return user;
     }
 
     /**
