@@ -508,7 +508,7 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
     }
 
     @Override
-    public List<? extends MediaContentDTO> getLiked(String userId) throws DAOException {
+    public List<? extends MediaContentDTO> getLiked(String userId, int page) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override

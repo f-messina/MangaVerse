@@ -252,10 +252,10 @@ class MediaContentServiceImplTest {
             UserService userService = ServiceLocator.getUserService();
 
             String userId = userService.searchFirstNUsers("exampleUser", 1, null).getFirst().getId();
-            List<AnimeDTO> likedAnime = (List<AnimeDTO>) mediaContentService.getLikedMediaContent(userId, MediaContentType.ANIME);
+            List<AnimeDTO> likedAnime = (List<AnimeDTO>) mediaContentService.getLikedMediaContent(userId, 0, MediaContentType.ANIME);
             System.out.println("Liked anime: " + likedAnime);
 
-            List<MangaDTO> likedManga = (List<MangaDTO>) mediaContentService.getLikedMediaContent(userId, MediaContentType.MANGA);
+            List<MangaDTO> likedManga = (List<MangaDTO>) mediaContentService.getLikedMediaContent(userId, 0, MediaContentType.MANGA);
             System.out.println("Liked manga: " + likedManga);
 
         } catch (BusinessException e) {
