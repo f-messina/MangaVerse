@@ -3,6 +3,11 @@ package it.unipi.lsmsd.fnf.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import it.unipi.lsmsd.fnf.dto.LoggedUserDTO;
+import it.unipi.lsmsd.fnf.dto.PageDTO;
+import it.unipi.lsmsd.fnf.dto.ReviewDTO;
+import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
+import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
+import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.model.enums.UserType;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import it.unipi.lsmsd.fnf.service.*;
@@ -26,6 +31,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Objects;
 
 @WebServlet("/profile")
 public class ProfileServlet extends HttpServlet {
@@ -96,14 +103,74 @@ public class ProfileServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         response.getWriter().write(jsonResponse.toString());
     }
-    private void handleGetAnimeLikes(HttpServletRequest request, HttpServletResponse response, LoggedUserDTO authUser) {
+    private void handleGetAnimeLikes(HttpServletRequest request, HttpServletResponse response, LoggedUserDTO authUser) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode jsonResponse = objectMapper.createObjectNode();
+        try {
+            List<? extends MediaContentDTO> animeLikes = mediaContentService.getLikedMediaContent(authUser.getId(), MediaContentType.ANIME);
+            jsonResponse.put("animeLikes", objectMapper.valueToTree(animeLikes));
+
+            HttpSession session = request.getSession(true);
+            jsonResponse.put("success", true);
+            session.setAttribute("animeLikes", animeLikes);
+
+        } catch (BusinessException e) {
+            if (Objects.requireNonNull(e.getType()) == BusinessExceptionType.NO_LIKES) {
+                jsonResponse.put("noLikes", "You have not liked any anime yet.");
+            } else {
+                jsonResponse.put("generalError", "An error occurred while retrieving the liked anime. Please try again later.");
+            }
+        }
+
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(jsonResponse.toString());
+
+
 
     }
 
-    private void handleGetMangaLikes(HttpServletRequest request, HttpServletResponse response, LoggedUserDTO authUser) {
+    private void handleGetMangaLikes(HttpServletRequest request, HttpServletResponse response, LoggedUserDTO authUser) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode jsonResponse = objectMapper.createObjectNode();
+        try {
+            List<? extends MediaContentDTO> mangaLikes = mediaContentService.getLikedMediaContent(authUser.getId(), MediaContentType.MANGA);
+            jsonResponse.put("animeLikes", objectMapper.valueToTree(mangaLikes));
+
+            HttpSession session = request.getSession(true);
+            jsonResponse.put("success", true);
+            session.setAttribute("mangaLikes", mangaLikes);
+
+        } catch (BusinessException e) {
+            if (Objects.requireNonNull(e.getType()) == BusinessExceptionType.NO_LIKES) {
+                jsonResponse.put("noLikes", "You have not liked any manga yet.");
+            } else {
+                jsonResponse.put("generalError", "An error occurred while retrieving the liked manga. Please try again later.");
+            }
+        }
+
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(jsonResponse.toString());
 
     }
     private void handleGetReviews(HttpServletRequest request, HttpServletResponse response, LoggedUserDTO authUser) {
-        
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode jsonResponse = objectMapper.createObjectNode();
+        try {
+            PageDTO<ReviewDTO> reviews = reviewService.findByUser(authUser.getId(), 1);
+            jsonResponse.put("reviews", objectMapper.valueToTree(reviews));
+
+            HttpSession session = request.getSession(true);
+            jsonResponse.put("success", true);
+            session.setAttribute("reviews", reviews);
+
+        } catch (BusinessException e) {
+            if (Objects.requireNonNull(e.getType()) == BusinessExceptionType.NO_REVIEWS) {
+                jsonResponse.put("noReviews", "You have not reviewed any media yet.");
+            } else {
+                jsonResponse.put("generalError", "An error occurred while retrieving the reviews. Please try again later.");
+            }
+        }
     }
 }

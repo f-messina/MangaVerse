@@ -1,6 +1,8 @@
 package it.unipi.lsmsd.fnf.service.impl;
 
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.result.UpdateResult;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dao.mongo.BaseMongoDBDAO;
 import it.unipi.lsmsd.fnf.dao.neo4j.BaseNeo4JDAO;
@@ -307,7 +309,31 @@ class UserServiceImplTest {
                 .map(doc -> doc.getObjectId("_id").toHexString())
                 .into(usersIds);
 
-
         return usersIds;
     }
+
+    //Update the profile picture of the user
+    @Test
+    public void updateProfilePicture() throws Exception {
+        MongoCollection<Document> usersCollection = BaseMongoDBDAO.getCollection("users");
+
+        // Update filter: target documents with "picture" field equal to the old URL
+        Document updateFilter = new Document("picture", "https://imgbox.com/7MaTkBQR");
+
+        // Find all matching documents
+        FindIterable<Document> matchingUsers = usersCollection.find(updateFilter);
+
+        // Iterate through matching documents and update each one
+        for (Document userDocument : matchingUsers) {
+            User user = new User();
+            user.setId(userDocument.getObjectId("_id").toHexString());
+            user.setProfilePicUrl("images/account-icon.png");
+            // Retrieve the updated user data using UserServiceImpl.getUserById(userId); // Assuming you need it
+            UserServiceImpl userService = new UserServiceImpl();
+            userService.updateUserInfo(user);
+        }
+
+        System.out.println("Profile picture(s) updated successfully for all matching users.");
+    }
+
 }
