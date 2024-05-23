@@ -1,6 +1,7 @@
 package it.unipi.lsmsd.fnf.service.impl;
 
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Filters;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dao.mongo.BaseMongoDBDAO;
 import it.unipi.lsmsd.fnf.dao.neo4j.BaseNeo4JDAO;
@@ -32,6 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static com.mongodb.client.model.Filters.exists;
 import static it.unipi.lsmsd.fnf.service.ServiceLocator.getExecutorTaskService;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
@@ -109,7 +111,7 @@ class MediaContentServiceImplTest {
     void deleteMediaContent() {
         try {
             MediaContentService mediaContentService = ServiceLocator.getMediaContentService();
-            String id = mediaContentService.searchByTitle("Updated Anime", 1, MediaContentType.ANIME).getEntries().getFirst().getId();
+            String id = mediaContentService.searchByTitle("Sample Anime", 1, MediaContentType.ANIME).getEntries().getFirst().getId();
             mediaContentService.deleteMediaContent(id, MediaContentType.ANIME);
             System.out.println("Anime deleted");
 
@@ -343,7 +345,7 @@ class MediaContentServiceImplTest {
                 aperiodicExecutorTaskService.executeTask(task);
             }
 
-            Thread.sleep(1000);
+            Thread.sleep(60000);
 
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
@@ -355,7 +357,7 @@ class MediaContentServiceImplTest {
 
         MongoCollection<Document> animeCollection = BaseMongoDBDAO.getCollection("anime");
         List<String> animeIds = new ArrayList<>();
-        animeCollection.find().projection(new Document("_id", 1))
+        animeCollection.find(exists("likes", false)).projection(new Document("_id", 1))
                 .map(doc -> doc.getObjectId("_id").toHexString())
                 .into(animeIds);
 
@@ -367,7 +369,7 @@ class MediaContentServiceImplTest {
 
         MongoCollection<Document> mangaCollection = BaseMongoDBDAO.getCollection("manga");
         List<String> mangaIds = new ArrayList<>();
-        mangaCollection.find().projection(new Document("_id", 1))
+        mangaCollection.find(exists("likes", false)).projection(new Document("_id", 1))
                 .map(doc -> doc.getObjectId("_id").toHexString())
                 .into(mangaIds);
         return mangaIds;

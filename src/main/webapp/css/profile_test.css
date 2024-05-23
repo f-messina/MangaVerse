@@ -226,7 +226,7 @@ body {
     }
 }
 
-@media screen and (max-width: 40rem) {
+@media screen and (max-width: 42rem) {
     .profile-px {
         display: flex;
         flex-wrap: wrap;
@@ -334,7 +334,7 @@ body {
         margin: 0;
     }
 
-    @media (max-width: 40rem) {
+    @media (max-width: 42rem) {
         .profile-px {
             grid-template-columns: auto 1fr;
             grid-row-gap: 1.5rem;
@@ -593,6 +593,19 @@ select.form-control {
     background-color: white;
 }
 
+.user-list-section {
+    padding: 2rem 1rem;
+    border-radius: 10px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.user-list-name {
+    font-size: 1.5rem;
+    margin: 0 0 1rem 0;
+
+}
+
 .user {
     display: flex;
     align-items: center;
@@ -610,26 +623,164 @@ select.form-control {
 }
 
 /* like and reviews list button css */
+
 /* Ensure all buttons are inline and centered */
 .button-container {
+    width: fit-content;
+    margin: 0 auto; /* This will center the container horizontally */
+}
+
+.selection-buttons {
     display: flex;
+    width: fit-content;
     justify-content: center; /* Center the buttons horizontally */
     gap: 10px; /* Space between buttons */
-    margin: 20px 0; /* Space above and below the buttons */
 }
 
 /* Optional: Style the buttons for better appearance */
-.button-container button {
-    padding: 10px 20px;
+.selection-buttons button {
+    padding: 10px 10px;
+    margin: 0 10px;
+    border-radius: 10px;
     font-size: 16px;
     cursor: pointer;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    background-color: #f9f9f9;
     transition: background-color 0.3s ease;
+    background: none;
+    border: none;
 }
 
-.button-container button:hover {
+.selection-buttons button:hover {
     background-color: #e9e9e9;
 }
+
+/* anime/manga grid css */
+
+.project-boxes {
+    overflow-y: auto;
+    margin: 3rem 5% 0 5%;
+
+
+    &.jsGridView {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+
+        .project-box-wrapper {
+            width: 33.3%;
+            min-width: 200px;
+            max-width: 400px;
+            margin: 2rem;
+        }
+    }
+
+    .project-box {
+        display: flex;
+        border-radius: 10px;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+
+        > * {
+            width: 90%;
+        }
+
+        .box-image {
+            border-radius: 10px;
+            aspect-ratio: 1/1;
+        }
+
+        .box-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 1rem 0;
+            text-decoration: none;
+            color: #fff;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+    }
+}
+
+.project-box {
+    border-radius: 30px;
+    padding: 16px;
+    background-color: rgb(144, 123, 228);
+
+    &-wrapper {
+        padding: 8px;
+        transition: .2s;
+    }
+}
+
+@media screen and (max-width: 520px) {
+    .project-boxes { overflow-y: visible; }
+
+    .project-boxes.jsGridView .project-box-wrapper {
+        width: 100%;
+    }
+
+    .project-boxes.jsListView .project-box > * {
+        margin-right: 10px;
+    }
+}
+
+
+@media (max-width: 42rem) {
+    .project-boxes {
+        margin: 3rem 0 0;
+    }
+}
+
+/* review list css */
+
+.review-boxes {
+    overflow-y: auto;
+    margin: 3rem 20% 0 20%;
+}
+
+.review-box {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 2rem auto;
+    border-radius: 10px;
+    border: 2px solid #7c69c9;
+    background-color: #f9f9f9;
+
+    > * {
+        flex: 1; /* Equal width for all items */
+        padding: 1rem 2rem;
+        margin: 0;
+        flex-basis: 100%;
+    }
+
+    .review-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: rgb(144, 123, 228);
+        border-radius: 5px 5px 0 0;
+
+        .review-media-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            text-decoration: none;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            color: #fff;
+        }
+
+        .review-rating {
+            margin: 0;
+            color: #fff;
+        }
+    }
+
+    .review-date {
+        text-align: right;
+    }
+}
+
 

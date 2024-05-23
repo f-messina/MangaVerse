@@ -18,14 +18,17 @@ import it.unipi.lsmsd.fnf.service.impl.asinc_user_tasks.UpdateNumberOfFollowersT
 import it.unipi.lsmsd.fnf.service.interfaces.ExecutorTaskService;
 import it.unipi.lsmsd.fnf.service.interfaces.TaskManager;
 import it.unipi.lsmsd.fnf.service.interfaces.UserService;
+import it.unipi.lsmsd.fnf.utils.Constants;
 import org.bson.Document;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.neo4j.driver.Session;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static it.unipi.lsmsd.fnf.dao.neo4j.BaseNeo4JDAO.getSession;
 import static it.unipi.lsmsd.fnf.service.ServiceLocator.getExecutorTaskService;
 
 class UserServiceImplTest {
@@ -100,7 +103,7 @@ class UserServiceImplTest {
     void deleteUserTest() {
         try {
             UserService userService = new UserServiceImpl();
-            UserSummaryDTO userSummaryDTO = userService.searchFirstNUsers("exampleUser3", 1, null).getFirst();
+            UserSummaryDTO userSummaryDTO = userService.searchFirstNUsers("exampleUser", 1, null).getFirst();
             userService.deleteUser(userSummaryDTO.getId());
             System.out.println("User deleted: " + userSummaryDTO.getId());
             Thread.sleep(4*1000);
@@ -309,7 +312,7 @@ class UserServiceImplTest {
 
     //Update the profile picture of the user
     @Test
-    public void updateProfilePicture() throws Exception {
+    public void updateDefaultProfilePictureOnMongoDB() throws Exception {
         MongoCollection<Document> usersCollection = BaseMongoDBDAO.getCollection("users");
 
         // Update filter: target documents with "picture" field equal to the old URL
@@ -322,7 +325,7 @@ class UserServiceImplTest {
         for (Document userDocument : matchingUsers) {
             User user = new User();
             user.setId(userDocument.getObjectId("_id").toHexString());
-            user.setProfilePicUrl("images/account-icon.png");
+            user.setProfilePicUrl(Constants.DEFAULT_PROFILE_PICTURE);
             // Retrieve the updated user data using UserServiceImpl.getUserById(userId); // Assuming you need it
             UserServiceImpl userService = new UserServiceImpl();
             userService.updateUserInfo(user);
@@ -331,4 +334,17 @@ class UserServiceImplTest {
         System.out.println("Profile picture(s) updated successfully for all matching users.");
     }
 
+    //Update the profile picture of the user
+    @Test
+    public void updateDefaultProfilePictureOnNeo4j() throws Exception {
+        // Update filter: target documents with "picture" field equal to the old URL
+        String query = "MATCH (u:User) WHERE u.picture = 'https://imgbox.com/7MaTkBQR' SET u.picture = '" + Constants.DEFAULT_PROFILE_PICTURE + "'";
+        try (Session session = getSession()) {
+            session.run(query);
+        } catch (Exception e) {
+            throw new DAOException("Error updating profile picture on Neo4j", e);
+        }
+
+        System.out.println("Profile picture(s) updated successfully for all matching users.");
+    }
 }

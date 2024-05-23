@@ -1,5 +1,6 @@
 package it.unipi.lsmsd.fnf.controller;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -274,21 +275,22 @@ public class ProfileServlet extends HttpServlet {
         if (pageString != null) {
             page = Integer.parseInt(pageString);
         }
+
         try {
             // Get the list of reviews
             PageDTO<ReviewDTO> reviews = reviewService.findByUser(userId, page);
-            logger.info("Reviews: " + reviews);
 
             // Convert the list to a JSON array
             if (reviews == null) {
                 jsonResponse.put("notFoundError", true);
             } else {
-                ArrayNode reviewsJsonArray = objectMapper.valueToTree(reviews);
+                JsonNode reviewsJsonObject  = objectMapper.valueToTree(reviews);
 
                 // Add the JSON array to the response
-                jsonResponse.set("reviews", reviewsJsonArray);
+                jsonResponse.set("reviews", reviewsJsonObject);
                 jsonResponse.put("success", true);
             }
+
         } catch (BusinessException e) {
             jsonResponse.put("error", e.getMessage());
         }

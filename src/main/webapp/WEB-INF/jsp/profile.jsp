@@ -9,6 +9,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ page import="it.unipi.lsmsd.fnf.model.enums.Gender" %>
+<%@ page import="it.unipi.lsmsd.fnf.utils.Constants" %>
 <%@ page contentType="text/html;charset=UTF-8" %>
 <!DOCTYPE html>
 <html>
@@ -78,7 +79,7 @@
                     <c:if test="${not empty userInfo.getDescription()}">
                         <p>${userInfo.getDescription()}</p>
                     </c:if>
-                    <c:if test="${not empty userInfo.getGender()}">
+                    <c:if test="${userInfo.getGender() ne Gender.UNKNOWN}">
                         <p>${userInfo.getGender().toString()}</p>
                     </c:if>
                     <c:if test="${not empty userInfo.getLocation()}">
@@ -185,12 +186,12 @@
     </div>
 
     <!-- followers -->
-    <div id="followers" class="myAlert">
+    <div id="followers" class="myAlert user-list-section">
         <div  id="followersBody" class="myAlertBody">
-
+            <p class="user-list-name">Followers</p>
             <!-- search bar -->
             <div class="d-flex align-items-center">
-                <label for="follower-search" class="form-label">Followers</label>
+                <label for="follower-search"></label>
                 <input type="text" class="form-control me-2" id="follower-search" required
                        placeholder="Search..." />
             </div>
@@ -201,12 +202,13 @@
     </div>
 
     <!-- followings -->
-    <div id="followings" class="myAlert">
+    <div id="followings" class="myAlert user-list-section">
         <div  id="followingsBody" class="myAlertBody">
+            <p for="following-search" class="user-list-name">Following</p>
 
             <!-- search bar -->
             <div class="d-flex align-items-center">
-                <label for="following-search" class="form-label">Followings</label>
+                <label for="following-search"></label>
                 <input type="text" class="form-control me-2" id="following-search" required
                        placeholder="Search..." />
             </div>
@@ -217,32 +219,69 @@
     </div>
 
     <section id="like-and-reviews">
+
         <div class="button-container">
-            <button id="manga-button" onclick="fetchData('getMangaLikes')">Manga Like</button>
-            <button id="anime-button" onclick="fetchData('getAnimeLikes')">Anime Like</button>
-            <button id="reviews-button" onclick="fetchData('getReviews')">Reviews</button>
+            <div class="selection-buttons">
+                <button id="manga-button" onclick="changeSection(this)">Manga Like</button>
+                <button id="anime-button" onclick="changeSection(this)">Anime Like</button>
+                <button id="reviews-button" onclick="changeSection(this)">Reviews</button>
+            </div>
+            <hr class="horizontal-line">
         </div>
-        <div id="anime-like">
-            <div id="anime-list">
+
+        <div id="manga-like">
+            <div id="manga-list" class="project-boxes jsGridView">
 
             </div>
         </div>
 
-        <div id="manga-like">
-            <div id="manga-list">
+        <div id="anime-like">
+            <div id="anime-list" class="project-boxes jsGridView">
 
             </div>
         </div>
 
         <div id="reviews">
-            <div id="reviews-list">
+            <div id="reviews-list" class="review-boxes">
 
             </div>
         </div>
     </section>
+
 <script>
     const contextPath = "${pageContext.request.contextPath}";
     const userId = "${userInfo.getId()}";
+    const mangaDefaultImage = "${Constants.DEFAULT_COVER_MANGA}";
+
+    function changeSection(button) {
+        const section = button.id.split("-")[0];
+        const animeSection = $("#anime-like");
+        const mangaSection = $("#manga-like");
+        const reviewsSection = $("#reviews");
+        if (section === "reviews") {
+            animeSection.hide();
+            mangaSection.hide();
+            reviewsSection.show();
+            if (reviewsSection.children().first()) {
+                fetchData("getReviews");
+            }
+        } else {
+            reviewsSection.hide();
+            if (section === "anime") {
+                animeSection.show();
+                mangaSection.hide();
+                if (animeSection.children().first()) {
+                    fetchData("getAnimeLikes");
+                }
+            } else {
+                mangaSection.show();
+                animeSection.hide();
+                if (mangaSection.children().first()) {
+                    fetchData("getMangaLikes");
+                }
+            }
+        }
+    }
 
     function fetchData(action, page = 0) {
         const inputData = {
@@ -261,29 +300,69 @@
         });
     }
 
-    function emptyResults() {
-        $("#anime-list").empty();
-        $("#manga-list").empty();
-        $("#reviews-list").empty();
-    }
     function showLikes(data, action) {
         const likeList = action === "getAnimeLikes" ? $("#anime-list") : $("#manga-list");
-        emptyResults();
-        data.mediaLikes.forEach(like => {
-            const likeLink = $("<a>").attr("href", contextPath + "/" + (action === "getAnimeLikes" ? "anime" : "manga") + "?mediaId=" + like.id);
-            const likeImage = $("<img>").attr("src", like.imageUrl).attr("alt", like.title);
-            const likeTitle = $("<p>").text(like.title);
-            likeLink.append(likeImage, likeTitle);
-            likeList.append(likeLink);
+        likeList.empty();
+
+        if (data.mediaLikes === undefined) {
+            likeList.append($("<p>").text("No likes found"));
+            return;
+        }
+
+        data.mediaLikes.forEach(media => {
+            console.log(media);
+            const mediaWrapper = $("<div>").addClass("project-box-wrapper");
+            const mediaBox = $("<div>").addClass("project-box");
+
+            const picture = $("<img>").attr("src", media.imageUrl).attr("alt", media.title)
+                .addClass("box-image")
+                .on("error", function () {
+                    defaultMangaCover(this)
+                });
+            const title = $("<a>").attr("href", contextPath + "/" + (action === "getAnimeLikes" ? "anime" : "manga") + "?mediaId=" + media.id)
+                .addClass("box-title")
+                .text(media.title);
+            mediaBox.append(picture, title);
+            mediaWrapper.append(mediaBox);
+            likeList.append(mediaWrapper);
         });
     }
+
+    function defaultMangaCover(image) {
+        image.onerror = null;
+        image.src = mangaDefaultImage;
+    }
+
     function showReviews(data) {
-        emptyResults();
-        data.reviews.forEach(review => {
-            const reviewLink = $("<a>").attr("href", contextPath + "/review?reviewId=" + review.id);
-            const reviewContent = $("<p>").text(review.content);
-            reviewLink.append(reviewContent);
-            $("#reviews-list").append(reviewLink);
+        const reviews = $("#reviews-list")
+        reviews.empty();
+
+        if (data.reviews === undefined) {
+            reviews.append($("<p>").text("No reviews found"));
+            return;
+        }
+
+        data.reviews.entries.forEach(review => {
+            const type = (review.mediaContent.season === undefined) ? "manga" : "anime";
+
+            const title = $("<a>").attr("href", contextPath + "/" + type + "?mediaId=" + review.mediaContent.id)
+                .addClass("review-media-title")
+                .text(review.mediaContent.title);
+            const rating = $("<p>").addClass("review-rating")
+                .text(review.rating === null ? "No rating" : "Rating: " + review.rating);
+            const firstRow = $("<div>").addClass("review-row").append(title, rating);
+
+            const comment = $("<p>")
+                .addClass("review-comment")
+                .text(review.comment === null ? "No comment" :review.comment);
+
+            const date = $("<p>")
+                .addClass("review-date")
+                .text("Date: " + review.date);
+
+            const reviewBox = $("<div>").addClass("review-box")
+                .append(firstRow, comment, date);
+            reviews.append(reviewBox);
         });
     }
 </script>
