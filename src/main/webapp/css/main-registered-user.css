@@ -4,16 +4,108 @@ html {
 }
 
 * {
-    margin: 0;
-    padding: 0;
     box-sizing: border-box;
-    font-family: "Fira Sans Condensed", sans-serif;
-}
-body{
-    margin-left: 80px;
-    margin-right: 80px;
 }
 
+/* welcome page */
+
+.section-home {
+    min-height: 800px;
+    min-width: 800px;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: 100%;
+}
+
+.section-home .home-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.section-home .home-wrapper {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 80%;
+}
+
+.section-home span, .section-home a {
+    font-size: 2em;
+    font-weight: 300;
+    text-decoration: none;
+    color: black;
+}
+
+.active-page,
+.selection-page-link {
+    width: 90px;
+    display: flex;
+    justify-content: center;
+}
+
+.active-page span {
+    font-size: 2em;
+    font-weight: 400;
+    color: rgba(66, 28, 142, 0.8);
+    cursor: default;
+    border-radius: 45%;
+    padding: 0.5rem 1rem;
+    border-color: rgba(66, 28, 142, 0.8);
+    border-width: 2px;
+    border-style: solid;
+}
+
+.selection-page-link a:hover{
+    font-size: 2em;
+    font-weight: 400;
+}
+
+.down-arrow {
+    position: relative;
+    height: 30px;
+    top: 220px;
+}
+
+.down-arrow i:hover {
+    cursor: pointer;
+    color: rgba(66, 28, 142, 0.8);
+    font-size: 1.5em;
+}
+
+.welcome {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.welcome .welcome-text p {
+    font-size: 2.7em;
+}
+
+.arama{
+    font-size: 28px;
+    color: black;
+}
+
+#scroll-point {
+    height: 100px;
+}
+
+iframe {
+    border: 0;
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+}
+
+/* navbar */
 
 nav {
     position: static;
@@ -23,9 +115,7 @@ nav {
     align-items: center;
     justify-content: space-between;
     gap: 20px;
-    padding-top: 50px;
-    padding-left: 80px;
-    padding-bottom: 50px;
+    padding: 2rem 4rem;
     width: 100%;
     height: 100px;
     background-color: white;
@@ -46,18 +136,10 @@ nav h1{
     z-index: 999;
 }
 
-.small-pic{
+.small-pic {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding-left: 0;
-    padding-right: 0;
-}
-.small-pic img{
-    width: 15%;
-}
-.small-pic i{
-    font-size: 30px;
 }
 
 nav img {

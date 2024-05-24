@@ -1,13 +1,3 @@
-html {
-}
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: "Fira Sans Condensed", sans-serif;
-}
-
 .section-home {
     min-height: 800px;
     min-width: 800px;

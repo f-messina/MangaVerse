@@ -2,9 +2,11 @@ package it.unipi.lsmsd.fnf.dao.neo4j;
 
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dao.mongo.BaseMongoDBDAO;
+import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
+import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -103,8 +105,8 @@ public class Neo4JDAOImplTest{
         try {
 
             AnimeDAONeo4JImpl neo4JDAO = new AnimeDAONeo4JImpl();
-            List<AnimeDTO> anime = neo4JDAO.getLiked("6577877be68376234760585f", 0);
-            for (AnimeDTO animeDTO : anime) {
+            PageDTO<MediaContentDTO> anime = neo4JDAO.getLiked("6577877be68376234760585f", 0);
+            for (MediaContentDTO animeDTO : anime.getEntries()) {
                 System.out.println("id: " + animeDTO.getId() + ", title: " + animeDTO.getTitle() + ", picture: " + animeDTO.getImageUrl());
             }
 
@@ -120,8 +122,8 @@ public class Neo4JDAOImplTest{
         try {
 
             MangaDAONeo4JImpl neo4JDAO = new MangaDAONeo4JImpl();
-            List<MangaDTO> manga = neo4JDAO.getLiked("6577877be68376234760585f", 0);
-            for (MangaDTO mangaDTO : manga) {
+            PageDTO<MediaContentDTO> manga = neo4JDAO.getLiked("6577877be68376234760585f", 0);
+            for (MediaContentDTO mangaDTO : manga.getEntries()) {
                 System.out.println("id: " + mangaDTO.getId() + ", title: " + mangaDTO.getTitle() + ", picture: " + mangaDTO.getImageUrl());
             }
 
