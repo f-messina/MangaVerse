@@ -106,7 +106,7 @@ body {
 }
 
 .container-px {
-    max-width: 93.5rem;
+    max-width: 750px;
     margin: 100px auto 0 auto;
     padding: 0 2rem;
 
@@ -151,7 +151,7 @@ body {
     border-radius: 50%;
     display: block;
     width: 80%;
-    max-width: 250px;
+    max-width: 150px;
 }
 
 .profile-user-settings-px,
@@ -320,6 +320,7 @@ body {
         grid-template-rows: repeat(3, auto);
         grid-column-gap: 3rem;
         align-items: center;
+        justify-content: center;
     }
 
     .profile-image-px {
@@ -622,12 +623,25 @@ select.form-control {
     margin-left: 1rem;
 }
 
+/*//////////////////////////////////*/
+/* SECTION GRID MANGA/ANIME/REVIEWS */
+/*//////////////////////////////////*/
+.profile-content {
+    padding-bottom: 2rem;
+}
+
+.no-results-error {
+    font-size: 6rem;
+}
+
+
 /* like and reviews list button css */
 
 /* Ensure all buttons are inline and centered */
 .button-container {
     width: fit-content;
-    margin: 0 auto; /* This will center the container horizontally */
+    margin: 0 auto 2rem auto; /* This will center the container horizontally */
+
 }
 
 .selection-buttons {
@@ -650,7 +664,12 @@ select.form-control {
 }
 
 .selection-buttons button:hover {
-    background-color: #e9e9e9;
+    background-color: rgba(162, 143, 232, 0.91);
+}
+
+.selection-buttons button.active {
+    background-color: #907be4;
+    color: white;
 }
 
 /* anime/manga grid css */
@@ -669,7 +688,6 @@ select.form-control {
             width: 33.3%;
             min-width: 200px;
             max-width: 400px;
-            margin: 2rem;
         }
     }
 
@@ -707,11 +725,11 @@ select.form-control {
     border-radius: 30px;
     padding: 16px;
     background-color: rgb(144, 123, 228);
+}
 
-    &-wrapper {
-        padding: 8px;
-        transition: .2s;
-    }
+.project-box-wrapper {
+    padding: 2rem;
+    transition: .3s;
 }
 
 @media screen and (max-width: 520px) {
@@ -731,6 +749,9 @@ select.form-control {
     .project-boxes {
         margin: 3rem 0 0;
     }
+    .no-results-error {
+        font-size: 3rem;
+    }
 }
 
 /* review list css */
@@ -749,10 +770,9 @@ select.form-control {
     background-color: #f9f9f9;
 
     > * {
-        flex: 1; /* Equal width for all items */
         padding: 1rem 2rem;
         margin: 0;
-        flex-basis: 100%;
+        width: 100%;
     }
 
     .review-row {
@@ -783,4 +803,114 @@ select.form-control {
     }
 }
 
+/* pagination css */
 
+:root {
+    --primary: #23adad;
+    --greyLight: #23adade1;
+    --greyLight-2: #cbe0dd;
+    --greyDark: #2d4848;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: #fff;
+    padding-top: 2rem;
+}
+
+ul {
+    list-style-type: none;
+}
+
+.page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 5rem;
+    border-radius: 0.6rem;
+    background: #ffffff;
+    margin: 0;
+    padding: 0;
+}
+
+.page__numbers,
+.page__btn,
+.page__dots {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0.8rem;
+    font-size: 1.4rem;
+    cursor: pointer;
+}
+
+.page__dots {
+    width: 2.6rem;
+    height: 2.6rem;
+    color: rgba(35, 7, 136, 0.79);
+    cursor: default;}
+
+.page__numbers {
+    width: 2.6rem;
+    height: 2.6rem;
+    border-radius: 0.4rem;
+}
+
+.page__numbers:hover {
+    color: rgba(35, 7, 136, 0.79);
+}
+
+.page__numbers.active {
+    color: #ffffff;
+    background: rgba(35, 7, 136, 0.79);
+    font-weight: 600;
+    border: 1px solid rgba(35, 7, 136, 0.79);
+    cursor: default;
+}
+
+.page__btn {
+    color: grey;
+    cursor: default;
+    margin: 0;
+}
+
+.page__btn.active {
+    color: rgba(35, 7, 136, 0.79);
+    cursor: pointer;
+}
+
+.page__btn.active .material-icons:hover {
+    font-size: 3rem;
+}
+
+@font-face {
+    font-family: 'Material Icons';
+    font-style: normal;
+    font-weight: 400;
+    src: url(https://fonts.gstatic.com/s/materialicons/v142/flUhRq6tzZclQEJ-Vdg-IuiaDsNc.woff2) format('woff2');
+}
+
+.material-icons {
+    font-family: 'Material Icons';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    text-align: center;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    width: 3rem;
+}
+
+/* footer css */
+
+.footer {
+    padding: 2rem 0;
+}

@@ -37,7 +37,7 @@
                 <input type="hidden" name="targetServlet" value="auth">
                 <button type="submit" class="logout">Log Out</button>
             </form>
-            <a href="#" class="small-pic"><img alt="profile bar" src="${pageContext.request.contextPath}/images/account-icon.png"> <i class="fa-solid fa-chevron-down" style="color: #000000"> </i></a>
+            <a href="#" class="small-pic"><img alt="profile bar" src="${pageContext.request.contextPath}/${sessionScope[Constants.AUTHENTICATED_USER_KEY].getProfilePicUrl()}"></a>
         </div>
     </nav>
 
@@ -218,7 +218,7 @@
         </div>
     </div>
 
-    <section id="like-and-reviews">
+    <section class="profile-content">
 
         <div class="button-container">
             <div class="selection-buttons">
@@ -230,141 +230,317 @@
         </div>
 
         <div id="manga-like">
-            <div id="manga-list" class="project-boxes jsGridView">
-
+            <div class="container">
+                <ul class="page manga-pagination">
+                </ul>
+            </div>
+            <div id="manga-list" class="project-boxes jsGridView"></div>
+            <div class="container">
+                <ul class="page manga-pagination">
+                </ul>
             </div>
         </div>
 
         <div id="anime-like">
-            <div id="anime-list" class="project-boxes jsGridView">
-
+            <div class="container">
+                <ul class="page anime-pagination">
+                </ul>
+            </div>
+            <div id="anime-list" class="project-boxes jsGridView"></div>
+            <div class="container">
+                <ul class="page anime-pagination">
+                </ul>
             </div>
         </div>
 
         <div id="reviews">
-            <div id="reviews-list" class="review-boxes">
-
+            <div class="container">
+                <ul class="page review-pagination">
+                </ul>
+            </div>
+            <div id="reviews-list" class="review-boxes"></div>
+            <div class="container">
+                <ul class="page review-pagination">
+                </ul>
             </div>
         </div>
     </section>
 
-<script>
-    const contextPath = "${pageContext.request.contextPath}";
-    const userId = "${userInfo.getId()}";
-    const mangaDefaultImage = "${Constants.DEFAULT_COVER_MANGA}";
+    <div class="footer"></div>
 
-    function changeSection(button) {
-        const section = button.id.split("-")[0];
-        const animeSection = $("#anime-like");
-        const mangaSection = $("#manga-like");
-        const reviewsSection = $("#reviews");
-        if (section === "reviews") {
-            animeSection.hide();
-            mangaSection.hide();
-            reviewsSection.show();
-            if (reviewsSection.children().first()) {
-                fetchData("getReviews");
-            }
-        } else {
-            reviewsSection.hide();
-            if (section === "anime") {
-                animeSection.show();
-                mangaSection.hide();
-                if (animeSection.children().first()) {
-                    fetchData("getAnimeLikes");
-                }
-            } else {
-                mangaSection.show();
+    <script>
+        const contextPath = "${pageContext.request.contextPath}";
+        const userId = "${userInfo.getId()}";
+        const mangaDefaultImage = "${Constants.DEFAULT_COVER_MANGA}";
+        let mangaPage;
+        let animePage;
+        let reviewsPage;
+        let totalReviewsPages;
+        let totalAnimePages;
+        let totalMangaPages;
+
+        function changeSection(button) {
+            const section = button.id.split("-")[0];
+            const animeSection = $("#anime-like");
+            const mangaSection = $("#manga-like");
+            const reviewsSection = $("#reviews");
+            $(".selection-buttons button").removeClass("active");
+            if (section === "reviews") {
+                button.classList.add("active");
                 animeSection.hide();
-                if (mangaSection.children().first()) {
-                    fetchData("getMangaLikes");
+                mangaSection.hide();
+                reviewsSection.show();
+                if (reviewsSection.children().first()) {
+                    fetchData("getReviews");
+                }
+            } else {
+                reviewsSection.hide();
+                if (section === "anime") {
+                    button.classList.add("active");
+                    animeSection.show();
+                    mangaSection.hide();
+                    if (animeSection.children().first()) {
+                        fetchData("getAnimeLikes");
+                    }
+                } else {
+                    button.classList.add("active");
+                    mangaSection.show();
+                    animeSection.hide();
+                    if (mangaSection.children().first()) {
+                        fetchData("getMangaLikes");
+                    }
                 }
             }
         }
-    }
 
-    function fetchData(action, page = 0) {
-        const inputData = {
-            action: action,
-            userId: userId,
-            page: page
-        };
-        $.post(contextPath + "/profile", inputData, function (data) {
-            if (action === "getReviews") {
-                showReviews(data);
-            } else {
-                showLikes(data, action);
+        function fetchData(action, page = 1) {
+            const inputData = {
+                action: action,
+                userId: userId,
+                page: page
+            };
+            $.post(contextPath + "/profile", inputData, function (data) {
+                if (action === "getReviews") {
+                    reviewsPage = page;
+                    showReviews(data);
+                } else {
+                    if (action === "getAnimeLikes") {
+                        animePage = page;
+                    } else {
+                        mangaPage = page;
+                    }
+                    showLikes(data, action);
+                }
+            }).fail(function (xhr) {
+                console.error("Profile data fetch failed: " + xhr.responseText);
+            });
+        }
+
+        function showLikes(data, action) {
+            const likeList = (action === "getAnimeLikes") ? $("#anime-list") : $("#manga-list");
+            likeList.empty();
+
+            if (data.mediaLikes === undefined || data.mediaLikes.totalPages === 0) {
+                if (action === "getAnimeLikes") {
+                    totalAnimePages = 0;
+                    const pagination = $(".anime-pagination");
+                    pagination.empty();
+                } else {
+                    totalMangaPages = 0;
+                    const pagination = $(".manga-pagination");
+                    pagination.empty();
+                }
+                likeList.append($("<p>").addClass("no-results-error").text("No likes found"));
+                return;
             }
-        }).fail(function (xhr) {
-            console.error("Profile data fetch failed: " + xhr.responseText);
-        });
-    }
 
-    function showLikes(data, action) {
-        const likeList = action === "getAnimeLikes" ? $("#anime-list") : $("#manga-list");
-        likeList.empty();
+            if (action === "getAnimeLikes") {
+                totalAnimePages = data.mediaLikes.totalPages;
+                updatePagination(action === "getAnimeLikes" ? "anime" : "manga");
+            } else {
+                totalMangaPages = data.mediaLikes.totalPages;
+                updatePagination(action === "getAnimeLikes" ? "anime" : "manga");
+            }
 
-        if (data.mediaLikes === undefined) {
-            likeList.append($("<p>").text("No likes found"));
-            return;
+
+            data.mediaLikes.entries.forEach(media => {
+                const mediaWrapper = $("<div>").addClass("project-box-wrapper");
+                const mediaBox = $("<div>").addClass("project-box");
+
+                const picture = $("<img>").attr("src", media.imageUrl).attr("alt", media.title)
+                    .addClass("box-image")
+                    .on("error", function () {
+                        defaultMangaCover(this)
+                    });
+                const title = $("<a>").attr("href", contextPath + "/" + (action === "getAnimeLikes" ? "anime" : "manga") + "?mediaId=" + media.id)
+                    .addClass("box-title")
+                    .text(media.title);
+                mediaBox.append(picture, title);
+                mediaWrapper.append(mediaBox);
+                likeList.append(mediaWrapper);
+            });
         }
 
-        data.mediaLikes.forEach(media => {
-            console.log(media);
-            const mediaWrapper = $("<div>").addClass("project-box-wrapper");
-            const mediaBox = $("<div>").addClass("project-box");
-
-            const picture = $("<img>").attr("src", media.imageUrl).attr("alt", media.title)
-                .addClass("box-image")
-                .on("error", function () {
-                    defaultMangaCover(this)
-                });
-            const title = $("<a>").attr("href", contextPath + "/" + (action === "getAnimeLikes" ? "anime" : "manga") + "?mediaId=" + media.id)
-                .addClass("box-title")
-                .text(media.title);
-            mediaBox.append(picture, title);
-            mediaWrapper.append(mediaBox);
-            likeList.append(mediaWrapper);
-        });
-    }
-
-    function defaultMangaCover(image) {
-        image.onerror = null;
-        image.src = mangaDefaultImage;
-    }
-
-    function showReviews(data) {
-        const reviews = $("#reviews-list")
-        reviews.empty();
-
-        if (data.reviews === undefined) {
-            reviews.append($("<p>").text("No reviews found"));
-            return;
+        function defaultMangaCover(image) {
+            image.onerror = null;
+            image.src = mangaDefaultImage;
         }
 
-        data.reviews.entries.forEach(review => {
-            const type = (review.mediaContent.season === undefined) ? "manga" : "anime";
+        function showReviews(data) {
+            const reviews = $("#reviews-list")
+            reviews.empty();
 
-            const title = $("<a>").attr("href", contextPath + "/" + type + "?mediaId=" + review.mediaContent.id)
-                .addClass("review-media-title")
-                .text(review.mediaContent.title);
-            const rating = $("<p>").addClass("review-rating")
-                .text(review.rating === null ? "No rating" : "Rating: " + review.rating);
-            const firstRow = $("<div>").addClass("review-row").append(title, rating);
+            if (data.reviews === undefined || data.reviews.totalPages === 0) {
+                totalReviewsPages = 0;
+                const pagination = $(".review-pagination");
+                pagination.empty();
+                reviews.append($("<p>").addClass("text-center no-results-error").text("No reviews found"));
+                return;
+            }
 
-            const comment = $("<p>")
-                .addClass("review-comment")
-                .text(review.comment === null ? "No comment" :review.comment);
+            totalReviewsPages = data.reviews.totalPages;
+            updatePagination("reviews");
 
-            const date = $("<p>")
-                .addClass("review-date")
-                .text("Date: " + review.date);
+            data.reviews.entries.forEach(review => {
+                const type = (review.mediaContent.season === undefined) ? "manga" : "anime";
 
-            const reviewBox = $("<div>").addClass("review-box")
-                .append(firstRow, comment, date);
-            reviews.append(reviewBox);
-        });
-    }
-</script>
+                const title = $("<a>").attr("href", contextPath + "/" + type + "?mediaId=" + review.mediaContent.id)
+                    .addClass("review-media-title")
+                    .text(review.mediaContent.title);
+                const rating = $("<p>").addClass("review-rating")
+                    .text(review.rating === null ? "No rating" : "Rating: " + review.rating);
+                const firstRow = $("<div>").addClass("review-row").append(title, rating);
+
+                const comment = $("<p>")
+                    .addClass("review-comment")
+                    .text(review.comment === null ? "No comment" :review.comment);
+
+                const date = $("<p>")
+                    .addClass("review-date")
+                    .text("Date: " + review.date);
+
+                const reviewBox = $("<div>").addClass("review-box")
+                    .append(firstRow, comment, date);
+                reviews.append(reviewBox);
+            });
+        }
+
+        function updatePagination(section) {
+            let pagination;
+            let totalPages;
+            let currentPage;
+            let action;
+
+            if (section === "anime") {
+                pagination = $(".anime-pagination");
+                totalPages = totalAnimePages;
+                currentPage = animePage;
+                action = "getAnimeLikes";
+            } else if (section === "manga") {
+                pagination = $(".manga-pagination");
+                totalPages = totalMangaPages;
+                currentPage = mangaPage;
+                action = "getMangaLikes";
+            } else {
+                pagination = $(".review-pagination");
+                totalPages = totalReviewsPages;
+                currentPage = reviewsPage;
+                action = "getReviews";
+            }
+
+            pagination.empty();
+
+            if (totalPages === 1) {
+                return;
+            }
+
+            // left arrow
+            const leftArrow = $("<li>").addClass("page__btn")
+                .html("<span class=\"material-icons\">chevron_left</span>")
+
+            if (currentPage > 1) {
+                leftArrow.addClass("active");
+                leftArrow.click(() => {fetchData(action, currentPage - 1);});
+            }
+            pagination.append(leftArrow);
+
+            // page numbers
+            if (totalPages < 10) {
+                for (let i = 1; i <= totalPages; i++) {
+                    const pageNumber = $("<li>").addClass("page__numbers").text(i);
+                    if (i === currentPage) {
+                        pageNumber.addClass("active");
+                    } else {
+                        pageNumber.click(() => fetchData(action, i));
+                    }
+                    pagination.append(pageNumber);
+                }
+
+            } else if (currentPage < 6) {
+                for (let i = 1; i <= 7; i++) {
+                    const pageNumber = $("<li>").addClass("page__numbers").text(i);
+                    if (i === currentPage) {
+                        pageNumber.addClass("active");
+                    } else {
+                        pageNumber.click(() => fetchData(action, i));
+                    }
+                    pagination.append(pageNumber);
+                }
+                if (totalPages === 9) {
+                    const lastNumber = $("<li>").addClass("page__numbers").text(8).click(() => fetchData(action, 8));
+                    pagination.append(lastNumber);
+                } else {
+                    pagination.append($("<li>").addClass("page__dots").text("..."));
+                }
+                const lastNumber = $("<li>").addClass("page__numbers").text(totalPages).click(() => fetchData(action, totalPages));
+                pagination.append(lastNumber);
+
+            } else if (currentPage > totalPages - 6) {
+                const firstNumber = $("<li>").addClass("page__numbers").text(1).click(() => fetchData(action, 1));
+                pagination.append(firstNumber);
+                if (totalPages === 9) {
+                    const firstNumber = $("<li>").addClass("page__numbers").text(2).click(() => fetchData(action, 2));
+                    pagination.append(firstNumber);
+                } else {
+                    pagination.append($("<li>").addClass("page__dots").text("..."));
+                }
+                for (let i = totalPages - 6; i <= totalPages; i++) {
+                    const pageNumber = $("<li>").addClass("page__numbers").text(i);
+                    if (i === currentPage) {
+                        pageNumber.addClass("active");
+                    } else {
+                        pageNumber.click(() => fetchData(action, i));
+                    }
+                    pagination.append(pageNumber);
+                }
+
+            } else {
+                const firstNumber = $("<li>").addClass("page__numbers").text(1).click(() => fetchData(action, 1));
+                pagination.append(firstNumber);
+                pagination.append($("<li>").addClass("page__dots").text("..."));
+                for (let i = currentPage - 2; i < currentPage + 3; i++) {
+                    const pageNumber = $("<li>").addClass("page__numbers").text(i);
+                    if (i === currentPage) {
+                        pageNumber.addClass("active");
+                    } else {
+                        pageNumber.click(() => fetchData(action, i));
+                    }
+                    pagination.append(pageNumber);
+                }
+                pagination.append($("<li>").addClass("page__dots").text("..."));
+                const lastNumber = $("<li>").addClass("page__numbers").text(totalPages).click(() => fetchData(action, totalPages));
+                pagination.append(lastNumber);
+            }
+
+            // right arrow
+            const rightArrow = $("<li>").addClass("page__btn")
+                .html("<span class=\"material-icons\">chevron_right</span>")
+            if (currentPage < totalPages) {
+                rightArrow.addClass("active");
+                rightArrow.click(() => {fetchData(action, currentPage + 1);});
+            }
+            pagination.append(rightArrow);
+        }
+    </script>
 </body>
 </html>

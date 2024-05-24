@@ -81,7 +81,7 @@ public class ProfileServlet extends HttpServlet {
             case null, default -> {
                 try {
                     request.setAttribute("userInfo", userService.getUserById(authUser.getId()));
-                    request.setAttribute("mangaLikes", mediaContentService.getLikedMediaContent(userId, 0, MediaContentType.MANGA));
+
                 } catch (BusinessException e) {
                     targetJSP = "error-page.jsp";
                 }
@@ -207,17 +207,16 @@ public class ProfileServlet extends HttpServlet {
         }
 
         try {
-            // Get the list of anime likes
-            List<AnimeDTO> animeLikes = (List<AnimeDTO>) mediaContentService.getLikedMediaContent(userId, page, MediaContentType.ANIME);
+            // Get the page of anime likes
+            PageDTO<MediaContentDTO> animeLikes = mediaContentService.getLikedMediaContent(userId, page, MediaContentType.ANIME);
 
-            // Convert the list to a JSON array
+            // Convert the page to a JSON Object
             if (animeLikes == null) {
                 jsonResponse.put("notFoundError", true);
             } else {
-                ArrayNode animeLikesJsonArray = objectMapper.valueToTree(animeLikes);
-
+                JsonNode animeLikesJsonObject = objectMapper.valueToTree(animeLikes);
                 // Add the JSON array to the response
-                jsonResponse.set("mediaLikes", animeLikesJsonArray);
+                jsonResponse.set("mediaLikes", animeLikesJsonObject);
                 jsonResponse.put("success", true);
             }
         } catch (BusinessException e) {
@@ -241,17 +240,17 @@ public class ProfileServlet extends HttpServlet {
             page = Integer.parseInt(pageString);
         }
         try {
-            // Get the list of manga likes
-            List<MangaDTO> mangaLikes = (List<MangaDTO>) mediaContentService.getLikedMediaContent(userId, page, MediaContentType.MANGA);
+            // Get the page of manga likes
+            PageDTO<MediaContentDTO> mangaLikes = mediaContentService.getLikedMediaContent(userId, page, MediaContentType.MANGA);
 
-            // Convert the list to a JSON array
+            // Convert the page to a JSON Object
             if (mangaLikes == null) {
                 jsonResponse.put("notFoundError", true);
             } else {
-                ArrayNode mangaLikesJsonArray = objectMapper.valueToTree(mangaLikes);
+                JsonNode mangaLikesJsonObject = objectMapper.valueToTree(mangaLikes);
 
                 // Add the JSON array to the response
-                jsonResponse.set("mediaLikes", mangaLikesJsonArray);
+                jsonResponse.set("mediaLikes", mangaLikesJsonObject);
                 jsonResponse.put("success", true);
             }
         } catch (BusinessException e) {
@@ -277,10 +276,10 @@ public class ProfileServlet extends HttpServlet {
         }
 
         try {
-            // Get the list of reviews
+            // Get the page of reviews
             PageDTO<ReviewDTO> reviews = reviewService.findByUser(userId, page);
 
-            // Convert the list to a JSON array
+            // Convert the page to a JSON Object
             if (reviews == null) {
                 jsonResponse.put("notFoundError", true);
             } else {

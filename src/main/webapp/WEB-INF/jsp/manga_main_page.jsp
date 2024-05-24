@@ -62,6 +62,8 @@
         </div>
     </section>
     <span id="scroll-point"></span>
+
+    <c:set var="userInfo" value="${requestScope['userInfo']}" />
     <div class="nav-bar" id="navbar">
         <nav>
             <a href="${pageContext.request.contextPath}/mainPage"><img src="${pageContext.request.contextPath}/images/logo-with-initial.png" alt="logo" /></a>
@@ -85,7 +87,7 @@
                             <input type="hidden" name="targetServlet" value="mainPage/manga">
                             <button type="submit" class="logout">Log Out</button>
                         </form>
-                        <a href="${pageContext.request.contextPath}/profile" class="profile">Profile</a>
+                        <a href="${pageContext.request.contextPath}/profile" class="small-pic"><img alt="profile bar" src="${pageContext.request.contextPath}/${sessionScope[Constants.AUTHENTICATED_USER_KEY].getProfilePicUrl()}"></a>
                     </c:otherwise>
                 </c:choose>
             </div>
