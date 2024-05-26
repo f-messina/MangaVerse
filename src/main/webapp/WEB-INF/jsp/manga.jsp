@@ -39,8 +39,8 @@
                     <a href="${pageContext.request.contextPath}/mainPage/manga" class="manga">Manga</a>
                     <c:choose>
                         <c:when test="${empty sessionScope[Constants.AUTHENTICATED_USER_KEY]}">
-                            <a href="${pageContext.request.contextPath}/login">Log In</a>
-                            <a href="${pageContext.request.contextPath}/signup">Sign Up</a>
+                            <a href="${pageContext.request.contextPath}/auth">Log In</a>
+                            <a href="${pageContext.request.contextPath}/auth">Sign Up</a>
                         </c:when>
                         <c:otherwise>
                             <form action="${pageContext.request.contextPath}/auth" method="post">

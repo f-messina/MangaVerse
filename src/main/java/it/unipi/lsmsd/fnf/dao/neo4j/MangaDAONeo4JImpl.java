@@ -321,7 +321,7 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
      * @throws DAOException If an error occurs while retrieving suggested Manga.
      */
     @Override
-    public List<MangaDTO> getSuggested(String userId, Integer limit) throws DAOException {
+    public List<MediaContentDTO> getSuggested(String userId, Integer limit) throws DAOException {
         try (Session session = getSession()) {
             String query = "MATCH (u:User {id: $userId})-[:FOLLOWS]->(f:User)-[:LIKE]->(m:Manga) " +
                     "WITH m, COUNT(DISTINCT f) AS num_likes  " +
@@ -353,7 +353,7 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
      * @throws DAOException If an error occurs while retrieving trending Manga.
      */
     @Override
-    public Map<MangaDTO, Integer> getTrendMediaContentByYear(int year) throws DAOException {
+    public Map<MediaContentDTO, Integer> getTrendMediaContentByYear(int year) throws DAOException {
         try (Session session = getSession()) {
             LocalDateTime startDate = LocalDateTime.of(year, 1, 1, 0, 0);
             LocalDateTime endDate = LocalDateTime.of(year + 1, 1, 1, 0, 0);
@@ -391,7 +391,7 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
      * @throws DAOException If an error occurs while retrieving trending Manga by likes.
      */
     @Override
-    public List<MangaDTO> getMediaContentTrendByLikes() throws DAOException {
+    public List<MediaContentDTO> getMediaContentTrendByLikes() throws DAOException {
         try (Session session = getSession()) {
             String query = "MATCH (u:User)-[r:LIKE]->(m:Manga) " +
                     "WHERE r.date >= $startDate AND r.date <= $endDate " +

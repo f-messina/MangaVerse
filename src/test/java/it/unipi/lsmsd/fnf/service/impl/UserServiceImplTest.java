@@ -2,7 +2,6 @@ package it.unipi.lsmsd.fnf.service.impl;
 
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.result.UpdateResult;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dao.mongo.BaseMongoDBDAO;
 import it.unipi.lsmsd.fnf.dao.neo4j.BaseNeo4JDAO;
@@ -221,7 +220,7 @@ class UserServiceImplTest {
         try {
             UserServiceImpl userService = new UserServiceImpl();
             UserSummaryDTO userSummaryDTO = userService.searchFirstNUsers("Xinil", 1, null).getFirst();
-            System.out.println(userService.suggestUsers(userSummaryDTO.getId()));
+            System.out.println(userService.suggestUsersByCommonFollowings(userSummaryDTO.getId()));
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }

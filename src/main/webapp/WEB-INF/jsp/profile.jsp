@@ -17,27 +17,46 @@
     <link rel="preconnect" href="https://fonts.googleapis.com%22%3E/" crossorigin />
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/profile_test.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <script src="https://code.jquery.com/jquery-3.6.4.min.js" defer></script>
     <script src="${pageContext.request.contextPath}/js/profile_test.js" defer></script>
     <script src="${pageContext.request.contextPath}/js/country_dropdown.js" defer></script>
     <title>PROFILE</title>
 </head>
 <body>
-
+    <c:set var="isLogged" value="${not empty sessionScope[Constants.AUTHENTICATED_USER_KEY]}" />
     <c:set var="userInfo" value="${requestScope['userInfo']}" />
+
     <!-- navbar -->
     <nav>
         <a href="${pageContext.request.contextPath}/mainPage"><img src="${pageContext.request.contextPath}/images/logo-with-initial.png" alt="logo" /></a>
-        <h1>Welcome ${userInfo.getUsername()}</h1>
+        <c:if test="${isLogged}">
+            <h1>Welcome ${sessionScope[Constants.AUTHENTICATED_USER_KEY].getUsername()}</h1>
+        </c:if>
         <div class="nav-items">
+            <div class="search-box">
+                <button id="user-search-button" class="btn-search"><i class="fa fa-search"></i></button>
+                <input id="user-search" type="text" class="input-search" placeholder="Search user...">
+                <div id="user-search-section" class="user-list-section users-results">
+                    <div id="user-search-results" class="user-list"></div>
+                </div>
+            </div>
             <a href="${pageContext.request.contextPath}/mainPage/anime" class="anime">Anime</a>
             <a href="${pageContext.request.contextPath}/mainPage/manga" class="manga">Manga</a>
-            <form action="${pageContext.request.contextPath}/auth" method="post">
-                <input type="hidden" name="action" value="logout">
-                <input type="hidden" name="targetServlet" value="auth">
-                <button type="submit" class="logout">Log Out</button>
-            </form>
-            <a href="#" class="small-pic"><img alt="profile bar" src="${pageContext.request.contextPath}/${sessionScope[Constants.AUTHENTICATED_USER_KEY].getProfilePicUrl()}"></a>
+            <c:choose>
+                <c:when test="${isLogged}">
+                    <form action="${pageContext.request.contextPath}/auth" method="post">
+                        <input type="hidden" name="action" value="logout">
+                        <input type="hidden" name="targetServlet" value="auth">
+                        <button type="submit" class="logout">Log Out</button>
+                    </form>
+                    <a href="${pageContext.request.contextPath}/profile?userId=${userInfo.id}" class="small-pic"><img alt="profile bar" src="${pageContext.request.contextPath}/${sessionScope[Constants.AUTHENTICATED_USER_KEY].getProfilePicUrl()}"></a>
+                </c:when>
+                <c:otherwise>
+                    <a href="${pageContext.request.contextPath}/auth">Log In</a>
+                    <a href="${pageContext.request.contextPath}/auth">Sign Up</a>
+                </c:otherwise>
+            </c:choose>
         </div>
     </nav>
 
@@ -54,7 +73,19 @@
 
                 <div class="profile-user-settings-px">
                     <h1 class="profile-user-name-px">${userInfo.getUsername()}</h1>
-                    <button class="btn-px profile-edit-btn-px" onclick="showEditForm()">Edit Profile</button>
+                    <c:if test="${isLogged}">
+                        <c:choose>
+                            <c:when test="${sessionScope[Constants.AUTHENTICATED_USER_KEY].getId() eq userInfo.id}">
+                                <button class="btn-px profile-edit-btn-px" onclick="showEditForm()">Edit Profile</button>
+                            </c:when>
+                            <c:otherwise>
+                                <c:if test="${isFollowed}">
+                                    <button class="btn-px profile-edit-btn-px">Followed</button>
+                                </c:if>
+                                <button class="btn-px profile-edit-btn-px">Follow</button>
+                            </c:otherwise>
+                        </c:choose>
+                    </c:if>
                 </div>
 
                 <div class="profile-stats-px">
@@ -219,12 +250,13 @@
     </div>
 
     <section class="profile-content">
-
         <div class="button-container">
             <div class="selection-buttons">
                 <button id="manga-button" onclick="changeSection(this)">Manga Like</button>
                 <button id="anime-button" onclick="changeSection(this)">Anime Like</button>
-                <button id="reviews-button" onclick="changeSection(this)">Reviews</button>
+                <c:if test="${isLogged and sessionScope[Constants.AUTHENTICATED_USER_KEY].getId() eq userInfo.id}">
+                    <button id="reviews-button" onclick="changeSection(this)">Reviews</button>
+                </c:if>
             </div>
             <hr class="horizontal-line">
         </div>
@@ -253,17 +285,19 @@
             </div>
         </div>
 
-        <div id="reviews">
-            <div class="container">
-                <ul class="page review-pagination">
-                </ul>
+        <c:if test="${isLogged and sessionScope[Constants.AUTHENTICATED_USER_KEY].getId() eq userInfo.id}">
+            <div id="reviews">
+                <div class="container">
+                    <ul class="page review-pagination">
+                    </ul>
+                </div>
+                <div id="reviews-list" class="review-boxes"></div>
+                <div class="container">
+                    <ul class="page review-pagination">
+                    </ul>
+                </div>
             </div>
-            <div id="reviews-list" class="review-boxes"></div>
-            <div class="container">
-                <ul class="page review-pagination">
-                </ul>
-            </div>
-        </div>
+        </c:if>
     </section>
 
     <div class="footer"></div>

@@ -164,7 +164,7 @@ public class Neo4JDAOImplTest{
     @Test
     public void testSuggestUsersByCommonFollows() throws DAOException {
         UserDAONeo4JImpl  neo4JDAO = new UserDAONeo4JImpl ();
-        List<UserSummaryDTO> followerUsers = neo4JDAO.suggestUsersByCommonFollows("6577877be683762347605859", 10);
+        List<UserSummaryDTO> followerUsers = neo4JDAO.suggestUsersByCommonFollowings("6577877be683762347605859", 10);
         for(UserSummaryDTO user : followerUsers)
             System.out.println(user);
 
@@ -182,8 +182,8 @@ public class Neo4JDAOImplTest{
     @Test
     public void testGetTrendAnimeByYear() throws DAOException {
         AnimeDAONeo4JImpl neo4JDAO = new AnimeDAONeo4JImpl();
-        Map<AnimeDTO, Integer> anime = neo4JDAO.getTrendMediaContentByYear(2019);
-        for (Map.Entry<AnimeDTO, Integer> entry : anime.entrySet()) {
+        Map<MediaContentDTO, Integer> anime = neo4JDAO.getTrendMediaContentByYear(2019);
+        for (Map.Entry<MediaContentDTO, Integer> entry : anime.entrySet()) {
             System.out.println("id: " + entry.getKey().getId() + ", title: " + entry.getKey().getTitle() + ", picture: " + entry.getKey().getImageUrl() + ", likes: " + entry.getValue());
         }
     }
@@ -191,8 +191,8 @@ public class Neo4JDAOImplTest{
     @Test
     public void testGetTrendMangaByYear() throws DAOException {
         MangaDAONeo4JImpl neo4JDAO = new MangaDAONeo4JImpl();
-        Map<MangaDTO, Integer> manga = neo4JDAO.getTrendMediaContentByYear(2019);
-        for (Map.Entry<MangaDTO, Integer> entry : manga.entrySet()) {
+        Map<MediaContentDTO, Integer> manga = neo4JDAO.getTrendMediaContentByYear(2019);
+        for (Map.Entry<MediaContentDTO, Integer> entry : manga.entrySet()) {
             System.out.println("id: " + entry.getKey().getId() + ", title: " + entry.getKey().getTitle() + ", picture: " + entry.getKey().getImageUrl() + ", likes: " + entry.getValue());
         }
     }
@@ -201,9 +201,9 @@ public class Neo4JDAOImplTest{
     public void testGetAnimeTrendByLikes() throws DAOException{
         AnimeDAONeo4JImpl neo4JDAO = new AnimeDAONeo4JImpl();
 
-        List<AnimeDTO> anime = neo4JDAO.getMediaContentTrendByLikes();
+        List<MediaContentDTO> anime = neo4JDAO.getMediaContentTrendByLikes();
 
-        for (AnimeDTO animeDTO : anime) {
+        for (MediaContentDTO animeDTO : anime) {
             System.out.println("id: " + animeDTO.getId() + ", title: " + animeDTO.getTitle() + ", picture: " + animeDTO.getImageUrl());
         }
     }
@@ -212,9 +212,9 @@ public class Neo4JDAOImplTest{
     public void testGetMangaTrendByLikes() throws DAOException{
         MangaDAONeo4JImpl neo4JDAO = new MangaDAONeo4JImpl();
 
-        List<MangaDTO> manga = neo4JDAO.getMediaContentTrendByLikes();
+        List<MediaContentDTO> manga = neo4JDAO.getMediaContentTrendByLikes();
 
-        for (MangaDTO mangaDTO : manga) {
+        for (MediaContentDTO mangaDTO : manga) {
             System.out.println("id: " + mangaDTO.getId() + ", title: " + mangaDTO.getTitle() + ", picture: " + mangaDTO.getImageUrl());
         }
     }
