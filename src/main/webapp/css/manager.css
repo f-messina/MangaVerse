@@ -3,17 +3,26 @@ html {
 }
 
 * {
-    margin: 0;
+    margin: 20px;
     padding: 0;
     box-sizing: border-box;
     font-family: "Fira Sans Condensed", sans-serif;
 }
-#page{
+
+.all-page {
     display: flex;
+    gap: 20px;
+}
+
+.page {
+    display: none;
     gap: 30px;
     margin: 50px;
 }
-#side-navbar{
+
+/* Sidebar */
+
+#side-navbar {
     display: flex;
     flex-direction: column;
     gap: 20px;
@@ -23,6 +32,28 @@ html {
     width: 150px;
     padding: 10px;
 }
+
+/* Optional: Style the buttons for better appearance */
+.button-container button {
+    padding: 10px 10px;
+    margin: 0 10px;
+    border-radius: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    background: none;
+    border: none;
+}
+
+.button-container button:hover {
+    background-color: rgba(162, 143, 232, 0.91);
+}
+
+.button-container button.active {
+    background-color: #907be4;
+    color: white;
+}
+
 #analytics{
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     background-color: white;

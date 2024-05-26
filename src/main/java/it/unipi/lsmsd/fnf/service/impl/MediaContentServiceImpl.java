@@ -322,7 +322,7 @@ public class MediaContentServiceImpl implements MediaContentService {
      * @throws BusinessException If an error occurs during the operation.
      */
     @Override
-    public List<? extends MediaContentDTO> getSuggestedMediaContent(String userId, MediaContentType type, Integer limit) throws BusinessException {
+    public List<MediaContentDTO> getSuggestedMediaContent(String userId, MediaContentType type, Integer limit) throws BusinessException {
         try {
             if (MediaContentType.ANIME.equals(type))
                 return animeDAONeo4J.getSuggested(userId, limit);
@@ -343,7 +343,7 @@ public class MediaContentServiceImpl implements MediaContentService {
      * @throws BusinessException If an error occurs during the operation.
      */
     @Override
-    public Map<? extends MediaContentDTO, Integer> getTrendMediaContentByYear(int year, MediaContentType type) throws BusinessException {
+    public Map<MediaContentDTO, Integer> getTrendMediaContentByYear(int year, MediaContentType type) throws BusinessException {
         try {
             if (MediaContentType.ANIME.equals(type))
                 return animeDAONeo4J.getTrendMediaContentByYear(year);
@@ -357,7 +357,7 @@ public class MediaContentServiceImpl implements MediaContentService {
     }
 
     @Override
-    public List<? extends MediaContentDTO> getMediaContentTrendByLikes(MediaContentType type) throws BusinessException {
+    public List<MediaContentDTO> getMediaContentTrendByLikes(MediaContentType type) throws BusinessException {
         try {
             if (MediaContentType.ANIME.equals(type))
                 return animeDAONeo4J.getMediaContentTrendByLikes();
