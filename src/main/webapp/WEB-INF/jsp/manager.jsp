@@ -77,24 +77,33 @@
                     <option value="genres">Genre</option>
                     <option value="themes">Theme</option>
                     <option value="demographics">Demographic</option>
-                    <option value="authors">Author</option>
-                    <option value="serializations">Serialization</option>
                 </select>
 
+                <!-- Genres Chart -->
+                <div id="genreChartContainer" class="chart-container" >
+                    <canvas id="mangaGenreChart" width="500" height="400"></canvas>
+                </div>
+                <!-- Theme Chart -->
+                <div id="themeChartContainer" class="chart-container" >
+                    <canvas id="mangaThemeChart" width="500" height="400"></canvas>
+                </div>
                 <!-- Demographics Chart -->
                 <div id="demographicChartContainer" class="chart-container" >
                     <canvas id="mangaDemographicsChart" width="500" height="400"></canvas>
                 </div>
-
             </div>
 
-            <div class="analytic-box" id="manga-search-name">
-                <form id="searchForm" action="${pageContext.request.contextPath}/mainPage/manga" method="post">
-                    <input type="hidden" name="action" value="search">
-                    <label class="filter-name" for="manga-search">Title:</label>
-                    <input type="search" id="manga-search" name="searchTerm" placeholder="Title">
-                    <input class="search" type="submit" value="SEARCH">
-                </form>
+            <div id="manga-search-name" class="media-list-section analytic-box">
+                <div  id="mangaBody">
+                    <div class="d-flex align-items-center">
+                        <label class="filter-name" for="manga-search">Title:</label>
+                        <input type="search" id="manga-search" name="searchTerm" placeholder="Title" oninput="getMediaContent('manga')">
+                    </div>
+                    <!-- manga list -->
+                    <div id="manga-list" class="media-list"></div>
+                    <!-- manga selected -->
+                    <div id="manga-selected"></div>
+                </div>
             </div>
 
             <section id="manga-resultsSection"></section>
@@ -160,10 +169,18 @@
                 </select>
             </div>
 
-            <div class="analytic-box" id="anime-search-name">
-                <input type="text" id="anime-searchInput"  placeholder="Search for anime...">
-                <div id="anime-searchResults"></div>
-                <%--Solve the search bar here to show the result as heep writing--%>
+
+            <div id="anime-search-name" class="media-list-section analytic-box">
+                <div  id="animeBody">
+                    <div class="d-flex align-items-center">
+                        <label class="filter-name" for="anime-search">Title:</label>
+                        <input type="search" id="anime-search" name="searchTerm" placeholder="Title" oninput="getMediaContent('anime')">
+                    </div>
+                    <!-- anime list -->
+                    <div id="anime-list" class="media-list"></div>
+                    <!-- anime selected -->
+                    <div id="anime-selected"></div>
+                </div>
             </div>
 
             <div class="analytic-box" id="anime-rate-of-months">
@@ -234,8 +251,6 @@
     }
 
     function updateMonthlyChart(selectedYear) {
-        // Assuming you have a function to fetch data for the selected year
-        // You need to implement this function according to your data source
         // Update chart with new data
         mangaMyMonthlyChart.data.datasets[0].data = fetchDataForYear(selectedYear);
         mangaMyMonthlyChart.update();
@@ -657,6 +672,69 @@
 
         $.post("${pageContext.request.contextPath}/manager", inputData, function (data) {
             console.log(data);
+            const parsedData = JSON.parse(data);
+            updateChartforCriteria(criteria, parsedData);
+        });
+    }
+    function updateChartforCriteria(criteria, data) {
+        // Hide all chart containers
+        document.getElementById('genreChartContainer').style.display = 'none';
+        document.getElementById('themeChartContainer').style.display = 'none';
+        document.getElementById('demographicChartContainer').style.display = 'none';
+
+        let chartId;
+        if (criteria === 'genres') {
+            chartId = 'mangaGenreChart';
+            document.getElementById('genreChartContainer').style.display = 'block';
+        } else if (criteria === 'themes') {
+            chartId = 'mangaThemeChart';
+            document.getElementById('themeChartContainer').style.display = 'block';
+        } else if (criteria === 'demographics') {
+            chartId = 'mangaDemographicsChart';
+            document.getElementById('demographicChartContainer').style.display = 'block';
+        }
+
+        const ctx = document.getElementById(chartId).getContext('2d');
+
+        // Destroy the existing chart if it exists
+        if (window.myChart) {
+            window.myChart.destroy();
+        }
+
+        // Create a new chart
+        window.myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: data.map(item => item.label),
+                datasets: [{
+                    label: criteria,
+                    data: data.map(item => item.value),
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+
+    function averageRatingByMonth(section, id, year) {
+        const inputData = {
+            action: "averageRatingByMonth",
+            section: section,
+            id: mediaContentId,
+            year: year
+        };
+
+        $.post("${pageContext.request.contextPath}/manager", inputData, function (data) {
+            console.log(data);
+            updateMonthlyChart(data)
         });
     }
 
@@ -665,6 +743,115 @@
             console.log(data);
         });
     }
+
+    function getMediaContent(type){
+        const mangaList = $("#manga-list");
+        const animeList = $("#anime-list");
+        let mediaTitle;
+        if (type === "manga"){
+            mediaTitle = $("#manga-search").val();
+        }else if(type === "anime"){
+            mediaTitle =$("#anime-search").val();
+        }
+        else{
+            return;
+        }
+        const inputData = {
+            action: "getMediaContentByTitle",
+            type: type,
+            mediaTitle: mediaTitle
+        }
+        $.post("${pageContext.request.contextPath}/"+ type, inputData, function (data) {
+            mangaList.empty();
+            if (data.success) {
+                if (type === "manga"){
+                    for (let i = 0; i < data.mangaList.length; i++) {
+                        const manga = data.mangaList[i];
+                        const mangaDiv = $("<div>").addClass("media").click(function() {
+                            getMediaContentById(manga.id, type);
+                        });
+
+                        // Create the image element and set the source
+                        const img = $("<img src='" + manga.imageUrl + "'>").addClass("media-pic");
+                        mangaDiv.append(img);
+
+                        // Create the paragraph element and set the text
+                        const p = $("<p>").addClass("media-title").text(manga.title);
+                        mangaDiv.append(p);
+                        mangaList.append(mangaDiv);
+                    }
+                }else {
+                    for (let i = 0; i < data.animeList.length; i++) {
+                        const anime = data.animeList[i];
+                        const animeDiv = $("<div>").addClass("media").click(function() {
+                            getMediaContentById(anime.id, type);
+                        });
+                        // Create the image element and set the source
+                        const img = $("<img src='" + anime.imageUrl + "'>").addClass("media-pic");
+                        animeDiv.append(img);
+
+                        // Create the paragraph element and set the text
+                        const p = $("<p>").addClass("media-title").text(anime.title);
+                        animeDiv.append(p);
+                        animeList.append(animeDiv);
+                    }
+                }
+            } else if (data.mediaSearchFailed) {
+                mangaList.append($("<div>").text(data.mediaSearchFailed));
+            }
+        }).fail(function() {
+            mangaList.empty();
+            mangaList.append($("<div>").text("An error occurred. Please try again later."));
+        });
+    }
+
+    function getMediaContentById(id,type){
+
+        const manga = $("#manga-selected");
+        const anime= $("#anime-selected");
+
+        const inputData = {
+            action: "getMediaContent",
+            type: type,
+            mediaId: id
+        }
+        console.log(inputData)
+        $.post("${pageContext.request.contextPath}/"+ type, inputData, function (data) {
+            manga.empty();
+            if (data.success) {
+                if (type === "manga"){
+                    console.log(data)
+                    const map = data.manga;
+                    for (const key in map) {
+                        if (map.hasOwnProperty(key)) {
+                            const value = map[key];
+                            const div = $("<div>");
+                            div.text(value);
+                            manga.append(div);
+                        }
+                    }
+                }else {
+                    const map = data.anime;
+                    for (const key in map) {
+                        if (map.hasOwnProperty(key)) {
+                            const value = map[key];
+                            const div = $("<div>");
+                            div.text(value);
+                            anime.append(div);
+                        }
+                    }
+                }
+            } else if (data.mediaSearchFailed) {
+                manga.append($("<div>").text(data.mediaSearchFailed));
+            }
+        }).fail(function() {
+            manga.empty();
+            manga.append($("<div>").text("An error occurred. Please try again later."));
+        });
+    }
+
+
 </script>
+
 </body>
 </html>
