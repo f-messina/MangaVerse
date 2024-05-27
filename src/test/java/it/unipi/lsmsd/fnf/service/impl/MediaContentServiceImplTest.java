@@ -256,10 +256,10 @@ class MediaContentServiceImplTest {
             UserService userService = ServiceLocator.getUserService();
 
             String userId = userService.searchFirstNUsers("exampleUser", 1, null).getFirst().getId();
-            List<AnimeDTO> likedAnime = (List<AnimeDTO>) mediaContentService.getLikedMediaContent(userId, MediaContentType.ANIME);
+            List<AnimeDTO> likedAnime = (List<AnimeDTO>) mediaContentService.getLikedMediaContent(userId, 1, MediaContentType.ANIME);
             System.out.println("Liked anime: " + likedAnime);
 
-            List<MangaDTO> likedManga = (List<MangaDTO>) mediaContentService.getLikedMediaContent(userId, MediaContentType.MANGA);
+            List<MangaDTO> likedManga = (List<MangaDTO>) mediaContentService.getLikedMediaContent(userId, 1, MediaContentType.MANGA);
             System.out.println("Liked manga: " + likedManga);
 
         } catch (BusinessException e) {
@@ -274,10 +274,10 @@ class MediaContentServiceImplTest {
             UserService userService = ServiceLocator.getUserService();
 
             String userId = userService.searchFirstNUsers("exampleUser", 1, null).getFirst().getId();
-            List<AnimeDTO> suggestedAnime = (List<AnimeDTO>) mediaContentService.getSuggestedMediaContent(userId, MediaContentType.ANIME, 5);
+            List<MediaContentDTO> suggestedAnime = mediaContentService.getSuggestedMediaContent(userId, MediaContentType.ANIME, 5);
             System.out.println("Suggested anime: " + suggestedAnime);
 
-            List<MangaDTO> suggestedManga = (List<MangaDTO>) mediaContentService.getSuggestedMediaContent(userId, MediaContentType.MANGA, 5);
+            List<MediaContentDTO> suggestedManga = mediaContentService.getSuggestedMediaContent(userId, MediaContentType.MANGA, 5);
             System.out.println("Suggested manga: " + suggestedManga);
 
         } catch (BusinessException e) {
@@ -289,10 +289,10 @@ class MediaContentServiceImplTest {
     void getTrendMediaContentByYear() {
         MediaContentService mediaContentService = ServiceLocator.getMediaContentService();
         try {
-            Map<AnimeDTO, Integer> trendAnime =  (Map<AnimeDTO, Integer>) mediaContentService.getTrendMediaContentByYear(2024, MediaContentType.ANIME);
+            Map<MediaContentDTO, Integer> trendAnime = mediaContentService.getTrendMediaContentByYear(2024, MediaContentType.ANIME);
             System.out.println("Trend anime: " + trendAnime);
 
-            Map<MangaDTO, Integer> trendManga =  (Map<MangaDTO, Integer>) mediaContentService.getTrendMediaContentByYear(2024, MediaContentType.MANGA);
+            Map<MediaContentDTO, Integer> trendManga = mediaContentService.getTrendMediaContentByYear(2024, MediaContentType.MANGA);
             System.out.println("Trend manga: " + trendManga);
         } catch (BusinessException e) {
             System.out.println("Error getting trend media content by year: " + e.getMessage());
@@ -303,10 +303,10 @@ class MediaContentServiceImplTest {
     void getMediaContentTrendByLikes() {
         MediaContentService mediaContentService = ServiceLocator.getMediaContentService();
         try {
-            List<AnimeDTO> trendAnime = (List<AnimeDTO>) mediaContentService.getMediaContentTrendByLikes(MediaContentType.ANIME);
+            List<MediaContentDTO> trendAnime = mediaContentService.getMediaContentTrendByLikes(MediaContentType.ANIME);
             System.out.println("Trend anime: " + trendAnime);
 
-            List<MangaDTO> trendManga = (List<MangaDTO>) mediaContentService.getMediaContentTrendByLikes(MediaContentType.MANGA);
+            List<MediaContentDTO> trendManga = mediaContentService.getMediaContentTrendByLikes(MediaContentType.MANGA);
             System.out.println("Trend manga: " + trendManga);
         } catch (BusinessException e) {
             System.out.println("Error getting trend media content by year: " + e.getMessage());
