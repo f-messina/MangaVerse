@@ -11,7 +11,10 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
+import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
 import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
+import it.unipi.lsmsd.fnf.model.mediaContent.MangaAuthor;
+import it.unipi.lsmsd.fnf.model.mediaContent.MediaContent;
 import it.unipi.lsmsd.fnf.service.interfaces.MediaContentService;
 import it.unipi.lsmsd.fnf.service.interfaces.ReviewService;
 import it.unipi.lsmsd.fnf.service.ServiceLocator;
@@ -24,13 +27,17 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.time.Year;
+
 
 @WebServlet(urlPatterns = {"/manager", "/manager/manga", "/manager/anime", "/manager/user" })
 public class ManagerServlet extends HttpServlet {
@@ -107,9 +114,15 @@ public class ManagerServlet extends HttpServlet {
             case "averageAppRatingByAgeRange" -> handleUsersAverageAppRatingAgeRange(request, response);
             case "trendMediaContentByYear" ->  handleTrendMediaContentByYear(request, response);
             case "trendMediaContentByLikes" -> handleTrendMediaContentByLikes(request, response);
-            case "show_info" -> handleShowInfo(request, response);
-            case "update_info" -> handleUpdateInfo(request,response);
-            case "delete_media" -> handleDeleteMedia(request,response);
+            case "show_info" -> {
+                try {
+                    handleShowInfo(request, response);
+                } catch (BusinessException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            case "update_info" -> handleUpdateInfo(request, response);
+            case "delete_media" -> handleDeleteMedia(request, response);
 
             case null, default -> {
                 for (PageHandler actionToRun : defaultActions) {
@@ -338,26 +351,43 @@ public class ManagerServlet extends HttpServlet {
         int endYear = Integer.parseInt(request.getParameter("endYear"));
         boolean isManga = (boolean) request.getAttribute("isManga");
 
+        int currentYear = Year.now().getValue();
+
+
         ReviewService reviewService = ServiceLocator.getReviewService();
-
-        try {
-            Map<String, Double> averageRatingByYear = reviewService.getMediaContentRatingByYear(isManga ? MediaContentType.MANGA : MediaContentType.ANIME, mediaContentId, startYear, endYear);
-
-            JsonObject jsonResponse = new JsonObject();
-            jsonResponse.addProperty("mediaContentId", mediaContentId);
-            jsonResponse.addProperty("startYear", startYear);
-            jsonResponse.addProperty("endYear", endYear);
-            JsonElement ratingByYearJson = new Gson().toJsonTree(averageRatingByYear);
-            jsonResponse.add("averageRatingByYear", ratingByYearJson);
-
-            response.setContentType("application/json");
-            response.setCharacterEncoding("UTF-8");
-
-            response.getWriter().write(jsonResponse.toString());
-
-        } catch (BusinessException e) {
-            throw new RuntimeException(e);
+        Map<String, Double> averageRatingByYear;
+        //if start year or end year is greater than current year, throw exception
+        if (startYear > endYear || startYear < 0 || startYear > currentYear || endYear > currentYear) {
+            throw new IllegalArgumentException("Year must be valid");
         }
+
+        //if media content is manga, get average rating by year for manga, else for anime
+        if(isManga){
+            try {
+                // Is it better to also add the page?
+                averageRatingByYear = reviewService.getMediaContentRatingByYear(
+                        MediaContentType.MANGA,
+                        mediaContentId,
+                        startYear,
+                        endYear
+                );
+
+
+            } catch (BusinessException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            try {
+                averageRatingByYear = reviewService.getMediaContentRatingByYear(MediaContentType.ANIME, mediaContentId, startYear, endYear);
+
+            } catch (BusinessException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        String jsonResponse = new Gson().toJson(averageRatingByYear);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(jsonResponse);
     }
 
     //Asynchronous request
@@ -367,25 +397,43 @@ public class ManagerServlet extends HttpServlet {
         int year = Integer.parseInt(request.getParameter("year"));
         boolean isManga = (boolean) request.getAttribute("isManga");
 
+        int currentYear = Year.now().getValue();
+
         ReviewService reviewService = ServiceLocator.getReviewService();
+        Map<String, Double> averageRatingByMonth;
 
-        try {
-            Map<String, Double> averageRatingByMonth = reviewService.getMediaContentRatingByMonth(isManga ? MediaContentType.MANGA : MediaContentType.ANIME, mediaContentId, year);
-
-            JsonObject jsonResponse = new JsonObject();
-            jsonResponse.addProperty("mediaContentId", mediaContentId);
-            jsonResponse.addProperty("year", year);
-            JsonElement ratingByMonthJson = new Gson().toJsonTree(averageRatingByMonth);
-            jsonResponse.add("averageRatingByMonth", ratingByMonthJson);
-
-            response.setContentType("application/json");
-            response.setCharacterEncoding("UTF-8");
-
-            response.getWriter().write(jsonResponse.toString());
-
-        } catch (BusinessException e) {
-            throw new RuntimeException(e);
+        if (year < 0 || year > currentYear) {
+            throw new IllegalArgumentException("Year must be valid");
         }
+
+        //if media content is manga, get average rating by month for manga, else for anime
+        if(isManga){
+            try {
+                // Is it better to also add the page?
+                averageRatingByMonth = reviewService.getMediaContentRatingByMonth(
+                        MediaContentType.MANGA,
+                        mediaContentId,
+                        year
+                );
+
+
+            } catch (BusinessException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            try {
+                averageRatingByMonth = reviewService.getMediaContentRatingByMonth(MediaContentType.ANIME, mediaContentId, year);
+
+            } catch (BusinessException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        String jsonResponse = new Gson().toJson(averageRatingByMonth);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(jsonResponse);
+
     }
 
     //Asynchronous request
@@ -393,28 +441,23 @@ public class ManagerServlet extends HttpServlet {
         String criteria = request.getParameter("criteria");
         UserService userService = ServiceLocator.getUserService();
 
+        Map<String, Integer> distribution;
+
+        if (!(criteria.equals("gender") || criteria.equals("location") || criteria.equals("birthday") || criteria.equals("joined_on"))) {
+            throw new IllegalArgumentException("Criteria not supported");
+        }
         try {
-            if (!(criteria.equals("gender") || criteria.equals("location") || criteria.equals("birthday") || criteria.equals("joined_on"))) {
-                throw new IllegalArgumentException("Criteria not supported");
-            }
-            Map<String, Integer> distribution = userService.getDistribution(criteria);
 
-            JsonObject jsonResponse = new JsonObject();
-            jsonResponse.addProperty("criteria", criteria);
-            JsonObject distributionJson = new JsonObject();
-            for (Map.Entry<String, Integer> entry : distribution.entrySet()) {
-                distributionJson.addProperty(entry.getKey(), entry.getValue());
-            }
-            jsonResponse.add("distribution", distributionJson);
+            distribution = userService.getDistribution(criteria);
 
-            response.setContentType("application/json");
-            response.setCharacterEncoding("UTF-8");
-
-            response.getWriter().write(jsonResponse.toString());
-
-        } catch (BusinessException e) {
+            } catch (BusinessException e) {
             throw new RuntimeException(e);
         }
+        String jsonResponse = new Gson().toJson(distribution);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(jsonResponse);
+
     }
 
     //Asynchronous request
@@ -422,45 +465,36 @@ public class ManagerServlet extends HttpServlet {
         String criteria = request.getParameter("criteria");
         UserService userService = ServiceLocator.getUserService();
 
+        Map<String, Double> averageAppRatingByCriteria;
+        if (!(criteria.equals("gender") || criteria.equals("location"))) {
+            throw new IllegalArgumentException("Criteria not supported");
+        }
         try {
-            Map<String, Double> averageAppRatingByCriteria = userService.averageAppRating(criteria);
+            averageAppRatingByCriteria = userService.averageAppRating(criteria);
 
-            JsonObject jsonResponse = new JsonObject();
-            jsonResponse.addProperty("criteria", criteria);
-            JsonObject averageAppRatingByCriteriaJson = new JsonObject();
-            for (Map.Entry<String, Double> entry : averageAppRatingByCriteria.entrySet()) {
-                averageAppRatingByCriteriaJson.addProperty(entry.getKey(), entry.getValue());
-            }
-            jsonResponse.add("averageAppRatingByCriteria", averageAppRatingByCriteriaJson);
-
-            response.setContentType("application/json");
-            response.setCharacterEncoding("UTF-8");
-
-            response.getWriter().write(jsonResponse.toString());
-
-        } catch (BusinessException e) {
+            } catch (BusinessException e) {
             throw new RuntimeException(e);
         }
+        String jsonResponse = new Gson().toJson(averageAppRatingByCriteria);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(jsonResponse);
     }
 
     //Asynchronous request
     private void handleUsersAverageAppRatingAgeRange(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         UserService userService = ServiceLocator.getUserService();
-
+        Map<String, Double> averageAppRatingByAgeRange;
         try {
-            Map<String, Double> averageAppRatingByAgeRange = userService.averageAppRatingByAgeRange();
-
-            JsonObject jsonResponse = new JsonObject();
-            jsonResponse.add("averageAppRatingByAgeRange", new Gson().toJsonTree(averageAppRatingByAgeRange));
-
-            response.setContentType("application/json");
-            response.setCharacterEncoding("UTF-8");
-
-            response.getWriter().write(jsonResponse.toString());
+            averageAppRatingByAgeRange = userService.averageAppRatingByAgeRange();
 
         } catch (BusinessException e) {
             throw new RuntimeException(e);
         }
+        String jsonResponse = new Gson().toJson(averageAppRatingByAgeRange);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(jsonResponse);
     }
 
     //Asynchronous request
@@ -468,23 +502,33 @@ public class ManagerServlet extends HttpServlet {
     private void handleTrendMediaContentByYear(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         int year = Integer.parseInt(request.getParameter("year"));
         boolean isManga = (boolean) request.getAttribute("isManga");
-
+        int currentYear = Year.now().getValue();
         MediaContentService mediaContentService = ServiceLocator.getMediaContentService();
 
-        try {
-            Map<? extends MediaContentDTO, Integer> trendMediaContentByYear = mediaContentService.getTrendMediaContentByYear(year, isManga ? MediaContentType.MANGA : MediaContentType.ANIME);
-
-            JsonObject jsonResponse = new JsonObject();
-            jsonResponse.add("trendMediaContentByYear", new Gson().toJsonTree(trendMediaContentByYear));
-
-            response.setContentType("application/json");
-            response.setCharacterEncoding("UTF-8");
-
-            response.getWriter().write(jsonResponse.toString());
-
-        } catch (BusinessException e) {
-            throw new RuntimeException(e);
+        //Is it better to put just MediaContentDTO instead of ? extends MediaContentDTO?
+        Map<? extends MediaContentDTO, Integer> trendMediaContentByYear;
+        if (year < 0 || year > currentYear) {
+            throw new IllegalArgumentException("Year must be valid");
         }
+        //If media content is manga, get trend media content by year for manga, else for anime
+        if(isManga){
+            try {
+                trendMediaContentByYear = mediaContentService.getTrendMediaContentByYear(year, MediaContentType.MANGA);
+            } catch (BusinessException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            try {
+                trendMediaContentByYear = mediaContentService.getTrendMediaContentByYear(year, MediaContentType.ANIME);
+            } catch (BusinessException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        String jsonResponse = new Gson().toJson(trendMediaContentByYear);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(jsonResponse);
+
     }
 
     //Asynchronous request
@@ -492,61 +536,120 @@ public class ManagerServlet extends HttpServlet {
         boolean isManga = (boolean) request.getAttribute("isManga");
         MediaContentService mediaContentService = ServiceLocator.getMediaContentService();
 
-        try {
-            List<? extends MediaContentDTO> trendMediaContentByLikes = mediaContentService.getMediaContentTrendByLikes(isManga ? MediaContentType.MANGA : MediaContentType.ANIME);
-
-            JsonObject jsonResponse = new JsonObject();
-            jsonResponse.add("trendMediaContentByLikes", new Gson().toJsonTree(trendMediaContentByLikes));
-
-            response.setContentType("application/json");
-            response.setCharacterEncoding("UTF-8");
-
-            response.getWriter().write(jsonResponse.toString());
-
-        } catch (BusinessException e) {
-            throw new RuntimeException(e);
+        //Is it better to put just MediaContentDTO instead of ? extends MediaContentDTO?
+        List<? extends MediaContentDTO> trendMediaContentByLikes;
+        //If media content is manga, get trend media content by likes for manga, else for anime
+        if(isManga){
+            try {
+                trendMediaContentByLikes = mediaContentService.getMediaContentTrendByLikes(MediaContentType.MANGA);
+            } catch (BusinessException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            try {
+                trendMediaContentByLikes = mediaContentService.getMediaContentTrendByLikes(MediaContentType.ANIME);
+            } catch (BusinessException e) {
+                throw new RuntimeException(e);
+            }
         }
+        String jsonResponse = new Gson().toJson(trendMediaContentByLikes);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(jsonResponse);
     }
 
     //Handler for each type of task
     //Examples: analytics requests (add media content, remove media content, update media content and search will be done by Fey)
 
 
-    private void handleShowInfo(HttpServletRequest request, HttpServletResponse response) {
-        if ((boolean) request.getAttribute("isManga")) {
+    private void handleShowInfo(HttpServletRequest request, HttpServletResponse response) throws BusinessException {
+        boolean isManga = (boolean) request.getAttribute("isManga");
+        if (isManga) {
             try {
-                Manga manga = (Manga) mediaContentService.getMediaContentById(request.getParameter("mediaId"), MediaContentType.MANGA);
+                String mediaId = request.getParameter("mediaId");
+                Manga manga = (Manga) mediaContentService.getMediaContentById(mediaId, MediaContentType.MANGA);
 
-                // Set the content type and write the JSON response
-                ObjectMapper objectMapper = new ObjectMapper();
-                objectMapper.registerModule(new JavaTimeModule());
-                ObjectNode jsonResponse = objectMapper.createObjectNode();
-                JsonNode mangaNode = objectMapper.valueToTree(manga);
-                jsonResponse.set("manga", mangaNode);
+                String jsonResponse = new Gson().toJson(manga);
                 response.setContentType("application/json");
                 response.setCharacterEncoding("UTF-8");
-                response.getWriter().write(jsonResponse.toString());
+                response.getWriter().write(jsonResponse);
+                } catch (BusinessException | IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        else {
+            try {
+                // Handle anime information
+                String mediaId = request.getParameter("mediaId");
+                Anime anime = (Anime) mediaContentService.getMediaContentById(mediaId, MediaContentType.ANIME);
+
+                String jsonResponse = new Gson().toJson(anime);
+                response.setContentType("application/json");
+                response.setCharacterEncoding("UTF-8");
+                response.getWriter().write(jsonResponse);
             } catch (BusinessException | IOException e) {
                 throw new RuntimeException(e);
             }
         }
+
+
     }
 
     public void handleUpdateInfo(HttpServletRequest request, HttpServletResponse response){
-        if ((boolean) request.getAttribute("isManga")) {
+        boolean isManga = (boolean) request.getAttribute("isManga");
+        if (isManga) {
             try {
+                //Which fields should we be able to update?
                 // Retrieve updated manga information from the request parameters
                 String mangaId = request.getParameter("mangaId");
                 String title = request.getParameter("title");
-                String author = request.getParameter("author");
+                //Why doesn't this work?
+                List<String> genres = Collections.singletonList(request.getParameter("genres"));
+                List<String> themes = Collections.singletonList(request.getParameter("themes"));
                 String url = request.getParameter("url");
+                String serialization = request.getParameter("serialization");
+                String background = request.getParameter("background");
+                String titleEnglish = request.getParameter("titleEnglish");
+                String titleJapanese = request.getParameter("titleJapanese");
+                LocalDate startDate = LocalDate.parse(request.getParameter("startDate"));
+                LocalDate endDate = LocalDate.parse(request.getParameter("endDate"));
+                Integer volumes = Integer.parseInt(request.getParameter("volumes"));
+                Integer chapters = Integer.parseInt(request.getParameter("chapters"));
+                String synopsis = request.getParameter("synopsis");
                 // You can retrieve other fields similarly
 
                 // Create a Manga object with the updated information
                 Manga manga = new Manga();
+                manga.setId(mangaId);
                 manga.setTitle(title);
                 manga.setImageUrl(url);
+                manga.setGenres(genres);
+                manga.setThemes(themes);
+                manga.setSerializations(serialization);
+                manga.setBackground(background);
+                manga.setTitleEnglish(titleEnglish);
+                manga.setTitleJapanese(titleJapanese);
+                manga.setStartDate(startDate);
+                manga.setEndDate(endDate);
+                manga.setVolumes(volumes);
+                manga.setChapters(chapters);
+                manga.setSynopsis(synopsis);
                 // Set other fields as needed
+
+                //To update the author, we need to retrieve the author from the database
+                String authorId = request.getParameter("authorId");
+
+                List<MangaAuthor> authors = new ArrayList<>();
+
+                if(authorId != null && !authorId.isEmpty()){
+                    String [] authorNames = authorId.split(",");
+
+                    for(String authorName : authorNames){
+                        MangaAuthor author = new MangaAuthor();
+                        author.setName(authorName.trim());
+                        authors.add(author);
+                    }
+                }
 
                 // Update manga information using the MediaContentService
                 MediaContentService mediaContentService = ServiceLocator.getMediaContentService();
@@ -554,7 +657,53 @@ public class ManagerServlet extends HttpServlet {
 
                 // Send a success response back to the client
                 response.setContentType("text/plain");
+                response.setCharacterEncoding("UTF-8");
                 response.getWriter().write("Manga information updated successfully.");
+            } catch (BusinessException | IOException e) {
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            }
+
+        }
+        else {
+            try {
+                // Retrieve updated anime information from the request parameters
+                String animeId = request.getParameter("animeId");
+                String title = request.getParameter("title");
+                List<String> tags = Collections.singletonList(request.getParameter("genres"));
+                String url = request.getParameter("url");
+                Integer year = Integer.parseInt(request.getParameter("year"));
+                String season = request.getParameter("season");
+                Integer episodeCount = Integer.parseInt(request.getParameter("episodeCount"));
+                List<String> relatedAnime = Collections.singletonList(request.getParameter("relatedAnime"));
+                String producers = request.getParameter("producers");
+                String studios = request.getParameter("studios");
+                String synopsis = request.getParameter("synopsis");
+
+                // You can retrieve other fields similarly
+
+                // Create an Anime object with the updated information
+                Anime anime = new Anime();
+                anime.setId(animeId);
+                anime.setTitle(title);
+                anime.setTags(tags);
+                anime.setImageUrl(url);
+                anime.setYear(year);
+                anime.setSeason(season);
+                anime.setEpisodeCount(episodeCount);
+                anime.setRelatedAnime(relatedAnime);
+                anime.setProducers(producers);
+                anime.setStudios(studios);
+                anime.setSynopsis(synopsis);
+                // Set other fields as needed
+
+                // Update anime information using the MediaContentService
+                MediaContentService mediaContentService = ServiceLocator.getMediaContentService();
+                mediaContentService.updateMediaContent(anime);
+
+                // Send a success response back to the client
+                response.setContentType("text/plain");
+                response.setCharacterEncoding("UTF-8");
+                response.getWriter().write("Anime information updated successfully.");
             } catch (BusinessException | IOException e) {
                 response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             }
@@ -562,10 +711,12 @@ public class ManagerServlet extends HttpServlet {
     }
 
     public void handleDeleteMedia(HttpServletRequest request, HttpServletResponse response){
-        if ((boolean) request.getAttribute("isManga")){
+        boolean isManga = (boolean) request.getAttribute("isManga");
+
+        if (isManga){
             try{
                 String mediaId = request.getParameter("mediaId");
-                if (mediaId != null){
+                if (mediaId != null && !mediaId.isEmpty()){
 
                     mediaContentService.deleteMediaContent(mediaId, MediaContentType.MANGA);
                     response.setStatus(HttpServletResponse.SC_OK);
@@ -573,6 +724,22 @@ public class ManagerServlet extends HttpServlet {
                 } else {
                     response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                     response.getWriter().println("Invalid manga ID");
+                }
+            }catch (BusinessException | IOException e){
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            }
+        }
+        else {
+            try{
+                String mediaId = request.getParameter("mediaId");
+                if (mediaId != null && !mediaId.isEmpty()){
+
+                    mediaContentService.deleteMediaContent(mediaId, MediaContentType.ANIME);
+                    response.setStatus(HttpServletResponse.SC_OK);
+                    response.getWriter().write("Anime deleted successfully");
+                } else {
+                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    response.getWriter().println("Invalid anime ID");
                 }
             }catch (BusinessException | IOException e){
                 response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
