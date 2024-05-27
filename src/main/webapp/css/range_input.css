@@ -2,21 +2,10 @@ html {
     scroll-behavior: smooth;
 }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: "Fira Sans Condensed", sans-serif;
-}
-
 #filterForm{
     width: 100%;
 }
 
-form {
-    margin-top: 20px;
-    width: 20rem;
-}
 .write-search{
     display: flex;
     align-items: end;
@@ -52,6 +41,7 @@ form {
     font-size: 15px;
     margin-bottom: 15px;
 }
+
 #orderResults{
     padding: 8px;
     font-size: 15px;
@@ -73,7 +63,7 @@ form {
     gap: 5px;
     align-items: start;
 }
-.all{
+.all {
     width: 100%;
     list-style: none;
     padding: 0;
@@ -87,12 +77,6 @@ form {
 
 .start-end-order{
     display: flex;
-}
-
-
-form {
-    margin: 20px;
-    width: 20rem;
 }
 
 .range-slider {

@@ -22,9 +22,9 @@ public interface UserDAO {
     LoggedUserDTO authenticate(String email, String password) throws DAOException;
     RegisteredUser readUser(String userId, boolean onlyStatsInfo) throws DAOException;
     List<UserSummaryDTO> searchFirstNUsers(String username, Integer n, String loggedUser) throws DAOException;
-    Map<String, Integer> getDistribution(String criteria) throws DAOException; // MANAGER
-    Map<String, Double> averageAppRating(String criteria) throws DAOException; // MANAGER
-    Map<String, Double> averageAppRatingByAgeRange() throws DAOException; // MANAGER
+    Map<String, Integer> getDistribution(String criteria) throws DAOException; // MANAGER (PIE CHART)
+    Map<String, Double> averageAppRating(String criteria) throws DAOException; // MANAGER (TABLE OR BAR CHART)
+    Map<String, Double> averageAppRatingByAgeRange() throws DAOException; // MANAGER (TABLE OR BAR CHART)
     void updateNumOfFollowers(String userId, Integer followers) throws DAOException;
     void updateNumOfFollowed(String userId, Integer followed) throws DAOException;
 
@@ -42,5 +42,5 @@ public interface UserDAO {
 
     List<UserSummaryDTO> searchFollowers(String userId, String username, String loggedUserId) throws DAOException;
 
-    List<UserSummaryDTO> suggestUsersByCommonFollows(String userId, Integer limit) throws DAOException;
+    List<UserSummaryDTO> suggestUsersByCommonFollowings(String userId, Integer limit) throws DAOException;
 }

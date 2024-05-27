@@ -48,7 +48,7 @@
                             <input type="hidden" name="targetServlet" value="anime?mediaId=${requestScope.anime.id}">
                             <button type="submit" class="logout">Log Out</button>
                         </form>
-                        <a href="${pageContext.request.contextPath}/profile">Profile</a>
+                        <a href="${pageContext.request.contextPath}/profile" class="small-pic"><img alt="profile bar" src="${pageContext.request.contextPath}/${sessionScope[Constants.AUTHENTICATED_USER_KEY].getProfilePicUrl()}"></a>
                     </c:otherwise>
                 </c:choose>
             </div>

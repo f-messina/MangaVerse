@@ -273,18 +273,38 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
      * @throws DAOException If an error occurs while retrieving the liked Anime.
      */
     @Override
-    public List<AnimeDTO> getLiked(String userId) throws DAOException {
+    public PageDTO<MediaContentDTO> getLiked(String userId, int page) throws DAOException {
         try (Session session = getSession()) {
-            String query = "MATCH (u:User {id: $userId})-[:LIKE]->(a:Anime) " +
-                    "RETURN a AS anime";
+            String countQuery = "MATCH (u:User {id: $userId})-[:LIKE]->(a:Anime) " +
+                    "RETURN COUNT(a) AS totalLikes";
 
+            String dataQuery = "MATCH (u:User {id: $userId})-[:LIKE]->(a:Anime) " +
+                    "RETURN a AS anime " +
+                    "SKIP $skip " +
+                    "LIMIT $limit";
+
+            Value params = parameters("userId", userId, "skip", (page - 1) * Constants.PAGE_SIZE, "limit", Constants.PAGE_SIZE);
+
+            // Retrieve the total number of likes
+            Record countRecord = session.executeRead(
+                    tx -> tx.run(countQuery, parameters("userId", userId)).single()
+            );
+            int totalLikes = countRecord.get("totalLikes").asInt();
+
+            // If the user has no likes, return an empty list
+            if (totalLikes == 0)
+                return new PageDTO<>(new ArrayList<>(), 0);
+
+            // Retrieve the liked Anime
             List<Record> records = session.executeRead(
-                    tx -> tx.run(query, parameters("userId", userId)).list()
+                    tx -> tx.run(dataQuery, params).list()
             );
 
-            return records.isEmpty() ? null : records.stream()
-                    .map(this::recordToAnimeDTO)
+            List<MediaContentDTO> likedAnimes = records.stream()
+                    .map(record -> (AnimeDTO) recordToMediaContentDTO(record))
                     .collect(Collectors.toList());
+
+            return new PageDTO<>(likedAnimes, totalLikes);
 
         } catch (Neo4jException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
@@ -302,7 +322,7 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
      * @throws DAOException If an error occurs while retrieving suggested Anime.
      */
     @Override
-    public List<AnimeDTO> getSuggested(String userId, Integer limit) throws DAOException {
+    public List<MediaContentDTO> getSuggested(String userId, Integer limit) throws DAOException {
         try (Session session = getSession()) {
             String query = "MATCH (u:User {id: $userId})-[:FOLLOWS]->(f:User)-[:LIKE]->(a:Anime) " +
                     "WITH a, COUNT(DISTINCT f) AS num_likes " +
@@ -314,7 +334,7 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
             );
 
             return records.isEmpty() ? null : records.stream()
-                    .map(this::recordToAnimeDTO)
+                    .map(record -> (AnimeDTO) recordToMediaContentDTO(record))
                     .collect(Collectors.toList());
 
         } catch (Neo4jException e) {
@@ -333,7 +353,7 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
      * @throws DAOException If an error occurs while retrieving trending Anime.
      */
     @Override
-    public Map<AnimeDTO, Integer> getTrendMediaContentByYear(int year) throws DAOException {
+    public Map<MediaContentDTO, Integer> getTrendMediaContentByYear(int year) throws DAOException {
         try (Session session = getSession()) {
             LocalDateTime startDate = LocalDateTime.of(year, 1, 1, 0, 0);
             LocalDateTime endDate = LocalDateTime.of(year + 1, 1, 1, 0, 0);
@@ -349,7 +369,7 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
                     tx -> tx.run(query, parameters("startDate", startDate, "endDate", endDate)).list()
             );
             return records.stream().map(record -> {
-                AnimeDTO animeDTO = recordToAnimeDTO(record);
+                AnimeDTO animeDTO = (AnimeDTO) recordToMediaContentDTO(record);
                 Integer likes = record.get("numLikes").asInt();
                 return Map.entry(animeDTO, likes);
             }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
@@ -370,7 +390,7 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
      * @throws DAOException If an error occurs while retrieving trending Anime by likes.
      */
     @Override
-    public List<AnimeDTO> getMediaContentTrendByLikes() throws DAOException {
+    public List<MediaContentDTO> getMediaContentTrendByLikes() throws DAOException {
         try (Session session = getSession()) {
             String query = """
                     MATCH (u:User)-[r:LIKE]->(a:Anime)
@@ -386,7 +406,10 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
                     tx -> tx.run(query, parameters("startDate", today.minusMonths(6), "endDate", today)).list()
             );
 
-            return records.stream().map(this::recordToAnimeDTO).collect(Collectors.toList());
+            // Convert the records to MediaContent objects and cast to AnimeDTO
+            return records.stream()
+                    .map(record -> (AnimeDTO) recordToMediaContentDTO(record))
+                    .collect(Collectors.toList());
 
         } catch (Neo4jException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
@@ -396,8 +419,8 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
         }
     }
 
-    private AnimeDTO recordToAnimeDTO(Record record) {
-        AnimeDTO animeDTO = new AnimeDTO();
+    private MediaContentDTO recordToMediaContentDTO(Record record) {
+        MediaContentDTO animeDTO = new AnimeDTO();
         Node userNode = record.get("anime").asNode();
         animeDTO.setId(userNode.get("id").asString());
         animeDTO.setTitle(userNode.get("title").asString());

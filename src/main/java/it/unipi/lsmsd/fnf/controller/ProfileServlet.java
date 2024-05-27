@@ -1,38 +1,34 @@
 package it.unipi.lsmsd.fnf.controller;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import it.unipi.lsmsd.fnf.controller.exception.NotAuthorizedException;
 import it.unipi.lsmsd.fnf.dto.LoggedUserDTO;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
-import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
-import it.unipi.lsmsd.fnf.model.enums.UserType;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
-import it.unipi.lsmsd.fnf.service.*;
+import it.unipi.lsmsd.fnf.service.ServiceLocator;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
-import it.unipi.lsmsd.fnf.service.exception.enums.BusinessExceptionType;
 import it.unipi.lsmsd.fnf.service.interfaces.MediaContentService;
 import it.unipi.lsmsd.fnf.service.interfaces.ReviewService;
 import it.unipi.lsmsd.fnf.service.interfaces.UserService;
 import it.unipi.lsmsd.fnf.utils.Constants;
 import it.unipi.lsmsd.fnf.utils.ConverterUtils;
 import it.unipi.lsmsd.fnf.utils.SecurityUtils;
-
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Objects;
 
 @WebServlet("/profile")
 public class ProfileServlet extends HttpServlet {
@@ -54,18 +50,27 @@ public class ProfileServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
         String targetJSP = "WEB-INF/jsp/profile.jsp";
-        LoggedUserDTO authUser = SecurityUtils.getAuthenticatedUser(request);
-        logger.info("Action profile: " + action);
-        if (authUser == null) {
-            response.sendRedirect("auth");
-        } else switch (action) {
+        String userId = request.getParameter("userId");
+
+        switch (action) {
             case "edit-profile" -> handleUpdate(request, response);
-            case "getAnimeLikes" -> handleGetAnimeLikes(request, response, authUser);
-            case "getMangaLikes" -> handleGetMangaLikes(request, response, authUser);
-            case "getReviews" -> handleGetReviews(request, response, authUser);
+            case "getAnimeLikes" -> handleGetAnimeLikes(request, response);
+            case "getMangaLikes" -> handleGetMangaLikes(request, response);
+            case "getReviews" -> handleGetReviews(request, response);
             case null, default -> {
                 try {
-                    request.setAttribute("userInfo", userService.getUserById(authUser.getId()));
+                    LoggedUserDTO authUser = SecurityUtils.getAuthenticatedUser(request);
+                    if (authUser == null && userId == null) {
+                        targetJSP = "auth.jsp";
+                    } else {
+                        if (authUser != null && userId == null) {
+                            userId = authUser.getId();
+                        } else if (authUser != null && !userId.equals(authUser.getId())) {
+                            request.setAttribute("isFollowed", userService.isFollowing(authUser.getId(), userId));
+                        }
+
+                        request.setAttribute("userInfo", userService.getUserById(userId));
+                    }
                 } catch (BusinessException e) {
                     targetJSP = "error-page.jsp";
                 }
@@ -74,22 +79,30 @@ public class ProfileServlet extends HttpServlet {
         }
     }
 
-    private void handleUpdate(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+
+    private void handleUpdate(HttpServletRequest request, HttpServletResponse response) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode jsonResponse = objectMapper.createObjectNode();
         try {
             User user = ConverterUtils.fromRequestToUser(request);
+            LoggedUserDTO authUser = SecurityUtils.getAuthenticatedUser(request);
+
+            if (authUser == null || !user.getId().equals(authUser.getId())) {
+                throw new NotAuthorizedException("Trying to update profile without being logged in.");
+            }
             userService.updateUserInfo(user);
 
-            HttpSession session = request.getSession(true);
-            LoggedUserDTO authUser = SecurityUtils.getAuthenticatedUser(request);
+            // Update the user in the session
             authUser.setUsername(user.getUsername());
             authUser.setProfilePicUrl(user.getProfilePicUrl() == null ? Constants.DEFAULT_PROFILE_PICTURE : user.getProfilePicUrl());
+            HttpSession session = request.getSession(true);
             session.setAttribute(Constants.AUTHENTICATED_USER_KEY, authUser);
 
             // Set the success flag in the JSON response
             jsonResponse.put("success", true);
 
+        } catch (NotAuthorizedException e) {
+            jsonResponse.put("generalError", "You are not authorized to update this profile.");
         } catch (BusinessException e) {
             switch (e.getType()) {
                 case DUPLICATED_USERNAME -> jsonResponse.put("usernameError", "Username already in use. Please choose another one.");
@@ -103,74 +116,116 @@ public class ProfileServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         response.getWriter().write(jsonResponse.toString());
     }
-    private void handleGetAnimeLikes(HttpServletRequest request, HttpServletResponse response, LoggedUserDTO authUser) throws IOException {
+
+    private void handleGetAnimeLikes(HttpServletRequest request, HttpServletResponse response) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode jsonResponse = objectMapper.createObjectNode();
-        try {
-            List<? extends MediaContentDTO> animeLikes = mediaContentService.getLikedMediaContent(authUser.getId(), MediaContentType.ANIME);
-            jsonResponse.put("animeLikes", objectMapper.valueToTree(animeLikes));
 
-            HttpSession session = request.getSession(true);
-            jsonResponse.put("success", true);
-            session.setAttribute("animeLikes", animeLikes);
-
-        } catch (BusinessException e) {
-            if (Objects.requireNonNull(e.getType()) == BusinessExceptionType.NO_LIKES) {
-                jsonResponse.put("noLikes", "You have not liked any anime yet.");
-            } else {
-                jsonResponse.put("generalError", "An error occurred while retrieving the liked anime. Please try again later.");
-            }
+        String userId = request.getParameter("userId");
+        String pageString = request.getParameter("page");
+        int page = 0;
+        if (pageString != null) {
+            page = Integer.parseInt(pageString);
         }
 
+        try {
+            // Get the page of anime likes
+            PageDTO<MediaContentDTO> animeLikes = mediaContentService.getLikedMediaContent(userId, page, MediaContentType.ANIME);
+
+            // Convert the page to a JSON Object
+            if (animeLikes == null) {
+                jsonResponse.put("notFoundError", true);
+            } else {
+                JsonNode animeLikesJsonObject = objectMapper.valueToTree(animeLikes);
+                // Add the JSON array to the response
+                jsonResponse.set("mediaLikes", animeLikesJsonObject);
+                jsonResponse.put("success", true);
+            }
+        } catch (BusinessException e) {
+            jsonResponse.put("error", e.getMessage());
+        }
+
+        // Write the JSON response
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         response.getWriter().write(jsonResponse.toString());
-
-
-
     }
 
-    private void handleGetMangaLikes(HttpServletRequest request, HttpServletResponse response, LoggedUserDTO authUser) throws IOException {
+    private void handleGetMangaLikes(HttpServletRequest request, HttpServletResponse response) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode jsonResponse = objectMapper.createObjectNode();
+
+        String userId = request.getParameter("userId");
+        String pageString = request.getParameter("page");
+        int page = 0;
+        if (pageString != null) {
+            page = Integer.parseInt(pageString);
+        }
         try {
-            List<? extends MediaContentDTO> mangaLikes = mediaContentService.getLikedMediaContent(authUser.getId(), MediaContentType.MANGA);
-            jsonResponse.put("animeLikes", objectMapper.valueToTree(mangaLikes));
+            // Get the page of manga likes
+            PageDTO<MediaContentDTO> mangaLikes = mediaContentService.getLikedMediaContent(userId, page, MediaContentType.MANGA);
 
-            HttpSession session = request.getSession(true);
-            jsonResponse.put("success", true);
-            session.setAttribute("mangaLikes", mangaLikes);
-
-        } catch (BusinessException e) {
-            if (Objects.requireNonNull(e.getType()) == BusinessExceptionType.NO_LIKES) {
-                jsonResponse.put("noLikes", "You have not liked any manga yet.");
+            // Convert the page to a JSON Object
+            if (mangaLikes == null) {
+                jsonResponse.put("notFoundError", true);
             } else {
-                jsonResponse.put("generalError", "An error occurred while retrieving the liked manga. Please try again later.");
+                JsonNode mangaLikesJsonObject = objectMapper.valueToTree(mangaLikes);
+
+                // Add the JSON array to the response
+                jsonResponse.set("mediaLikes", mangaLikesJsonObject);
+                jsonResponse.put("success", true);
             }
+        } catch (BusinessException e) {
+            jsonResponse.put("error", e.getMessage());
         }
 
+        // Write the JSON response
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         response.getWriter().write(jsonResponse.toString());
-
     }
-    private void handleGetReviews(HttpServletRequest request, HttpServletResponse response, LoggedUserDTO authUser) {
+
+    private void handleGetReviews(HttpServletRequest request, HttpServletResponse response) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode jsonResponse = objectMapper.createObjectNode();
-        try {
-            PageDTO<ReviewDTO> reviews = reviewService.findByUser(authUser.getId(), 1);
-            jsonResponse.put("reviews", objectMapper.valueToTree(reviews));
+        objectMapper.registerModule(new JavaTimeModule());
 
-            HttpSession session = request.getSession(true);
-            jsonResponse.put("success", true);
-            session.setAttribute("reviews", reviews);
+        String userId = request.getParameter("userId");
+        String pageString = request.getParameter("page");
+        int page = 0;
+        if (pageString != null) {
+            page = Integer.parseInt(pageString);
+        }
+
+        try {
+            LoggedUserDTO authUser = SecurityUtils.getAuthenticatedUser(request);
+
+            if (authUser == null || !userId.equals(authUser.getId())) {
+                throw new NotAuthorizedException("Trying to update profile without being logged in.");
+            }
+            // Get the page of reviews
+            PageDTO<ReviewDTO> reviews = reviewService.findByUser(userId, page);
+
+            // Convert the page to a JSON Object
+            if (reviews == null) {
+                jsonResponse.put("notFoundError", true);
+            } else {
+                JsonNode reviewsJsonObject  = objectMapper.valueToTree(reviews);
+
+                // Add the JSON array to the response
+                jsonResponse.set("reviews", reviewsJsonObject);
+                jsonResponse.put("success", true);
+            }
 
         } catch (BusinessException e) {
-            if (Objects.requireNonNull(e.getType()) == BusinessExceptionType.NO_REVIEWS) {
-                jsonResponse.put("noReviews", "You have not reviewed any media yet.");
-            } else {
-                jsonResponse.put("generalError", "An error occurred while retrieving the reviews. Please try again later.");
-            }
+            jsonResponse.put("error", e.getMessage());
+        } catch (NotAuthorizedException e) {
+            jsonResponse.put("generalError", "You are not authorized to view these reviews.");
         }
+
+        // Write the JSON response
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(jsonResponse.toString());
     }
 }

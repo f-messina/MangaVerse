@@ -185,11 +185,11 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
             return Optional.ofNullable(usersCollection.find(filter).projection(projection).first())
                     .map(DocumentUtils::documentToRegisteredUser)
                     .orElseThrow(() -> new MongoException("UserDAOMongoImpl: readUser: No user found"));
-        }
-        catch (MongoException e){
+
+        } catch (MongoException e){
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
-        }
-        catch (Exception e){
+
+        } catch (Exception e){
             throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
@@ -251,22 +251,26 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
             if (StringUtils.isNotBlank(loggedUser)) {
                 filter = and(filter, ne("username", loggedUser));
             }
-            Bson sort = ascending("username");
+            Bson sort = descending("followers");
             Bson projection = include("username", "picture");
 
-            if (n == null) {
-                return usersCollection.find(filter).sort(sort).projection(projection).into(new ArrayList<>())
-                        .stream()
-                        .map(DocumentUtils::documentToUserSummaryDTO)
-                        .toList();
-            } else {
-                return usersCollection.find(filter).sort(sort).projection(projection).limit(n).into(new ArrayList<>())
-                        .stream()
-                        .map(DocumentUtils::documentToUserSummaryDTO)
-                        .toList();
-            }
+            int limit = (n == null) ? 0 : n;
 
-        } catch (Exception e) {
+            List<Document> documents = usersCollection.find(filter).sort(sort).projection(projection)
+                    .limit(limit)
+                    .into(new ArrayList<>());
+
+            return Optional.of(documents)
+                    .filter(docs -> !docs.isEmpty())
+                    .orElseThrow(() -> new MongoException("No results found for the given query"))
+                    .stream()
+                    .map(DocumentUtils::documentToUserSummaryDTO)
+                    .toList();
+
+        } catch (MongoException e){
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
+        } catch (Exception e){
             throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
@@ -504,7 +508,7 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
     }
 
     @Override
-    public List<UserSummaryDTO> suggestUsersByCommonFollows(String userId, Integer limit) throws DAOException {
+    public List<UserSummaryDTO> suggestUsersByCommonFollowings(String userId, Integer limit) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
 

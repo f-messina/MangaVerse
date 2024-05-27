@@ -7,6 +7,7 @@ import it.unipi.lsmsd.fnf.dao.interfaces.UserDAO;
 import it.unipi.lsmsd.fnf.dto.LoggedUserDTO;
 import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
 import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
+import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import it.unipi.lsmsd.fnf.service.enums.ExecutorTaskServiceType;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
@@ -225,7 +226,7 @@ public class UserServiceImpl implements UserService {
      * @throws BusinessException If an error occurs while retrieving the list.
      */
     @Override
-    public List<UserSummaryDTO> getFollowing(String userId, String loggedUserId) throws BusinessException {
+    public List<UserSummaryDTO> getFollowings(String userId, String loggedUserId) throws BusinessException {
         try {
             return userDAONeo4J.getFirstNFollowing(userId, loggedUserId);
 
@@ -236,7 +237,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserSummaryDTO> searchFollowing(String userId, String username, String loggedUserId) throws BusinessException {
+    public List<UserSummaryDTO> searchFollowings(String userId, String username, String loggedUserId) throws BusinessException {
         try {
             return userDAONeo4J.searchFollowing(userId, username, loggedUserId);
 
@@ -280,15 +281,34 @@ public class UserServiceImpl implements UserService {
             return userDAO.searchFirstNUsers(username, n, loggedUser);
 
         } catch (DAOException e) {
-            throw new BusinessException(e.getMessage());
+            if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {
+                throw new BusinessException(BusinessExceptionType.NOT_FOUND, e.getMessage());
+            }
+            throw new BusinessException(BusinessExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
 
     @Override
-    public List<UserSummaryDTO> suggestUsers(String userId) throws BusinessException {
+    public List<UserSummaryDTO> suggestUsersByCommonFollowings(String userId) throws BusinessException {
         try {
-            return userDAONeo4J.suggestUsersByCommonFollows(userId, null);
+            return userDAONeo4J.suggestUsersByCommonFollowings(userId, 10);
 
+        } catch (DAOException e) {
+            if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {
+                throw new BusinessException(BusinessExceptionType.DATABASE_ERROR, e.getMessage());
+            }
+            throw new BusinessException(BusinessExceptionType.GENERIC_ERROR, e.getMessage());
+        }
+    }
+
+    @Override
+    public List<UserSummaryDTO> suggestUsersByCommonLikes(String userId) throws BusinessException {
+        try {
+            List<UserSummaryDTO> users = userDAONeo4J.suggestUsersByCommonLikes(userId, 5, MediaContentType.ANIME);
+            if (users.size() < 5) {
+                users.addAll(userDAONeo4J.suggestUsersByCommonLikes(userId, 5 + users.size(), MediaContentType.MANGA));
+            }
+            return users;
         } catch (DAOException e) {
             if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {
                 throw new BusinessException(BusinessExceptionType.DATABASE_ERROR, e.getMessage());

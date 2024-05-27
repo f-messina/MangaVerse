@@ -11,6 +11,7 @@ import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
 
+import it.unipi.lsmsd.fnf.utils.Constants;
 import org.neo4j.driver.*;
 import org.neo4j.driver.Record;
 import org.neo4j.driver.exceptions.Neo4jException;
@@ -276,18 +277,32 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
      * @throws DAOException If an error occurs while retrieving the liked Manga.
      */
     @Override
-    public List<MangaDTO> getLiked(String userId) throws DAOException {
+    public PageDTO<MediaContentDTO> getLiked(String userId, int page) throws DAOException {
         try (Session session = getSession()) {
-            String query = "MATCH (:User {id: $userId})-[:LIKE]->(m:Manga) " +
-                    "RETURN m as manga";
+            // Query per ottenere il conteggio totale degli elementi piaciuti
+            String countQuery = "MATCH (:User {id: $userId})-[:LIKE]->(m:Manga) " +
+                    "RETURN COUNT(m) AS totalLikes";
+
+            // Query per ottenere gli elementi piaciuti con paginazione
+            String dataQuery = "MATCH (:User {id: $userId})-[:LIKE]->(m:Manga) " +
+                    "RETURN m AS manga " +
+                    "SKIP $skip " +
+                    "LIMIT $limit";
+
+            Value params = parameters("userId", userId, "skip", (page - 1) * Constants.PAGE_SIZE, "limit", Constants.PAGE_SIZE);
+
+            Record countRecord = session.executeRead(tx -> tx.run(countQuery, parameters("userId", userId)).single());
+            int totalLikes = countRecord.get("totalLikes").asInt();
 
             List<Record> records = session.executeRead(
-                    tx -> tx.run(query, parameters("userId", userId)).list()
+                    tx -> tx.run(dataQuery, params).list()
             );
 
-            return records.isEmpty() ? null : records.stream()
-                    .map(this::recordToMangaDTO)
+            List<MediaContentDTO> likedMangas = records.stream()
+                    .map(record -> (MangaDTO) recordToMediaContentDTO(record))
                     .collect(Collectors.toList());
+
+            return new PageDTO<>(likedMangas, totalLikes);
 
         } catch (Neo4jException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
@@ -297,6 +312,7 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
         }
     }
 
+
     /**
      * Retrieves a list of suggested MangaDTO objects for a user from the Neo4j database.
      *
@@ -305,7 +321,7 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
      * @throws DAOException If an error occurs while retrieving suggested Manga.
      */
     @Override
-    public List<MangaDTO> getSuggested(String userId, Integer limit) throws DAOException {
+    public List<MediaContentDTO> getSuggested(String userId, Integer limit) throws DAOException {
         try (Session session = getSession()) {
             String query = "MATCH (u:User {id: $userId})-[:FOLLOWS]->(f:User)-[:LIKE]->(m:Manga) " +
                     "WITH m, COUNT(DISTINCT f) AS num_likes  " +
@@ -317,7 +333,7 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
             );
 
             return records.isEmpty() ? null : records.stream()
-                    .map(this::recordToMangaDTO)
+                    .map(record -> (MangaDTO) recordToMediaContentDTO(record))
                     .collect(Collectors.toList());
 
         } catch (Neo4jException e) {
@@ -337,7 +353,7 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
      * @throws DAOException If an error occurs while retrieving trending Manga.
      */
     @Override
-    public Map<MangaDTO, Integer> getTrendMediaContentByYear(int year) throws DAOException {
+    public Map<MediaContentDTO, Integer> getTrendMediaContentByYear(int year) throws DAOException {
         try (Session session = getSession()) {
             LocalDateTime startDate = LocalDateTime.of(year, 1, 1, 0, 0);
             LocalDateTime endDate = LocalDateTime.of(year + 1, 1, 1, 0, 0);
@@ -355,7 +371,7 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
             );
 
             return records.stream().map(record -> {
-                MangaDTO mangaDTO = recordToMangaDTO(record);
+                MangaDTO mangaDTO = (MangaDTO) recordToMediaContentDTO(record);
                 Integer likes = record.get("numLikes").asInt();
                 return Map.entry(mangaDTO, likes);
             }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
@@ -375,7 +391,7 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
      * @throws DAOException If an error occurs while retrieving trending Manga by likes.
      */
     @Override
-    public List<MangaDTO> getMediaContentTrendByLikes() throws DAOException {
+    public List<MediaContentDTO> getMediaContentTrendByLikes() throws DAOException {
         try (Session session = getSession()) {
             String query = "MATCH (u:User)-[r:LIKE]->(m:Manga) " +
                     "WHERE r.date >= $startDate AND r.date <= $endDate " +
@@ -389,7 +405,9 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
                     tx -> tx.run(query, parameters("startDate", today.minusMonths(6), "endDate", today)).list()
             );
 
-            return records.stream().map(this::recordToMangaDTO).collect(Collectors.toList());
+            return records.stream()
+                    .map(record -> (MangaDTO) recordToMediaContentDTO(record))
+                    .collect(Collectors.toList());
 
         } catch (Neo4jException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
@@ -399,8 +417,8 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
         }
     }
 
-    private MangaDTO recordToMangaDTO(Record record) {
-        MangaDTO mangaDTO = new MangaDTO();
+    private MediaContentDTO recordToMediaContentDTO(Record record) {
+        MediaContentDTO mangaDTO = new MangaDTO();
         Node userNode = record.get("manga").asNode();
         mangaDTO.setId(userNode.get("id").asString());
         mangaDTO.setTitle(userNode.get("title").asString());

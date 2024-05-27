@@ -22,7 +22,7 @@ public interface MediaContentDAO<T extends MediaContent> {
     void refreshLatestReviews(String mediaId) throws DAOException;
     boolean isInLatestReviews(String mediaId, String reviewId) throws DAOException;
     void updateUserRedundancy(UserSummaryDTO userSummaryDTO) throws DAOException;
-    Map<String, Double> getBestCriteria(String criteria, boolean isArray, int page) throws DAOException; // MANAGER
+    Map<String, Double> getBestCriteria(String criteria, boolean isArray, int page) throws DAOException; // MANAGER (TABLE)
     void updateNumOfLikes(String mediaId, Integer likes) throws DAOException;
 
     // Neo4J specific methods
@@ -30,8 +30,8 @@ public interface MediaContentDAO<T extends MediaContent> {
     void unlike(String userId, String mediaContentId) throws DAOException;
     boolean isLiked(String userId, String mediaId) throws DAOException;
     Integer getNumOfLikes(String mediaId) throws DAOException;
-    List<? extends MediaContentDTO> getLiked(String userId) throws DAOException;
-    List<? extends MediaContentDTO> getSuggested(String userId, Integer limit) throws DAOException;
-    Map<? extends MediaContentDTO, Integer> getTrendMediaContentByYear(int year) throws DAOException; // MANAGER
-    List<? extends MediaContentDTO> getMediaContentTrendByLikes() throws DAOException;
+    PageDTO<MediaContentDTO> getLiked(String userId, int page) throws DAOException;
+    List<MediaContentDTO> getSuggested(String userId, Integer limit) throws DAOException;
+    Map<MediaContentDTO, Integer> getTrendMediaContentByYear(int year) throws DAOException; // MANAGER (TABLE OR ORDERED BAR CHART)
+    List<MediaContentDTO> getMediaContentTrendByLikes() throws DAOException;
 }

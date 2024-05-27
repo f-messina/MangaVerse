@@ -9,6 +9,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ page import="it.unipi.lsmsd.fnf.model.enums.Gender" %>
+<%@ page import="it.unipi.lsmsd.fnf.utils.Constants" %>
 <%@ page contentType="text/html;charset=UTF-8" %>
 <!DOCTYPE html>
 <html>
@@ -16,27 +17,46 @@
     <link rel="preconnect" href="https://fonts.googleapis.com%22%3E/" crossorigin />
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/profile_test.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <script src="https://code.jquery.com/jquery-3.6.4.min.js" defer></script>
     <script src="${pageContext.request.contextPath}/js/profile_test.js" defer></script>
     <script src="${pageContext.request.contextPath}/js/country_dropdown.js" defer></script>
     <title>PROFILE</title>
 </head>
 <body>
-
+    <c:set var="isLogged" value="${not empty sessionScope[Constants.AUTHENTICATED_USER_KEY]}" />
     <c:set var="userInfo" value="${requestScope['userInfo']}" />
+
     <!-- navbar -->
     <nav>
         <a href="${pageContext.request.contextPath}/mainPage"><img src="${pageContext.request.contextPath}/images/logo-with-initial.png" alt="logo" /></a>
-        <h1>Welcome ${userInfo.getUsername()}</h1>
+        <c:if test="${isLogged}">
+            <h1>Welcome ${sessionScope[Constants.AUTHENTICATED_USER_KEY].getUsername()}</h1>
+        </c:if>
         <div class="nav-items">
+            <div class="search-box">
+                <button id="user-search-button" class="btn-search"><i class="fa fa-search"></i></button>
+                <input id="user-search" type="text" class="input-search" placeholder="Search user...">
+                <div id="user-search-section" class="user-list-section users-results">
+                    <div id="user-search-results" class="user-list"></div>
+                </div>
+            </div>
             <a href="${pageContext.request.contextPath}/mainPage/anime" class="anime">Anime</a>
             <a href="${pageContext.request.contextPath}/mainPage/manga" class="manga">Manga</a>
-            <form action="${pageContext.request.contextPath}/auth" method="post">
-                <input type="hidden" name="action" value="logout">
-                <input type="hidden" name="targetServlet" value="auth">
-                <button type="submit" class="logout">Log Out</button>
-            </form>
-            <a href="#" class="small-pic"><img alt="profile bar" src="${pageContext.request.contextPath}/images/account-icon.png"> <i class="fa-solid fa-chevron-down" style="color: #000000"> </i></a>
+            <c:choose>
+                <c:when test="${isLogged}">
+                    <form action="${pageContext.request.contextPath}/auth" method="post">
+                        <input type="hidden" name="action" value="logout">
+                        <input type="hidden" name="targetServlet" value="auth">
+                        <button type="submit" class="logout">Log Out</button>
+                    </form>
+                    <a href="${pageContext.request.contextPath}/profile?userId=${userInfo.id}" class="small-pic"><img alt="profile bar" src="${pageContext.request.contextPath}/${sessionScope[Constants.AUTHENTICATED_USER_KEY].getProfilePicUrl()}"></a>
+                </c:when>
+                <c:otherwise>
+                    <a href="${pageContext.request.contextPath}/auth">Log In</a>
+                    <a href="${pageContext.request.contextPath}/auth">Sign Up</a>
+                </c:otherwise>
+            </c:choose>
         </div>
     </nav>
 
@@ -53,17 +73,29 @@
 
                 <div class="profile-user-settings-px">
                     <h1 class="profile-user-name-px">${userInfo.getUsername()}</h1>
-                    <button class="btn-px profile-edit-btn-px" onclick="showEditForm()">Edit Profile</button>
+                    <c:if test="${isLogged}">
+                        <c:choose>
+                            <c:when test="${sessionScope[Constants.AUTHENTICATED_USER_KEY].getId() eq userInfo.id}">
+                                <button class="btn-px profile-edit-btn-px" onclick="showEditForm()">Edit Profile</button>
+                            </c:when>
+                            <c:otherwise>
+                                <c:if test="${isFollowed}">
+                                    <button class="btn-px profile-edit-btn-px">Followed</button>
+                                </c:if>
+                                <button class="btn-px profile-edit-btn-px">Follow</button>
+                            </c:otherwise>
+                        </c:choose>
+                    </c:if>
                 </div>
 
                 <div class="profile-stats-px">
                     <ul>
-                        <li>
+                        <li id="show-followers">
                             <span class="profile-stat-count-px">
                                 ${empty userInfo.getFollowers() ? 0 : userInfo.getFollowers()}
                             </span> followers
                         </li>
-                        <li>
+                        <li id="show-followings">
                             <span class="profile-stat-count-px">
                                 ${empty userInfo.getFollowed() ? 0 : userInfo.getFollowed()}
                             </span> following
@@ -78,7 +110,7 @@
                     <c:if test="${not empty userInfo.getDescription()}">
                         <p>${userInfo.getDescription()}</p>
                     </c:if>
-                    <c:if test="${not empty userInfo.getGender()}">
+                    <c:if test="${userInfo.getGender() ne Gender.UNKNOWN}">
                         <p>${userInfo.getGender().toString()}</p>
                     </c:if>
                     <c:if test="${not empty userInfo.getLocation()}">
@@ -185,52 +217,364 @@
     </div>
 
     <!-- followers -->
-    <div id="followers" class="myAlert">
-        <div class="myAlertBody">
-
+    <div id="followers" class="myAlert user-list-section">
+        <div  id="followersBody" class="myAlertBody">
+            <p class="user-list-name">Followers</p>
             <!-- search bar -->
             <div class="d-flex align-items-center">
-                <label for="follower-name" class="form-label">Followers</label>
-                <input type="text" class="form-control me-2" id="follower-name" required
+                <label for="follower-search"></label>
+                <input type="text" class="form-control me-2" id="follower-search" required
                        placeholder="Search..." />
             </div>
 
             <!-- followers list -->
-            <div class="followers-list"></div>
+            <div id="followers-list" class="user-list"></div>
         </div>
     </div>
-    <section id="like-and-reviews">
-        <div class="button-container">
-            <button id="anime-button" onclick="fetchData('getAnimeLikes')">Anime Like</button>
-            <button id="manga-button" onclick="fetchData('getMangaLikes')">Manga Like</button>
-            <button id="reviews-button" onclick="fetchData('getReviews')">Reviews</button>
-        </div>
-        <div id="anime-like">
-            //asynchronous data will be loaded here
 
+    <!-- followings -->
+    <div id="followings" class="myAlert user-list-section">
+        <div  id="followingsBody" class="myAlertBody">
+            <p for="following-search" class="user-list-name">Following</p>
+
+            <!-- search bar -->
+            <div class="d-flex align-items-center">
+                <label for="following-search"></label>
+                <input type="text" class="form-control me-2" id="following-search" required
+                       placeholder="Search..." />
+            </div>
+
+            <!-- followers list -->
+            <div id="followings-list" class="user-list"></div>
+        </div>
+    </div>
+
+    <section class="profile-content">
+        <div class="button-container">
+            <div class="selection-buttons">
+                <button id="manga-button" onclick="changeSection(this)">Manga Like</button>
+                <button id="anime-button" onclick="changeSection(this)">Anime Like</button>
+                <c:if test="${isLogged and sessionScope[Constants.AUTHENTICATED_USER_KEY].getId() eq userInfo.id}">
+                    <button id="reviews-button" onclick="changeSection(this)">Reviews</button>
+                </c:if>
+            </div>
+            <hr class="horizontal-line">
         </div>
 
         <div id="manga-like">
-
+            <div class="container">
+                <ul class="page manga-pagination">
+                </ul>
+            </div>
+            <div id="manga-list" class="project-boxes jsGridView"></div>
+            <div class="container">
+                <ul class="page manga-pagination">
+                </ul>
+            </div>
         </div>
 
-        <div id="reviews">
-
+        <div id="anime-like">
+            <div class="container">
+                <ul class="page anime-pagination">
+                </ul>
+            </div>
+            <div id="anime-list" class="project-boxes jsGridView"></div>
+            <div class="container">
+                <ul class="page anime-pagination">
+                </ul>
+            </div>
         </div>
 
-
-
+        <c:if test="${isLogged and sessionScope[Constants.AUTHENTICATED_USER_KEY].getId() eq userInfo.id}">
+            <div id="reviews">
+                <div class="container">
+                    <ul class="page review-pagination">
+                    </ul>
+                </div>
+                <div id="reviews-list" class="review-boxes"></div>
+                <div class="container">
+                    <ul class="page review-pagination">
+                    </ul>
+                </div>
+            </div>
+        </c:if>
     </section>
-<script>
-    const pageContext = "${pageContext.request.contextPath}";
-    function fetchData(action) {
-        $.post(pageContext + "/profile", {action: action}, function (response) {
 
-        }).fail(function (xhr) {
-            console.error(xhr.responseText);
-        });
-    }
+    <div class="footer"></div>
 
+    <script>
+        const contextPath = "${pageContext.request.contextPath}";
+        const userId = "${userInfo.getId()}";
+        const mangaDefaultImage = "${Constants.DEFAULT_COVER_MANGA}";
+        let mangaPage;
+        let animePage;
+        let reviewsPage;
+        let totalReviewsPages;
+        let totalAnimePages;
+        let totalMangaPages;
+
+        function changeSection(button) {
+            const section = button.id.split("-")[0];
+            const animeSection = $("#anime-like");
+            const mangaSection = $("#manga-like");
+            const reviewsSection = $("#reviews");
+            $(".selection-buttons button").removeClass("active");
+            if (section === "reviews") {
+                button.classList.add("active");
+                animeSection.hide();
+                mangaSection.hide();
+                reviewsSection.show();
+                if (reviewsSection.children().first()) {
+                    fetchData("getReviews");
+                }
+            } else {
+                reviewsSection.hide();
+                if (section === "anime") {
+                    button.classList.add("active");
+                    animeSection.show();
+                    mangaSection.hide();
+                    if (animeSection.children().first()) {
+                        fetchData("getAnimeLikes");
+                    }
+                } else {
+                    button.classList.add("active");
+                    mangaSection.show();
+                    animeSection.hide();
+                    if (mangaSection.children().first()) {
+                        fetchData("getMangaLikes");
+                    }
+                }
+            }
+        }
+
+        function fetchData(action, page = 1) {
+            const inputData = {
+                action: action,
+                userId: userId,
+                page: page
+            };
+            $.post(contextPath + "/profile", inputData, function (data) {
+                if (action === "getReviews") {
+                    reviewsPage = page;
+                    showReviews(data);
+                } else {
+                    if (action === "getAnimeLikes") {
+                        animePage = page;
+                    } else {
+                        mangaPage = page;
+                    }
+                    showLikes(data, action);
+                }
+            }).fail(function (xhr) {
+                console.error("Profile data fetch failed: " + xhr.responseText);
+            });
+        }
+
+        function showLikes(data, action) {
+            const likeList = (action === "getAnimeLikes") ? $("#anime-list") : $("#manga-list");
+            likeList.empty();
+
+            if (data.mediaLikes === undefined || data.mediaLikes.totalPages === 0) {
+                if (action === "getAnimeLikes") {
+                    totalAnimePages = 0;
+                    const pagination = $(".anime-pagination");
+                    pagination.empty();
+                } else {
+                    totalMangaPages = 0;
+                    const pagination = $(".manga-pagination");
+                    pagination.empty();
+                }
+                likeList.append($("<p>").addClass("no-results-error").text("No likes found"));
+                return;
+            }
+
+            if (action === "getAnimeLikes") {
+                totalAnimePages = data.mediaLikes.totalPages;
+                updatePagination(action === "getAnimeLikes" ? "anime" : "manga");
+            } else {
+                totalMangaPages = data.mediaLikes.totalPages;
+                updatePagination(action === "getAnimeLikes" ? "anime" : "manga");
+            }
+
+
+            data.mediaLikes.entries.forEach(media => {
+                const mediaWrapper = $("<div>").addClass("project-box-wrapper");
+                const mediaBox = $("<div>").addClass("project-box");
+
+                const picture = $("<img>").attr("src", media.imageUrl).attr("alt", media.title)
+                    .addClass("box-image")
+                    .on("error", function () {
+                        defaultMangaCover(this)
+                    });
+                const title = $("<a>").attr("href", contextPath + "/" + (action === "getAnimeLikes" ? "anime" : "manga") + "?mediaId=" + media.id)
+                    .addClass("box-title")
+                    .text(media.title);
+                mediaBox.append(picture, title);
+                mediaWrapper.append(mediaBox);
+                likeList.append(mediaWrapper);
+            });
+        }
+
+        function defaultMangaCover(image) {
+            image.onerror = null;
+            image.src = mangaDefaultImage;
+        }
+
+        function showReviews(data) {
+            const reviews = $("#reviews-list")
+            reviews.empty();
+
+            if (data.reviews === undefined || data.reviews.totalPages === 0) {
+                totalReviewsPages = 0;
+                const pagination = $(".review-pagination");
+                pagination.empty();
+                reviews.append($("<p>").addClass("text-center no-results-error").text("No reviews found"));
+                return;
+            }
+
+            totalReviewsPages = data.reviews.totalPages;
+            updatePagination("reviews");
+
+            data.reviews.entries.forEach(review => {
+                const type = (review.mediaContent.season === undefined) ? "manga" : "anime";
+
+                const title = $("<a>").attr("href", contextPath + "/" + type + "?mediaId=" + review.mediaContent.id)
+                    .addClass("review-media-title")
+                    .text(review.mediaContent.title);
+                const rating = $("<p>").addClass("review-rating")
+                    .text(review.rating === null ? "No rating" : "Rating: " + review.rating);
+                const firstRow = $("<div>").addClass("review-row").append(title, rating);
+
+                const comment = $("<p>")
+                    .addClass("review-comment")
+                    .text(review.comment === null ? "No comment" :review.comment);
+
+                const date = $("<p>")
+                    .addClass("review-date")
+                    .text("Date: " + review.date);
+
+                const reviewBox = $("<div>").addClass("review-box")
+                    .append(firstRow, comment, date);
+                reviews.append(reviewBox);
+            });
+        }
+
+        function updatePagination(section) {
+            let pagination;
+            let totalPages;
+            let currentPage;
+            let action;
+
+            if (section === "anime") {
+                pagination = $(".anime-pagination");
+                totalPages = totalAnimePages;
+                currentPage = animePage;
+                action = "getAnimeLikes";
+            } else if (section === "manga") {
+                pagination = $(".manga-pagination");
+                totalPages = totalMangaPages;
+                currentPage = mangaPage;
+                action = "getMangaLikes";
+            } else {
+                pagination = $(".review-pagination");
+                totalPages = totalReviewsPages;
+                currentPage = reviewsPage;
+                action = "getReviews";
+            }
+
+            pagination.empty();
+
+            if (totalPages === 1) {
+                return;
+            }
+
+            // left arrow
+            const leftArrow = $("<li>").addClass("page__btn")
+                .html("<span class=\"material-icons\">chevron_left</span>")
+
+            if (currentPage > 1) {
+                leftArrow.addClass("active");
+                leftArrow.click(() => {fetchData(action, currentPage - 1);});
+            }
+            pagination.append(leftArrow);
+
+            // page numbers
+            if (totalPages < 10) {
+                for (let i = 1; i <= totalPages; i++) {
+                    const pageNumber = $("<li>").addClass("page__numbers").text(i);
+                    if (i === currentPage) {
+                        pageNumber.addClass("active");
+                    } else {
+                        pageNumber.click(() => fetchData(action, i));
+                    }
+                    pagination.append(pageNumber);
+                }
+
+            } else if (currentPage < 6) {
+                for (let i = 1; i <= 7; i++) {
+                    const pageNumber = $("<li>").addClass("page__numbers").text(i);
+                    if (i === currentPage) {
+                        pageNumber.addClass("active");
+                    } else {
+                        pageNumber.click(() => fetchData(action, i));
+                    }
+                    pagination.append(pageNumber);
+                }
+                if (totalPages === 9) {
+                    const lastNumber = $("<li>").addClass("page__numbers").text(8).click(() => fetchData(action, 8));
+                    pagination.append(lastNumber);
+                } else {
+                    pagination.append($("<li>").addClass("page__dots").text("..."));
+                }
+                const lastNumber = $("<li>").addClass("page__numbers").text(totalPages).click(() => fetchData(action, totalPages));
+                pagination.append(lastNumber);
+
+            } else if (currentPage > totalPages - 6) {
+                const firstNumber = $("<li>").addClass("page__numbers").text(1).click(() => fetchData(action, 1));
+                pagination.append(firstNumber);
+                if (totalPages === 9) {
+                    const firstNumber = $("<li>").addClass("page__numbers").text(2).click(() => fetchData(action, 2));
+                    pagination.append(firstNumber);
+                } else {
+                    pagination.append($("<li>").addClass("page__dots").text("..."));
+                }
+                for (let i = totalPages - 6; i <= totalPages; i++) {
+                    const pageNumber = $("<li>").addClass("page__numbers").text(i);
+                    if (i === currentPage) {
+                        pageNumber.addClass("active");
+                    } else {
+                        pageNumber.click(() => fetchData(action, i));
+                    }
+                    pagination.append(pageNumber);
+                }
+
+            } else {
+                const firstNumber = $("<li>").addClass("page__numbers").text(1).click(() => fetchData(action, 1));
+                pagination.append(firstNumber);
+                pagination.append($("<li>").addClass("page__dots").text("..."));
+                for (let i = currentPage - 2; i < currentPage + 3; i++) {
+                    const pageNumber = $("<li>").addClass("page__numbers").text(i);
+                    if (i === currentPage) {
+                        pageNumber.addClass("active");
+                    } else {
+                        pageNumber.click(() => fetchData(action, i));
+                    }
+                    pagination.append(pageNumber);
+                }
+                pagination.append($("<li>").addClass("page__dots").text("..."));
+                const lastNumber = $("<li>").addClass("page__numbers").text(totalPages).click(() => fetchData(action, totalPages));
+                pagination.append(lastNumber);
+            }
+
+            // right arrow
+            const rightArrow = $("<li>").addClass("page__btn")
+                .html("<span class=\"material-icons\">chevron_right</span>")
+            if (currentPage < totalPages) {
+                rightArrow.addClass("active");
+                rightArrow.click(() => {fetchData(action, currentPage + 1);});
+            }
+            pagination.append(rightArrow);
+        }
     </script>
 </body>
 </html>

@@ -306,7 +306,7 @@ public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
     public List<UserSummaryDTO> searchFollowing(String userId, String username, String loggedUserId) throws DAOException {
         try (Session session = getSession()) {
             StringBuilder queryBuilder = new StringBuilder("MATCH (:User {id: $userId})-[:FOLLOWS]->(followed:User) ");
-            queryBuilder.append("WHERE followed.username CONTAINS $username ");
+            queryBuilder.append("WHERE toLower(followed.username) CONTAINS toLower($username) ");
             if (loggedUserId != null) {
                 queryBuilder.append("AND followed.id <> $loggedUserId ");
             }
@@ -383,7 +383,7 @@ public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
     public List<UserSummaryDTO> searchFollowers(String userId, String username, String loggedUserId) throws DAOException {
         try (Session session = getSession()) {
             StringBuilder queryBuilder = new StringBuilder("MATCH (follower:User)-[:FOLLOWS]->(:User {id: $userId}) ");
-            queryBuilder.append("WHERE follower.username CONTAINS $username ");
+            queryBuilder.append("WHERE toLower(follower.username) CONTAINS toLower($username) ");
             if (loggedUserId != null) {
                 queryBuilder.append("AND follower.id <> $loggedUserId ");
             }
@@ -422,10 +422,10 @@ public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
      * @throws DAOException If an error occurs while retrieving suggested users.
      */
     @Override
-    public List<UserSummaryDTO> suggestUsersByCommonFollows(String userId, Integer limit) throws DAOException {
+    public List<UserSummaryDTO> suggestUsersByCommonFollowings(String userId, Integer limit) throws DAOException {
         try (Session session = getSession()) {
 
-            String query = "MATCH (u:User {id: $userId})-[:FOLLOWS]->(following:User)-[:FOLLOWS]->(suggested:User) " +
+            String query = "MATCH (u:User {id: $userId})-[:FOLLOWS]->(following:User)<-[:FOLLOWS]-(suggested:User) " +
                     "WHERE NOT (u)-[:FOLLOWS]->(suggested) AND u <> suggested " +
                     "WITH suggested, COUNT(DISTINCT following) AS commonFollowers " +
                     "WHERE commonFollowers > 5 " +
