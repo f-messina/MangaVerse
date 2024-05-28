@@ -211,7 +211,7 @@
         <section id="resultsSection">
             <h1 id="totalResults"></h1>
             <div id="orderSelection"></div>
-            <div id="mediaContentContainer"></div>
+            <div id="media-list" class="project-boxes jsGridView"></div>
             <div id="pageSelection"></div>
         </section>
 

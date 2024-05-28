@@ -1,3 +1,5 @@
+const mediaList = $("#media-list");
+
 function toggleRadio(element) {
     if (element.classList.contains("active")) {
         element.checked = false;
@@ -24,7 +26,6 @@ function performAsyncSearch(formId) {
     $.post(url, formData, function (data) {
         $("#totalResults").text("Total Results: " + data.mediaContentList.totalCount);
         $("#orderSelection").empty();
-        $("#mediaContentContainer").empty();
         $("#pageSelection").empty();
 
         updateOrderSelection(data, formId);
@@ -90,26 +91,40 @@ function isSearchFormEmpty(formId) {
 }
 
 // Update media content in the specified container
-function updateMediaContent(mediaList) {
-    const mediaContentContainer = $("#mediaContentContainer").empty();
-    mediaList.forEach(media => {
+function updateMediaContent(mediaResults) {
+    mediaList.empty();
+    mediaResults.forEach(media => {
         const mediaWrapper = $("<div>").addClass("project-box-wrapper");
         const mediaBox = $("<div>").addClass("project-box");
         const picture = $("<img>").attr("src", media.imageUrl).attr("alt", media.title)
             .addClass("box-image")
             .on("error", () => setDefaultCover(this));
-        const title = $("<a>").attr("href", `${contextPath}/${isAnime ? "anime" : "manga"}?mediaId=${media.id}`)
+        const title = $("<a>").attr("href", "${contextPath}/" + mediaType + "?mediaId=${media.id}")
             .addClass("box-title").text(media.title);
-
-        mediaBox.append(picture, title);
+        if (mediaType === "manga") {
+            const startDate = $("<p>").text(media.startDate !== null ? "Start Date: " + media.startDate : "");
+            const endDate = $("<p>").text(media.endDate !== null ? "End Date: " + media.endDate : "");
+            mediaBox.append(picture, title, startDate, endDate);
+        } else {
+            const season = $("<p>").text(media.season !== null ? "Season: " + media.season : "");
+            const year = $("<p>").text(media.year !== null ? "Year: " + media.year : "");
+            mediaBox.append(picture, title, season, year);
+        }
         mediaWrapper.append(mediaBox);
-        likeList.append(mediaWrapper);
+        mediaList.append(mediaWrapper);
     });
 }
 
 function setDefaultCover(image) {
-    $(image).off("error");
-    $(image).attr("src", mediaType === "anime" ? animeDefaultImage : mangaDefaultImage);
+    if (!$(image).data("defaultAttempted")) {
+        $(image).data("defaultAttempted", true);  // Set flag to true to indicate default image is being set
+        image.onerror = null;  // Remove the error handler to prevent infinite loop
+        if (mediaType === "anime") {
+            image.src = animeDefaultImage;
+        } else {
+            image.src = mangaDefaultImage;
+        }
+    }
 }
 
 // Create HTML element for a media article
@@ -220,54 +235,3 @@ $(document).ready(function () {
         sectionHome[0].scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
     });
 });
-
-///////////////////
-// MEDIA SECTION //
-///////////////////
-
-let mangaPage, totalMangaPages;
-let animePage, totalAnimePages;
-
-function fetchData(action, page = 1) {
-    $.post(`${contextPath}/profile`, { action, userId, page }, (data) => {
-        if (action === "getReviews") {
-            reviewsPage = page;
-            showReviews(data);
-        } else {
-            action === "getAnimeLikes" ? animePage = page : mangaPage = page;
-            showLikes(data, action);
-        }
-    }).fail((xhr) => console.error(`Profile data fetch failed: ${xhr.responseText}`));
-}
-
-function showLikes(data, action) {
-    const isAnime = action === "getAnimeLikes";
-    const likeList = isAnime ? $("#anime-list") : $("#manga-list");
-    const pagination = isAnime ? $(".anime-pagination") : $(".manga-pagination");
-
-    likeList.empty();
-    pagination.empty();
-
-    if (!data.mediaLikes || data.mediaLikes.totalPages === 0) {
-        likeList.append($("<p>").addClass("no-results-error").text("No likes found"));
-        isAnime ? totalAnimePages = 0 : totalMangaPages = 0;
-        return;
-    }
-
-    isAnime ? totalAnimePages = data.mediaLikes.totalPages : totalMangaPages = data.mediaLikes.totalPages;
-    updatePagination(isAnime ? "anime" : "manga");
-
-    data.mediaLikes.entries.forEach(media => {
-        const mediaWrapper = $("<div>").addClass("project-box-wrapper");
-        const mediaBox = $("<div>").addClass("project-box");
-        const picture = $("<img>").attr("src", media.imageUrl).attr("alt", media.title)
-            .addClass("box-image")
-            .on("error", () => setDefaultCover(this, action));
-        const title = $("<a>").attr("href", `${contextPath}/${isAnime ? "anime" : "manga"}?mediaId=${media.id}`)
-            .addClass("box-title").text(media.title);
-
-        mediaBox.append(picture, title);
-        mediaWrapper.append(mediaBox);
-        likeList.append(mediaWrapper);
-    });
-}
