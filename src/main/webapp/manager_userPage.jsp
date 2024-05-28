@@ -70,8 +70,8 @@
             </div>
 
             <div class="analytic-box" id="average-app-rating-by-criteria">
-                <label for="criteria">Select Distribution Type:</label>
-                <select id="criteria" onchange="distribution(this.value)">
+                <label for="criteria">Average App Rating by Criteria</label>
+                <select id="criteria" onchange="averageAppRatingByCriteria(this.value)">
                     <option value="gender">Gender</option>
                     <option value="location">Location</option>
                 </select>
@@ -85,6 +85,18 @@
 </div>
 
 <script>
+    $(document).ready(function(){
+        // Append a canvas element for Chart.js
+        $("#user-distribution-analytics div").append('<canvas id="myChart"></canvas>');
+        $("#average-app-rating-by-criteria div").append('<canvas id="myChart2"></canvas>');
+
+        // Load the default chart for gender
+        distribution('gender');
+        averageAppRatingByCriteria('gender');
+    });
+
+
+
     function distribution(criteria){
         const inputData ={
             action: "distribution",
@@ -92,8 +104,108 @@
         };
         $.post("${pageContext.request.contextPath}/manager",inputData, function (data){
             console.log(data);
-        });
+            renderChart(criteria,data.distribution);
+        },
+        'json');
     }
+    function renderChart(criteria, distributionData) {
+        const ctx = document.getElementById('myChart').getContext('2d');
+        const labels = Object.keys(distributionData);
+        const values = Object.values(distributionData);
+
+        const chartData = {
+            labels: labels,
+            datasets: [{
+                label: `User Distribution by ${criteria}`,
+                data: values,
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        };
+
+        const config = {
+            type: 'bar',
+            data: chartData,
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        };
+
+        // Destroy existing chart instance if exists to avoid overlap
+        if (window.myChartInstance) {
+            window.myChartInstance.destroy();
+        }
+
+        window.myChartInstance = new Chart(ctx, config);
+    }
+
+    $(document).ready(function(){
+        // Append a canvas element for Chart.js
+        $(".analytic-box div").append('<canvas id="myChart"></canvas>');
+    });
+
+    function averageAppRatingByCriteria(criteria){
+        const inputData ={
+            action: "averageAppRatingByCriteria",
+            criteria: criteria
+        };
+        $.post("${pageContext.request.contextPath}/manager",inputData, function (data){
+            console.log(data);
+            renderChart2(criteria,data.averageAppRatingByCriteria);
+        },
+        'json');
+    }
+
+    function renderChart2(criteria, averageAppRatingData) {
+        const ctx = document.getElementById('myChart2').getContext('2d');
+        const labels = Object.keys(averageAppRatingData);
+        const values = Object.values(averageAppRatingData);
+
+        const chartData = {
+            labels: labels,
+            datasets: [{
+                label: `Average App Rating by ${criteria}`,
+                data: values,
+                backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                borderColor: 'rgba(153, 102, 255, 1)',
+                borderWidth: 1
+            }]
+        };
+
+        const config = {
+            type: 'bar',
+            data: chartData,
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        };
+
+        // Destroy existing chart instance if exists to avoid overlap
+        if (window.myChartInstance2) {
+            window.myChartInstance2.destroy();
+        }
+
+        window.myChartInstance2 = new Chart(ctx, config);
+    }
+
+    $(document).ready(function(){
+        // Append a canvas element for Chart.js
+        $("#average-app-rating-by-criteria div").append('<canvas id="myChart2"></canvas>');
+    });
+
+
+
+
+
 
     function averageAppRatingByAgeRange(){
         const inputData={
@@ -150,7 +262,7 @@
     }
     // Call the function to load and display the chart
     averageAppRatingByAgeRange();
-    
+
 </script>
 
 

@@ -36,25 +36,25 @@
 
 
 
-        function updateGenreChart() {
+        //function updateGenreChart() {
             // Implement updating genre chart here
-            console.log("Updating genre chart");
-        }
+           // console.log("Updating genre chart");
+        //}
 
-        function updateThemeChart() {
+        //function updateThemeChart() {
             // Implement updating theme chart here
-            console.log("Updating theme chart");
-        }
+        //  console.log("Updating theme chart");
+        //}
 
-        function updateDemographicChart() {
+        //function updateDemographicChart() {
             // Implement updating demographic chart here
-            console.log("Updating demographic chart");
-        }
+        //  console.log("Updating demographic chart");
+        ////}
 
-        function updateAuthorChart() {
+        //function updateAuthorChart() {
             // Implement updating author chart here
-            console.log("Updating author chart");
-        }
+        //  console.log("Updating author chart");
+        //}
     </script>
 </head>
 <body>
@@ -78,19 +78,10 @@
                     <option value="themes">Theme</option>
                     <option value="demographics">Demographic</option>
                 </select>
+                    <div>
+                        <!-- Chart -->
+                    </div>
 
-                <!-- Genres Chart -->
-                <div id="genreChartContainer" class="chart-container" >
-                    <canvas id="mangaGenreChart" width="500" height="400"></canvas>
-                </div>
-                <!-- Theme Chart -->
-                <div id="themeChartContainer" class="chart-container" >
-                    <canvas id="mangaThemeChart" width="500" height="400"></canvas>
-                </div>
-                <!-- Demographics Chart -->
-                <div id="demographicChartContainer" class="chart-container" >
-                    <canvas id="mangaDemographicsChart" width="500" height="400"></canvas>
-                </div>
             </div>
 
             <div id="manga-search-name" class="media-list-section analytic-box">
@@ -662,6 +653,12 @@
         }
     }
 
+    $(document).ready(function (){
+        $("#manga-tag-analytics").append('<canvas id="myChart3"</canvas>');
+
+        getBestCriteria('genres','manga',1);
+    })
+
     function getBestCriteria(criteria, section, page = 1) {
         const inputData = {
             action: "getBestCriteria",
@@ -672,48 +669,29 @@
 
         $.post("${pageContext.request.contextPath}/manager", inputData, function (data) {
             console.log(data);
-            const parsedData = JSON.parse(data);
-            updateChartforCriteria(criteria, parsedData);
-        });
+            showChart(criteria,data.getBestCriteria);
+        },
+        'json');
     }
-    function updateChartforCriteria(criteria, data) {
-        // Hide all chart containers
-        document.getElementById('genreChartContainer').style.display = 'none';
-        document.getElementById('themeChartContainer').style.display = 'none';
-        document.getElementById('demographicChartContainer').style.display = 'none';
+    function showChart(criteria, bestCriteriaData){
+        const ctx = document.getElementById('myChart3').getContext('2d');
+        const labels = Object.keys(bestCriteriaData);
+        const values = Object.values(bestCriteriaData);
 
-        let chartId;
-        if (criteria === 'genres') {
-            chartId = 'mangaGenreChart';
-            document.getElementById('genreChartContainer').style.display = 'block';
-        } else if (criteria === 'themes') {
-            chartId = 'mangaThemeChart';
-            document.getElementById('themeChartContainer').style.display = 'block';
-        } else if (criteria === 'demographics') {
-            chartId = 'mangaDemographicsChart';
-            document.getElementById('demographicChartContainer').style.display = 'block';
-        }
+        const chartData = {
+            labels: labels,
+            datasets: [{
+                label: `Best ${criteria}`,
+                data: values,
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        };
 
-        const ctx = document.getElementById(chartId).getContext('2d');
-
-        // Destroy the existing chart if it exists
-        if (window.myChart) {
-            window.myChart.destroy();
-        }
-
-        // Create a new chart
-        window.myChart = new Chart(ctx, {
+        const config = {
             type: 'bar',
-            data: {
-                labels: data.map(item => item.label),
-                datasets: [{
-                    label: criteria,
-                    data: data.map(item => item.value),
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1
-                }]
-            },
+            data: chartData,
             options: {
                 scales: {
                     y: {
@@ -721,8 +699,21 @@
                     }
                 }
             }
-        });
+        };
+
+        // Destroy existing chart instance if exists to avoid overlap
+        if (window.myChartInstance3) {
+            window.myChartInstance3.destroy();
+        }
+
+        window.myChartInstance3 = new Chart(ctx, config);
     }
+
+    $(document).ready(function(){
+        // Append a canvas element for Chart.js
+        $(".analytic-box div").append('<canvas id="myChart3"></canvas>');
+    });
+
 
     function averageRatingByMonth(section, id, year) {
         const inputData = {
