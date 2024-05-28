@@ -16,6 +16,8 @@ import org.neo4j.driver.Value;
 import org.neo4j.driver.exceptions.Neo4jException;
 import org.neo4j.driver.exceptions.TransientException;
 import org.neo4j.driver.types.Node;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -37,10 +39,10 @@ public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
     @Override
     public void saveUser(UserRegistrationDTO user) throws DAOException {
         try (Session session = getSession()) {
-            String query = "CREATE (u:User {id: $id, username: $username, picture: $picture}) RETURN u";
+            String query = "CREATE (u:User {id: $id, username: $username}) RETURN u";
 
             session.executeWrite(tx -> {
-                boolean created = tx.run(query, parameters("id", user.getId(), "username", user.getUsername(), "picture", Constants.DEFAULT_PROFILE_PICTURE)).hasNext();
+                boolean created = tx.run(query, parameters("id", user.getId(), "username", user.getUsername())).hasNext();
 
                 if (!created) {
                     throw new Neo4jException("Error while creating user node with username " + user.getUsername());
@@ -62,22 +64,27 @@ public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
     @Override
     public void updateUser(User user) throws DAOException {
         try (Session session = getSession()) {
-            StringBuilder queryBuilder = new StringBuilder("MATCH (u:User {id: $id}) SET");
+            StringBuilder queryBuilder = new StringBuilder("MATCH (u:User {id: $id}) ");
+            Map<String, Object> param = new HashMap<>();
+            param.put("id", user.getId());
 
             if (user.getUsername() == null && user.getProfilePicUrl() == null) {
                 throw new IllegalArgumentException("Manga object must have at least one field to update");
             }
-            Map<String, Object> param = new HashMap<>();
-            param.put("id", user.getId());
-            if (user.getUsername() != null) {
-                queryBuilder.append(" u.username = $username ");
+            if (user.getUsername() != null && user.getProfilePicUrl() != null && !user.getProfilePicUrl().equals(Constants.NULL_STRING)) {
+                queryBuilder.append("SET u.username = $username, u.picture = $picture ");
                 param.put("username", user.getUsername());
-            }
-            if (user.getProfilePicUrl() != null) {
-                if (user.getUsername() != null)
-                    queryBuilder.append(",");
-                queryBuilder.append(" u.picture = $picture ");
                 param.put("picture", user.getProfilePicUrl());
+            } else {
+                if (user.getUsername() != null) {
+                    queryBuilder.append("SET u.username = $username ");
+                    param.put("username", user.getUsername());
+                } else if (user.getProfilePicUrl().equals(Constants.NULL_STRING)) {
+                    queryBuilder.append("REMOVE u.picture ");
+                } else {
+                    queryBuilder.append("SET u.picture = $picture ");
+                    param.put("picture", user.getProfilePicUrl());
+                }
             }
             queryBuilder.append("RETURN u");
             String query = queryBuilder.toString();
@@ -489,7 +496,8 @@ public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
         Node userNode = record.get("user").asNode();
         userSummaryDTO.setId(userNode.get("id").asString());
         userSummaryDTO.setUsername(userNode.get("username").asString());
-        userSummaryDTO.setProfilePicUrl(userNode.get("picture").asString());
+        if (userNode.containsKey("picture"))
+            userSummaryDTO.setProfilePicUrl(userNode.get("picture").asString());
 
         return userSummaryDTO;
     }

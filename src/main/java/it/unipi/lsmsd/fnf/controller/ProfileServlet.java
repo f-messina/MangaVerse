@@ -4,6 +4,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import it.unipi.lsmsd.fnf.controller.exception.NotAuthorizedException;
 import it.unipi.lsmsd.fnf.dto.LoggedUserDTO;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
@@ -29,6 +33,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 
 @WebServlet("/profile")
 public class ProfileServlet extends HttpServlet {
@@ -49,27 +57,30 @@ public class ProfileServlet extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
-        String targetJSP = "WEB-INF/jsp/profile.jsp";
-        String userId = request.getParameter("userId");
 
         switch (action) {
-            case "edit-profile" -> handleUpdate(request, response);
+            case "editProfile" -> handleUpdate(request, response);
+            case "follow" -> handleFollow(request, response);
+            case "unfollow" -> handleUnfollow(request, response);
             case "getAnimeLikes" -> handleGetAnimeLikes(request, response);
             case "getMangaLikes" -> handleGetMangaLikes(request, response);
             case "getReviews" -> handleGetReviews(request, response);
             case null, default -> {
+                String targetJSP = "WEB-INF/jsp/profile.jsp";
+                String userId = request.getParameter("userId");
                 try {
                     LoggedUserDTO authUser = SecurityUtils.getAuthenticatedUser(request);
                     if (authUser == null && userId == null) {
-                        targetJSP = "auth.jsp";
+                        targetJSP = "WEB-INF/jsp/auth.jsp";
                     } else {
                         if (authUser != null && userId == null) {
                             userId = authUser.getId();
                         } else if (authUser != null && !userId.equals(authUser.getId())) {
                             request.setAttribute("isFollowed", userService.isFollowing(authUser.getId(), userId));
                         }
-
-                        request.setAttribute("userInfo", userService.getUserById(userId));
+                        User user = userService.getUserById(userId);
+                        user.setProfilePicUrl(ConverterUtils.getProfilePictureUrlOrDefault(user.getProfilePicUrl(), request));
+                        request.setAttribute("userInfo", user);
                     }
                 } catch (BusinessException e) {
                     targetJSP = "error-page.jsp";
@@ -93,8 +104,14 @@ public class ProfileServlet extends HttpServlet {
             userService.updateUserInfo(user);
 
             // Update the user in the session
-            authUser.setUsername(user.getUsername());
-            authUser.setProfilePicUrl(user.getProfilePicUrl() == null ? Constants.DEFAULT_PROFILE_PICTURE : user.getProfilePicUrl());
+            if (user.getUsername() != null) {
+                authUser.setUsername(user.getUsername());
+            }
+            if (user.getProfilePicUrl() != null) {
+                authUser.setProfilePicUrl(Objects.equals(user.getProfilePicUrl(), Constants.NULL_STRING) ?
+                        ConverterUtils.getProfilePictureUrlOrDefault(null, request) : user.getProfilePicUrl());
+            }
+
             HttpSession session = request.getSession(true);
             session.setAttribute(Constants.AUTHENTICATED_USER_KEY, authUser);
 
@@ -109,6 +126,46 @@ public class ProfileServlet extends HttpServlet {
                 case NO_CHANGE -> jsonResponse.put("generalError", "No changes were made to the profile.");
                 default -> jsonResponse.put("generalError", "An error occurred while updating the profile. Please try again later.");
             }
+        }
+
+        // Write the JSON response
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(jsonResponse.toString());
+    }
+
+    private void handleFollow(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode jsonResponse = objectMapper.createObjectNode();
+
+        String followerId = SecurityUtils.getAuthenticatedUser(request).getId();
+        String followedId = request.getParameter("userId");
+
+        try {
+            userService.follow(followerId, followedId);
+            jsonResponse.put("success", true);
+        } catch (BusinessException e) {
+            jsonResponse.put("error", e.getMessage());
+        }
+
+        // Write the JSON response
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(jsonResponse.toString());
+    }
+
+    private void handleUnfollow(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode jsonResponse = objectMapper.createObjectNode();
+
+        String followerId = SecurityUtils.getAuthenticatedUser(request).getId();
+        String followedId = request.getParameter("userId");
+
+        try {
+            userService.unfollow(followerId, followedId);
+            jsonResponse.put("success", true);
+        } catch (BusinessException e) {
+            jsonResponse.put("error", e.getMessage());
         }
 
         // Write the JSON response
@@ -188,7 +245,20 @@ public class ProfileServlet extends HttpServlet {
     private void handleGetReviews(HttpServletRequest request, HttpServletResponse response) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode jsonResponse = objectMapper.createObjectNode();
-        objectMapper.registerModule(new JavaTimeModule());
+
+        // Create a module to handle the serialization and deserialization of LocalDate and LocalDateTime objects
+        JavaTimeModule javaTimeModule = new JavaTimeModule();
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+        // Register the formatters for serialization
+        javaTimeModule.addSerializer(LocalDate.class, new LocalDateSerializer(dateFormatter));
+        javaTimeModule.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer(dateTimeFormatter));
+        // Register the formatters for deserialization
+        javaTimeModule.addDeserializer(LocalDate.class, new LocalDateDeserializer(dateFormatter));
+        javaTimeModule.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(dateTimeFormatter));
+
+        // Register the module with the ObjectMapper
+        objectMapper.registerModule(javaTimeModule);
 
         String userId = request.getParameter("userId");
         String pageString = request.getParameter("page");

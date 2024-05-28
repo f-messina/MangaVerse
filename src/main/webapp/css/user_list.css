@@ -1,0 +1,32 @@
+.user-list-section {
+    padding: 2rem 1rem;
+    border-radius: 10px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.user-list-name {
+    font-size: 1.5rem;
+    margin: 0 0 1rem 0;
+}
+
+.user {
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+    margin: 5px 0;
+    border-radius: 10px;
+    border: 1px solid rgba(68, 34, 213, 0.35);
+    text-decoration: none;
+    color: black;
+}
+
+.user-pic {
+    width: 50px;
+    height: auto;
+    border-radius: 50%;
+}
+
+.user-username {
+    margin-left: 1rem;
+}

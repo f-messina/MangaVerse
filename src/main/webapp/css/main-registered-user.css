@@ -7,10 +7,14 @@ html {
     box-sizing: border-box;
 }
 
+.scrollable {
+    overflow-y: scroll;
+    height: 100vh;
+}
+
 /* welcome page */
 
 .section-home {
-    min-height: 800px;
     min-width: 800px;
     height: 100vh;
     display: flex;
@@ -67,9 +71,9 @@ html {
 }
 
 .down-arrow {
-    position: relative;
+    position: absolute;
     height: 30px;
-    top: 220px;
+    top: 90vh;
 }
 
 .down-arrow i:hover {
@@ -107,23 +111,8 @@ iframe {
 
 /* navbar */
 
-nav {
+#navbar {
     position: static;
-    top: 0;
-    left: 0;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-    padding: 2rem 4rem;
-    width: 100%;
-    height: 100px;
-    background-color: white;
-    z-index: 999;
-}
-nav h1{
-    font-weight: 300;
-    font-size: 40px;
 }
 
 .fixed-nav {
@@ -136,50 +125,28 @@ nav h1{
     z-index: 999;
 }
 
-.small-pic {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
+/* main page */
 
-nav img {
-    width: 60px;
-    height: auto;
-}
-
-nav .nav-items {
-    display: flex;
-    align-items: center;
-    gap: 40px;
-    font-size: 1.25em;
-}
-
-nav .nav-items a {
-    text-decoration: none;
-    color: black;
-}
-
-
-
-.main-page-unreg{
+.main-page-unreg {
     padding-top: 50px;
 
 }
-.more-filtering{
-    margin-top: -15px;
+
+.more-filtering {
     background-color: transparent;
     border-style: none;
-    width: 10%;
     color: grey;
 }
-.filtering{
+
+.filtering {
     padding-left: 80px;
     padding-right: 80px;
     padding-top: 80px;
-    display: flex;
+    display: none;
     flex-direction: column;
     gap: 20px;
 }
+
 #myDIV{
     display: none;
     gap: 20px;
@@ -565,5 +532,97 @@ swiper-slide img {
 
 #searchForm {
     margin-top: 20px;
+}
+
+/*/////////////////////////////
+/// SECTION GRID MANGA ANIME //
+/////////////////////////////*/
+
+.profile-content {
+    padding-bottom: 2rem;
+}
+
+.no-results-error {
+    font-size: 6rem;
+}
+
+.project-boxes {
+    overflow-y: auto;
+    margin: 3rem 5% 0 5%;
+
+
+    &.jsGridView {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+
+        .project-box-wrapper {
+            width: 33.3%;
+            min-width: 200px;
+            max-width: 400px;
+        }
+    }
+
+    .project-box {
+        display: flex;
+        border-radius: 10px;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+
+        > * {
+            width: 90%;
+        }
+
+        .box-image {
+            border-radius: 10px;
+            aspect-ratio: 1/1;
+        }
+
+        .box-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 1rem 0;
+            text-decoration: none;
+            color: #fff;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+    }
+}
+
+.project-box {
+    border-radius: 30px;
+    padding: 16px;
+    background-color: rgb(144, 123, 228);
+}
+
+.project-box-wrapper {
+    padding: 2rem;
+    transition: .3s;
+}
+
+@media screen and (max-width: 520px) {
+    .project-boxes { overflow-y: visible; }
+
+    .project-boxes.jsGridView .project-box-wrapper {
+        width: 100%;
+    }
+
+    .project-boxes.jsListView .project-box > * {
+        margin-right: 10px;
+    }
+}
+
+
+@media (max-width: 42rem) {
+    .project-boxes {
+        margin: 3rem 0 0;
+    }
+    .no-results-error {
+        font-size: 3rem;
+    }
 }
 

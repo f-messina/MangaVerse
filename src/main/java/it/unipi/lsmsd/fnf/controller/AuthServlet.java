@@ -67,7 +67,8 @@ public class AuthServlet extends HttpServlet {
             UserRegistrationDTO user = ConverterUtils.fromRequestToUserRegDTO(request);
             userService.signup(user);
             HttpSession session = request.getSession(true);
-            session.setAttribute(Constants.AUTHENTICATED_USER_KEY, new LoggedUserDTO(user.getId(), user.getUsername(), Constants.DEFAULT_PROFILE_PICTURE, UserType.USER));
+            String picture = request.getContextPath() + "/" + Constants.DEFAULT_PROFILE_PICTURE;
+            session.setAttribute(Constants.AUTHENTICATED_USER_KEY, new LoggedUserDTO(user.getId(), user.getUsername(), picture, UserType.USER));
 
             // Set the success flag in the JSON response
             jsonResponse.put("success", true);
@@ -116,6 +117,7 @@ public class AuthServlet extends HttpServlet {
 
         try {
             LoggedUserDTO loggedUserDTO = userService.login(email, password);
+            loggedUserDTO.setProfilePicUrl(ConverterUtils.getProfilePictureUrlOrDefault(loggedUserDTO.getProfilePicUrl(), request));
             HttpSession session = request.getSession(true);
             session.setAttribute(Constants.AUTHENTICATED_USER_KEY, loggedUserDTO);
             response.sendRedirect("mainPage/manga");

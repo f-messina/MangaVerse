@@ -6,6 +6,7 @@ public class Constants {
 
     public static final String DEFAULT_PROFILE_PICTURE = "images/account-icon.png";
     public static final String DEFAULT_COVER_MANGA = "images/manga-image-default.png";
+    public static final String DEFAULT_COVER_ANIME = "images/anime-image-default.png";
     public static final String AUTHENTICATED_USER_KEY = "authenticatedUser";
     public static final int PAGE_SIZE = 25;
     public static final String PAGINATION_FACET = "paginationResults";

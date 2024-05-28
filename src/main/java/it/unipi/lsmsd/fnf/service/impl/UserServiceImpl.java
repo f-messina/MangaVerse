@@ -110,7 +110,7 @@ public class UserServiceImpl implements UserService {
         try {
             userDAO.updateUser(user);
 
-            // Create a task which update the node User in Neo4j
+            // Create a task which update the node User in Neo4j and the user redundancy inside anime and manga
             if (user.getUsername() != null || user.getProfilePicUrl() != null) {
                 aperiodicExecutorTaskService.executeTask(new UpdateUserTask(user));
                 aperiodicExecutorTaskService.executeTask(new UpdateMediaRedundancyTask(user.toSummaryDTO()));

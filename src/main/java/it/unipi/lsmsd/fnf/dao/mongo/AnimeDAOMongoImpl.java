@@ -402,7 +402,10 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
                 updateOperations.add(set("latest_reviews.$[elem].user.username", userSummaryDTO.getUsername()));
             }
             if (userSummaryDTO.getProfilePicUrl() != null) {
-                updateOperations.add(set("latest_reviews.$[elem].user.picture", userSummaryDTO.getProfilePicUrl()));
+                if (!userSummaryDTO.getProfilePicUrl().equals(Constants.NULL_STRING))
+                    updateOperations.add(set("latest_reviews.$[elem].user.picture", userSummaryDTO.getProfilePicUrl()));
+                else
+                    updateOperations.add(unset("latest_reviews.$[elem].user.picture"));
             }
             UpdateOptions options = new UpdateOptions().arrayFilters(
                     List.of(Filters.eq("elem.user.id", new ObjectId(userSummaryDTO.getId())))
@@ -412,10 +415,7 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
             if (!updateOperations.isEmpty()) {
                 Bson update = combine(updateOperations);
                 UpdateResult result = animeCollection.updateMany(filter, update, options);
-                if (result.getMatchedCount() == 0) {
-                    throw new MongoException("AnimeDAOMongoDBImpl : updateUserRedundancy: No user redundancy was found");
-                }
-                if (result.getModifiedCount() == 0) {
+                if (result.getMatchedCount() != 0 && result.getModifiedCount() == 0) {
                     throw new MongoException("AnimeDAOMongoDBImpl : updateUserRedundancy: No user redundancy was updated");
                 }
             } else {

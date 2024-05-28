@@ -18,6 +18,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.bson.types.ObjectId;
+import org.slf4j.Logger;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -179,9 +180,9 @@ public class DocumentUtils {
         return reviewDocument;
     }
 
-    public static Document RegisteredUserToDocument(UserRegistrationDTO user, String image) {
+    public static Document RegisteredUserToDocument(UserRegistrationDTO user) {
         return createUserDocument(user.getPassword(), user.getEmail(), LocalDate.now(),
-                user.getFullname(), image, user.getUsername(),
+                user.getFullname(), null, user.getUsername(),
                 user.getBirthday(), null, user.getGender(), user.getLocation());
     }
 
@@ -452,7 +453,8 @@ public class DocumentUtils {
             doc.append("description", 1);
         if (registeredUser.getGender() != null && registeredUser.getGender().equals(Gender.UNKNOWN))
             doc.append("gender", 1);
-
+        if (registeredUser.getProfilePicUrl() != null && registeredUser.getProfilePicUrl().equals(Constants.NULL_STRING))
+            doc.append("picture", 1);
         return doc;
     }
 }

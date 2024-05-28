@@ -46,6 +46,15 @@ public class ConverterUtils {
         return Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
     }
 
+    //
+    public static String getProfilePictureUrlOrDefault(String picture, HttpServletRequest request) {
+        Logger logger = getLogger(ConverterUtils.class.getName());
+        if (StringUtils.isEmpty(picture)) {
+            return request.getContextPath() + "/" + Constants.DEFAULT_PROFILE_PICTURE;
+        }
+        return picture;
+    }
+
     /**
      * Converts HTTP request parameters to a UserRegistrationDTO object.
      * @param request The HttpServletRequest containing request parameters.
@@ -68,37 +77,42 @@ public class ConverterUtils {
     }
 
     public static User fromRequestToUser(HttpServletRequest request){
-        Logger logger = getLogger(ConverterUtils.class.getName());
-        logger.info(request.getParameter("birthdate"));
-
         User user = new User();
         LoggedUserDTO loggedUser = SecurityUtils.getAuthenticatedUser(request);
         user.setId(loggedUser.getId());
-        if (StringUtils.isNotBlank(request.getParameter("picture")) &&
-                !request.getParameter("picture").equals(loggedUser.getProfilePicUrl()))
-            user.setProfilePicUrl(request.getParameter("picture"));
-        else if (StringUtils.isBlank(request.getParameter("picture")))
-            user.setProfilePicUrl(Constants.DEFAULT_PROFILE_PICTURE);
-        if (StringUtils.isNotBlank(request.getParameter("username")) &&
-                !request.getParameter("username").equals(loggedUser.getUsername()))
-            user.setUsername(request.getParameter("username"));
-        if (StringUtils.isNotBlank(request.getParameter("fullname")))
-            user.setFullname(request.getParameter("fullname"));
-        else
+
+        String username = request.getParameter("username");
+        String fullname = request.getParameter("fullname");
+        String description = request.getParameter("description");
+        String country = request.getParameter("country");
+        String birthday = request.getParameter("birthdate");
+        String gender = request.getParameter("gender");
+        String profilePicUrl = request.getParameter("picture");
+
+        if (username != null)
+            user.setUsername(username);
+        if (fullname != null && !fullname.isEmpty())
+            user.setFullname(fullname);
+        else if (fullname != null)
             user.setFullname(Constants.NULL_STRING);
-        if (StringUtils.isNotBlank(request.getParameter("country")))
-            user.setLocation(request.getParameter("country"));
-        else
-            user.setLocation(Constants.NULL_STRING);
-        if (StringUtils.isNotBlank(request.getParameter("birthdate")))
-            user.setBirthday(LocalDate.parse(request.getParameter("birthdate")));
-        else
-            user.setBirthday(Constants.NULL_DATE);
-        user.setGender(Gender.fromString(request.getParameter("gender")));
-        if (StringUtils.isNotBlank(request.getParameter("description")))
-            user.setDescription(request.getParameter("description"));
-        else
+        if (description != null && !description.isEmpty())
+            user.setDescription(description);
+        else if (description != null)
             user.setDescription(Constants.NULL_STRING);
+        if (country != null && !country.isEmpty())
+            user.setLocation(country);
+        else if (country != null)
+            user.setLocation(Constants.NULL_STRING);
+        if (birthday != null && !birthday.isEmpty())
+            user.setBirthday(LocalDate.parse(birthday));
+        else if (birthday != null)
+            user.setBirthday(Constants.NULL_DATE);
+        if (gender != null)
+            user.setGender(Gender.valueOf(gender));
+        if (profilePicUrl != null && !profilePicUrl.isEmpty())
+            user.setProfilePicUrl(profilePicUrl);
+        else if (profilePicUrl != null)
+            user.setProfilePicUrl(Constants.NULL_STRING);
 
         return user;
     }

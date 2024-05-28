@@ -24,6 +24,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.neo4j.driver.Session;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -315,7 +317,7 @@ class UserServiceImplTest {
         MongoCollection<Document> usersCollection = BaseMongoDBDAO.getCollection("users");
 
         // Update filter: target documents with "picture" field equal to the old URL
-        Document updateFilter = new Document("picture", "https://imgbox.com/7MaTkBQR");
+        Document updateFilter = new Document("picture", Constants.DEFAULT_PROFILE_PICTURE);
 
         // Find all matching documents
         FindIterable<Document> matchingUsers = usersCollection.find(updateFilter);
@@ -324,7 +326,7 @@ class UserServiceImplTest {
         for (Document userDocument : matchingUsers) {
             User user = new User();
             user.setId(userDocument.getObjectId("_id").toHexString());
-            user.setProfilePicUrl(Constants.DEFAULT_PROFILE_PICTURE);
+            user.setProfilePicUrl(Constants.NULL_STRING);
             // Retrieve the updated user data using UserServiceImpl.getUserById(userId); // Assuming you need it
             UserServiceImpl userService = new UserServiceImpl();
             userService.updateUserInfo(user);
@@ -337,7 +339,7 @@ class UserServiceImplTest {
     @Test
     public void updateDefaultProfilePictureOnNeo4j() throws Exception {
         // Update filter: target documents with "picture" field equal to the old URL
-        String query = "MATCH (u:User) WHERE u.picture = 'https://imgbox.com/7MaTkBQR' SET u.picture = '" + Constants.DEFAULT_PROFILE_PICTURE + "'";
+        String query = "MATCH (u:User) WHERE u.picture =" + Constants.DEFAULT_PROFILE_PICTURE + "SET u.picture = null";
         try (Session session = getSession()) {
             session.run(query);
         } catch (Exception e) {

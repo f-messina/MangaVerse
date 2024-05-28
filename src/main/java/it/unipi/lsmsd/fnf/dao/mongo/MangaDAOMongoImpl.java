@@ -396,7 +396,10 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
                 updateOperations.add(set("latest_reviews.$[elem].user.username", userSummaryDTO.getUsername()));
             }
             if (userSummaryDTO.getProfilePicUrl() != null) {
-                updateOperations.add(set("latest_reviews.$[elem].user.picture", userSummaryDTO.getProfilePicUrl()));
+                if (!userSummaryDTO.getProfilePicUrl().equals(Constants.NULL_STRING))
+                    updateOperations.add(set("latest_reviews.$[elem].user.picture", userSummaryDTO.getProfilePicUrl()));
+                else
+                    updateOperations.add(unset("latest_reviews.$[elem].user.picture"));
             }
             UpdateOptions options = new UpdateOptions().arrayFilters(
                     List.of(Filters.eq("elem.user.id", new ObjectId(userSummaryDTO.getId())))
