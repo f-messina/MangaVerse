@@ -290,12 +290,12 @@ public class ManagerServlet extends HttpServlet {
     private void handleMediaContentAverageRatingByMonth(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String mediaContentId = request.getParameter("mediaContentId");
         int year = Integer.parseInt(request.getParameter("year"));
-        boolean isManga = (boolean) request.getAttribute("isManga");
+        String type = request.getParameter("type");
 
         ReviewService reviewService = ServiceLocator.getReviewService();
 
         try {
-            Map<String, Double> averageRatingByMonth = reviewService.getMediaContentRatingByMonth(isManga ? MediaContentType.MANGA : MediaContentType.ANIME, mediaContentId, year);
+            Map<String, Double> averageRatingByMonth = reviewService.getMediaContentRatingByMonth(type.equals("manga") ? MediaContentType.MANGA : MediaContentType.ANIME, mediaContentId, year);
 
             JsonObject jsonResponse = new JsonObject();
             jsonResponse.addProperty("mediaContentId", mediaContentId);
