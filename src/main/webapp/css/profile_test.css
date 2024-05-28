@@ -8,8 +8,9 @@ html {
 
 #country-dropdown {
     position: absolute;
-    left: 20%;
-    right: 20%;
+    left: 13px;
+    right: 51%;
+    border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     background-color: #fff;
     max-height: 150px;
@@ -646,6 +647,7 @@ select.form-control {
         .box-image {
             border-radius: 10px;
             aspect-ratio: 1/1;
+            background-color: #eaeaea;
         }
 
         .box-title {

@@ -98,7 +98,7 @@ function updateMediaContent(mediaResults) {
         const mediaBox = $("<div>").addClass("project-box");
         const picture = $("<img>").attr("src", media.imageUrl).attr("alt", media.title)
             .addClass("box-image")
-            .on("error", () => setDefaultCover(this));
+            .on("error", () => setDefaultCover(picture));
         const title = $("<a>").attr("href", "${contextPath}/" + mediaType + "?mediaId=${media.id}")
             .addClass("box-title").text(media.title);
         if (mediaType === "manga") {
@@ -116,15 +116,8 @@ function updateMediaContent(mediaResults) {
 }
 
 function setDefaultCover(image) {
-    if (!$(image).data("defaultAttempted")) {
-        $(image).data("defaultAttempted", true);  // Set flag to true to indicate default image is being set
-        image.onerror = null;  // Remove the error handler to prevent infinite loop
-        if (mediaType === "anime") {
-            image.src = animeDefaultImage;
-        } else {
-            image.src = mangaDefaultImage;
-        }
-    }
+    image.off("error");
+    image.attr("src", mediaType === "manga" ? mangaDefaultImage : animeDefaultImage);
 }
 
 // Create HTML element for a media article

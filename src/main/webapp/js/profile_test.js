@@ -128,9 +128,13 @@ function resetForm() {
     $("#description").val(profile.description);
     $("#country").val(profile.country);
     $("#birthdate").val(profile.birthdate);
-    $("#profile-picture-url").val(profile.picture);
+    if (profile.picture === "" || profile.picture === userDefaultImage) {
+        $("#profile-picture-url").val("");
+    } else {
+        $("#profile-picture-url").val(profile.picture);
+    }
+    $("#profile-picture").attr("src", profile.picture === "" ? userDefaultImage : profile.picture);
     $("#gender").val(profile.gender);
-    $("#profile-picture").attr("src", profile.picture);
     $("#check-image-message").text("");
     $("#username-error").text("");
     $("#country-error").text("");
@@ -365,7 +369,7 @@ function showLikes(data, action) {
         const mediaBox = $("<div>").addClass("project-box");
         const picture = $("<img>").attr("src", media.imageUrl).attr("alt", media.title)
             .addClass("box-image")
-            .on("error", () => setDefaultCover(this, action));
+            .on("error", () => setDefaultCover(picture, action));
         const title = $("<a>").attr("href", `${contextPath}/${isAnime ? "anime" : "manga"}?mediaId=${media.id}`)
             .addClass("box-title").text(media.title);
 
@@ -376,8 +380,8 @@ function showLikes(data, action) {
 }
 
 function setDefaultCover(image, action) {
-    $(image).off("error");
-    $(image).attr("src", action === "getAnimeLikes" ? animeDefaultImage : mangaDefaultImage);
+    image.off("error");
+    image.attr("src", action === "getAnimeLikes" ? animeDefaultImage : mangaDefaultImage);
 }
 
 function showReviews(data) {

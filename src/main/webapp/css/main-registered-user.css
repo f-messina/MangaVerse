@@ -578,6 +578,7 @@ swiper-slide img {
         .box-image {
             border-radius: 10px;
             aspect-ratio: 1/1;
+            background-color: #eaeaea;
         }
 
         .box-title {
