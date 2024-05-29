@@ -81,6 +81,7 @@ public class ManagerServlet extends HttpServlet {
             case "averageAppRatingByCriteria" -> handleUsersAverageAppRatingCriteria(request, response); // Asynchronous request for user
             case "averageAppRatingByAgeRange" -> handleUsersAverageAppRatingAgeRange(request, response); // Asynchronous request for user
             case "trendMediaContentByYear" ->  handleTrendMediaContentByYear(request, response); // Asynchronous request for anime and manga
+            case "trendMediaContentByLikes"-> handleTrendMediaContentByLikes(request, response); // Asynchronous request for anime and manga
             case "show_info" -> handleShowInfo(request, response);
             case "update_info" -> handleUpdateInfo(request,response);
             case "delete_media" -> handleDeleteMedia(request,response);
