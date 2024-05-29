@@ -12,6 +12,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
+import it.unipi.lsmsd.fnf.service.exception.enums.BusinessExceptionType;
 import it.unipi.lsmsd.fnf.service.interfaces.MediaContentService;
 import it.unipi.lsmsd.fnf.service.interfaces.ReviewService;
 import it.unipi.lsmsd.fnf.service.ServiceLocator;
@@ -323,15 +324,16 @@ public class ManagerServlet extends HttpServlet {
                 JsonNode averageRatingByMonthJson = objectMapper.valueToTree(averageRatingByMonth);
                 jsonResponse.set("averageRatingByMonth", averageRatingByMonthJson);
             } catch (BusinessException e) {
-                jsonResponse.put("error", "An error occurred while processing the request");
+                if(e.getType().equals(BusinessExceptionType.NOT_FOUND)){
+                    jsonResponse.put("not_found", "No reviews found for the specified media content");
+                }else{
+                    jsonResponse.put("error", "An error occurred while processing the request");
+                }
             }
-
-
         }
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         response.getWriter().write(jsonResponse.toString());
-
     }
 
     //Asynchronous request

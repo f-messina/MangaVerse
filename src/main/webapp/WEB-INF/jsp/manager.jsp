@@ -105,6 +105,7 @@
                 <div class="diagram-parameter">
                     <div>
                         <canvas id="manga-monthlyRatesChart" width="500" height="400"></canvas>
+                        <p id="not-found-monthly-rate-manga"> </p>
                     </div>
 
                     <%
@@ -728,42 +729,52 @@
         const inputData ={
             action: "averageRatingByMonth",
             mediaContentId: mangaId,
-            year: year
+            year: year,
+            section: "manga"
         };
 
         $.post("${pageContext.request.contextPath}/manager", inputData, function(data){
-            const months = Object.keys(data.averageRatingByMonth);
-            const rates = Object.values(data.averageRatingByMonth);
+            console.log(data)
+            if (data.success){
+                const months = Object.keys(data.averageRatingByMonth);
+                const rates = Object.values(data.averageRatingByMonth);
 
-            if (!mangaMyMonthlyChart) {
-                mangaMyMonthlyChart = new Chart(mangaCtxMonthly, {
-                    type: 'bar',
-                    data: {
-                        labels: months,
-                        datasets: [{
-                            label: 'Monthly Rates',
-                            data: rates,
-                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                            borderColor: 'rgba(54, 162, 235, 1)',
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        scales: {
-                            yAxes: [{
-                                ticks: {
-                                    beginAtZero: true,
-                                    suggestedMax: 10
-                                }
+
+                if (!mangaMyMonthlyChart) {
+                    mangaMyMonthlyChart = new Chart(mangaCtxMonthly, {
+                        type: 'bar',
+                        data: {
+                            labels: months,
+                            datasets: [{
+                                label: 'Monthly Rates',
+                                data: rates,
+                                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                borderWidth: 1
                             }]
+                        },
+                        options: {
+                            scales: {
+                                yAxes: [{
+                                    ticks: {
+                                        beginAtZero: true,
+                                        suggestedMax: 10
+                                    }
+                                }]
+                            }
                         }
-                    }
-                });
-            } else {
-                mangaMyMonthlyChart.data.labels = months;
-                mangaMyMonthlyChart.data.datasets[0].data = rates;
-                mangaMyMonthlyChart.update();
+                    });
+                }
+                else {
+                    mangaMyMonthlyChart.data.labels = months;
+                    mangaMyMonthlyChart.data.datasets[0].data = rates;
+                    mangaMyMonthlyChart.update();
+                }
+            }else if(data.not_found){
+                const notFound = document.getElementById('not-found-monthly-rate-manga');
+                notFound.textContent = data.not_found;
             }
+
         }).fail(function(){
                 console.error('Failed to fetch data from server.');
             });

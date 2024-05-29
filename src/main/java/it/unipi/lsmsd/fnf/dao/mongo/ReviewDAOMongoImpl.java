@@ -27,6 +27,8 @@ import it.unipi.lsmsd.fnf.utils.DocumentUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -659,6 +661,8 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
             );
 
             List<Document> result = reviewCollection.aggregate(pipeline).into(new ArrayList<>());
+            Logger logger = LoggerFactory.getLogger(ReviewDAOMongoImpl.class);
+            logger.info("Result: " + result.toString());
             if (result.isEmpty()) {
                 throw new MongoException("ReviewDAOMongoImpl: getMediaContentRatingByMonth: No reviews found");
             }
