@@ -258,43 +258,40 @@ public class ManagerServlet extends HttpServlet {
         response.getWriter().write(jsonResponse.toString());
     }
 
-    //Asynchronous request
-    //Updated
-    private void handleMediaContentAverageRatingByYear(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    private void handleMediaContentAverageRatingByYear(HttpServletRequest request,HttpServletResponse response) throws  ServletException, IOException{
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode jsonResponse = objectMapper.createObjectNode();
 
-        //Add page??
-        int year = Integer.parseInt(request.getParameter("year"));
+        int startYear = Integer.parseInt(request.getParameter("startYear"));
+        int endYear = Integer.parseInt(request.getParameter("endYear"));
         String section = request.getParameter("section");
 
         int currentYear = Year.now().getValue();
 
-        if (section == null) {
+        if(section == null){
             jsonResponse.put("error", "Section not specified");
         }
-        //if start year or end year is greater than current year, throw exception
-        else if (year < 0 || year > currentYear) {
+        else if(startYear < 0 || endYear < 0 || endYear > currentYear || startYear > endYear){
             jsonResponse.put("error", "Invalid year range");
-        } else {
-            try {
-                Map<MediaContentDTO, Integer> averageRatingByYear = mediaContentService.getTrendMediaContentByYear(year, section.equals("manga") ? MediaContentType.MANGA : MediaContentType.ANIME);
+        }
+        else{
+            try{
+                Map<String, Double> averageRatingByYear = reviewService.getMediaContentRatingByYear(section.equals("manga") ? MediaContentType.MANGA : MediaContentType.ANIME, request.getParameter("mediaContentId"), startYear, endYear);
                 jsonResponse.put("success", true);
 
                 JsonNode averageRatingByYearJson = objectMapper.valueToTree(averageRatingByYear);
                 jsonResponse.set("averageRatingByYear", averageRatingByYearJson);
-
-
-            } catch (BusinessException e) {
-                jsonResponse.put("error", "An error occurred while processing the request");
+            }catch(BusinessException e){
+                if(e.getType().equals(BusinessExceptionType.NOT_FOUND)){
+                    jsonResponse.put("not_found", "No reviews found for the specified media content");
+                }else{
+                    jsonResponse.put("error", "An error occurred while processing the request");
+                }
             }
-
         }
-
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         response.getWriter().write(jsonResponse.toString());
-
     }
 
     //Asynchronous request
