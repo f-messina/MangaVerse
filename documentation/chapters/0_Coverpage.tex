@@ -6,7 +6,12 @@
     
     % Titolo del documento
     \Huge
-    \textbf{{\textcolor{myBlue}{MangaVerse}} }\\
+    % Adding a circle around the title
+    \begin{tikzpicture}
+        \node[draw=myBlue, circle, inner sep=2pt] (title) {\textcolor{myBlue}{MangaVerse}};
+    \end{tikzpicture}
+    
+    \vspace{1.5cm}
     
     \vspace{1.5cm}
     
@@ -17,6 +22,5 @@
     2023-2024 \\
     
     \vfill
-    
     
 \end{titlepage}
