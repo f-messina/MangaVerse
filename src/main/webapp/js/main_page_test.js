@@ -80,7 +80,6 @@ function getMediaContent(page = 1) {
 
 function updatePagination() {
     const pagination = $(".pagination");
-    const action = "search";
 
     pagination.empty();
     if (totalPages === 1) return;

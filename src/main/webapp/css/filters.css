@@ -158,6 +158,7 @@ html {
 
 
 /* Toggle Button */
+
 .button-cover {
     background-color: #fff;
     box-shadow: 0 10px 20px -8px #c5d6d6;
@@ -209,7 +210,7 @@ html {
 
 .layer {
     width: 100%;
-    background-color: #ebf7fc;
+    background-color: #fff;
     transition: 0.3s ease all;
     z-index: 1;
 }
@@ -252,7 +253,7 @@ html {
 }
 
 #button-3 .checkbox:checked ~ .layer {
-    background-color: rgb(var(--color-green-200));
+    background-color: #fff;
 }
 
 .search-wrap {
@@ -349,6 +350,19 @@ html {
     color: rgb(var(--color-blue-600));
 }
 
+.clear-btn {
+    color: rgb(var(--color-gray-500));
+    cursor: pointer;
+    display: inline-block;
+    font-size: 1.2rem;
+    margin-left: 3px;
+    transition: color .2s ease;
+}
+
+.clear-btn:hover {
+    color: rgb(var(--color-gray-800));
+}
+
 .placeholder {
     color: rgb(var(--color-gray-500));
 }
@@ -360,7 +374,7 @@ html {
     user-select: none;
 }
 
-.filter {
+.primary-filters .filter {
     background: 0 0;
     border: none;
     color: rgb(var(--color-gray-700));
@@ -417,7 +431,7 @@ svg:not(:root) {
     vertical-align: -0.125em;
 }
 
-.options {
+.primary-filters .options {
     display: none;
     background: rgb(var(--color-background-100));
     border-radius: 6px;
@@ -436,22 +450,22 @@ svg:not(:root) {
     padding: 10px;
 }
 
-.option.selected, .option:hover {
+.primary-filters .option.selected, .primary-filters .option:hover {
     color: rgb(var(--color-blue-600));
     background: rgba(var(--color-background-200),.6);
 }
 
-.option.avoided {
+.primary-filters .option.avoided {
     color: rgb(var(--color-red-400));
     background: rgba(var(--color-red-100),.6);
 }
 
-.label {
+.primary-filters .label {
     display: grid;
     grid-template-columns: auto 16px;
 }
 
-.option {
+.primary-filters .option {
     border-radius: 4px;
     color: rgb(var(--color-gray-700));
     cursor: pointer;
@@ -593,7 +607,7 @@ svg:not(:root) {
 
 .header-filters .values {
     color: rgb(var(--color-gray-700));
-    font-size: 1.2rem;
+    font-size: 1.3rem;
     font-weight: 600;
     justify-self: right;
     -webkit-user-select: none;
@@ -666,197 +680,111 @@ svg:not(:root) {
     opacity: 1;
 }
 
-.results {
-    display: grid;
-    grid-gap: 28px 30px;
-    grid-template-columns: repeat(auto-fill,185px);
-    justify-content: space-between;
-}
+/* selected filters and sorting */
 
-.active-filters, .results, .landing .title {
-    z-index: 5;
+.secondary-filters {
+    align-items: center;
+    display: grid;
+    grid-template-columns: auto min-content;
+    margin-bottom: 30px;
+    min-height: 23px;
     position: relative;
 }
 
-.media-card {
-    animation: in-data-v-4d8937d6 .3s linear;
-    display: grid;
-    grid-template-rows: min-content auto;
-    position: relative;
-    width: 185px;
+.sort-select {
+    padding-right: 10px;
+    margin-right: 12px;
 }
 
-.cover {
-    background: rgba(var(--color-background-300),.8);
-    border-radius: 4px;
-    box-shadow: 0 14px 30px rgba(var(--color-shadow-blue),.15),0 4px 4px rgba(var(--color-shadow-blue),.05);
+.sort-wrap {
+    align-items: center;
     cursor: pointer;
-    display: inline-block;
-    height: 265px;
-    overflow: hidden;
+    display: flex;
+    justify-content: flex-end;
     position: relative;
-    width: 100%;
-    z-index: 5;
-}
-
-.media-card a {
-    color: inherit;
-    text-decoration: none;
-    transition: .15s;
-    outline: 0;
-}
-
-.background-color.loaded, .image.loaded {
-    opacity: 1;
-}
-.background-color, .image {
-    height: 100%;
-    left: 0;
-    object-fit: cover;
-    opacity: 0;
-    position: absolute;
-    top: 0;
-    transition: opacity .3s ease-in-out;
-    width: 100%;
-}
-
-.media-card img {
-    vertical-align: text-top;
-    border-style: none;
-}
-
-.title {
-    color: rgb(var(--color-gray-700));
-    font-size: 1.4rem;
-    font-weight: 600;
-    line-height: 21px;
-    margin-top: 10px;
-    overflow: hidden;
-    transition: color .2s ease;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-}
-
-.hover-data {
-    background: rgb(var(--color-background-100));
-    border-radius: 6px;
-    box-shadow: 0 14px 30px rgba(var(--color-shadow-blue), .15), 0 4px 4px rgba(var(--color-shadow-blue), .05);
-    min-width: 200px;
-    opacity: 0;
-    padding: 24px;
-    pointer-events: none;
-    position: absolute;
-    top: 5px;
     -webkit-user-select: none;
     -ms-user-select: none;
     user-select: none;
-    width: 100%;
-    z-index: 10;
-    transition: opacity 0.3s ease; /* Add a transition for a smooth effect */
-    display: grid;
-    grid-template-columns: auto auto;
-    grid-gap: 25px 0; /* spazio tra le celle */
-    border: 1px solid #ccc; /* bordo per la visualizzazione */
+    font-size: 1.6rem;
 }
 
-.media-card:hover .hover-data {
-    opacity: 1;
-    pointer-events: auto;
+.selects-wrap.icon, .selects-wrap.label {
+    transition: color .3s ease;
 }
 
-.hover-data.left {
-    margin-right: 18px;
-    right: 100%;
+.selects-wrap.icon {
+    color: rgb(var(--color-gray-500));
+    font-size: 1.4rem;
+    margin-top: -.05em;
 }
 
-.hover-data.right {
-    margin-left: 18px;
-    left: 100%;
+.selects-wrap .label {
+        color: rgb(var(--color-gray-600));
+        font-size: 1.6rem;
+        font-weight: 600;
+        padding-left: 4px;
+        white-space: nowrap;
 }
 
-.hover-data.left::before {
-    width: 0;
-    height: 0;
-    content: "";
-    z-index: 2;
-    transform: scale(1.01);
-    border-left: .6rem solid currentColor;
-    border-bottom: .4rem solid transparent;
-    border-top: .4rem solid transparent;
-    left: 100%;
-}
-
-.hover-data.right::before {
-    width: 0;
-    height: 0;
-    content: "";
-    z-index: 2;
-    transform: scale(1.01);
-    border-right: .6rem solid currentColor;
-    border-bottom: .4rem solid transparent;
-    border-top: .4rem solid transparent;
-    right: 100%;
-}
-
-.hover-data::before {
-    box-shadow: 0 14px 30px rgba(var(--color-shadow-blue), .1), 0 4px 4px rgba(var(--color-shadow-blue), .02);
-    color: rgb(var(--color-gray-100));
+.secondary-filters .dropdown {
+    background: rgb(var(--color-background-100));
+    border-radius: 6px;
+    box-shadow: 0 14px 30px rgba(var(--color-shadow-blue),.15),0 4px 4px rgba(var(--color-shadow-blue),.05);
+    cursor: auto;
+    left: 1215px;
+    padding: 10px 16px;
     position: absolute;
-    top: 15%;
+    top: calc(100% + 10px);
+    width: 135px;
+    z-index: 50;
 }
 
-.score {
-    grid-column-start: 1;
-    grid-column-end: 3;
+.secondary-filters .dropdown::before {
+    width: 0;
+    height: 0;
+    content: "";
+    z-index: 2;
+    transform: scale(1.01);
+    border-bottom: .6rem solid currentColor;
+    border-left: .4rem solid transparent;
+    border-right: .4rem solid transparent;
+    bottom: 100%;
+    color: rgb(var(--color-gray-100));
+    left: calc(50% - 6px);
+    position: absolute;
 }
 
-.likes {
-    text-align: right;
-    grid-column-start: 3;
-    grid-column-end: 5;
-}
-
-.likes .icon {
-    font-size: 1.9rem;
-    color: rgb(var(--color-red-300));
-}
-
-.likes .n-likes {
-    vertical-align: text-top;
-    display: inline-flex;
-    padding-left: 8px;
-}
-
-.season, .year, .separator, .start-date, .end-date {
-    color: rgb(var(--color-gray-600));
-    font-size: 1.6rem;
-    font-weight: 500;
-    margin-top: 10px;
-}
-
-.season, .start-date {
-    grid-column-start: 1;
-    grid-column-end: 2;
-}
-
-.separator {
-    grid-column-start: 2;
-    grid-column-end: 4;
-    text-align: center;
-}
-
-.year, .end-date {
-    grid-column-start: 4;
-    grid-column-end: 5;
-}
-
-.likes, .end-date, .year {
-    text-align: right;
-}
-
-.header {
+.secondary-filters .dropdown .option {
+    color: rgb(var(--color-gray-700));
+    cursor: pointer;
+    font-size: 1.3rem;
     font-weight: 600;
-    color: rgb(var(--color-gray-800));
-    font-size: 1.6rem;
+    padding: 8px 0;
+    transition: color .2s ease;
+}
+
+.secondary-filters .option.active {
+    color: rgb(var(--color-gray-600));
+}
+
+.secondary-filters .option:hover {
+    color: rgb(var(--color-blue-600));
+}
+
+.secondary-filters .icon {
+    width: 3rem;
+    height: 3rem;
+    padding-top: 3px;
+}
+
+.secondary-filters .icon path {
+    transition: transform 0.5s ease, fill 0.5s ease;
+    transform-origin: center;
+    fill: #03a9f4;
+}
+
+.secondary-filters .icon.down path {
+    transform: rotate(-180deg);
+    transform-origin: center;
+    fill: rgb(var(--color-red-400));
 }

@@ -55,12 +55,8 @@ public class MainPageServlet extends HttpServlet {
         processRequest(request, response);
     }
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String action = request.getParameter("action");
-        logger.info("Action: " + action);
-
-        switch (action){
+        switch (request.getParameter("action")){
             case "search" -> handleSearch(request,response);
-            case "sortAndPaginate" -> handleSortAndPaginate(request,response);
             case "suggestions" -> handleSuggestion(request,response);
             case null, default -> handleLoadPage(request,response);
         }
@@ -132,8 +128,12 @@ public class MainPageServlet extends HttpServlet {
             }
 
             // Take order parameter and direction
-            Map<String, Integer> orderBy = Map.of("title", 1);
+            String order = request.getParameter("sortParam");
+            int direction = Integer.parseInt(request.getParameter("sortDirection"));
+            Map<String, Integer> orderBy = Map.of(order, direction);
 
+            logger.info("Filters: " + filters);
+            logger.info("Order by: " + orderBy);
             mediaList = mediaContentService.searchByFilter(filters, orderBy, page, mediaContentType);
 
             // Add the search results to the JSON response
@@ -150,14 +150,6 @@ public class MainPageServlet extends HttpServlet {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         response.getWriter().write(jsonResponse.toString());
-    }
-
-    private void handleSortAndPaginate(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
-        String targetJSP = "/WEB-INF/jsp/manga_main_page.jsp";
-        int page = request.getParameter("page") != null ? Integer.parseInt(request.getParameter("page")) : 1;
-
-        request.setAttribute("page", page);
-        request.getRequestDispatcher(targetJSP).forward(request, response);
     }
 
     private void handleSuggestion(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{

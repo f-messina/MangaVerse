@@ -188,11 +188,8 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
     public PageDTO<MediaContentDTO> search(List<Map<String, Object>> filters, Map<String, Integer> orderBy, int page) throws DAOException {
         try {
             MongoCollection<Document> mangaCollection = getCollection(COLLECTION_NAME);
-            Logger logger = LoggerFactory.getLogger(MangaDAOMongoImpl.class);
-            logger.info("Searching for manga with filters: " + filters + ", orderBy: " + orderBy + ", page: " + page);
             Bson filter = buildFilter(filters);
             Bson sort = buildSort(orderBy);
-            logger.info("Filter: " + filter);
 
             Bson projection = include("title", "picture", "average_rating", "start_date", "end_date", "likes");
             int pageOffset = (page - 1) * Constants.PAGE_SIZE;
@@ -219,9 +216,6 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
             );
 
             Document result = mangaCollection.aggregate(pipeline).first();
-            if (result != null) {
-                logger.info("Search result: " + result.toJson());
-            }
 
             List<MediaContentDTO> mangaList = new ArrayList<>();
             Optional.ofNullable(result)
@@ -239,7 +233,6 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
                     .map(doc -> doc.getInteger("total"))
                     .orElse(0);
 
-            logger.info("Total count: " + totalCount);
             return new PageDTO<>(mangaList, totalCount);
 
         } catch (MongoException e) {

@@ -380,6 +380,24 @@
                 </div>
             </div>
 
+            <!-- select order -->
+            <div class="secondary-filters">
+                <div class="selects-wrap">
+                    <div class="sort-wrap sort-select">
+                        <svg class="icon svg-inline--fa fa-sort fa-w-10" value="1" data-name="Layer 3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+                            <path d="M92.729 20.643 101.19 35.3h.007l8.494 14.711a4.289 4.289 0 0 1-3.712 6.439v.01h-4.631v37.767H76.629V56.454h-4.622a4.3 4.3 0 0 1-3.565-6.7l8.347-14.457q.066-.115.139-.223L85.282 20.6a4.281 4.281 0 0 1 7.447.042zm-49.977 0L51.213 35.3h.007l8.493 14.711A4.289 4.289 0 0 1 56 56.445v.01h-4.629v37.772H26.652V56.454H22.03a4.3 4.3 0 0 1-3.565-6.7l8.347-14.457q.066-.115.139-.223L35.3 20.6a4.281 4.281 0 0 1 7.447.042z"/>
+                        </svg>
+                        <span id="sort" value="title" class="label">Title</span>
+                        <div class="dropdown">
+                            <div value="title" class="option active">Title</div>
+                            <div value="likes" class="option">Popularity</div>
+                            <div value="average_rating" class="option">Average Score</div>
+                            <div value="start_date" class="option">Release Date </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- results -->
             <div class="results"></div>
 

@@ -2,6 +2,8 @@ const titleFilter = $("#title-filter");
 const selectInputFilters = $(".select-wrap input");
 const genreCheckboxType = $("#genre-checkbox-type");
 const removeSelectionButton = $(".filter-select .close");
+const sortType = $("#sort");
+const sortDirection = $(".secondary-filters .icon");
 
 removeSelectionButton.on("click", function (event) {
     event.stopPropagation();
@@ -51,6 +53,10 @@ $(document).ready(function () {
         if (!$(event.target).closest("#extra-filters-button").length && !$(event.target).closest("#extra-filters").length) {
             $("#extra-filters").hide();
         }
+
+        if (!$(event.target).closest(sortType).length) {
+            $(".dropdown").hide();
+        }
     });
 
     $('.range-wrap').each(function () {
@@ -64,7 +70,7 @@ $(document).ready(function () {
         handles.on('mousedown', function (e) {
             isDragging = true;
             currentHandle = $(this);
-            $(this).addClass('active');
+            currentHandle.addClass('active');
             e.preventDefault(); // Prevent text selection
         });
 
@@ -97,14 +103,35 @@ $(document).ready(function () {
         });
 
         $(document).on('mouseup', function () {
-            isDragging = false;
-            $(".handle").removeClass('active');
-            currentHandle = null;
+            if (isDragging) {
+                isDragging = false;
+                $(".handle").removeClass('active');
+                currentHandle = null;
+                const header = rangeWrap.find(".header-filters");
+                header.find('.values').remove();
+                if (handles.eq(0).attr("value") !== rangeWrap.css("--min-val") || handles.eq(1).attr("value") !== rangeWrap.css("--max-val")) {
+                    const valuesDiv = $('<div>', { class: 'values', text: handles.eq(0).attr("value") + " - " + handles.eq(1).attr("value") });
+                    const timesIcon = $('<svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="times" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 352 512" class="clear-btn svg-inline--fa fa-times fa-w-11"><path fill="currentColor" d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"></path></svg>');
+                    valuesDiv.append(timesIcon).on("click", function (event) {
+                        event.stopPropagation();
+                        handles.eq(0).attr("value", rangeWrap.css("--min-val"));
+                        handles.eq(1).attr("value", rangeWrap.css("--max-val"));
+                        rangeWrap.css('--handle-0-position', 0);
+                        rangeWrap.css('--handle-1-position', rail.width() + 'px');
+                        rangeWrap.css('--active-region-width', rail.width() + 'px');
+                        header.find('.values').remove();
+                        getMediaContent();
+                    });
+                    header.append(valuesDiv);
+                }
+
+                getMediaContent();
+            }
         });
     });
 });
 
-$(".option").on("click", function (event) {
+$(".primary-filters .option").on("click", function (event) {
     event.stopPropagation(); // Stop event propagation
 
     const option = $(this);
@@ -185,7 +212,6 @@ selectInputFilters.on("blur", function () {
 selectInputFilters.on("input", function () {
     const filter = $(this).val();
     const options = $(this).closest(".select-wrap").find(".option");
-    console.log(options);
     options.each(function () {
         const option = $(this);
         if (option.text().toUpperCase().indexOf(filter.toUpperCase()) > -1) {
@@ -205,14 +231,20 @@ genreCheckboxType.change(function () {
     const genresFilter = $("#genres-filter");
     if (genresFilter.find(".options").css("display") === "none")
         genresFilter.find(".options").show();
+
+    getMediaContent();
 });
 
 function createFilterParams() {
     const params = {
         "action": "search",
         "mediaType": mediaType,
-        "genreSelectMode": genreCheckboxType.val()
+        "genreSelectMode": genreCheckboxType.val(),
+        "sortParam": $(".secondary-filters .option").filter(".active").attr("value"),
+        "sortDirection": sortDirection.attr("value"),
     };
+
+    console.log(params);
 
     if (titleFilter.val() !== "") {
         params["title"] = titleFilter.val();
@@ -251,6 +283,27 @@ function createFilterParams() {
         params[rangeName + "Max"] = maxVal;
     });
 
-    console.log(params);
     return params;
 }
+
+sortType.click(function () {
+    $(this).closest(".selects-wrap").find(".dropdown").toggle();
+});
+
+$(".secondary-filters .option").on("click", function (event) {
+    event.stopPropagation(); // Stop event propagation
+    if (!$(this).hasClass("active")) {
+        $(this).addClass("active").siblings().removeClass("active");
+        getMediaContent();
+        sortType.text($(this).text());
+    }
+    $(".dropdown").hide();
+});
+
+sortDirection.on("click", function (event) {
+    event.stopPropagation()
+    const icon = $(this);
+    icon.toggleClass("down");
+    icon.attr("value", icon.hasClass("down") ? "-1" : "1");
+    getMediaContent();
+});
