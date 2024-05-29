@@ -8,7 +8,7 @@ public class Constants {
     public static final String DEFAULT_COVER_MANGA = "images/manga-image-default.png";
     public static final String DEFAULT_COVER_ANIME = "images/anime-image-default.png";
     public static final String AUTHENTICATED_USER_KEY = "authenticatedUser";
-    public static final int PAGE_SIZE = 25;
+    public static final int PAGE_SIZE = 30;
     public static final String PAGINATION_FACET = "paginationResults";
     public static final String COUNT_FACET = "totalResults";
     public static final int LATEST_REVIEWS_SIZE = 5;

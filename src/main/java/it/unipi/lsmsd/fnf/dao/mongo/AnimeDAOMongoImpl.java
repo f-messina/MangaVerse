@@ -193,7 +193,7 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
             // Build the MongoDB query pipeline
             Bson filter = buildFilter(filters);
             Bson sort = buildSort(orderBy);
-            Bson projection = include("title", "picture", "average_rating", "anime_season");
+            Bson projection = include("title", "picture", "average_rating", "anime_season", "likes");
 
             int pageOffset = (page - 1) * Constants.PAGE_SIZE;
 

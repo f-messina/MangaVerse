@@ -1,0 +1,345 @@
+html {
+    scroll-behavior: smooth;
+    overflow: hidden;
+}
+
+*, ::before, ::after {
+    box-sizing: border-box;
+}
+
+.scrollable {
+    overflow-y: scroll;
+    height: 100vh;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif;
+    font-size: 1.6rem;
+}
+
+/*///////////////////
+// WELCOME SECTION //
+///////////////////*/
+
+.section-home {
+    min-width: 800px;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: 100%;
+}
+
+.section-home .home-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.section-home .home-wrapper {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 80%;
+}
+
+.section-home span, .section-home a {
+    font-size: 2em;
+    font-weight: 300;
+    text-decoration: none;
+    color: black;
+}
+
+.active-page,
+.selection-page-link {
+    width: 90px;
+    display: flex;
+    justify-content: center;
+}
+
+.active-page span {
+    font-size: 2em;
+    font-weight: 400;
+    color: rgba(66, 28, 142, 0.8);
+    cursor: default;
+    border-radius: 45%;
+    padding: 0.5rem 1rem;
+    border-color: rgba(66, 28, 142, 0.8);
+    border-width: 2px;
+    border-style: solid;
+}
+
+.selection-page-link a:hover{
+    font-size: 2em;
+    font-weight: 400;
+}
+
+.down-arrow {
+    position: absolute;
+    height: 30px;
+    top: 90vh;
+}
+
+.down-arrow i:hover {
+    cursor: pointer;
+    color: rgba(66, 28, 142, 0.8);
+    font-size: 1.5em;
+}
+
+.welcome {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.welcome .welcome-text p {
+    font-size: 2.7em;
+}
+
+.arama{
+    font-size: 28px;
+    color: black;
+}
+
+#scroll-point {
+    height: 100px;
+}
+
+iframe {
+    border: 0;
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+}
+
+/*//////////
+// NAVBAR //
+//////////*/
+
+#navbar {
+    position: static;
+}
+
+.fixed-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background-color: white;
+    z-index: 999;
+}
+
+/*////////////////
+// MAIN SECTION //
+////////////////*/
+
+#main-section {
+    font-family: Overpass,-apple-system,BlinkMacSystemFont,Segoe UI,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;
+    font-size: 1.6rem;
+    padding-bottom: 20rem;
+}
+/*/////////////////////////////
+/// SECTION GRID MANGA ANIME //
+/////////////////////////////*/
+
+.profile-content {
+    padding-bottom: 2rem;
+}
+
+.no-results-error {
+    font-size: 6rem;
+}
+
+.project-boxes {
+    overflow-y: auto;
+    margin: 3rem 5% 0 5%;
+
+
+    &.jsGridView {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+
+        .project-box-wrapper {
+            width: 33.3%;
+            min-width: 200px;
+            max-width: 400px;
+        }
+    }
+
+    .project-box {
+        display: flex;
+        border-radius: 10px;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+
+        > * {
+            width: 90%;
+        }
+
+        .box-image {
+            border-radius: 10px;
+            aspect-ratio: 1/1;
+            background-color: #eaeaea;
+        }
+
+        .box-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 1rem 0;
+            text-decoration: none;
+            color: #fff;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+    }
+}
+
+.project-box {
+    border-radius: 30px;
+    padding: 16px;
+    background-color: rgb(144, 123, 228);
+}
+
+.project-box-wrapper {
+    padding: 2rem;
+    transition: .3s;
+}
+
+@media screen and (max-width: 520px) {
+    .project-boxes { overflow-y: visible; }
+
+    .project-boxes.jsGridView .project-box-wrapper {
+        width: 100%;
+    }
+
+    .project-boxes.jsListView .project-box > * {
+        margin-right: 10px;
+    }
+}
+
+
+@media (max-width: 42rem) {
+    .project-boxes {
+        margin: 3rem 0 0;
+    }
+    .no-results-error {
+        font-size: 3rem;
+    }
+}
+
+/* pagination css */
+
+:root {
+    --primary: #23adad;
+    --greyLight: #23adade1;
+    --greyLight-2: #cbe0dd;
+    --greyDark: #2d4848;
+}
+
+.container-pagination {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: #fff;
+    padding-top: 2rem;
+}
+
+ul {
+    list-style-type: none;
+}
+
+.page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 5rem;
+    border-radius: 0.6rem;
+    background: #ffffff;
+    margin: 0;
+    padding: 0;
+}
+
+.page__numbers,
+.page__btn,
+.page__dots {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0.8rem;
+    font-size: 1.4rem;
+    cursor: pointer;
+}
+
+.page__dots {
+    width: 2.6rem;
+    height: 2.6rem;
+    color: rgba(35, 7, 136, 0.79);
+    cursor: default;}
+
+.page__numbers {
+    width: 2.6rem;
+    height: 2.6rem;
+    border-radius: 0.4rem;
+}
+
+.page__numbers:hover {
+    color: rgba(35, 7, 136, 0.79);
+}
+
+.page__numbers.active {
+    color: #ffffff;
+    background: rgba(35, 7, 136, 0.79);
+    font-weight: 600;
+    border: 1px solid rgba(35, 7, 136, 0.79);
+    cursor: default;
+}
+
+.page__btn {
+    color: grey;
+    cursor: default;
+    margin: 0;
+}
+
+.page__btn.active {
+    color: rgba(35, 7, 136, 0.79);
+    cursor: pointer;
+}
+
+.page__btn.active .material-icons:hover {
+    font-size: 3rem;
+}
+
+@font-face {
+    font-family: 'Material Icons';
+    font-style: normal;
+    font-weight: 400;
+    src: url(https://fonts.gstatic.com/s/materialicons/v142/flUhRq6tzZclQEJ-Vdg-IuiaDsNc.woff2) format('woff2');
+}
+
+.material-icons {
+    font-family: 'Material Icons';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    text-align: center;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    width: 3rem;
+}
+

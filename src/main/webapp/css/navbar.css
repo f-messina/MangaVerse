@@ -48,6 +48,10 @@ nav .nav-items a {
     color: black;
 }
 
+.clickable {
+    cursor: pointer;
+}
+
 /* search users */
 
 .search-box {

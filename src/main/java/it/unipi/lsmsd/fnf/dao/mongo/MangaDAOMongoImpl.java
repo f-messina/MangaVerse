@@ -24,6 +24,8 @@ import it.unipi.lsmsd.fnf.utils.DocumentUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -32,6 +34,7 @@ import static com.mongodb.client.model.Aggregates.*;
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.exclude;
 import static com.mongodb.client.model.Projections.include;
+import static com.mongodb.client.model.Sorts.ascending;
 import static com.mongodb.client.model.Sorts.descending;
 import static com.mongodb.client.model.Updates.*;
 import static it.unipi.lsmsd.fnf.utils.DocumentUtils.*;
@@ -185,9 +188,13 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
     public PageDTO<MediaContentDTO> search(List<Map<String, Object>> filters, Map<String, Integer> orderBy, int page) throws DAOException {
         try {
             MongoCollection<Document> mangaCollection = getCollection(COLLECTION_NAME);
+            Logger logger = LoggerFactory.getLogger(MangaDAOMongoImpl.class);
+            logger.info("Searching for manga with filters: " + filters + ", orderBy: " + orderBy + ", page: " + page);
             Bson filter = buildFilter(filters);
             Bson sort = buildSort(orderBy);
-            Bson projection = include("title", "picture", "average_rating", "start_date", "end_date");
+            logger.info("Filter: " + filter);
+
+            Bson projection = include("title", "picture", "average_rating", "start_date", "end_date", "likes");
             int pageOffset = (page - 1) * Constants.PAGE_SIZE;
 
             List<Bson> pipeline = List.of(
@@ -212,6 +219,9 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
             );
 
             Document result = mangaCollection.aggregate(pipeline).first();
+            if (result != null) {
+                logger.info("Search result: " + result.toJson());
+            }
 
             List<MediaContentDTO> mangaList = new ArrayList<>();
             Optional.ofNullable(result)
@@ -229,6 +239,7 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
                     .map(doc -> doc.getInteger("total"))
                     .orElse(0);
 
+            logger.info("Total count: " + totalCount);
             return new PageDTO<>(mangaList, totalCount);
 
         } catch (MongoException e) {

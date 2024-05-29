@@ -81,7 +81,8 @@ class ReviewServiceImplTest {
     @Test
     void deleteReview() {
         ReviewServiceImpl reviewService = new ReviewServiceImpl();
-        assertDoesNotThrow(() -> reviewService.deleteReview("664a8143e46f76d1dd692183", "664a6d0de46f76d1dd691746", MediaContentType.ANIME));
+        assertDoesNotThrow(() -> reviewService.deleteReview("66553b08ba4c6afe234c0e0b", "664f4cf4859fa1fd6f1dbd81", MediaContentType.ANIME));
+        assertDoesNotThrow(() -> reviewService.deleteReview("66553b08ba4c6afe234c0e12", "664f4cf4859fa1fd6f1dbd83", MediaContentType.MANGA));
         System.out.println("Review deleted");
     }
 
@@ -129,5 +130,19 @@ class ReviewServiceImplTest {
         review.setRating(5);
         review.setComment("This is a test review");
         return review;
+    }
+
+    @Test
+    public void createSampleMangaReviewTest() throws BusinessException {
+        ReviewDTO review = new ReviewDTO();
+        UserService userService = ServiceLocator.getUserService();
+        MediaContentService mediaContentService = ServiceLocator.getMediaContentService();
+        UserSummaryDTO user = userService.searchFirstNUsers("exampleUser", 1, null).getFirst();
+        MangaDTO manga = (MangaDTO) mediaContentService.searchByTitle("Sample Manga", 1, MediaContentType.MANGA).getEntries().getFirst();
+        review.setUser(user);
+        review.setMediaContent(manga);
+        review.setRating(5);
+        review.setComment("This is a test review");
+        System.out.println(review);
     }
 }

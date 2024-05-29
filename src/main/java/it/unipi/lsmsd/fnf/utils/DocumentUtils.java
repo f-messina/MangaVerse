@@ -21,6 +21,7 @@ import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -143,7 +144,7 @@ public class DocumentUtils {
         Document reviewDocument = new Document();
         appendIfNotNull(reviewDocument, "id", new ObjectId(reviewDTO.getId()));
         appendIfNotNull(reviewDocument, "comment", reviewDTO.getComment());
-        appendIfNotNull(reviewDocument, "date", ConverterUtils.localDateToDate(reviewDTO.getDate()));
+        appendIfNotNull(reviewDocument, "date", ConverterUtils.localDateTimeToDate(reviewDTO.getDate()));
         appendIfNotNull(reviewDocument, "rating", reviewDTO.getRating());
         Document userDocument = new Document();
         appendIfNotNull(userDocument, "id", new ObjectId(reviewDTO.getUser().getId()));
@@ -168,7 +169,7 @@ public class DocumentUtils {
         appendIfNotNull(userDocument, "location", reviewDTO.getUser().getLocation());
         appendIfNotNull(userDocument, "birthday", ConverterUtils.localDateToDate(reviewDTO.getUser().getBirthDate()));
         appendIfNotNull(reviewDocument, "user", userDocument);
-        appendIfNotNull(reviewDocument, "date", ConverterUtils.localDateToDate(reviewDTO.getDate()));
+        appendIfNotNull(reviewDocument, "date", ConverterUtils.localDateTimeToDate(reviewDTO.getDate()));
         appendIfNotNull(reviewDocument, "comment", reviewDTO.getComment());
         appendIfNotNull(reviewDocument, "rating", reviewDTO.getRating());
         boolean isAnime = reviewDTO.getMediaContent() instanceof AnimeDTO;
@@ -265,7 +266,7 @@ public class DocumentUtils {
         review.setUser(reviewer);
         review.setId(doc.getObjectId("id").toString());
         review.setComment(doc.getString("comment"));
-        review.setDate(ConverterUtils.dateToLocalDate(doc.getDate("date")));
+        review.setDate(ConverterUtils.dateToLocalDateTime(doc.getDate("date")));
         return review;
     }
 
@@ -289,6 +290,7 @@ public class DocumentUtils {
             anime.setYear(doc.get("anime_season", Document.class).getInteger("year"));
             anime.setSeason(doc.get("anime_season", Document.class).getString("season"));
         }
+        anime.setLikes(doc.getInteger("likes"));
 
         return anime;
     }
@@ -301,7 +303,7 @@ public class DocumentUtils {
      */
     public static ReviewDTO documentToReviewDTO(Document reviewDoc) {
         String reviewId = reviewDoc.getObjectId("_id").toString();
-        LocalDate date = ConverterUtils.dateToLocalDate(reviewDoc.getDate("date"));
+        LocalDateTime date = ConverterUtils.dateToLocalDateTime(reviewDoc.getDate("date"));
         String comment = reviewDoc.getString("comment");
         Integer rating = reviewDoc.getInteger("rating");
 
@@ -396,7 +398,7 @@ public class DocumentUtils {
         );
         manga.setStartDate(ConverterUtils.dateToLocalDate(doc.getDate("start_date")));
         manga.setEndDate(ConverterUtils.dateToLocalDate(doc.getDate("end_date")));
-
+        manga.setLikes(doc.getInteger("likes"));
         return manga;
     }
 

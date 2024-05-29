@@ -311,13 +311,13 @@ class UserServiceImplTest {
         return usersIds;
     }
 
-    //Update the profile picture of the user
+    // IMPORTANT: The following tests are for the purpose of removing the default image from the database
     @Test
     public void updateDefaultProfilePictureOnMongoDB() throws Exception {
         MongoCollection<Document> usersCollection = BaseMongoDBDAO.getCollection("users");
 
         // Update filter: target documents with "picture" field equal to the old URL
-        Document updateFilter = new Document("picture", Constants.DEFAULT_PROFILE_PICTURE);
+        Document updateFilter = new Document("picture", "https://imgbox.com/7MaTkBQR");
 
         // Find all matching documents
         FindIterable<Document> matchingUsers = usersCollection.find(updateFilter);
@@ -331,8 +331,8 @@ class UserServiceImplTest {
             UserServiceImpl userService = new UserServiceImpl();
             userService.updateUserInfo(user);
         }
-
         System.out.println("Profile picture(s) updated successfully for all matching users.");
+        Thread.sleep(2*60*1000);
     }
 
     //Update the profile picture of the user

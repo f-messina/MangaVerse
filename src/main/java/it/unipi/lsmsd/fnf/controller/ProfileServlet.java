@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.Objects;
 
 @WebServlet("/profile")
@@ -248,8 +249,8 @@ public class ProfileServlet extends HttpServlet {
 
         // Create a module to handle the serialization and deserialization of LocalDate and LocalDateTime objects
         JavaTimeModule javaTimeModule = new JavaTimeModule();
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT);
+        DateTimeFormatter dateTimeFormatter =  DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM);
         // Register the formatters for serialization
         javaTimeModule.addSerializer(LocalDate.class, new LocalDateSerializer(dateFormatter));
         javaTimeModule.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer(dateTimeFormatter));

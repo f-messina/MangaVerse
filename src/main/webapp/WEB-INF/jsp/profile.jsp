@@ -67,7 +67,7 @@
     <div id="overlay" class="overlay"></div>
 
     <!-- profile info -->
-    <header>
+    <section>
         <div class="container-px">
             <div class="profile-px">
 
@@ -130,7 +130,7 @@
                 </div>
             </div>
         </div>
-    </header>
+    </section>
 
     <div id="editPopup" class="edit-container myAlert">
         <div class="row myAlertBody">

@@ -272,7 +272,8 @@ function getList(type, searchValue) {
             const items = data[type];
             items.forEach(item => {
                 const itemDiv = $(`<a href="${contextPath}/profile?userId=${item.id}">`).addClass("user");
-                const img = $(`<img src="${item.profilePicUrl}">`).addClass("user-pic");
+                const img = $(`<img src="${item.profilePicUrl}">`).addClass("user-pic")
+                    .on("error", () => setDefaultProfilePicture(img));
                 const p = $("<p>").addClass("user-username").text(item.username);
                 itemDiv.append(img, p);
                 listElement.append(itemDiv);
@@ -369,7 +370,7 @@ function showLikes(data, action) {
         const mediaBox = $("<div>").addClass("project-box");
         const picture = $("<img>").attr("src", media.imageUrl).attr("alt", media.title)
             .addClass("box-image")
-            .on("error", () => setDefaultCover(picture, action));
+            .on("error", () => setDefaultCover(picture, isAnime ? "anime" : "manga"));
         const title = $("<a>").attr("href", `${contextPath}/${isAnime ? "anime" : "manga"}?mediaId=${media.id}`)
             .addClass("box-title").text(media.title);
 
@@ -379,9 +380,9 @@ function showLikes(data, action) {
     });
 }
 
-function setDefaultCover(image, action) {
+function setDefaultCover(image, type) {
     image.off("error");
-    image.attr("src", action === "getAnimeLikes" ? animeDefaultImage : mangaDefaultImage);
+    image.attr("src", type === "anime" ? animeDefaultImage : mangaDefaultImage);
 }
 
 function showReviews(data) {
@@ -467,7 +468,7 @@ function updatePagination(section) {
         } else if (currentPage > totalPages - 6) {
             pagination.append(createPageButton(1));
             pagination.append($("<li>").addClass("page__dots").text("..."));
-            for (let i = totalPages - 6; i <= totalPages; i++) {
+            for (let i = totalPages - 6; i < totalPages; i++) {
                 pagination.append(createPageButton(i, i === currentPage));
             }
         } else {
@@ -478,7 +479,7 @@ function updatePagination(section) {
             }
             pagination.append($("<li>").addClass("page__dots").text("..."));
         }
-        pagination.append(createPageButton(totalPages));
+        pagination.append(createPageButton(totalPages, currentPage === totalPages));
     }
 
     pagination.append(createArrowButton("right", currentPage < totalPages, currentPage + 1));

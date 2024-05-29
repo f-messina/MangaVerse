@@ -21,7 +21,8 @@ function getUsers(searchValue) {
                 const user = data.users[i];
                 const userDiv = $("<a>").addClass("user").attr("href", contextPath + "/profile?userId=" + user.id);
                 // Create the image element and set the source
-                const img = $("<img src='" + user.profilePicUrl + "'>").addClass("user-pic");
+                const img = $("<img src='" + user.profilePicUrl + "'>").addClass("user-pic")
+                    .on("error", () => setDefaultProfilePicture($(this)));
                 userDiv.append(img);
 
                 // Create the paragraph element and set the text
@@ -60,4 +61,15 @@ userSearchButton.click(() => {
             $("body").off("click.hideUserResults");
         }
     });
+});
+
+function setDefaultProfilePicture(image) {
+    image.off("error");
+    image.attr("src", userDefaultImage);
+}
+
+$(document).ready(function() {
+    const profilePicture = $("#navbar-profile-picture");
+
+    profilePicture.on("error", () => setDefaultProfilePicture($(this)));
 });

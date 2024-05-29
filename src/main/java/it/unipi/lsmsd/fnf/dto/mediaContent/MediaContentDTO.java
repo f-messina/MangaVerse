@@ -8,8 +8,9 @@ public abstract class MediaContentDTO {
     private String imageUrl;
     private Double averageRating;
 
+    private Integer likes;
+
     // Used to check if the user has liked the media content
-    private Boolean isLiked;
 
     public MediaContentDTO() {
     }
@@ -64,12 +65,12 @@ public abstract class MediaContentDTO {
         this.averageRating = averageRating;
     }
 
-    public Boolean getIsLiked() {
-        return isLiked;
+    public Integer getLikes() {
+        return likes;
     }
 
-    public void setIsLiked(Boolean isLiked) {
-        this.isLiked = isLiked;
+    public void setLikes(Integer likes) {
+        this.likes = likes;
     }
 
     @Override

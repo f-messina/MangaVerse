@@ -41,13 +41,25 @@ public class MediaContentServlet extends HttpServlet {
     }
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String action = request.getParameter("action");
+
+        switch (action) {
+            case "toggleLike" -> handleToggleLike(request, response);
+            case "addReview" -> handleAddReview(request, response);
+            case "deleteReview" -> handleDeleteReview(request, response);
+            case "editReview" -> handleEditReview(request, response);
+
+            case null, default -> handleLoadPage(request, response);
+        }
+    }
+
+    private void handleLoadPage(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String mediaId = request.getParameter("mediaId");
         if (mediaId == null) {
             response.sendRedirect("mainPage");
             return;
         }
 
-        String action = request.getParameter("action");
         MediaContentType mediaType = MediaContentType.valueOf(request.getServletPath().substring(1).toUpperCase());
         String targetJSP = mediaType.equals(MediaContentType.ANIME) ? "WEB-INF/jsp/anime.jsp" : "WEB-INF/jsp/manga.jsp";
         try {
@@ -59,7 +71,6 @@ public class MediaContentServlet extends HttpServlet {
                 request.getRequestDispatcher(targetJSP).forward(request, response);
             }
             request.setAttribute("media", mediaContentService.getMediaContentById(mediaId, mediaType));
-            request.setAttribute("reviews", reviewService.findByMedia(mediaId, mediaType, 1));
             if (SecurityUtils.getAuthenticatedUser(request) != null) {
                 request.setAttribute("isLiked", mediaContentService.isLiked(SecurityUtils.getAuthenticatedUser(request).getId(), mediaId, mediaType));
             }
@@ -67,16 +78,8 @@ public class MediaContentServlet extends HttpServlet {
             logger.error("Error while processing request", e);
             targetJSP = "error.jsp";
         }
-
-        switch (action) {
-            case "toggleLike" -> handleToggleLike(request, response);
-            case "addReview" -> handleAddReview(request, response);
-            case "deleteReview" -> handleDeleteReview(request, response);
-            case "editReview" -> handleEditReview(request, response);
-            case null, default -> request.getRequestDispatcher(targetJSP).forward(request, response);
-        }
+        request.getRequestDispatcher(targetJSP).forward(request, response);
     }
-
     private void handleToggleLike(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         MediaContentType mediaType = MediaContentType.valueOf(request.getServletPath().substring(1).toUpperCase());
         boolean isManga = mediaType.equals(MediaContentType.MANGA);

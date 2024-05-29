@@ -4,10 +4,11 @@ import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.Review;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class ReviewDTO {
     private String id;
-    private LocalDate date;
+    private LocalDateTime date;
     private String comment;
     private Integer rating;
     private MediaContentDTO mediaContent;
@@ -23,7 +24,7 @@ public class ReviewDTO {
         this.rating = rating;
     }
 
-    public ReviewDTO(String id, LocalDate date, String comment, Integer rating, MediaContentDTO mediaContent, UserSummaryDTO user) {
+    public ReviewDTO(String id, LocalDateTime date, String comment, Integer rating, MediaContentDTO mediaContent, UserSummaryDTO user) {
         this.id = id;
         this.date = date;
         this.comment = comment;
@@ -36,7 +37,7 @@ public class ReviewDTO {
         return id;
     }
 
-    public LocalDate getDate() {
+    public LocalDateTime getDate() {
         return date;
     }
 
@@ -60,7 +61,7 @@ public class ReviewDTO {
         this.id = id;
     }
 
-    public void setDate(LocalDate date) {
+    public void setDate(LocalDateTime date) {
         this.date = date;
     }
 

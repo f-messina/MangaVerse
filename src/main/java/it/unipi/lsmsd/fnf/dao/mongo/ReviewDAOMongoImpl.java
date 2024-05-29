@@ -32,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static com.mongodb.client.model.Accumulators.avg;
@@ -92,7 +93,7 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
                 throw new DAOException("Invalid media content type");
             }
 
-            reviewDTO.setDate(LocalDate.now());
+            reviewDTO.setDate(LocalDateTime.now());
             Bson update = setOnInsert(reviewDTOToDocument(reviewDTO));
 
             // Insert the reviewDTO if it does not exist
