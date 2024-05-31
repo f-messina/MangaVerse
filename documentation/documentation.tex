@@ -1,4 +1,5 @@
 \documentclass[a4paper,titlepage]{report}
+
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
 \usepackage[a4paper, margin=1in]{geometry}
@@ -14,16 +15,45 @@
 \usepackage{multirow}
 \usepackage{hyperref} % Per i link nell'indice
 \usepackage{tocbibind} % Per includere l'indice nel sommario
+\usepackage{tikz}
+\usepackage{listings}
+\usepackage{mdframed}
+\usepackage[utf8]{inputenc} % This allows UTF-8 encoding
+\usepackage[T1]{fontenc} % This ensures that fonts support special characters
 
 \setlength\cellspacetoplimit{5pt}
 \setlength\cellspacebottomlimit{4pt}
 
 \definecolor{myBlue}{rgb}{0.0745, 0.2157, 0.4118}
 \definecolor{myLightBlue}{rgb}{0, 0.5647, 0.5843}
+\definecolor{numb}{RGB}{255,0,0}
+\definecolor{punct}{RGB}{0,0,255}
+\definecolor{delim}{RGB}{20,105,176}
+\definecolor{comment}{RGB}{0,128,0}
+\definecolor{string}{RGB}{163,21,21}
+\definecolor{keyword}{RGB}{0,0,255}
 
 \titleformat{\section}[hang]{\Large\bfseries\color{myBlue}}{}{0px}{}[\titlerule]
 \titleformat{\subsection}[hang]{\large\bfseries\color{myLightBlue}}{}{0em}{}
 \titleformat{\subsubsection}[hang]{\bfseries\color{myBlue}}{}{0em}{}
+
+% Colori per il codice Java
+\definecolor{java_keyword}{HTML}{BF9B30}
+\definecolor{java_comment}{HTML}{0000FF}
+
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    showstringspaces=false,
+}
+
+% Impostazioni per il codice Java
+\lstdefinestyle{java}{
+    language=Java,
+    keywordstyle=\color{java_keyword},
+    commentstyle=\color{java_comment},
+}
+
 
 % Set the dimension of titles of chapters to \LARGE and 
 \titleformat{\chapter}[display]
