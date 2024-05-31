@@ -31,7 +31,8 @@ public interface MediaContentDAO<T extends MediaContent> {
     boolean isLiked(String userId, String mediaId) throws DAOException;
     Integer getNumOfLikes(String mediaId) throws DAOException;
     PageDTO<MediaContentDTO> getLiked(String userId, int page) throws DAOException;
-    List<MediaContentDTO> getSuggested(String userId, Integer limit) throws DAOException;
-    Map<MediaContentDTO, Integer> getTrendMediaContentByYear(int year) throws DAOException; // MANAGER (TABLE OR ORDERED BAR CHART)
-    List<MediaContentDTO> getMediaContentTrendByLikes() throws DAOException;
+    List<MediaContentDTO> getSuggestedByFollowings(String userId, Integer limit) throws DAOException;
+    List<MediaContentDTO> getSuggestedByLikes(String userId, Integer limit) throws DAOException;
+    Map<MediaContentDTO, Integer> getTrendMediaContentByYear(int year, Integer limit) throws DAOException; // MANAGER (TABLE OR ORDERED BAR CHART)
+    List<MediaContentDTO> getMediaContentTrendByLikes(Integer limit) throws DAOException;
 }

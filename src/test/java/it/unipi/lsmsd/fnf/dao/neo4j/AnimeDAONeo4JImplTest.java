@@ -53,4 +53,9 @@ class AnimeDAONeo4JImplTest {
     @Test
     void getMediaContentGenresTrend() {
     }
+
+    @Test
+    void testGetSuggested() {
+
+    }
 }

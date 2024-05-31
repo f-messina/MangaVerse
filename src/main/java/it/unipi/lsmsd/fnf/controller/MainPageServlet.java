@@ -4,15 +4,11 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
-import com.sun.tools.jconsole.JConsoleContext;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
-import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
-import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.enums.*;
 import it.unipi.lsmsd.fnf.service.interfaces.MediaContentService;
 import it.unipi.lsmsd.fnf.service.ServiceLocator;
-import it.unipi.lsmsd.fnf.service.interfaces.UserService;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 import it.unipi.lsmsd.fnf.utils.Constants;
 import it.unipi.lsmsd.fnf.utils.ConverterUtils;
@@ -34,7 +30,6 @@ import java.time.format.FormatStyle;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -160,7 +155,7 @@ public class MainPageServlet extends HttpServlet {
         objectMapper.registerModule(new JavaTimeModule());
         ObjectNode jsonResponse = objectMapper.createObjectNode();
         try {
-            List<? extends MediaContentDTO> suggestions = mediaContentService.getSuggestedMediaContent(userId, isManga ? MediaContentType.MANGA : MediaContentType.ANIME, 5);
+            List<? extends MediaContentDTO> suggestions = mediaContentService.getSuggestedMediaContentByFollowings(userId, isManga ? MediaContentType.MANGA : MediaContentType.ANIME, 5);
             JsonNode suggestionsNode = objectMapper.valueToTree(suggestions);
             jsonResponse.set("suggestions", suggestionsNode);
         } catch (BusinessException e) {

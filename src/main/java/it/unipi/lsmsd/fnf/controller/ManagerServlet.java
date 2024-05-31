@@ -17,6 +17,7 @@ import it.unipi.lsmsd.fnf.service.interfaces.ReviewService;
 import it.unipi.lsmsd.fnf.service.ServiceLocator;
 import it.unipi.lsmsd.fnf.service.interfaces.UserService;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
+import it.unipi.lsmsd.fnf.utils.Constants;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -99,7 +100,7 @@ public class ManagerServlet extends HttpServlet {
         //Thread 2: getTrendMediaContentByYear with year = 2021 List<? extends MediaContentDTO> getTrendMediaContentByYear
         Future<Map<MediaContentDTO, Integer>> trendAnimeByYearFuture = executorService.submit(() -> {
             try {
-                return mediaContentService.getTrendMediaContentByYear(2024, MediaContentType.ANIME);
+                return mediaContentService.getMediaContentTrendByYear(2021, Constants.PAGE_SIZE, MediaContentType.ANIME);
             } catch (BusinessException e) {
                 throw new RuntimeException(e);
             }
@@ -145,7 +146,7 @@ public class ManagerServlet extends HttpServlet {
         //Thread 2: getTrendMediaContentByYear with year = 2021 List<? extends MediaContentDTO> getTrendMediaContentByYear
         Future<Map<MediaContentDTO, Integer>> trendMangaByYearFuture = executorService.submit(() -> {
             try {
-                return mediaContentService.getTrendMediaContentByYear(2024, MediaContentType.MANGA);
+                return mediaContentService.getMediaContentTrendByYear(2024, Constants.PAGE_SIZE, MediaContentType.MANGA);
             } catch (BusinessException e) {
                 throw new RuntimeException(e);
             }
@@ -391,13 +392,14 @@ public class ManagerServlet extends HttpServlet {
     //Asynchronous request
 
     private void handleTrendMediaContentByYear(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        MediaContentService mediaContentService = ServiceLocator.getMediaContentService();
         int year = Integer.parseInt(request.getParameter("year"));
         boolean isManga = (boolean) request.getAttribute("isManga");
-
-        MediaContentService mediaContentService = ServiceLocator.getMediaContentService();
+        String limitString = request.getParameter("limit");
+        int limit = limitString != null ? Integer.parseInt(limitString) : Constants.PAGE_SIZE;
 
         try {
-            Map<? extends MediaContentDTO, Integer> trendMediaContentByYear = mediaContentService.getTrendMediaContentByYear(year, isManga ? MediaContentType.MANGA : MediaContentType.ANIME);
+            Map<? extends MediaContentDTO, Integer> trendMediaContentByYear = mediaContentService.getMediaContentTrendByYear(year, limit, isManga ? MediaContentType.MANGA : MediaContentType.ANIME);
 
             JsonObject jsonResponse = new JsonObject();
             jsonResponse.add("trendMediaContentByYear", new Gson().toJsonTree(trendMediaContentByYear));
@@ -414,11 +416,13 @@ public class ManagerServlet extends HttpServlet {
 
     //Asynchronous request
     private void handleTrendMediaContentByLikes(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        boolean isManga = (boolean) request.getAttribute("isManga");
         MediaContentService mediaContentService = ServiceLocator.getMediaContentService();
+        boolean isManga = (boolean) request.getAttribute("isManga");
+        String limitString = request.getParameter("limit");
+        int limit = limitString != null ? Integer.parseInt(limitString) : Constants.PAGE_SIZE;
 
         try {
-            List<? extends MediaContentDTO> trendMediaContentByLikes = mediaContentService.getMediaContentTrendByLikes(isManga ? MediaContentType.MANGA : MediaContentType.ANIME);
+            List<? extends MediaContentDTO> trendMediaContentByLikes = mediaContentService.getMediaContentTrendByLikes(limit, isManga ? MediaContentType.MANGA : MediaContentType.ANIME);
 
             JsonObject jsonResponse = new JsonObject();
             jsonResponse.add("trendMediaContentByLikes", new Gson().toJsonTree(trendMediaContentByLikes));

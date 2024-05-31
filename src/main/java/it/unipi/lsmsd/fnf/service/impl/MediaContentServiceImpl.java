@@ -17,8 +17,6 @@ import it.unipi.lsmsd.fnf.service.enums.ExecutorTaskServiceType;
 import it.unipi.lsmsd.fnf.service.impl.asinc_media_tasks.*;
 import it.unipi.lsmsd.fnf.service.impl.asinc_review_tasks.RemoveDeletedMediaReviewsTask;
 import it.unipi.lsmsd.fnf.service.impl.asinc_review_tasks.UpdateReviewRedundancyTask;
-import it.unipi.lsmsd.fnf.service.impl.asinc_user_tasks.CreateUserTask;
-import it.unipi.lsmsd.fnf.service.impl.asinc_user_tasks.UpdateUserTask;
 import it.unipi.lsmsd.fnf.service.interfaces.ExecutorTaskService;
 import it.unipi.lsmsd.fnf.service.interfaces.MediaContentService;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
@@ -321,12 +319,26 @@ public class MediaContentServiceImpl implements MediaContentService {
      * @throws BusinessException If an error occurs during the operation.
      */
     @Override
-    public List<MediaContentDTO> getSuggestedMediaContent(String userId, MediaContentType type, Integer limit) throws BusinessException {
+    public List<MediaContentDTO> getSuggestedMediaContentByFollowings(String userId, MediaContentType type, Integer limit) throws BusinessException {
         try {
             if (MediaContentType.ANIME.equals(type))
-                return animeDAONeo4J.getSuggested(userId, limit);
+                return animeDAONeo4J.getSuggestedByFollowings(userId, limit);
             else
-                return mangaDAONeo4J.getSuggested(userId, limit);
+                return mangaDAONeo4J.getSuggestedByFollowings(userId, limit);
+
+        } catch (DAOException e) {
+            handleDAOException(e);
+            return null;
+        }
+    }
+
+    @Override
+    public List<MediaContentDTO> getSuggestedMediaContentByLikes(String userId, MediaContentType type, Integer limit) throws BusinessException {
+        try {
+            if (MediaContentType.ANIME.equals(type))
+                return animeDAONeo4J.getSuggestedByFollowings(userId, limit);
+            else
+                return mangaDAONeo4J.getSuggestedByFollowings(userId, limit);
 
         } catch (DAOException e) {
             handleDAOException(e);
@@ -342,12 +354,12 @@ public class MediaContentServiceImpl implements MediaContentService {
      * @throws BusinessException If an error occurs during the operation.
      */
     @Override
-    public Map<MediaContentDTO, Integer> getTrendMediaContentByYear(int year, MediaContentType type) throws BusinessException {
+    public Map<MediaContentDTO, Integer> getMediaContentTrendByYear(int year, Integer limit, MediaContentType type) throws BusinessException {
         try {
             if (MediaContentType.ANIME.equals(type))
-                return animeDAONeo4J.getTrendMediaContentByYear(year);
+                return animeDAONeo4J.getTrendMediaContentByYear(year, limit);
             else
-                return mangaDAONeo4J.getTrendMediaContentByYear(year);
+                return mangaDAONeo4J.getTrendMediaContentByYear(year, limit);
 
         } catch (DAOException e) {
             handleDAOException(e);
@@ -356,12 +368,12 @@ public class MediaContentServiceImpl implements MediaContentService {
     }
 
     @Override
-    public List<MediaContentDTO> getMediaContentTrendByLikes(MediaContentType type) throws BusinessException {
+    public List<MediaContentDTO> getMediaContentTrendByLikes(Integer limit, MediaContentType type) throws BusinessException {
         try {
             if (MediaContentType.ANIME.equals(type))
-                return animeDAONeo4J.getMediaContentTrendByLikes();
+                return animeDAONeo4J.getMediaContentTrendByLikes(limit);
             else
-                return mangaDAONeo4J.getMediaContentTrendByLikes();
+                return mangaDAONeo4J.getMediaContentTrendByLikes(limit);
 
         } catch (DAOException e) {
             handleDAOException(e);
