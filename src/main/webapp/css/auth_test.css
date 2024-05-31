@@ -1,63 +1,19 @@
-html {
-    scroll-behavior: smooth;
-}
-
 * {
     margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: "Fira Sans Condensed", sans-serif;
 }
 
-nav {
-    position: fixed;
-    top: 0;
-    left: 0;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-    padding: 50px 40px;
+.login-container {
+    height: 100vh;
+    min-height: 600px;
+    font-size: 16px;
+}
+
+.login-content {
+    max-width: 500px;
     width: 100%;
-    height: 60px;
-    background-color: white;
-    z-index: 999;
 }
 
-nav img {
-    width: 60px;
-    height: auto;
-}
-
-nav .nav-items {
-    display: flex;
-    align-items: center;
-    gap: 40px;
-    font-size: 1.25em;
-}
-
-nav .nav-items a {
-    text-decoration: none;
-    color: black;
-}
-
-nav h1{
-    font-weight: 300;
-    font-size: 40px;
-}
-
-.small-pic{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-nav img {
-    width: 60px;
-    height: auto;
-}
-
-#country-dropdown {
+#country-dropdown, .dropdown-options {
     position: absolute;
     left: 20%;
     right: 20%;
@@ -68,12 +24,14 @@ nav img {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    z-index: 9999;
 }
 
 .dropdown-content a {
     text-decoration: none;
     color: #333;
     padding: 10px;
+    width: 100%;
 }
 
 .options {
@@ -109,7 +67,7 @@ nav img {
     align-items: center;
     height: 100%;
     width: 100%;
-    padding: 30px;
+    padding-top: 30px;
     overflow-y: auto;
 }
 
@@ -124,12 +82,158 @@ nav img {
     display: none;
 }
 
+/* General Styles */
+.container {
+    width: 100%;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.pb-3 {
+    padding-bottom: 24px;
+}
+
+.py-3 {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+
+.text-center {
+    text-align: center;
+}
+
+/* Form Styles */
+form {
+    width: 100%;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="date"],
+select {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+input::placeholder {
+    color: #6c757d;
+}
+
+select {
+    background-color: transparent;
+}
+
+.container input, .container select {
+    font-size: 1.25rem;
+}
+
+input[type="submit"],
+button {
+    padding: 10px 20px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+input[type="submit"].btn-primary,
+button.btn-primary {
+    background-color: #007bff;
+    color: white;
+}
+
+input[type="submit"].btn-primary:hover,
+button.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+button.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+button.btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+label {
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+/* Login Container Styles */
 .login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     height: 100vh;
-    min-height: 600px;
 }
 
 .login-content {
+    border-radius: 5px;
+    padding: 20px;
     max-width: 500px;
     width: 100%;
 }
+
+.form-control-lg {
+    padding: 15px;
+    font-size: 1.25rem;
+}
+
+input[type="submit"].btn-block {
+    width: 70%;
+}
+
+/* Custom Buttons */
+
+#show-sign-up-button {
+    color: rgba(6,9,133,0.9);
+    padding-top: 2rem;
+}
+
+#show-sign-up-button:hover {
+    text-decoration: underline;
+}
+
+input {
+    font: inherit;
+}
+
+.error {
+    display: block;
+    color: #dc3545;
+    font-size: 1.2rem;
+    min-height: 24px;
+    padding-bottom: 1rem;
+}
+
+#gender {
+    cursor: pointer;
+}
+
+.custom-dropdown {
+    position: relative;
+    width: 100%;
+}
+
+.dropdown-options {
+    display: none;
+}
+
+.option {
+    padding: 10px;
+    cursor: pointer;
+    width: 100%;
+}
+
+.dropdown-content a:hover, .option:hover {
+    border: 2px solid #007bff;
+    border-radius: 10px;
+}
+

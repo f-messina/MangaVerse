@@ -334,18 +334,4 @@ class UserServiceImplTest {
         System.out.println("Profile picture(s) updated successfully for all matching users.");
         Thread.sleep(2*60*1000);
     }
-
-    //Update the profile picture of the user
-    @Test
-    public void updateDefaultProfilePictureOnNeo4j() throws Exception {
-        // Update filter: target documents with "picture" field equal to the old URL
-        String query = "MATCH (u:User) WHERE u.picture =" + Constants.DEFAULT_PROFILE_PICTURE + "SET u.picture = null";
-        try (Session session = getSession()) {
-            session.run(query);
-        } catch (Exception e) {
-            throw new DAOException("Error updating profile picture on Neo4j", e);
-        }
-
-        System.out.println("Profile picture(s) updated successfully for all matching users.");
-    }
 }

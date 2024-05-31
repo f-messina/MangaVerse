@@ -97,7 +97,8 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
 
             // Update the anime in the database
             Bson filter = Filters.eq("_id", new ObjectId(anime.getId()));
-            Bson update = new Document("$set", animeToDocument(anime));
+            Bson update = new Document("$set", animeToDocument(anime))
+                    .append("$unset", DocumentUtils.animeToUnsetAnimeFieldsDocument(anime));
 
             UpdateResult result = animeCollection.updateOne(filter, update);
 

@@ -1,11 +1,3 @@
-html {
-    scroll-behavior: smooth;
-}
-
-*, ::after, ::before {
-    box-sizing: border-box;
-}
-
 #country-dropdown {
     position: absolute;
     left: 13px;
@@ -27,39 +19,7 @@ html {
     padding: 10px;
 }
 
-.manga-anime {
-    text-decoration: none;
-    text-underline: none;
-    color: black;
-    cursor: pointer;
-}
-
-.reviews{
-
-    margin-left: 80px;
-    margin-right: 80px;
-}
-
-.review{
-    padding: 8px;
-    border: transparent;
-    box-shadow: 5px 5px 23px -7px rgba(0,0,0,0.84);
-    -webkit-box-shadow: 5px 5px 23px -7px rgba(0,0,0,0.84);
-    -moz-box-shadow: 5px 5px 23px -7px rgba(0,0,0,0.84);
-    border-radius: 7px;
-    margin-bottom: 25px;
-}
-
 /* profile stats and info css */
-
-:root {
-    font-size: 13px;
-}
-
-body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
-    Arial, sans-serif;
-}
 
 .container-px {
     max-width: 750px;
@@ -82,7 +42,15 @@ body {
     outline: 0.5rem auto #4d90fe;
 }
 
-/* Profile Section */
+/*///////////////////
+// Profile Section //
+///////////////////*/
+
+.profile {
+    font-size: 13px;
+}
+
+/* profile info css */
 
 .profile-px {
     padding: 5rem 0;
@@ -96,11 +64,11 @@ body {
 
 .profile-image-px {
     float: left;
-    width: calc(33.333% - 1rem);
+    width: calc(33.333% - 1em);
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-right: 3rem;
+    margin-right: 3em;
 }
 
 .profile-image-px img {
@@ -115,38 +83,39 @@ body {
 .profile-stats-px,
 .profile-bio-px {
     float: left;
-    width: calc(66.666% - 2rem);
+    width: calc(66.666% - 2em);
 }
 
 .profile-user-settings-px {
-    margin-top: 1.1rem;
+    margin-top: 1.1em;
     display: flex;
 }
 
 .profile-user-name-px {
-    font-size: 2.5rem;
+    font-size: 2.5em;
     font-weight: 300;
 }
 
 .profile-edit-btn-px {
-    font-size: 1.2rem;
+    font-size: 1.2em;
     height: auto;
     line-height: 1.8;
-    border: 0.1rem solid #dbdbdb;
-    border-radius: 0.5rem;
-    padding: 0 2.4rem;
-    margin: 2rem 2rem ;
+    border: 0.1em solid #dbdbdb;
+    border-radius: 0.5em;
+    padding: 0 2.4em;
+    margin: 2em 2em ;
+    background-color: #fff;
 }
 
 .profile-stats-px ul {
-    margin: 0.8rem 0;
+    margin: 0.8em 0;
 }
 
 .profile-stats-px li {
     display: inline-block;
-    font-size: 1.5rem;
+    font-size: 1.5em;
     line-height: 1.5;
-    margin-right: 4rem;
+    margin-right: 4em;
     cursor: pointer;
 }
 
@@ -155,7 +124,7 @@ body {
 }
 
 .profile-bio-px {
-    font-size: 1.3rem;
+    font-size: 1.3em;
     font-weight: 400;
     line-height: 1;
     padding-right: 40%;
@@ -168,7 +137,7 @@ body {
 }
 
 .profile-real-name-px {
-    font-size: 1.5rem;
+    font-size: 1.5em;
 }
 
 #general-error {
@@ -177,17 +146,17 @@ body {
 }
 /* Media Query */
 
-@media screen and (max-width: 60rem) {
+@media screen and (max-width: 60em) {
     .profile-bio-px {
         padding-right: 10%;
     }
 }
 
-@media screen and (max-width: 42rem) {
+@media screen and (max-width: 42em) {
     .profile-px {
         display: flex;
         flex-wrap: wrap;
-        padding: 4rem 0;
+        padding: 4em 0;
     }
 
     .profile-px::after {
@@ -203,34 +172,34 @@ body {
     }
 
     .profile-image-px img {
-        width: 7.7rem;
+        width: 7.7em;
         display: block;
         aspect-ratio: 1/1;
     }
 
     .profile-user-settings-px {
-        flex-basis: calc(100% - 10.7rem);
+        flex-basis: calc(100% - 10.7em);
         display: flex;
         flex-wrap: wrap;
-        margin-top: 1rem;
+        margin-top: 1em;
     }
 
     .profile-user-name-px {
-        font-size: 2.2rem;
+        font-size: 2.2em;
     }
 
     .profile-edit-btn-px {
         order: 1;
         padding: 0;
         text-align: center;
-        margin-top: 1rem;
+        margin-top: 1em;
         margin-left: 0;
 
     }
 
     .profile-bio-px {
-        font-size: 1.4rem;
-        margin-top: 1.5rem;
+        font-size: 1.4em;
+        margin-top: 1.5em;
         padding-right: 20%;
 
     }
@@ -243,19 +212,19 @@ body {
 
     .profile-stats-px {
         order: 1;
-        margin-top: 1.5rem;
+        margin-top: 1.5em;
     }
 
     .profile-stats-px ul {
         display: flex;
         text-align: center;
-        padding: 1.2rem 0;
-        border-top: 0.1rem solid #dadada;
-        border-bottom: 0.1rem solid #dadada;
+        padding: 1.2em 0;
+        border-top: 0.1em solid #dadada;
+        border-bottom: 0.1em solid #dadada;
     }
 
     .profile-stats-px li {
-        font-size: 1.4rem;
+        font-size: 1.4em;
         flex: 1;
         margin: 0;
     }
@@ -267,7 +236,7 @@ body {
     #general-error {
         display: block;
         padding-left: 0;
-        padding-top: 1rem;
+        padding-top: 1em;
     }
 }
 
@@ -276,7 +245,7 @@ body {
         display: grid;
         grid-template-columns: 1fr 2fr;
         grid-template-rows: repeat(3, auto);
-        grid-column-gap: 3rem;
+        grid-column-gap: 3em;
         align-items: center;
         justify-content: center;
     }
@@ -293,10 +262,10 @@ body {
         margin: 0;
     }
 
-    @media (max-width: 42rem) {
+    @media (max-width: 42em) {
         .profile-px {
             grid-template-columns: auto 1fr;
-            grid-row-gap: 1.5rem;
+            grid-row-gap: 1.5em;
         }
 
         .profile-image-px {
@@ -306,7 +275,7 @@ body {
         .profile-user-settings-px {
             display: grid;
             grid-template-columns: auto 1fr;
-            grid-gap: 1rem;
+            grid-gap: 1em;
         }
 
         .profile-bio-px {
@@ -567,6 +536,7 @@ select.form-control {
 /*//////////////////////////////////*/
 /* SECTION GRID MANGA/ANIME/REVIEWS */
 /*//////////////////////////////////*/
+
 .profile-content {
     padding-bottom: 2rem;
 }
@@ -579,6 +549,7 @@ select.form-control {
 /* like and reviews list button css */
 
 /* Ensure all buttons are inline and centered */
+
 .button-container {
     width: fit-content;
     margin: 0 auto 2rem auto; /* This will center the container horizontally */
@@ -747,19 +718,11 @@ select.form-control {
 
 /* pagination css */
 
-:root {
-    --primary: #23adad;
-    --greyLight: #23adade1;
-    --greyLight-2: #cbe0dd;
-    --greyDark: #2d4848;
-}
-
 .container {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background: #fff;
     padding-top: 2rem;
 }
 

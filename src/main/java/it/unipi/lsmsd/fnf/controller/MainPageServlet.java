@@ -33,6 +33,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -63,13 +64,9 @@ public class MainPageServlet extends HttpServlet {
     }
 
     private void handleLoadPage(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        if (request.getServletPath().equals("/mainPage")) {
-            response.sendRedirect("mainPage/manga");
-            return;
-        }
-
+        String path = request.getServletPath();
         String targetJSP;
-        String mediaType = request.getServletPath().equals("/mainPage/manga") ? "manga" : "anime";
+        String mediaType = path.equals("/mainPage/anime") ? "anime" : "manga";
 
         if (mediaType.equals("manga")) {
             request.setAttribute("mangaGenres", Constants.MANGA_GENRES);
@@ -77,7 +74,9 @@ public class MainPageServlet extends HttpServlet {
             request.setAttribute("mangaDemographics", MangaDemographics.values());
             request.setAttribute("mangaStatus", MangaStatus.values());
             targetJSP = "/WEB-INF/jsp/manga_main_page.jsp";
-
+            if (path.equals("/mainPage") || Objects.equals(request.getParameter("scroll"), "false")) {
+                request.setAttribute("scroll", false);
+            }
         } else {
             request.setAttribute("animeTags", Constants.ANIME_TAGS);
             request.setAttribute("animeTypes", AnimeType.values())  ;
@@ -132,14 +131,16 @@ public class MainPageServlet extends HttpServlet {
             int direction = Integer.parseInt(request.getParameter("sortDirection"));
             Map<String, Integer> orderBy = Map.of(order, direction);
 
-            logger.info("Filters: " + filters);
-            logger.info("Order by: " + orderBy);
             mediaList = mediaContentService.searchByFilter(filters, orderBy, page, mediaContentType);
 
             // Add the search results to the JSON response
-            JsonNode mediaListNode = objectMapper.valueToTree(mediaList);
-            jsonResponse.set("mediaPage", mediaListNode);
-            jsonResponse.put("success", true);
+            if (mediaList.getTotalCount() == 0) {
+                jsonResponse.put("noResults", "No results found");
+            } else {
+                JsonNode mediaListNode = objectMapper.valueToTree(mediaList);
+                jsonResponse.set("mediaPage", mediaListNode);
+                jsonResponse.put("success", true);
+            }
         } catch (BusinessException e) {
             jsonResponse.put("error", "Error occurred during search operation");
         } catch (IllegalArgumentException e) {

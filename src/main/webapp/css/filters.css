@@ -1,90 +1,3 @@
-:root {
-    --color-background: 237,241,245;
-    --color-foreground: 250,250,250;
-    --color-foreground-grey: 245,246,246;
-    --color-foreground-grey-dark: 234,236,237;
-    --color-foreground-blue: 246,248,251;
-    --color-foreground-blue-dark: 241,243,247;
-    --color-background-blue-dark: 31,35,45;
-    --color-overlay: 31,38,49;
-    --color-shadow: 49,54,68;
-    --color-shadow-dark: 6,13,34;
-    --color-shadow-blue: 103,132,187;
-    --color-text: 92,114,138;
-    --color-text-light: 122,133,143;
-    --color-text-lighter: 146,153,161;
-    --color-text-bright: 237,241,245;
-    --color-blue: 61,180,242;
-    --color-blue-dim: 141,178,219;
-    --color-white: 255,255,255;
-    --color-black: 0,0,0;
-    --color-red: 232,93,117;
-    --color-peach: 250,122,122;
-    --color-orange: 247,154,99;
-    --color-yellow: 247,191,99;
-    --color-green: 123,213,85;
-    --color-background-100: 251,251,251;
-    --color-background-200: 237,241,245;
-    --color-background-300: 221,230,238;
-    --color-background-400: 201,215,227;
-    --color-background-500: 173,192,210;
-    --color-background-600: 139,160,178;
-    --color-background-700: 116,136,153;
-    --color-background-800: 100,115,128;
-    --color-background-900: 81,97,112;
-    --color-background-1000: 64,78,92;
-    --color-background-1100: 38,52,63;
-    --color-background-1200: 27,30,31;
-    --color-gray-100: 251,251,251;
-    --color-gray-200: 237,241,245;
-    --color-gray-300: 221,230,238;
-    --color-gray-400: 201,215,227;
-    --color-gray-500: 173,192,210;
-    --color-gray-600: 139,160,178;
-    --color-gray-700: 116,136,153;
-    --color-gray-800: 100,115,128;
-    --color-gray-900: 81,97,112;
-    --color-gray-1000: 64,78,92;
-    --color-gray-1100: 38,52,63;
-    --color-gray-1200: 27,30,31;
-    --color-blue-100: 247,250,252;
-    --color-blue-200: 236,246,254;
-    --color-blue-300: 201,232,255;
-    --color-blue-400: 143,215,255;
-    --color-blue-500: 111,200,255;
-    --color-blue-600: 61,180,242;
-    --color-blue-700: 8,143,214;
-    --color-blue-800: 12,101,166;
-    --color-blue-900: 11,70,113;
-    --color-blue-1000: 16,61,85;
-    --color-green-100: 245,249,243;
-    --color-green-200: 226,246,217;
-    --color-green-300: 160,241,126;
-    --color-green-400: 119,220,76;
-    --color-green-500: 83,175,45;
-    --color-green-600: 56,126,26;
-    --color-green-700: 46,90,27;
-    --color-green-800: 41,66,31;
-    --color-red-100: 255,244,246;
-    --color-red-200: 254,212,220;
-    --color-red-300: 255,140,160;
-    --color-red-400: 236,41,75;
-    --color-red-500: 213,0,37;
-    --color-red-600: 165,1,29;
-    --color-red-700: 117,0,20;
-}
-
-html {
-    line-height: 1.15;
-    font-size: 62.5%;
-}
-
-*,
-::before,
-::after {
-    box-sizing: border-box;
-}
-
 .container {
     margin: 0 auto;
     min-width: 320px;
@@ -682,6 +595,49 @@ svg:not(:root) {
 
 /* selected filters and sorting */
 
+.active-filters, .landing .title {
+    z-index: 5;
+    position: relative;
+}
+
+.active-filters {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.tags-icon {
+    color: rgb(var(--color-gray-500));
+    font-size: 1.5rem;
+    margin-right: 16px;
+}
+
+.filter.clear-all {
+    background: rgb(var(--color-background-500));
+    pointer-events: auto;
+    transition: opacity .2s ease-in-out;
+    animation: in-data-v-cd1dc2b6 .2s ease-in-out;
+    border-radius: 6px;
+    color: rgb(var(--color-white));
+    cursor: pointer;
+    display: none;
+    font-size: 1.2rem;
+    font-weight: 600;
+    line-height: 13px;
+    margin-right: 12px;
+    padding: 5px 8px;
+    text-transform: capitalize;
+}
+
+.filter.clear-all:hover {
+    background: rgb(var(--color-background-600));
+}
+
+.filter.clear-all .icon {
+    display: inline-block;
+    color: rgb(var(--color-gray-200));
+}
+
 .secondary-filters {
     align-items: center;
     display: grid;
@@ -689,11 +645,6 @@ svg:not(:root) {
     margin-bottom: 30px;
     min-height: 23px;
     position: relative;
-}
-
-.sort-select {
-    padding-right: 10px;
-    margin-right: 12px;
 }
 
 .sort-wrap {
@@ -706,19 +657,17 @@ svg:not(:root) {
     -ms-user-select: none;
     user-select: none;
     font-size: 1.6rem;
+    padding-right: 10px;
+    margin-right: 12px;
 }
 
-.selects-wrap.icon, .selects-wrap.label {
-    transition: color .3s ease;
-}
-
-.selects-wrap.icon {
+.sort-wrap.icon {
     color: rgb(var(--color-gray-500));
     font-size: 1.4rem;
     margin-top: -.05em;
 }
 
-.selects-wrap .label {
+.sort-wrap .label {
         color: rgb(var(--color-gray-600));
         font-size: 1.6rem;
         font-weight: 600;
@@ -726,20 +675,19 @@ svg:not(:root) {
         white-space: nowrap;
 }
 
-.secondary-filters .dropdown {
+.sort-wrap .dropdown {
     background: rgb(var(--color-background-100));
     border-radius: 6px;
     box-shadow: 0 14px 30px rgba(var(--color-shadow-blue),.15),0 4px 4px rgba(var(--color-shadow-blue),.05);
     cursor: auto;
-    left: 1215px;
+    left: -17px;
     padding: 10px 16px;
     position: absolute;
-    top: calc(100% + 10px);
     width: 135px;
     z-index: 50;
 }
 
-.secondary-filters .dropdown::before {
+.sort-wrap .dropdown::before {
     width: 0;
     height: 0;
     content: "";
@@ -754,7 +702,7 @@ svg:not(:root) {
     position: absolute;
 }
 
-.secondary-filters .dropdown .option {
+.sort-wrap .dropdown .option {
     color: rgb(var(--color-gray-700));
     cursor: pointer;
     font-size: 1.3rem;
@@ -763,27 +711,27 @@ svg:not(:root) {
     transition: color .2s ease;
 }
 
-.secondary-filters .option.active {
+.sort-wrap .option.active {
     color: rgb(var(--color-gray-600));
 }
 
-.secondary-filters .option:hover {
+.sort-wrap .option:hover {
     color: rgb(var(--color-blue-600));
 }
 
-.secondary-filters .icon {
+.sort-wrap .icon {
     width: 3rem;
     height: 3rem;
     padding-top: 3px;
 }
 
-.secondary-filters .icon path {
+.sort-wrap .icon path {
     transition: transform 0.5s ease, fill 0.5s ease;
     transform-origin: center;
     fill: #03a9f4;
 }
 
-.secondary-filters .icon.down path {
+.sort-wrap .icon.down path {
     transform: rotate(-180deg);
     transform-origin: center;
     fill: rgb(var(--color-red-400));

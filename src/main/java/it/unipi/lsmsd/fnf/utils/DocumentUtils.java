@@ -18,7 +18,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.bson.types.ObjectId;
-import org.slf4j.Logger;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -443,7 +442,7 @@ public class DocumentUtils {
         return user;
     }
 
-    public static Document UsertToUnsetUserFieldsDocument(User registeredUser) {
+    public static Document UserToUnsetUserFieldsDocument(User registeredUser) {
         Document doc = new Document();
         if (registeredUser.getFullname() != null && registeredUser.getFullname().equals(Constants.NULL_STRING))
             doc.append("fullname", 1);
@@ -457,6 +456,72 @@ public class DocumentUtils {
             doc.append("gender", 1);
         if (registeredUser.getProfilePicUrl() != null && registeredUser.getProfilePicUrl().equals(Constants.NULL_STRING))
             doc.append("picture", 1);
+        return doc;
+    }
+
+    public static Document animeToUnsetAnimeFieldsDocument(Anime anime) {
+        Document doc = new Document();
+        if (anime.getEpisodeCount() != null && anime.getEpisodeCount().equals(Constants.NULL_INT))
+            doc.append("episodes", 1);
+        if (anime.getStatus() != null && anime.getStatus().equals(AnimeStatus.UNKNOWN))
+            doc.append("status", 1);
+        if (anime.getImageUrl() != null && anime.getImageUrl().equals(Constants.NULL_STRING))
+            doc.append("picture", 1);
+        if (anime.getAverageRating() != null && anime.getAverageRating().equals(Constants.NULL_DOUBLE))
+            doc.append("average_rating", 1);
+        if (anime.getType() != null && anime.getType().equals(AnimeType.UNKNOWN))
+            doc.append("type", 1);
+        if (anime.getProducers() != null && anime.getProducers().equals(Constants.NULL_STRING))
+            doc.append("producers", 1);
+        if (anime.getStudios() != null && anime.getStudios().equals(Constants.NULL_STRING))
+            doc.append("studios", 1);
+        if (anime.getSynopsis() != null && anime.getSynopsis().equals(Constants.NULL_STRING))
+            doc.append("synopsis", 1);
+        if (anime.getTags() != null && anime.getTags().equals(Constants.NULL_LIST))
+            doc.append("tags", 1);
+        if (anime.getRelatedAnime() != null && anime.getRelatedAnime().equals(Constants.NULL_LIST))
+            doc.append("relations", 1);
+        if (anime.getSeason() != null && anime.getSeason().equals(Constants.NULL_STRING))
+            doc.append("anime_season", 1);
+        if (anime.getYear() != null && anime.getYear().equals(Constants.NULL_INT))
+            doc.append("anime_season", 1);
+        return doc;
+    }
+
+    public static Document mangaToUnsetMangaFieldsDocument(Manga manga) {
+        Document doc = new Document();
+        if (manga.getStatus() != null && manga.getStatus().equals(MangaStatus.UNKNOWN))
+            doc.append("status", 1);
+        if (manga.getType() != null && manga.getType().equals(MangaType.UNKNOWN))
+            doc.append("type", 1);
+        if (manga.getThemes() != null && manga.getThemes().equals(Constants.NULL_LIST))
+            doc.append("themes", 1);
+        if (manga.getGenres() != null && manga.getGenres().equals(Constants.NULL_LIST))
+            doc.append("genres", 1);
+        if (manga.getImageUrl() != null && manga.getImageUrl().equals(Constants.NULL_STRING))
+            doc.append("picture", 1);
+        if (manga.getDemographics() != null && manga.getDemographics().contains(MangaDemographics.UNKNOWN))
+            doc.append("demographics", 1);
+        if (manga.getSerializations() != null && manga.getSerializations().equals(Constants.NULL_STRING))
+            doc.append("serializations", 1);
+        if (manga.getBackground() != null && manga.getBackground().equals(Constants.NULL_STRING))
+            doc.append("background", 1);
+        if (manga.getTitleEnglish() != null && manga.getTitleEnglish().equals(Constants.NULL_STRING))
+            doc.append("title_english", 1);
+        if (manga.getTitleJapanese() != null && manga.getTitleJapanese().equals(Constants.NULL_STRING))
+            doc.append("title_japanese", 1);
+        if (manga.getStartDate() != null && manga.getStartDate().equals(Constants.NULL_DATE))
+            doc.append("start_date", 1);
+        if (manga.getEndDate() != null && manga.getEndDate().equals(Constants.NULL_DATE))
+            doc.append("end_date", 1);
+        if (manga.getVolumes() != null && manga.getVolumes().equals(Constants.NULL_INT))
+            doc.append("volumes", 1);
+        if (manga.getChapters() != null && manga.getChapters().equals(Constants.NULL_INT))
+            doc.append("chapters", 1);
+        if (manga.getAverageRating() != null && manga.getAverageRating().equals(Constants.NULL_DOUBLE))
+            doc.append("average_rating", 1);
+        if (manga.getAuthors() != null && manga.getAuthors().equals(Constants.NULL_LIST_AUTHOR))
+            doc.append("authors", 1);
         return doc;
     }
 }

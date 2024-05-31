@@ -99,7 +99,8 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
             }
 
             Bson filter = eq("_id", new ObjectId(manga.getId()));
-            Bson update = new Document("$set", mangaToDocument(manga));
+            Bson update = new Document("$set", mangaToDocument(manga))
+                    .append("$unset", mangaToUnsetMangaFieldsDocument(manga));
 
             UpdateResult result = mangaCollection.updateOne(filter, update);
             if (result.getMatchedCount() == 0) {

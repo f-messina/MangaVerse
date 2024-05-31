@@ -97,17 +97,16 @@ public class MediaContentServiceImpl implements MediaContentService {
             if (mediaContent instanceof Anime anime) {
                 animeDAOMongoDB.updateMediaContent(anime);
                 if (mediaContent.getTitle() != null)
-                    reviewDAOMongoDB.updateMediaRedundancy(new AnimeDTO(anime.getId(), anime.getTitle()));
+                    aperiodicExecutorTaskService.executeTask(new UpdateReviewRedundancyTask(new AnimeDTO(anime.getId(), anime.getTitle()), null));
             } else if (mediaContent instanceof Manga manga) {
                 mangaDAOMongoDB.updateMediaContent(manga);
                 if (mediaContent.getTitle() != null)
-                    reviewDAOMongoDB.updateMediaRedundancy(new MangaDTO(manga.getId(), manga.getTitle()));
+                    aperiodicExecutorTaskService.executeTask(new UpdateReviewRedundancyTask(new MangaDTO(manga.getId(), manga.getTitle()), null));
             }
 
             // Create a task which update the node Anime/Manga in Neo4j
             if (mediaContent.getTitle() != null || mediaContent.getImageUrl() != null) {
                 aperiodicExecutorTaskService.executeTask(new UpdateMediaTask(mediaContent));
-                aperiodicExecutorTaskService.executeTask(new UpdateReviewRedundancyTask(mediaContent.toDTO(), null));
             }
 
         } catch (DAOException e) {

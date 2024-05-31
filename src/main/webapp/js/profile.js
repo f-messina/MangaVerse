@@ -9,11 +9,6 @@ const editButton = $("#edit-button");
 
 // Validation functions for the edit form //
 
-// Helper function to check if a string starts with another string in a case-insensitive manner
-function startsWithCaseInsensitive(str, prefix) {
-    return str.toUpperCase().indexOf(prefix) === 0;
-}
-
 function validateCountry() {
     const button = document.getElementById("edit-button");
     button.disabled = false;
@@ -327,11 +322,11 @@ function changeSection(button) {
     const sections = { anime: "#anime-like", manga: "#manga-like", reviews: "#reviews" };
     $.each(sections, (key, value) => $(value).toggle(key === section));
 
-    if (section === "reviews" && $("#reviews").children().first()) {
+    if (section === "reviews" && $("#reviews-list").children().first().length === 0) {
         fetchData("getReviews");
-    } else if (section === "anime" && $("#anime-like").children().first()) {
+    } else if (section === "anime" && $("#anime-list").children().first().length === 0) {
         fetchData("getAnimeLikes");
-    } else if (section === "manga" && $("#manga-like").children().first()) {
+    } else if (section === "manga" && $("#manga-list").children().first().length === 0) {
         fetchData("getMangaLikes");
     }
 }
@@ -352,6 +347,7 @@ function showLikes(data, action) {
     const isAnime = action === "getAnimeLikes";
     const likeList = isAnime ? $("#anime-list") : $("#manga-list");
     const pagination = isAnime ? $(".anime-pagination") : $(".manga-pagination");
+    const defaultImage = isAnime ? animeDefaultImage : mangaDefaultImage;
 
     likeList.empty();
     pagination.empty();
@@ -364,11 +360,10 @@ function showLikes(data, action) {
 
     isAnime ? totalAnimePages = data.mediaLikes.totalPages : totalMangaPages = data.mediaLikes.totalPages;
     updatePagination(isAnime ? "anime" : "manga");
-
     data.mediaLikes.entries.forEach(media => {
         const mediaWrapper = $("<div>").addClass("project-box-wrapper");
         const mediaBox = $("<div>").addClass("project-box");
-        const picture = $("<img>").attr("src", media.imageUrl).attr("alt", media.title)
+        const picture = $("<img>").attr("src", media.imageUrl === null ? defaultImage: media.imageUrl).attr("alt", media.title)
             .addClass("box-image")
             .on("error", () => setDefaultCover(picture, isAnime ? "anime" : "manga"));
         const title = $("<a>").attr("href", `${contextPath}/${isAnime ? "anime" : "manga"}?mediaId=${media.id}`)
@@ -484,3 +479,8 @@ function updatePagination(section) {
 
     pagination.append(createArrowButton("right", currentPage < totalPages, currentPage + 1));
 }
+
+// Initialize the profile page with the manga section
+$(document).ready(() => {
+    changeSection(document.getElementById("manga-button"));
+});

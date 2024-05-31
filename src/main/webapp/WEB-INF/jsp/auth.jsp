@@ -5,12 +5,8 @@
 <html>
 <head>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/auth_test.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
-
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <script src="${pageContext.request.contextPath}/js/auth_test.js" defer></script>
-    <script src="${pageContext.request.contextPath}/js/country_dropdown.js" defer></script>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/website.css"/>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/navbar.css"/>
 
     <title>AUTH PAGE</title>
 </head>
@@ -35,80 +31,84 @@
             <h2 class="pb-3">Sign up</h2>
             <form action="${pageContext.request.contextPath}/auth" method="post" id="register-form" style="width: 70%">
                 <input type="hidden" name="action" id="action" value="signup"/>
-                <div class="pb-3">
+                <div>
                     <label for="username">Username</label>
                     <input class="form-control" type="text" name="username" id="username" placeholder="Username" oninput="validateUsername()" required/>
-                    <span id="username-error" class="text-danger"></span>
+                    <span id="username-error" class="error"></span>
                 </div>
-                <div class="pb-3">
+                <div>
                     <label for="email">Email</label>
                     <input class="form-control" type="email" name="email" id="email" placeholder="Your Email" required/>
-                    <span id="email-error" class="text-danger"></span>
+                    <span id="email-error" class="error"></span>
                 </div>
-                <div class="pb-3">
+                <div>
                     <label for="password">Password</label>
                     <input class="form-control" type="password" name="password" id="password" placeholder="Password" oninput="validatePassword()" required/>
-                    <span id="pwd-error" class="text-danger"></span>
+                    <span id="pwd-error" class="error"></span>
                 </div>
-                <div class="pb-3">
+                <div>
                     <label for="re-pass">Repeat Password</label>
                     <input class="form-control" type="password" name="re-pass" id="re-pass" placeholder="Repeat your password" oninput="validatePassword()" required/>
-                    <span id="re_pwd-error" class="text-danger"></span>
+                    <span id="re_pwd-error" class="error"></span>
                 </div>
                 <div class="pb-3">
                     <label for="fullname">Full Name (Optional)</label>
                     <input class="form-control" type="text" name="fullname" id="fullname" placeholder="Full Name (Optional)"/>
                 </div>
-                <div class="pb-3">
+                <div id="gender-div" class="dropdown-content pb-3">
                     <label for="gender">Gender</label>
-                    <select class="form-control" id="gender" name="gender">
-                        <option value="male">Male</option>
-                        <option value="female">Female</option>
-                        <option value="non_binary">Non Binary</option>
-                        <option value="unknown">I prefer not to answer</option>
-                    </select>
+                    <input type="text" class="form-control" id="gender" name="gender" readonly>
+                    <div class="dropdown-options">
+                        <a class="option" data-value="male">Male</a>
+                        <a class="option" data-value="female">Female</a>
+                        <a class="option" data-value="non_binary">Non Binary</a>
+                        <a class="option" data-value="unknown">I prefer not to answer</a>
+                    </div>
                 </div>
                 <div class="pb-3">
                     <label for="birthdate">Birthdate</label>
-                    <input class="form-control" type="date" name="birthdate" id="birthdate" placeholder="Birthdate"/>
+                    <input class="form-control" type="date" name="birthdate" id="birthdate"/>
                 </div>
-                <div class="pb-3">
+                <div>
                     <label for="country">Country (Optional)</label>
                     <input class="form-control" type="text" name="country" id="country" placeholder="Country (Optional)" oninput="validateCountry()"/>
                     <div class="dropdown-content" id="country-dropdown" onclick="validateCountry()"></div>
-                    <span id="country-error" class="text-danger"></span>
+                    <span id="country-error" class="error"></span>
                 </div>
                 <div class="py-3 text-center">
-                    <button type="button" class="btn btn-secondary" onclick="hideSignUpForm()">Close</button>
-                    <input class="btn btn-primary" type="submit" name="signup" id="signup" value="Sign Up"/>
+                    <button class="btn btn-secondary" onclick="hideSignUpForm()">Close</button>
+                    <button id="signup" class="btn btn-primary">Sign Up</button>
                 </div>
             </form>
-            <span id="general-error" class="text-danger"></span>
+            <span id="general-error" class="error"></span>
         </div>
     </div>
 
     <!-- Log in -->
     <div class="container login-container d-flex justify-content-center align-items-center">
         <div class="login-content text-center">
-            <h2 class="pb-3">Log in</h2>
+            <h1 class="pb-3">Log in</h1>
+            <span id="auth-error" class="error"><c:out value="${requestScope['authError']}" /></span>
             <form action="${pageContext.request.contextPath}/auth" method="post" id="login-form">
                 <input type="hidden" name="action" value="login"/>
                 <div class="pb-3">
                     <label for="email_login"></label>
                     <input class="form-control form-control-lg " type="email" name="email" id="email_login" placeholder="Email" required/>
-                    <span id="email-auth-error" style="color: red"><c:out value="${requestScope['emailLoginError']}" /></span>
                 </div>
                 <div class="pb-3">
                     <label for="password_login"></label>
                     <input class="form-control form-control-lg" type="password" name="password" id="password_login" placeholder="Password" required/>
-                    <span id="password-auth-error" style="color: red"><c:out value="${requestScope['passwordLoginError']}" /></span>
                 </div>
-                <div class="pb-3">
+                <div>
                     <input class="btn btn-primary btn-block" type="submit" name="login" id="login" value="Log In"/>
                 </div>
             </form>
-            <button class="btn" style="color: rgba(6,9,133,0.9)" onclick="showSignUpForm()">Don't have an account? Sign up</button>
+            <p id="show-sign-up-button" class="btn" onclick="showSignUpForm()">Don't have an account? Sign up</p>
         </div>
     </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" defer></script>
+    <script src="${pageContext.request.contextPath}/js/auth_test.js" defer></script>
+    <script src="${pageContext.request.contextPath}/js/country_dropdown.js" defer></script>
 </body>
 </html>

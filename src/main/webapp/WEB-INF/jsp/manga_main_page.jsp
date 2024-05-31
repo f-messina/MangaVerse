@@ -1,35 +1,26 @@
-<%--
-  Created by IntelliJ IDEA.
-  User: messi
-  Date: 02/02/2024
-  Time: 12:31
-  To change this template use File | Settings | File Templates.
---%>
-
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ page import="it.unipi.lsmsd.fnf.utils.Constants" %>
 <%@ page import="static java.time.LocalDate.now" %>
 <%@ page contentType="text/html;charset=UTF-8" %>
+
 <!DOCTYPE html>
 <html>
 <head>
-    <title>MAIN PAGE</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="preconnect" href="https://fonts.googleapis.com%22%3E/" crossorigin />
-    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
-    <link
-            rel="stylesheet"
-            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
             integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
             crossorigin="anonymous"
             referrerpolicy="no-referrer"
     />
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/website.css"/>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/main_page.css"/>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/navbar.css"/>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/user_list.css"/>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/filters.css"/>
+
+    <title>MAIN PAGE</title>
 </head>
+
 <body>
     <!-- JSP variables -->
     <c:set var="isLogged" value="${not empty sessionScope[Constants.AUTHENTICATED_USER_KEY]}" /> <!-- check if the user is logged in -->
@@ -40,14 +31,14 @@
         <!-- Home container -->
         <div class="home-container">
             <div class="home-wrapper">
-                <div class="active-page"><span id="mangaLink">Manga</span></div>
+                <div class="active-page"><span>Manga</span></div>
                 <div class="welcome">
                     <div class="welcome-text">
                         <p>Welcome to</p>
                     </div>
                     <img src="${pageContext.request.contextPath}/images/logo-with-name.png" alt="middle" />
                 </div>
-                <div class="selection-page-link"><a href="${pageContext.request.contextPath}/mainPage/anime" id="animeLink">Anime</a></div>
+                <div class="selection-page-link">Anime</div>
             </div>
         </div>
 
@@ -78,11 +69,10 @@
             <a href="${pageContext.request.contextPath}/mainPage/manga" class="manga">Manga</a>
             <c:choose>
                 <c:when test="${isLogged}">
-                    <form action="${pageContext.request.contextPath}/auth" method="post">
-                        <input type="hidden" name="action" value="logout">
-                        <input type="hidden" name="targetServlet" value="mainPage">
-                        <button type="submit" class="logout">Log Out</button>
-                    </form>
+                    <div class="logout" onclick="logout('mainPage')">
+                        <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="sign-out-alt" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="logout-icon"><path data-v-04b245e6="" fill="currentColor" d="M497 273L329 441c-15 15-41 4.5-41-17v-96H152c-13.3 0-24-10.7-24-24v-96c0-13.3 10.7-24 24-24h136V88c0-21.4 25.9-32 41-17l168 168c9.3 9.4 9.3 24.6 0 34zM192 436v-40c0-6.6-5.4-12-12-12H96c-17.7 0-32-14.3-32-32V160c0-17.7 14.3-32 32-32h84c6.6 0 12-5.4 12-12V76c0-6.6-5.4-12-12-12H96c-53 0-96 43-96 96v192c0 53 43 96 96 96h84c6.6 0 12-5.4 12-12z" class=""></path></svg>
+                        <div class="logout-text">Log Out</div>
+                    </div>
                     <a href="${pageContext.request.contextPath}/profile" class="small-pic">
                         <img id="navbar-profile-picture" alt="profile bar" src="${sessionScope[Constants.AUTHENTICATED_USER_KEY].getProfilePicUrl()}">
                     </a>
@@ -113,14 +103,14 @@
                             <label>
                                 <input id="title-filter" type="search" autocomplete="off" class="search">
                             </label>
-                            <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="times" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 352 512" class="icon right close svg-inline--fa fa-times fa-w-11">
+                            <svg id="title-remove-button" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="times" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 352 512" class="icon right close svg-inline--fa fa-times fa-w-11">
                                 <path fill="currentColor" d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z" class=""></path>
                             </svg>
                         </div>
                     </div>
 
                     <!-- genres -->
-                    <div id="genres-filter" class="filter filter-select" type="genre">
+                    <div id="genres-filter" class="filter filter-select">
                         <div class="filter-name-wrap">
                             <div class="filter-name">Genres</div>
                             <div class="toggle-button-genre">
@@ -382,8 +372,19 @@
 
             <!-- select order -->
             <div class="secondary-filters">
+                <div class="active-filters">
+                    <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="tags" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" class="tags-icon svg-inline--fa fa-tags fa-w-20">
+                        <path fill="currentColor" d="M497.941 225.941L286.059 14.059A48 48 0 0 0 252.118 0H48C21.49 0 0 21.49 0 48v204.118a48 48 0 0 0 14.059 33.941l211.882 211.882c18.744 18.745 49.136 18.746 67.882 0l204.118-204.118c18.745-18.745 18.745-49.137 0-67.882zM112 160c-26.51 0-48-21.49-48-48s21.49-48 48-48 48 21.49 48 48-21.49 48-48 48zm513.941 133.823L421.823 497.941c-18.745 18.745-49.137 18.745-67.882 0l-.36-.36L527.64 323.522c16.999-16.999 26.36-39.6 26.36-63.64s-9.362-46.641-26.36-63.64L331.397 0h48.721a48 48 0 0 1 33.941 14.059l211.882 211.882c18.745 18.745 18.745 49.137 0 67.882z" class=""></path>
+                    </svg>
+                    <div class="filter clear-all">
+                        <span class="label">Clear All</span>
+                        <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="times" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 352 512" class="icon svg-inline--fa fa-times fa-w-11">
+                            <path fill="currentColor" d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z" class=""></path>
+                        </svg>
+                    </div>
+                </div>
                 <div class="selects-wrap">
-                    <div class="sort-wrap sort-select">
+                    <div class="sort-wrap">
                         <svg class="icon svg-inline--fa fa-sort fa-w-10" value="1" data-name="Layer 3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
                             <path d="M92.729 20.643 101.19 35.3h.007l8.494 14.711a4.289 4.289 0 0 1-3.712 6.439v.01h-4.631v37.767H76.629V56.454h-4.622a4.3 4.3 0 0 1-3.565-6.7l8.347-14.457q.066-.115.139-.223L85.282 20.6a4.281 4.281 0 0 1 7.447.042zm-49.977 0L51.213 35.3h.007l8.493 14.711A4.289 4.289 0 0 1 56 56.445v.01h-4.629v37.772H26.652V56.454H22.03a4.3 4.3 0 0 1-3.565-6.7l8.347-14.457q.066-.115.139-.223L35.3 20.6a4.281 4.281 0 0 1 7.447.042z"/>
                         </svg>
@@ -399,6 +400,7 @@
             </div>
 
             <!-- results -->
+            <div class="no-results"> No Results </div>
             <div class="results"></div>
 
             <div class="container-pagination">
@@ -406,30 +408,20 @@
                 </ul>
             </div>
         </div>
-
-
-        <!--
-        <section id="resultsSection">
-            <h1 id="totalResults"></h1>
-            <div id="orderSelection"></div>
-            <div id="media-list" class="project-boxes jsGridView"></div>
-            <div id="pageSelection"></div>
-        </section> -->
-
     </section>
 
     <script src="https://code.jquery.com/jquery-3.6.4.min.js" defer></script>
     <script src="${pageContext.request.contextPath}/js/main_page_test.js" defer></script>
     <script src="${pageContext.request.contextPath}/js/navbar.js" defer></script>
     <script src="${pageContext.request.contextPath}/js/filters.js" defer></script>
+    <c:set var="scroll" value="${requestScope['scroll']}"/>
     <script>
         const mediaType = "manga";
         const authenticatedUser = ${isLogged};
         const contextPath = "${pageContext.request.contextPath}";
-        const authURI = "${pageContext.request.contextPath}/auth";
-        const servletURI = "${pageContext.request.contextPath}/mainPage/manga";
         const mangaDefaultImage = "${pageContext.request.contextPath}/${Constants.DEFAULT_COVER_MANGA}";
         const animeDefaultImage = "${pageContext.request.contextPath}/${Constants.DEFAULT_COVER_ANIME}";
+        const scrollToMain = ${scroll != null ? scroll : 'true'};
     </script>
 </body>
 </html>

@@ -7,6 +7,10 @@ $(document).ready(function () {
     const navBar = $("#navbar");
     const sectionHome = $('#welcome-section');
 
+    if (scrollToMain) {
+        navBar[0].scrollIntoView({ behavior: 'instant', block: 'start', inline: 'nearest' });
+    }
+
     $('#down-arrow').click(function() {
         navBar[0].scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
     });
@@ -16,6 +20,20 @@ $(document).ready(function () {
         window.scrollTo({ top: scrollPoint.offset().top, behavior: 'smooth' });
         sectionHome[0].scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
     });
+
+    // change page and remain on the welcome section
+    $(".selection-page-link").click(function() {
+        const targetType = (mediaType === "manga") ? "anime" : "manga";
+        const targetUrl = contextPath + "/mainPage/" + targetType;
+        const form = $("<form>", {method: "POST", action: targetUrl});
+        const scrollInput = $("<input>", {type: "hidden", name: "scroll", value: "false"});
+        form.append(scrollInput);
+        $("body").append(form);
+        form.submit();
+    });
+
+    // load the first page of media content without any filters
+    getMediaContent();
 });
 
 let currentPage, totalPages;
@@ -31,10 +49,11 @@ function getMediaContent(page = 1) {
             totalPages = data.mediaPage.totalPages;
             updatePagination();
             resultsContainer.empty();
+            $(".no-results").hide();
             data.mediaPage.entries.forEach(media => {
                 const mediaCard = $("<div>").addClass("media-card");
                 const mediaImgLink = $("<a>").addClass("cover").attr("href", contextPath + "/" + mediaType + "?mediaId=" + media.id);
-                const mediaImg = $("<img>").attr("src", media.imageUrl).attr("alt", media.title).addClass("image loaded")
+                const mediaImg = $("<img>").attr("src", media.imageUrl === null ? animeDefaultImage: media.imageUrl).attr("alt", media.title).addClass("image loaded")
                     .on("error", () => setDefaultCover(mediaImg, mediaType));
                 mediaImgLink.append(mediaImg);
                 const title = $("<a>").attr("href", contextPath + "/" + mediaType + "?mediaId=" + media.id).addClass("title").text(media.title);
@@ -69,9 +88,14 @@ function getMediaContent(page = 1) {
                     hoverBox.addClass("left");
                 }
             });
+        } else if (data.noResults) {
+            totalPages = 0;
+            updatePagination();
+            resultsContainer.empty();
+            $(".no-results").show();
         } else {
+            $(".no-results").hide();
             console.log(data.error);
-            alert(data.error);
         }
     }).fail(function () {
         alert("Error occurred during the asynchronous request");
@@ -84,10 +108,16 @@ function updatePagination() {
     pagination.empty();
     if (totalPages === 1) return;
 
+    // Add class to display the pagination correctly
+    if (totalPages > 999) pagination.addClass("x-large");
+    else if (totalPages > 99) pagination.addClass("large");
+    else if (totalPages > 9) pagination.addClass("medium");
+    else pagination.removeClass("medium large x-large");
+
     const createPageButton = (pageNumber, isActive = false) => {
         const btn = $("<li>").addClass("page__numbers").text(pageNumber);
         if (isActive) btn.addClass("active");
-        else btn.click(() => getMediaContent(pageNumber));
+        btn.click(() => getMediaContent(pageNumber));
         return btn;
     };
 
@@ -97,7 +127,8 @@ function updatePagination() {
         return arrow;
     };
 
-    pagination.append(createArrowButton("left", currentPage > 1, currentPage - 1));
+    if (totalPages > 1)
+        pagination.append(createArrowButton("left", currentPage > 1, currentPage - 1));
 
     if (totalPages < 10) {
         for (let i = 1; i <= totalPages; i++) {
@@ -126,5 +157,6 @@ function updatePagination() {
         pagination.append(createPageButton(totalPages, currentPage === totalPages));
     }
 
-    pagination.append(createArrowButton("right", currentPage < totalPages, currentPage + 1));
+    if (totalPages > 1)
+        pagination.append(createArrowButton("right", currentPage < totalPages, currentPage + 1));
 }
