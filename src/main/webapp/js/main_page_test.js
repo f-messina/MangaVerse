@@ -76,8 +76,14 @@ function getMediaContent(page = 1) {
                     }
                     hoverBox.append(score, likes, startDate, separator, endDate);
                 } else {
-                    const season = $("<div>").addClass("season").text("Season: " + media.season);
-                    const year = $("<div>").addClass("year").text("Year: " + media.year);
+                    const season = $("<div>").addClass("season").text(media.season);
+                    const year = $("<div>").addClass("year").text(media.year);
+                    if (media.season === null) {
+                        season.text("N/A");
+                    }
+                    if (media.year === null) {
+                        year.text("N/A");
+                    }
                     hoverBox.append(score, likes, season, year);
                 }
 

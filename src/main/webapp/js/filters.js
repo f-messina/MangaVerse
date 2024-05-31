@@ -319,7 +319,7 @@ function createFilterParams() {
 
             if (filterName === "genre") {
                 const avoidedOptions = selectWrap.find(".option.avoided");
-                params[filterName + "Avoided"] = JSON.stringify(avoidedOptions.map(function () {
+                params["genreAvoided"] = JSON.stringify(avoidedOptions.map(function () {
                     return $(this).find(".name").attr("value");
                 }).get());
             }
@@ -340,5 +340,6 @@ function createFilterParams() {
         params[rangeName + "Max"] = maxVal;
     });
 
+    console.log(params);
     return params;
 }

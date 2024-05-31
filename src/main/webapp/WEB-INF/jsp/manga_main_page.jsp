@@ -248,9 +248,7 @@
                             <div class="select">
                                 <div class="value-wrap">
                                     <div class="placeholder">Any</div>
-                                    <label>
-                                        <input type="search" autocomplete="off" class="filter">
-                                    </label>
+                                    <div class="filter"></div>
                                 </div>
                                 <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="chevron-down" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="icon svg-inline--fa fa-chevron-down fa-w-14 fa-fw">
                                     <path fill="currentColor" d="M207.029 381.476L12.686 187.132c-9.373-9.373-9.373-24.569 0-33.941l22.667-22.667c9.357-9.357 24.522-9.375 33.901-.04L224 284.505l154.745-154.021c9.379-9.335 24.544-9.317 33.901.04l22.667 22.667c9.373 9.373 9.373 24.569 0 33.941L240.971 381.476c-9.373 9.372-24.569 9.372-33.942 0z" class=""></path>
@@ -263,16 +261,18 @@
                                 <div class="scroll-wrap">
                                     <div class="option-group">
                                         <c:forEach var="entry" items="${requestScope.mangaStatus}">
-                                            <div class="option">
-                                                <div class="label">
-                                                    <div class="name" value="${entry.name()}">${entry.toString()}</div>
-                                                    <div class="selected-icon circle">
-                                                        <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="check" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="svg-inline--fa fa-check fa-w-16">
-                                                            <path fill="currentColor" d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z" class=""></path>
-                                                        </svg>
+                                            <c:if test="${entry.name() != 'UNKNOWN'}">
+                                                <div class="option">
+                                                    <div class="label">
+                                                        <div class="name" value="${entry.name()}">${entry.toString()}</div>
+                                                        <div class="selected-icon circle">
+                                                            <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="check" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="svg-inline--fa fa-check fa-w-16">
+                                                                <path fill="currentColor" d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z" class=""></path>
+                                                            </svg>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
+                                            </c:if>
                                         </c:forEach>
                                     </div>
                                 </div>
@@ -302,9 +302,7 @@
                                     <div class="select">
                                         <div class="value-wrap">
                                             <div class="placeholder">Any</div>
-                                            <label>
-                                                <input type="search" autocomplete="off" class="filter">
-                                            </label>
+                                            <div class="filter"></div>
                                         </div>
                                         <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="chevron-down" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="icon svg-inline--fa fa-chevron-down fa-w-14 fa-fw">
                                             <path data-v-e3e1e202="" fill="currentColor" d="M207.029 381.476L12.686 187.132c-9.373-9.373-9.373-24.569 0-33.941l22.667-22.667c9.357-9.357 24.522-9.375 33.901-.04L224 284.505l154.745-154.021c9.379-9.335 24.544-9.317 33.901.04l22.667 22.667c9.373 9.373 9.373 24.569 0 33.941L240.971 381.476c-9.373 9.372-24.569 9.372-33.942 0z" class=""></path>
@@ -317,16 +315,18 @@
                                         <div class="scroll-wrap">
                                             <div class="option-group">
                                                 <c:forEach var="entry" items="${requestScope.mangaTypes}">
-                                                    <div class="option">
-                                                        <div class="label">
-                                                            <div class="name" value="${entry.name()}">${entry.toString()}</div>
-                                                            <div class="selected-icon circle">
-                                                                <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="check" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="svg-inline--fa fa-check fa-w-16">
-                                                                    <path fill="currentColor" d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z" class=""></path>
-                                                                </svg>
+                                                    <c:if test="${entry.name() != 'UNKNOWN'}">
+                                                        <div class="option">
+                                                            <div class="label">
+                                                                <div class="name" value="${entry.name()}">${entry.toString()}</div>
+                                                                <div class="selected-icon circle">
+                                                                    <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="check" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="svg-inline--fa fa-check fa-w-16">
+                                                                        <path fill="currentColor" d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z" class=""></path>
+                                                                    </svg>
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                    </div>
+                                                    </c:if>
                                                 </c:forEach>
                                             </div>
                                         </div>
@@ -393,7 +393,7 @@
                             <div value="title" class="option active">Title</div>
                             <div value="likes" class="option">Popularity</div>
                             <div value="average_rating" class="option">Average Score</div>
-                            <div value="start_date" class="option">Release Date </div>
+                            <div value="anime" class="option">Release Date </div>
                         </div>
                     </div>
                 </div>

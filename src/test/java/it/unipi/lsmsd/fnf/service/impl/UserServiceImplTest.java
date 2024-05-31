@@ -334,4 +334,5 @@ class UserServiceImplTest {
         System.out.println("Profile picture(s) updated successfully for all matching users.");
         Thread.sleep(2*60*1000);
     }
+
 }
