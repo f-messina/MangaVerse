@@ -19,6 +19,7 @@ import it.unipi.lsmsd.fnf.service.interfaces.ReviewService;
 import it.unipi.lsmsd.fnf.service.ServiceLocator;
 import it.unipi.lsmsd.fnf.service.interfaces.UserService;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
+import it.unipi.lsmsd.fnf.utils.Constants;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -116,7 +117,7 @@ public class ManagerServlet extends HttpServlet {
         //Thread 2: getTrendMediaContentByYear with year = 2021 List<? extends MediaContentDTO> getTrendMediaContentByYear
         Future<Map<MediaContentDTO, Integer>> trendAnimeByYearFuture = executorService.submit(() -> {
             try {
-                return mediaContentService.getTrendMediaContentByYear(2024, MediaContentType.ANIME);
+                return mediaContentService.getMediaContentTrendByYear(2024, Constants.PAGE_SIZE, MediaContentType.ANIME);
             } catch (BusinessException e) {
                 throw new RuntimeException(e);
             }
@@ -162,7 +163,7 @@ public class ManagerServlet extends HttpServlet {
         //Thread 2: getTrendMediaContentByYear with year = 2021 List<? extends MediaContentDTO> getTrendMediaContentByYear
         Future<Map<MediaContentDTO, Integer>> trendMangaByYearFuture = executorService.submit(() -> {
             try {
-                return mediaContentService.getTrendMediaContentByYear(2024, MediaContentType.MANGA);
+                return mediaContentService.getMediaContentTrendByYear(2024, Constants.PAGE_SIZE, MediaContentType.MANGA);
             } catch (BusinessException e) {
                 throw new RuntimeException(e);
             }
@@ -474,7 +475,7 @@ public class ManagerServlet extends HttpServlet {
         }
         else {
             try {
-                Map<MediaContentDTO, Integer> trendMediaContentByYear = mediaContentService.getTrendMediaContentByYear(year, section.equals("manga") ? MediaContentType.MANGA : MediaContentType.ANIME);
+                Map<MediaContentDTO, Integer> trendMediaContentByYear = mediaContentService.getMediaContentTrendByYear(year, Constants.PAGE_SIZE, section.equals("manga") ? MediaContentType.MANGA : MediaContentType.ANIME);
                 if(trendMediaContentByYear.isEmpty()){
                     jsonResponse.put("error", "No data available");
                 }
@@ -505,7 +506,7 @@ public class ManagerServlet extends HttpServlet {
         } else {
             try {
                 //Is it better to put just MediaContentDTO instead of ? extends MediaContentDTO?
-                List<MediaContentDTO> trendMediaContentByLikes = mediaContentService.getMediaContentTrendByLikes(section.equals("manga") ? MediaContentType.MANGA : MediaContentType.ANIME);
+                List<MediaContentDTO> trendMediaContentByLikes = mediaContentService.getMediaContentTrendByLikes(Constants.PAGE_SIZE, section.equals("manga") ? MediaContentType.MANGA : MediaContentType.ANIME);
                 if(trendMediaContentByLikes.isEmpty()){
                     jsonResponse.put("error", "No data available");
                 }

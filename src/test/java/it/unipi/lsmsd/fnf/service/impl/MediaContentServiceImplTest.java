@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static com.mongodb.client.model.Filters.exists;
 import static it.unipi.lsmsd.fnf.dao.neo4j.BaseNeo4JDAO.getSession;
 import static it.unipi.lsmsd.fnf.service.ServiceLocator.getExecutorTaskService;
 import static java.lang.String.valueOf;

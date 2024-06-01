@@ -183,7 +183,7 @@
                             <div class="options">
                                 <div class="scroll-wrap">
                                     <div class="option-group">
-                                        <c:forEach var="year" begin="1930" end="${currentYear}">
+                                        <c:forEach var="year" begin="1900" end="${currentYear}">
                                             <div class="option">
                                                 <div class="label">
                                                     <div class="name" value="${year}">${year}</div>
@@ -336,13 +336,13 @@
 
                             <!-- year range -->
                             <div class="filter">
-                                <div class="range-wrap" name="year-range" style="--handle-0-position: 0px; --handle-1-position: 171px; --active-region-width: 171px; --min-val: 1930; --max-val: ${currentYear};">
+                                <div class="range-wrap" name="year-range" style="--handle-0-position: 0px; --handle-1-position: 171px; --active-region-width: 171px; --min-val: 1900; --max-val: ${currentYear};">
                                     <div class="header header-filters">
                                         <div class="label">year range</div>
                                     </div>
                                     <div class="range">
                                         <div class="rail">
-                                            <div value="1930" class="handle handle-0"></div>
+                                            <div value="1900" class="handle handle-0"></div>
                                             <div class="active-region"></div>
                                             <div value="${currentYear}" class="handle handle-1"></div>
                                         </div>

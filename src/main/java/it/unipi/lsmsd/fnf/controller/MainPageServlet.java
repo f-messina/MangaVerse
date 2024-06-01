@@ -63,15 +63,17 @@ public class MainPageServlet extends HttpServlet {
         String targetJSP;
         String mediaType = path.equals("/mainPage/anime") ? "anime" : "manga";
 
+        if (path.equals("/mainPage") || Objects.equals(request.getParameter("scroll"), "false")) {
+            request.setAttribute("scroll", false);
+        }
+
         if (mediaType.equals("manga")) {
             request.setAttribute("mangaGenres", Constants.MANGA_GENRES);
             request.setAttribute("mangaTypes", MangaType.values());
             request.setAttribute("mangaDemographics", MangaDemographics.values());
             request.setAttribute("mangaStatus", MangaStatus.values());
             targetJSP = "/WEB-INF/jsp/manga_main_page.jsp";
-            if (path.equals("/mainPage") || Objects.equals(request.getParameter("scroll"), "false")) {
-                request.setAttribute("scroll", false);
-            }
+
         } else {
             request.setAttribute("animeTags", Constants.ANIME_TAGS);
             request.setAttribute("animeTypes", AnimeType.values())  ;
