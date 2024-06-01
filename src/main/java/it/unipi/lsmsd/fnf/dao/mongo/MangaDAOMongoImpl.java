@@ -16,6 +16,7 @@ import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
+import it.unipi.lsmsd.fnf.model.mediaContent.MangaAuthor;
 import it.unipi.lsmsd.fnf.utils.Constants;
 
 import com.mongodb.client.MongoCollection;
@@ -24,6 +25,7 @@ import it.unipi.lsmsd.fnf.utils.DocumentUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
+import org.slf4j.Logger;
 
 import java.util.*;
 
@@ -454,7 +456,11 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
                 Double avgRating = doc.get("criteria_average_rating") instanceof Integer?
                         doc.getInteger("criteria_average_rating").doubleValue() :
                         doc.getDouble("criteria_average_rating");
-                bestCriteria.put(doc.get("_id").toString(), avgRating);
+                if (criteria.equals("authors")) {
+                    bestCriteria.put(doc.get("_id", Document.class).getString("name"), avgRating);
+                } else {
+                    bestCriteria.put(doc.get("_id").toString(), avgRating);
+                }
             }
 
             return bestCriteria;

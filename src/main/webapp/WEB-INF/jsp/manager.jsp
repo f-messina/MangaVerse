@@ -77,6 +77,8 @@
                     <option value="genres">Genre</option>
                     <option value="themes">Theme</option>
                     <option value="demographics">Demographic</option>
+                    <option value="authors">Author</option>
+                    <option value="serializations">Serialization</option>
                 </select>
                     <div>
                         <canvas id="mangaCriteriaChart"> </canvas>
@@ -155,9 +157,8 @@
                 <label for="analyticsType2">Select Analytics Type:</label>
                 <select id="analyticsType2" onchange="getBestCriteria(this.value, 'anime', 1)">
                     <option value="tags">Tags</option>
-                    <option value="genres">Genres</option>
-                    <option value="themes">Themes</option>
-                    <option value="demographics">Demographics</option>
+                    <option value="producers">Producers</option>
+                    <option value="studios">Studios</option>
                 </select>
                     <div>
                         <canvas id="animeCriteriaChart"> </canvas>

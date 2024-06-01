@@ -81,12 +81,23 @@ public class ManagerServlet extends HttpServlet {
             case "averageAppRatingByCriteria" -> handleUsersAverageAppRatingCriteria(request, response); // Asynchronous request for user
             case "averageAppRatingByAgeRange" -> handleUsersAverageAppRatingAgeRange(request, response); // Asynchronous request for user
             case "trendMediaContentByYear" ->  handleTrendMediaContentByYear(request, response); // Asynchronous request for anime and manga
-            case "trendMediaContentByLikes"-> handleTrendMediaContentByLikes(request, response); // Asynchronous request for anime and manga
-            case "show_info" -> handleShowInfo(request, response);
-            case "update_info" -> handleUpdateInfo(request,response);
-            case "delete_media" -> handleDeleteMedia(request,response);
             case null, default -> handleLoadPage(request, response);
         }
+    }
+
+    public void handleLoadPage(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String targetJSP = "/WEB-INF/jsp/manager.jsp";
+
+        try {
+            Map<String, Integer> distribution = userService.getDistribution("location");
+            request.setAttribute("distribution", distribution);
+            Map<String, Double> averageAppRating = userService.averageAppRating("location");
+            request.setAttribute("averageAppRating", averageAppRating);
+            request.setAttribute("page", "user");
+        } catch (BusinessException e) {
+            throw new RuntimeException(e);
+        }
+        request.getRequestDispatcher(targetJSP).forward(request, response);
     }
 
     public void handleGetAnimeDefaultAnalytics(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -243,10 +254,6 @@ public class ManagerServlet extends HttpServlet {
 
         if (section == null) {
             jsonResponse.put("error", "Section not specified");
-        } else if (section.equals("anime") && !(criteria.equals("tags") || criteria.equals("genres") || criteria.equals("themes") || criteria.equals("demographics"))) {
-            jsonResponse.put("error", "Criteria not supported");
-        } else if (section.equals("manga") && !(criteria.equals("genres") || criteria.equals("themes") || criteria.equals("demographics"))) {
-            jsonResponse.put("error", "Criteria not supported");
         } else {
             try {
                 Map<String, Double> bestCriteria = mediaContentService.getBestCriteria(criteria, page, section.equals("manga") ? MediaContentType.MANGA : MediaContentType.ANIME);
@@ -257,7 +264,11 @@ public class ManagerServlet extends HttpServlet {
                 JsonNode bestCriteriaJson = objectMapper.valueToTree(bestCriteria);
                 jsonResponse.set("bestCriteria", bestCriteriaJson);
             } catch (BusinessException e) {
-                jsonResponse.put("error", "An error occurred while processing the request");
+                if (e.getType().equals(BusinessExceptionType.INVALID_INPUT)) {
+                    jsonResponse.put("error", "Invalid criteria");
+                } else {
+                    jsonResponse.put("error", "An error occurred while processing the request");
+                }
             }
         }
 
@@ -272,8 +283,10 @@ public class ManagerServlet extends HttpServlet {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode jsonResponse = objectMapper.createObjectNode();
 
-        int year = Integer.parseInt(request.getParameter("year"));
+        int startYear = Integer.parseInt(request.getParameter("startYear"));
+        int endYear = Integer.parseInt(request.getParameter("endYear"));
         String section = request.getParameter("section");
+        String mediaId = request.getParameter("mediaContentId");
 
         int currentYear = Year.now().getValue();
 
@@ -281,30 +294,27 @@ public class ManagerServlet extends HttpServlet {
             jsonResponse.put("error", "Section not specified");
         }
         //if start year or end year is greater than current year, throw exception
-        else if (year < 0 || year > currentYear) {
+        else if (startYear < 0 || endYear < 0 || endYear > currentYear || startYear > endYear) {
             jsonResponse.put("error", "Invalid year range");
         } else {
             try {
-                Map<MediaContentDTO, Integer> averageRatingByYear = mediaContentService.getTrendMediaContentByYear(year, section.equals("manga") ? MediaContentType.MANGA : MediaContentType.ANIME);
+                Map<String, Double> averageRatingByYear = reviewService.getMediaContentRatingByYear(section.equals("manga") ? MediaContentType.MANGA : MediaContentType.ANIME, mediaId, startYear, endYear);
                 if(averageRatingByYear.isEmpty()){
                     jsonResponse.put("error", "No data available");
+                } else {
+                    jsonResponse.put("success", true);
+                    JsonNode averageRatingByYearJson = objectMapper.valueToTree(averageRatingByYear);
+                    jsonResponse.set("averageRatingByYear", averageRatingByYearJson);
                 }
-                jsonResponse.put("success", true);
-
-                JsonNode averageRatingByYearJson = objectMapper.valueToTree(averageRatingByYear);
-                jsonResponse.set("averageRatingByYear", averageRatingByYearJson);
-
 
             } catch (BusinessException e) {
                 jsonResponse.put("error", "An error occurred while processing the request");
             }
-
         }
 
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         response.getWriter().write(jsonResponse.toString());
-
     }
 
     //Asynchronous request
@@ -330,10 +340,14 @@ public class ManagerServlet extends HttpServlet {
         else {
             try {
                 Map<String, Double> averageRatingByMonth = reviewService.getMediaContentRatingByMonth(section.equals("manga") ? MediaContentType.MANGA : MediaContentType.ANIME, mediaContentId, year);
-                jsonResponse.put("success", true);
+                if (averageRatingByMonth.isEmpty()) {
+                    jsonResponse.put("error", "No data available");
+                } else {
+                    jsonResponse.put("success", true);
+                    JsonNode averageRatingByMonthJson = objectMapper.valueToTree(averageRatingByMonth);
+                    jsonResponse.set("averageRatingByMonth", averageRatingByMonthJson);
+                }
 
-                JsonNode averageRatingByMonthJson = objectMapper.valueToTree(averageRatingByMonth);
-                jsonResponse.set("averageRatingByMonth", averageRatingByMonthJson);
             } catch (BusinessException e) {
                 if (e.getType().equals(BusinessExceptionType.NOT_FOUND)) {
                     jsonResponse.put("noData", "No data available");
@@ -579,20 +593,5 @@ public class ManagerServlet extends HttpServlet {
                 response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             }
         }
-    }
-
-    public void handleLoadPage(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String targetJSP = "/WEB-INF/jsp/manager.jsp";
-
-        try {
-            Map<String, Integer> distribution = userService.getDistribution("location");
-            request.setAttribute("distribution", distribution);
-            Map<String, Double> averageAppRating = userService.averageAppRating("location");
-            request.setAttribute("averageAppRating", averageAppRating);
-            request.setAttribute("page", "user");
-        } catch (BusinessException e) {
-            throw new RuntimeException(e);
-        }
-        request.getRequestDispatcher(targetJSP).forward(request, response);
     }
 }
