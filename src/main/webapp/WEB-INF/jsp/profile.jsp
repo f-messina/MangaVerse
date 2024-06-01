@@ -14,31 +14,34 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <link rel="preconnect" href="https://fonts.googleapis.com%22%3E/" crossorigin />
-    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/profile_test.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js" defer></script>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/navbar.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/user_list.css">
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" ></script>
     <script src="${pageContext.request.contextPath}/js/profile_test.js" defer></script>
     <script src="${pageContext.request.contextPath}/js/country_dropdown.js" defer></script>
+    <script src="${pageContext.request.contextPath}/js/navbar.js" defer></script>
     <title>PROFILE</title>
 </head>
 <body>
     <c:set var="isLogged" value="${not empty sessionScope[Constants.AUTHENTICATED_USER_KEY]}" />
     <c:set var="userInfo" value="${requestScope['userInfo']}" />
+    <c:set var="isFollowed" value="${requestScope['isFollowed']}" />
 
     <!-- navbar -->
     <nav>
         <a href="${pageContext.request.contextPath}/mainPage"><img src="${pageContext.request.contextPath}/images/logo-with-initial.png" alt="logo" /></a>
         <c:if test="${isLogged}">
-            <h1>Welcome ${sessionScope[Constants.AUTHENTICATED_USER_KEY].getUsername()}</h1>
+            <h1 id="welcome-message">Welcome ${sessionScope[Constants.AUTHENTICATED_USER_KEY].getUsername()}</h1>
         </c:if>
         <div class="nav-items">
             <div class="search-box">
                 <button id="user-search-button" class="btn-search"><i class="fa fa-search"></i></button>
+                <label for="user-search"></label>
                 <input id="user-search" type="text" class="input-search" placeholder="Search user...">
                 <div id="user-search-section" class="user-list-section users-results">
-                    <div id="user-search-results" class="user-list"></div>
+                    <div id="user-search-results"></div>
                 </div>
             </div>
             <a href="${pageContext.request.contextPath}/mainPage/anime" class="anime">Anime</a>
@@ -50,11 +53,12 @@
                         <input type="hidden" name="targetServlet" value="auth">
                         <button type="submit" class="logout">Log Out</button>
                     </form>
-                    <a href="${pageContext.request.contextPath}/profile?userId=${userInfo.id}" class="small-pic"><img alt="profile bar" src="${pageContext.request.contextPath}/${sessionScope[Constants.AUTHENTICATED_USER_KEY].getProfilePicUrl()}"></a>
+                    <a href="${pageContext.request.contextPath}/profile" class="small-pic">
+                        <img id="navbar-profile-picture" alt="profile bar" src="${sessionScope[Constants.AUTHENTICATED_USER_KEY].getProfilePicUrl()}">
+                    </a>
                 </c:when>
                 <c:otherwise>
                     <a href="${pageContext.request.contextPath}/auth">Log In</a>
-                    <a href="${pageContext.request.contextPath}/auth">Sign Up</a>
                 </c:otherwise>
             </c:choose>
         </div>
@@ -63,26 +67,30 @@
     <div id="overlay" class="overlay"></div>
 
     <!-- profile info -->
-    <header>
+    <section>
         <div class="container-px">
             <div class="profile-px">
 
                 <div class="profile-image-px">
-                    <img src="${userInfo.getProfilePicUrl()}" alt="profile picture">
+                    <img id="profile-picture-display" src="${userInfo.getProfilePicUrl()}" alt="profile picture">
                 </div>
 
                 <div class="profile-user-settings-px">
-                    <h1 class="profile-user-name-px">${userInfo.getUsername()}</h1>
+                    <h1 id="username-displayed" class="profile-user-name-px">${userInfo.getUsername()}</h1>
                     <c:if test="${isLogged}">
                         <c:choose>
                             <c:when test="${sessionScope[Constants.AUTHENTICATED_USER_KEY].getId() eq userInfo.id}">
                                 <button class="btn-px profile-edit-btn-px" onclick="showEditForm()">Edit Profile</button>
                             </c:when>
                             <c:otherwise>
-                                <c:if test="${isFollowed}">
-                                    <button class="btn-px profile-edit-btn-px">Followed</button>
-                                </c:if>
-                                <button class="btn-px profile-edit-btn-px">Follow</button>
+                                <c:choose>
+                                    <c:when test="${isFollowed}">
+                                        <button class="btn-px profile-edit-btn-px" onclick="unfollow()">Followed</button>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <button class="btn-px profile-edit-btn-px" onclick="follow()">Follow</button>
+                                    </c:otherwise>
+                                </c:choose>
                             </c:otherwise>
                         </c:choose>
                     </c:if>
@@ -103,7 +111,7 @@
                     </ul>
                 </div>
 
-                <div class="profile-bio-px">
+                <div id="bio" class="profile-bio-px">
                     <c:if test="${not empty userInfo.getFullname()}">
                         <p><span class="profile-real-name-px">${userInfo.getFullname()}</span></p>
                     </c:if>
@@ -122,7 +130,7 @@
                 </div>
             </div>
         </div>
-    </header>
+    </section>
 
     <div id="editPopup" class="edit-container myAlert">
         <div class="row myAlertBody">
@@ -132,11 +140,14 @@
                     <div class="card-header">Profile Picture</div>
                     <div class="card-body text-center">
                         <!-- Profile picture image-->
-                        <img class="img-account-profile" src="${userInfo.getProfilePicUrl()}" alt="">
+                        <img id="profile-picture" class="img-account-profile" src="${userInfo.getProfilePicUrl()}" alt="">
                         <!-- Profile picture help block-->
-                        <div class="edit-label">JPG or PNG no larger than 5 MB</div>
-                        <!-- Profile picture upload button-->
-                        <button class="btn btn-primary" type="button">Upload new image</button>
+                        <div class="gx-3">
+                            <label class="edit-label align-left" for="profile-picture-url">Profile Picture URL</label>
+                            <input class="form-control" id="profile-picture-url" name="profilePicture" type="text" placeholder="Enter the picture URL (Optional)">
+                            <p class="edit-label check-value" id="check-image-message"></p>
+                            <button class="btn btn-primary" type="button" onclick="validatePictureUrl()">Check URL</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -145,9 +156,9 @@
                 <div class="card">
                     <div class="card-header">Account Details</div>
                     <div class="card-body">
-                        <form id="edit-profile-form" method="post" action="${pageContext.request.contextPath}/profile" autocomplete="off">
+                        <div id="edit-profile-form">
                             <input type="hidden" name="action" value="edit-profile">
-                            <input type="hidden" name="picture" value=${userInfo.getProfilePicUrl()}>
+                            <input type="hidden" id="picture" name="picture" value="${userInfo.getProfilePicUrl()}">
                             <!-- Form Group (username)-->
                             <div class="gx-3">
                                 <label class="edit-label" for="username">Username (how your name will appear to other users on the site)</label>
@@ -203,13 +214,13 @@
                             <!-- Form Group (Description)-->
                             <div class="textarea-group gx-3">
                                 <label class="edit-label" for="description">Description (optional - maximum 300 characters)</label>
-                                <textarea class="form-control textarea" id="description" name="description" rows="3" maxlength="300" placeholder="Enter a description">${empty userInfo.getDescription() ? "" : userInfo.getDescription()}</textarea>
+                                <textarea class="form-control textarea-ph-font" id="description" name="description" rows="3" maxlength="300" placeholder="Enter a description">${empty userInfo.getDescription() ? "" : userInfo.getDescription()}</textarea>
                             </div>
                             <!-- cancel and save changes buttons-->
                             <button class="btn btn-secondary" onclick="hideEditForm()" type="button">Cancel</button>
                             <button class="btn btn-primary" type="button" id="edit-button">Save changes</button>
                             <span id="general-error" style="color: red;"></span>
-                        </form>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -228,7 +239,7 @@
             </div>
 
             <!-- followers list -->
-            <div id="followers-list" class="user-list"></div>
+            <div id="followers-list"></div>
         </div>
     </div>
 
@@ -245,7 +256,7 @@
             </div>
 
             <!-- followers list -->
-            <div id="followings-list" class="user-list"></div>
+            <div id="followings-list"></div>
         </div>
     </div>
 
@@ -305,275 +316,17 @@
     <script>
         const contextPath = "${pageContext.request.contextPath}";
         const userId = "${userInfo.getId()}";
-        const mangaDefaultImage = "${Constants.DEFAULT_COVER_MANGA}";
-        let mangaPage;
-        let animePage;
-        let reviewsPage;
-        let totalReviewsPages;
-        let totalAnimePages;
-        let totalMangaPages;
-
-        function changeSection(button) {
-            const section = button.id.split("-")[0];
-            const animeSection = $("#anime-like");
-            const mangaSection = $("#manga-like");
-            const reviewsSection = $("#reviews");
-            $(".selection-buttons button").removeClass("active");
-            if (section === "reviews") {
-                button.classList.add("active");
-                animeSection.hide();
-                mangaSection.hide();
-                reviewsSection.show();
-                if (reviewsSection.children().first()) {
-                    fetchData("getReviews");
-                }
-            } else {
-                reviewsSection.hide();
-                if (section === "anime") {
-                    button.classList.add("active");
-                    animeSection.show();
-                    mangaSection.hide();
-                    if (animeSection.children().first()) {
-                        fetchData("getAnimeLikes");
-                    }
-                } else {
-                    button.classList.add("active");
-                    mangaSection.show();
-                    animeSection.hide();
-                    if (mangaSection.children().first()) {
-                        fetchData("getMangaLikes");
-                    }
-                }
-            }
-        }
-
-        function fetchData(action, page = 1) {
-            const inputData = {
-                action: action,
-                userId: userId,
-                page: page
-            };
-            $.post(contextPath + "/profile", inputData, function (data) {
-                if (action === "getReviews") {
-                    reviewsPage = page;
-                    showReviews(data);
-                } else {
-                    if (action === "getAnimeLikes") {
-                        animePage = page;
-                    } else {
-                        mangaPage = page;
-                    }
-                    showLikes(data, action);
-                }
-            }).fail(function (xhr) {
-                console.error("Profile data fetch failed: " + xhr.responseText);
-            });
-        }
-
-        function showLikes(data, action) {
-            const likeList = (action === "getAnimeLikes") ? $("#anime-list") : $("#manga-list");
-            likeList.empty();
-
-            if (data.mediaLikes === undefined || data.mediaLikes.totalPages === 0) {
-                if (action === "getAnimeLikes") {
-                    totalAnimePages = 0;
-                    const pagination = $(".anime-pagination");
-                    pagination.empty();
-                } else {
-                    totalMangaPages = 0;
-                    const pagination = $(".manga-pagination");
-                    pagination.empty();
-                }
-                likeList.append($("<p>").addClass("no-results-error").text("No likes found"));
-                return;
-            }
-
-            if (action === "getAnimeLikes") {
-                totalAnimePages = data.mediaLikes.totalPages;
-                updatePagination(action === "getAnimeLikes" ? "anime" : "manga");
-            } else {
-                totalMangaPages = data.mediaLikes.totalPages;
-                updatePagination(action === "getAnimeLikes" ? "anime" : "manga");
-            }
-
-
-            data.mediaLikes.entries.forEach(media => {
-                const mediaWrapper = $("<div>").addClass("project-box-wrapper");
-                const mediaBox = $("<div>").addClass("project-box");
-
-                const picture = $("<img>").attr("src", media.imageUrl).attr("alt", media.title)
-                    .addClass("box-image")
-                    .on("error", function () {
-                        defaultMangaCover(this)
-                    });
-                const title = $("<a>").attr("href", contextPath + "/" + (action === "getAnimeLikes" ? "anime" : "manga") + "?mediaId=" + media.id)
-                    .addClass("box-title")
-                    .text(media.title);
-                mediaBox.append(picture, title);
-                mediaWrapper.append(mediaBox);
-                likeList.append(mediaWrapper);
-            });
-        }
-
-        function defaultMangaCover(image) {
-            image.onerror = null;
-            image.src = mangaDefaultImage;
-        }
-
-        function showReviews(data) {
-            const reviews = $("#reviews-list")
-            reviews.empty();
-
-            if (data.reviews === undefined || data.reviews.totalPages === 0) {
-                totalReviewsPages = 0;
-                const pagination = $(".review-pagination");
-                pagination.empty();
-                reviews.append($("<p>").addClass("text-center no-results-error").text("No reviews found"));
-                return;
-            }
-
-            totalReviewsPages = data.reviews.totalPages;
-            updatePagination("reviews");
-
-            data.reviews.entries.forEach(review => {
-                const type = (review.mediaContent.season === undefined) ? "manga" : "anime";
-
-                const title = $("<a>").attr("href", contextPath + "/" + type + "?mediaId=" + review.mediaContent.id)
-                    .addClass("review-media-title")
-                    .text(review.mediaContent.title);
-                const rating = $("<p>").addClass("review-rating")
-                    .text(review.rating === null ? "No rating" : "Rating: " + review.rating);
-                const firstRow = $("<div>").addClass("review-row").append(title, rating);
-
-                const comment = $("<p>")
-                    .addClass("review-comment")
-                    .text(review.comment === null ? "No comment" :review.comment);
-
-                const date = $("<p>")
-                    .addClass("review-date")
-                    .text("Date: " + review.date);
-
-                const reviewBox = $("<div>").addClass("review-box")
-                    .append(firstRow, comment, date);
-                reviews.append(reviewBox);
-            });
-        }
-
-        function updatePagination(section) {
-            let pagination;
-            let totalPages;
-            let currentPage;
-            let action;
-
-            if (section === "anime") {
-                pagination = $(".anime-pagination");
-                totalPages = totalAnimePages;
-                currentPage = animePage;
-                action = "getAnimeLikes";
-            } else if (section === "manga") {
-                pagination = $(".manga-pagination");
-                totalPages = totalMangaPages;
-                currentPage = mangaPage;
-                action = "getMangaLikes";
-            } else {
-                pagination = $(".review-pagination");
-                totalPages = totalReviewsPages;
-                currentPage = reviewsPage;
-                action = "getReviews";
-            }
-
-            pagination.empty();
-
-            if (totalPages === 1) {
-                return;
-            }
-
-            // left arrow
-            const leftArrow = $("<li>").addClass("page__btn")
-                .html("<span class=\"material-icons\">chevron_left</span>")
-
-            if (currentPage > 1) {
-                leftArrow.addClass("active");
-                leftArrow.click(() => {fetchData(action, currentPage - 1);});
-            }
-            pagination.append(leftArrow);
-
-            // page numbers
-            if (totalPages < 10) {
-                for (let i = 1; i <= totalPages; i++) {
-                    const pageNumber = $("<li>").addClass("page__numbers").text(i);
-                    if (i === currentPage) {
-                        pageNumber.addClass("active");
-                    } else {
-                        pageNumber.click(() => fetchData(action, i));
-                    }
-                    pagination.append(pageNumber);
-                }
-
-            } else if (currentPage < 6) {
-                for (let i = 1; i <= 7; i++) {
-                    const pageNumber = $("<li>").addClass("page__numbers").text(i);
-                    if (i === currentPage) {
-                        pageNumber.addClass("active");
-                    } else {
-                        pageNumber.click(() => fetchData(action, i));
-                    }
-                    pagination.append(pageNumber);
-                }
-                if (totalPages === 9) {
-                    const lastNumber = $("<li>").addClass("page__numbers").text(8).click(() => fetchData(action, 8));
-                    pagination.append(lastNumber);
-                } else {
-                    pagination.append($("<li>").addClass("page__dots").text("..."));
-                }
-                const lastNumber = $("<li>").addClass("page__numbers").text(totalPages).click(() => fetchData(action, totalPages));
-                pagination.append(lastNumber);
-
-            } else if (currentPage > totalPages - 6) {
-                const firstNumber = $("<li>").addClass("page__numbers").text(1).click(() => fetchData(action, 1));
-                pagination.append(firstNumber);
-                if (totalPages === 9) {
-                    const firstNumber = $("<li>").addClass("page__numbers").text(2).click(() => fetchData(action, 2));
-                    pagination.append(firstNumber);
-                } else {
-                    pagination.append($("<li>").addClass("page__dots").text("..."));
-                }
-                for (let i = totalPages - 6; i <= totalPages; i++) {
-                    const pageNumber = $("<li>").addClass("page__numbers").text(i);
-                    if (i === currentPage) {
-                        pageNumber.addClass("active");
-                    } else {
-                        pageNumber.click(() => fetchData(action, i));
-                    }
-                    pagination.append(pageNumber);
-                }
-
-            } else {
-                const firstNumber = $("<li>").addClass("page__numbers").text(1).click(() => fetchData(action, 1));
-                pagination.append(firstNumber);
-                pagination.append($("<li>").addClass("page__dots").text("..."));
-                for (let i = currentPage - 2; i < currentPage + 3; i++) {
-                    const pageNumber = $("<li>").addClass("page__numbers").text(i);
-                    if (i === currentPage) {
-                        pageNumber.addClass("active");
-                    } else {
-                        pageNumber.click(() => fetchData(action, i));
-                    }
-                    pagination.append(pageNumber);
-                }
-                pagination.append($("<li>").addClass("page__dots").text("..."));
-                const lastNumber = $("<li>").addClass("page__numbers").text(totalPages).click(() => fetchData(action, totalPages));
-                pagination.append(lastNumber);
-            }
-
-            // right arrow
-            const rightArrow = $("<li>").addClass("page__btn")
-                .html("<span class=\"material-icons\">chevron_right</span>")
-            if (currentPage < totalPages) {
-                rightArrow.addClass("active");
-                rightArrow.click(() => {fetchData(action, currentPage + 1);});
-            }
-            pagination.append(rightArrow);
+        const mangaDefaultImage = "${pageContext.request.contextPath}/${Constants.DEFAULT_COVER_MANGA}";
+        const animeDefaultImage = "${pageContext.request.contextPath}/${Constants.DEFAULT_COVER_ANIME}";
+        const userDefaultImage = "${pageContext.request.contextPath}/${Constants.DEFAULT_PROFILE_PICTURE}";
+        let profile = {
+            username: "${userInfo.getUsername()}",
+            fullname: "${empty userInfo.getFullname() ? "" : userInfo.getFullname()}",
+            description: "${empty userInfo.getDescription() ? "" : userInfo.getDescription()}",
+            country: "${empty userInfo.getLocation() ? "" : userInfo.getLocation()}",
+            birthdate: "${empty userInfo.getBirthday() ? "" : userInfo.getBirthday()}",
+            picture: "${userInfo.getProfilePicUrl()}",
+            gender: "${userInfo.getGender().name()}"
         }
     </script>
 </body>

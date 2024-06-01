@@ -24,6 +24,8 @@ import it.unipi.lsmsd.fnf.utils.DocumentUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -32,6 +34,7 @@ import static com.mongodb.client.model.Aggregates.*;
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.exclude;
 import static com.mongodb.client.model.Projections.include;
+import static com.mongodb.client.model.Sorts.ascending;
 import static com.mongodb.client.model.Sorts.descending;
 import static com.mongodb.client.model.Updates.*;
 import static it.unipi.lsmsd.fnf.utils.DocumentUtils.*;
@@ -187,7 +190,8 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
             MongoCollection<Document> mangaCollection = getCollection(COLLECTION_NAME);
             Bson filter = buildFilter(filters);
             Bson sort = buildSort(orderBy);
-            Bson projection = include("title", "picture", "average_rating", "start_date", "end_date");
+
+            Bson projection = include("title", "picture", "average_rating", "start_date", "end_date", "likes");
             int pageOffset = (page - 1) * Constants.PAGE_SIZE;
 
             List<Bson> pipeline = List.of(
@@ -396,7 +400,10 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
                 updateOperations.add(set("latest_reviews.$[elem].user.username", userSummaryDTO.getUsername()));
             }
             if (userSummaryDTO.getProfilePicUrl() != null) {
-                updateOperations.add(set("latest_reviews.$[elem].user.picture", userSummaryDTO.getProfilePicUrl()));
+                if (!userSummaryDTO.getProfilePicUrl().equals(Constants.NULL_STRING))
+                    updateOperations.add(set("latest_reviews.$[elem].user.picture", userSummaryDTO.getProfilePicUrl()));
+                else
+                    updateOperations.add(unset("latest_reviews.$[elem].user.picture"));
             }
             UpdateOptions options = new UpdateOptions().arrayFilters(
                     List.of(Filters.eq("elem.user.id", new ObjectId(userSummaryDTO.getId())))

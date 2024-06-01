@@ -76,6 +76,7 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
             if (anime.getTitle() == null && anime.getImageUrl() == null) {
                 throw new IllegalArgumentException("Anime object must have at least one field to update");
             }
+
             Map<String, Object> param = new HashMap<>();
             param.put("id", anime.getId());
             if (anime.getTitle() != null) {

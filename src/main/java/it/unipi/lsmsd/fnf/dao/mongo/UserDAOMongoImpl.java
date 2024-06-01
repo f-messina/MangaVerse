@@ -22,9 +22,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
+import org.slf4j.Logger;
 
 import java.util.*;
-import java.util.logging.Logger;
 
 import static com.mongodb.client.model.Accumulators.avg;
 import static com.mongodb.client.model.Accumulators.sum;
@@ -66,7 +66,7 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
             else if(emailExists)
                 throw new DuplicatedException(DuplicatedExceptionType.DUPLICATED_EMAIL, "UserDAOMongoImpl: saveUser: Email already in use");
 
-            Optional.ofNullable(usersCollection.insertOne(RegisteredUserToDocument(user, Constants .DEFAULT_PROFILE_PICTURE)).getInsertedId())
+            Optional.ofNullable(usersCollection.insertOne(RegisteredUserToDocument(user)).getInsertedId())
                     .map(result -> result.asObjectId().getValue().toHexString())
                     .map(id -> { user.setId(id); return id; })
                     .orElseThrow(() -> new MongoException("UserDAOMongoImpl: saveUser: Error saving user"));

@@ -24,6 +24,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.neo4j.driver.Session;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -309,7 +311,7 @@ class UserServiceImplTest {
         return usersIds;
     }
 
-    //Update the profile picture of the user
+    // IMPORTANT: The following tests are for the purpose of removing the default image from the database
     @Test
     public void updateDefaultProfilePictureOnMongoDB() throws Exception {
         MongoCollection<Document> usersCollection = BaseMongoDBDAO.getCollection("users");
@@ -324,20 +326,20 @@ class UserServiceImplTest {
         for (Document userDocument : matchingUsers) {
             User user = new User();
             user.setId(userDocument.getObjectId("_id").toHexString());
-            user.setProfilePicUrl(Constants.DEFAULT_PROFILE_PICTURE);
+            user.setProfilePicUrl(Constants.NULL_STRING);
             // Retrieve the updated user data using UserServiceImpl.getUserById(userId); // Assuming you need it
             UserServiceImpl userService = new UserServiceImpl();
             userService.updateUserInfo(user);
         }
-
         System.out.println("Profile picture(s) updated successfully for all matching users.");
+        Thread.sleep(2*60*1000);
     }
 
     //Update the profile picture of the user
     @Test
     public void updateDefaultProfilePictureOnNeo4j() throws Exception {
         // Update filter: target documents with "picture" field equal to the old URL
-        String query = "MATCH (u:User) WHERE u.picture = 'https://imgbox.com/7MaTkBQR' SET u.picture = '" + Constants.DEFAULT_PROFILE_PICTURE + "'";
+        String query = "MATCH (u:User) WHERE u.picture =" + Constants.DEFAULT_PROFILE_PICTURE + "SET u.picture = null";
         try (Session session = getSession()) {
             session.run(query);
         } catch (Exception e) {

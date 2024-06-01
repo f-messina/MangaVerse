@@ -58,17 +58,14 @@ public class UserServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         processRequest(request, response);
     }
 
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String action = request.getParameter("action");
-        LoggedUserDTO authUser = SecurityUtils.getAuthenticatedUser(request);
 
-        if (authUser == null) {
-            response.sendRedirect("auth");
-        } else switch (action) {
+        switch (action) {
             case "getFollowers" -> handleGetFollowers(request, response);
             case "getFollowings" -> handleGetFollowings(request, response);
             case "getUsers" -> handleGetUsers(request, response);
@@ -87,6 +84,7 @@ public class UserServlet extends HttpServlet {
         ObjectNode jsonResponse = objectMapper.createObjectNode();
 
         LoggedUserDTO authUser = SecurityUtils.getAuthenticatedUser(request);
+        String loggedUserId = authUser == null ? null : authUser.getId();
         String userId = request.getParameter("userId");
         String searchValue = request.getParameter("searchValue");
 
@@ -94,15 +92,18 @@ public class UserServlet extends HttpServlet {
             // Get the list of followers
             List<UserSummaryDTO> followers;
             if (StringUtils.isNotBlank(searchValue)) {
-                followers = userService.searchFollowers(userId, searchValue, authUser.getId());
+                followers = userService.searchFollowers(userId, searchValue,loggedUserId);
             } else {
-                followers = userService.getFollowers(userId, authUser.getId());
+                followers = userService.getFollowers(userId, loggedUserId);
             }
 
             // Convert the list to a JSON array
             if (followers == null) {
                 jsonResponse.put("notFoundError", true);
             } else {
+                for (UserSummaryDTO user : followers) {
+                    user.setProfilePicUrl(ConverterUtils.getProfilePictureUrlOrDefault(user.getProfilePicUrl(),request));
+                }
                 ArrayNode followersJsonArray = objectMapper.valueToTree(followers);
 
                 // Add the JSON array to the response
@@ -122,8 +123,8 @@ public class UserServlet extends HttpServlet {
     private void handleGetFollowings(HttpServletRequest request, HttpServletResponse response) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode jsonResponse = objectMapper.createObjectNode();
-
         LoggedUserDTO authUser = SecurityUtils.getAuthenticatedUser(request);
+        String loggedUserId = authUser == null ? null : authUser.getId();
         String userId = request.getParameter("userId");
         String searchValue = request.getParameter("searchValue");
 
@@ -131,15 +132,18 @@ public class UserServlet extends HttpServlet {
             // Get the list of followings
             List<UserSummaryDTO> followings;
             if (StringUtils.isNotBlank(searchValue)) {
-                followings = userService.searchFollowings(userId, searchValue, authUser.getId());
+                followings = userService.searchFollowings(userId, searchValue, loggedUserId);
             } else {
-                followings = userService.getFollowings(userId, authUser.getId());
+                followings = userService.getFollowings(userId, loggedUserId);
             }
 
             // Convert the list to a JSON array
             if (followings == null) {
                 jsonResponse.put("notFoundError", true);
             } else {
+                for (UserSummaryDTO user : followings) {
+                    user.setProfilePicUrl(ConverterUtils.getProfilePictureUrlOrDefault(user.getProfilePicUrl(),request));
+                }
                 ArrayNode followingsJsonArray = objectMapper.valueToTree(followings);
 
                 // Add the JSON array to the response
@@ -161,17 +165,22 @@ public class UserServlet extends HttpServlet {
         ObjectNode jsonResponse = objectMapper.createObjectNode();
 
         LoggedUserDTO authUser = SecurityUtils.getAuthenticatedUser(request);
+        String loggedUserId = authUser == null ? null : authUser.getId();
         String searchValue = request.getParameter("searchValue");
 
         try {
             // Get the list of users
             List<UserSummaryDTO> users;
-            users = userService.searchFirstNUsers(searchValue, 10, authUser == null ? null : authUser.getId());
+            users = userService.searchFirstNUsers(searchValue, 10, loggedUserId);
 
             // Convert the list to a JSON array
             if (users == null || users.isEmpty()) {
                 jsonResponse.put("notFoundError", true);
             } else {
+                for (UserSummaryDTO user : users) {
+                    user.setProfilePicUrl(ConverterUtils.getProfilePictureUrlOrDefault(user.getProfilePicUrl(),request));
+                }
+
                 ArrayNode usersJsonArray = objectMapper.valueToTree(users);
 
                 // Add the JSON array to the response

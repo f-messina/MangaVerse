@@ -43,16 +43,15 @@ public enum Gender {
      * @throws IllegalArgumentException if no enum constant is found for the given string value.
      */
     public static Gender fromString(String value) {
-        if (StringUtils.isBlank(value) || value.equals(Constants.NULL_GENDER))
-            return UNKNOWN;
-        for (Gender gender : Gender.values()) {
-            if (gender.name().equalsIgnoreCase(value)) {
-                return gender;
-            }
-        }
-        throw new IllegalArgumentException("No enum constant for string: " + value);
+        return switch (value) {
+            case "Non Binary" -> NON_BINARY;
+            case "Male" -> MALE;
+            case "Female" -> FEMALE;
+            case Constants.NULL_GENDER, "" -> UNKNOWN;
+            case null -> UNKNOWN;
+            default -> throw new IllegalArgumentException("No enum constant for string: " + value);
+        };
     }
-
 
     /**
      * Returns the code associated with the enum value.

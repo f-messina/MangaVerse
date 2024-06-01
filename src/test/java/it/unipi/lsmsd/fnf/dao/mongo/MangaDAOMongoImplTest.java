@@ -14,6 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -271,7 +272,7 @@ class MangaDAOMongoImplTest {
         review.setUser(new UserSummaryDTO("6635632b4276578429f29385", "exampleUser", "exampleUser.jpg"));
         review.setRating(7);
         review.setComment("Great manga");
-        review.setDate(LocalDate.now());
+        review.setDate(LocalDateTime.now());
         return review;
     }
 }

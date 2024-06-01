@@ -7,7 +7,9 @@
 --%>
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ page import="it.unipi.lsmsd.fnf.utils.Constants" %>
+<%@ page import="static java.time.LocalDate.now" %>
 <%@ page contentType="text/html;charset=UTF-8" %>
 <!DOCTYPE html>
 <html>
@@ -16,14 +18,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="preconnect" href="https://fonts.googleapis.com%22%3E/" crossorigin />
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/index.css"/>
-    <script src="${pageContext.request.contextPath}/js/index.js" defer></script>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/range_input.css">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/main_page_test.css">
-    <link
-            href="https://fonts.googleapis.com/css2?family=Fira+Sans+Condensed:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:wght@300;400&display=swap"
-            rel="stylesheet"
-    />
     <link
             rel="stylesheet"
             href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
@@ -31,17 +25,19 @@
             crossorigin="anonymous"
             referrerpolicy="no-referrer"
     />
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/main-registered-user.css"/>
-    <link
-            rel="stylesheet"
-            href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
-    />
-    <script src="${pageContext.request.contextPath}/js/range_input.js" defer></script>
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js" defer></script>
-    <script src="${pageContext.request.contextPath}/js/main_page_test.js" defer></script>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/main_page.css"/>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/navbar.css"/>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/user_list.css"/>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/filters.css"/>
 </head>
 <body>
-    <section id="home" class="section-home">
+    <!-- JSP variables -->
+    <c:set var="isLogged" value="${not empty sessionScope[Constants.AUTHENTICATED_USER_KEY]}" /> <!-- check if the user is logged in -->
+    <c:set var="currentYear" value="<%= now().getYear() %>" />
+
+    <!-- Welcome section -->
+    <section id="welcome-section" class="section-home">
+        <!-- Home container -->
         <div class="home-container">
             <div class="home-wrapper">
                 <div class="active-page"><span id="mangaLink">Manga</span></div>
@@ -52,246 +48,388 @@
                     <img src="${pageContext.request.contextPath}/images/logo-with-name.png" alt="middle" />
                 </div>
                 <div class="selection-page-link"><a href="${pageContext.request.contextPath}/mainPage/anime" id="animeLink">Anime</a></div>
-
             </div>
         </div>
+
+        <!-- Down arrow -->
         <div class="down-arrow">
             <span data-scroll="list" id="down-arrow">
                 <i class="fa-solid fa-chevron-down"> </i>
             </span>
         </div>
     </section>
-    <span id="scroll-point"></span>
 
-    <c:set var="userInfo" value="${requestScope['userInfo']}" />
-    <div class="nav-bar" id="navbar">
-        <nav>
-            <a href="${pageContext.request.contextPath}/mainPage"><img src="${pageContext.request.contextPath}/images/logo-with-initial.png" alt="logo" /></a>
-            <div class="up-arrow">
-                <span data-scroll="list" id="up-arrow">
-                    <i class="fa-solid fa-chevron-up" style="color: #000000"></i>
-                </span>
-            </div>
-
-            <div class="nav-items">
-                <a href="${pageContext.request.contextPath}/mainPage/anime" class="anime">Anime</a>
-                <a href="${pageContext.request.contextPath}/mainPage/manga" class="manga">Manga</a>
-                <c:choose>
-                    <c:when test="${empty sessionScope[Constants.AUTHENTICATED_USER_KEY]}">
-                        <a href="${pageContext.request.contextPath}/auth">Log In</a>
-                        <a href="${pageContext.request.contextPath}/auth">Sign Up</a>
-                    </c:when>
-                    <c:otherwise>
-                        <form action="${pageContext.request.contextPath}/auth" method="post">
-                            <input type="hidden" name="action" value="logout">
-                            <input type="hidden" name="targetServlet" value="mainPage/manga">
-                            <button type="submit" class="logout">Log Out</button>
-                        </form>
-                        <a href="${pageContext.request.contextPath}/profile" class="small-pic"><img alt="profile bar" src="${pageContext.request.contextPath}/${sessionScope[Constants.AUTHENTICATED_USER_KEY].getProfilePicUrl()}"></a>
-                    </c:otherwise>
-                </c:choose>
-            </div>
-        </nav>
-    </div>
-    <div class="write-search">
-        <form id="searchForm" action="${pageContext.request.contextPath}/mainPage/manga" method="post">
-            <input type="hidden" name="action" value="search">
-            <label class="filter-name" for="search">Title:</label>
-            <input type="search" id="search" name="searchTerm" placeholder="Title">
-            <input class="search" type="submit" value="SEARCH">
-        </form>
-        <button onclick="toggleFiltersDisplay()" class="more-filtering">See Detailed Filtering</button>
-    </div>
-
-    <div id="filtersFormContainer">
-        <form id="filterForm" action="${pageContext.request.contextPath}/mainPage/manga" method="post">
-            <input type="hidden" name="action" value="search">
-
-            <div class="title-ope">
-                <%-- This are the radios for the genres --%>
-                <label class="filter-name">Genres:</label><br/>
-                <div class="operator" style="background-color: #ecebeb; padding: 5px">
-                    <label >Operator:</label>
-                    <input class="gap" type="radio" name="genreOperator" checked value="and">and
-                    <input class="gap" type="radio" name="genreOperator" value="or">or
+    <!-- navbar -->
+    <nav class="nav-bar" id="navbar">
+        <div id="logo" class="clickable"><img src="${pageContext.request.contextPath}/images/logo-with-initial.png" alt="logo" /></div>
+        <c:if test="${isLogged}">
+            <h1 id="welcome-message">Welcome ${sessionScope[Constants.AUTHENTICATED_USER_KEY].getUsername()}</h1>
+        </c:if>
+        <div class="nav-items">
+            <div class="search-box">
+                <button id="user-search-button" class="btn-search"><i class="fa fa-search"></i></button>
+                <label for="user-search"></label>
+                <input id="user-search" type="text" class="input-search" placeholder="Search user...">
+                <div id="user-search-section" class="user-list-section users-results">
+                    <div id="user-search-results"></div>
                 </div>
             </div>
+            <a href="${pageContext.request.contextPath}/mainPage/anime" class="anime">Anime</a>
+            <a href="${pageContext.request.contextPath}/mainPage/manga" class="manga">Manga</a>
+            <c:choose>
+                <c:when test="${isLogged}">
+                    <form action="${pageContext.request.contextPath}/auth" method="post">
+                        <input type="hidden" name="action" value="logout">
+                        <input type="hidden" name="targetServlet" value="mainPage">
+                        <button type="submit" class="logout">Log Out</button>
+                    </form>
+                    <a href="${pageContext.request.contextPath}/profile" class="small-pic">
+                        <img id="navbar-profile-picture" alt="profile bar" src="${sessionScope[Constants.AUTHENTICATED_USER_KEY].getProfilePicUrl()}">
+                    </a>
+                </c:when>
+                <c:otherwise>
+                    <a href="${pageContext.request.contextPath}/auth">Log In</a>
+                </c:otherwise>
+            </c:choose>
+        </div>
+    </nav>
 
-            <div class="all">
-            <c:forEach items="${requestScope.mangaGenres}" var="genre">
-                <div class="one">
-                    <input type = "radio" name="${genre}" style="color: green" onclick="toggleRadio(this)" value="select">
-                    <input type = "radio" name="${genre}" style="color: red" onclick="toggleRadio(this)" value="avoid">
-                    <label>${genre}</label>
-                </div>
-            </c:forEach>
-            </div>
+    <!-- Main section -->
+    <section id="main-section" class="scrollable">
+        <div class="container">
+            <!-- filters div -->
+            <div class="filters-wrap primary-filters">
 
-            <label class="filter-name">Type:</label>
-            <%-- This are the checkboxes for the types --%>
-            <div class="all">
+                <!-- primary filters (shown) -->
+                <div class="filters">
 
-                <c:forEach var="entry" items="${requestScope.mangaTypes}">
-                    <div class="one">
-                        <input type="checkbox" id="${entry.name()}" name="mangaTypes" value="${entry.name()}">
-                        <label for="${entry.name()}">${entry.toString()}</label>
-                    </div>
-                </c:forEach>
-            </div>
-
-            <%-- This are the checkboxes for the demographics --%>
-            <label class="filter-name">Demographics:</label>
-            <div class="all">
-                <c:forEach var="entry" items="${requestScope.mangaDemographics}">
-                    <c:if test="${entry.name() != 'UNKNOWN'}">
-                        <div  class="one">
-                            <input type="checkbox" id="${entry.name()}" name="mangaDemographics" value="${entry.name()}">
-                            <label for="${entry.name()}">${entry.toString()}</label>
+                    <!-- title -->
+                    <div class="filter filter-select">
+                        <div class="filter-name">Search</div>
+                        <div class="search-wrap">
+                            <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="search" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon left svg-inline--fa fa-search fa-w-16">
+                                <path fill="currentColor" d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z" class=""></path>
+                            </svg>
+                            <label>
+                                <input id="title-filter" type="search" autocomplete="off" class="search">
+                            </label>
+                            <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="times" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 352 512" class="icon right close svg-inline--fa fa-times fa-w-11">
+                                <path fill="currentColor" d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z" class=""></path>
+                            </svg>
                         </div>
-                    </c:if>
-                </c:forEach>
-            </div>
-
-            <label class="filter-name">Publishing status:</label>
-            <%-- This are the checkboxes for the status --%>
-            <div class="all">
-                <c:forEach var="entry" items="${requestScope.mangaStatus}">
-                    <div  class="one">
-                        <input type="checkbox" id="${entry.name()}" name="status" value="${entry.name()}">
-                        <label for="${entry.name()}">${entry.toString()}</label>
                     </div>
-                </c:forEach>
-            </div>
 
-            <label class="filter-name">Rating:</label>
-            <%-- This are the range inputs for the min and max score --%>
-            <div class="rating">
-                <div class="range-slider container">
-                    <span class="output outputOne"></span>
-                    <span class="output outputTwo"></span>
-                    <span class="full-range"></span>
-                    <span class="incl-range"></span>
-                    <input name="minScore" value="0" min="0" max="10" step="0.1" type="range">
-                    <input name="maxScore" value="10" min="0" max="10" step="0.1" type="range">
+                    <!-- genres -->
+                    <div id="genres-filter" class="filter filter-select" type="genre">
+                        <div class="filter-name-wrap">
+                            <div class="filter-name">Genres</div>
+                            <div class="toggle-button-genre">
+                                <div id="button-3" class="button r">
+                                    <input id="genre-checkbox-type" class="checkbox" type="checkbox" value="and">
+                                    <div class="knobs"></div>
+                                    <div class="layer"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="select-wrap multi-choice" name="genre">
+                            <div class="select">
+                                <div class="value-wrap">
+                                    <div class="placeholder">Any</div>
+                                    <label>
+                                        <input type="search" autocomplete="off" class="filter">
+                                    </label>
+                                </div>
+                                <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="chevron-down" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="icon svg-inline--fa fa-chevron-down fa-w-14 fa-fw">
+                                    <path data-v-e3e1e202="" fill="currentColor" d="M207.029 381.476L12.686 187.132c-9.373-9.373-9.373-24.569 0-33.941l22.667-22.667c9.357-9.357 24.522-9.375 33.901-.04L224 284.505l154.745-154.021c9.379-9.335 24.544-9.317 33.901.04l22.667 22.667c9.373 9.373 9.373 24.569 0 33.941L240.971 381.476c-9.373 9.372-24.569 9.372-33.942 0z" class=""></path>
+                                </svg>
+                                <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="times" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 352 512" class="icon right close svg-inline--fa fa-times fa-w-11">
+                                    <path fill="currentColor" d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z" class=""></path>
+                                </svg>
+                            </div>
+                            <div class="options">
+                                <div class="scroll-wrap">
+                                    <div class="option-group">
+                                        <c:forEach items="${requestScope.mangaGenres}" var="genre">
+                                            <div class="option">
+                                                <div class="label">
+                                                    <div class="name" value="${genre}">${genre}</div>
+                                                    <div class="selected-icon circle">
+                                                        <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="select" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="svg-inline--fa fa-check fa-w-16" >
+                                                            <path fill="currentColor" d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z" class=""></path>
+                                                        </svg>
+                                                    </div>
+                                                    <div class="selected-icon circle avoid">
+                                                        <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="avoid" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 352 512" class="svg-inline--fa fa-check fa-w-16">
+                                                            <path fill="currentColor" d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z" class=""></path>
+                                                        </svg>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </c:forEach>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- year -->
+                    <div class="filter filter-select">
+                        <div class="filter-name">Year</div>
+                        <div class="select-wrap" name="year">
+                            <div class="select">
+                                <div class="value-wrap">
+                                    <div class="placeholder">Any</div>
+                                    <label>
+                                        <input type="search" autocomplete="off" class="filter">
+                                    </label>
+                                </div>
+                                <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="chevron-down" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="icon svg-inline--fa fa-chevron-down fa-w-14 fa-fw">
+                                    <path data-v-e3e1e202="" fill="currentColor" d="M207.029 381.476L12.686 187.132c-9.373-9.373-9.373-24.569 0-33.941l22.667-22.667c9.357-9.357 24.522-9.375 33.901-.04L224 284.505l154.745-154.021c9.379-9.335 24.544-9.317 33.901.04l22.667 22.667c9.373 9.373 9.373 24.569 0 33.941L240.971 381.476c-9.373 9.372-24.569 9.372-33.942 0z" class=""></path>
+                                </svg>
+                                <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="times" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 352 512" class="icon right close svg-inline--fa fa-times fa-w-11">
+                                    <path fill="currentColor" d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z" class=""></path>
+                                </svg>
+                            </div>
+                            <div class="options">
+                                <div class="scroll-wrap">
+                                    <div class="option-group">
+                                        <c:forEach var="year" begin="1930" end="${currentYear}">
+                                            <div class="option">
+                                                <div class="label">
+                                                    <div class="name" value="${year}">${year}</div>
+                                                    <div class="selected-icon circle">
+                                                        <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="check" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="svg-inline--fa fa-check fa-w-16">
+                                                            <path fill="currentColor" d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z" class=""></path>
+                                                        </svg>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </c:forEach>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- demographics -->
+                    <div class="filter filter-select">
+                        <div class="filter-name">Demographics</div>
+                        <div class="select-wrap" name="demographics">
+                            <div class="select">
+                                <div class="value-wrap">
+                                    <div class="placeholder">Any</div>
+                                    <div class="filter"></div>
+                                </div>
+                                <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="chevron-down" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="icon svg-inline--fa fa-chevron-down fa-w-14 fa-fw">
+                                    <path data-v-e3e1e202="" fill="currentColor" d="M207.029 381.476L12.686 187.132c-9.373-9.373-9.373-24.569 0-33.941l22.667-22.667c9.357-9.357 24.522-9.375 33.901-.04L224 284.505l154.745-154.021c9.379-9.335 24.544-9.317 33.901.04l22.667 22.667c9.373 9.373 9.373 24.569 0 33.941L240.971 381.476c-9.373 9.372-24.569 9.372-33.942 0z" class=""></path>
+                                </svg>
+                                <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="times" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 352 512" class="icon right close svg-inline--fa fa-times fa-w-11">
+                                    <path fill="currentColor" d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z" class=""></path>
+                                </svg>
+                            </div>
+                            <div class="options">
+                                <div class="scroll-wrap">
+                                    <div class="option-group">
+                                        <c:forEach var="entry" items="${requestScope.mangaDemographics}">
+                                            <c:if test="${entry.name() != 'UNKNOWN'}">
+                                                <div class="option">
+                                                    <div class="label">
+                                                        <div class="name" value="${entry.name()}">${entry.toString()}</div>
+                                                        <div class="selected-icon circle">
+                                                            <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="check" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="svg-inline--fa fa-check fa-w-16">
+                                                                <path fill="currentColor" d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z" class=""></path>
+                                                            </svg>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </c:if>
+                                        </c:forEach>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- publication status -->
+                    <div class="filter filter-select">
+                        <div class="filter-name">Publication Status</div>
+                        <div class="select-wrap" name="status">
+                            <div class="select">
+                                <div class="value-wrap">
+                                    <div class="placeholder">Any</div>
+                                    <label>
+                                        <input type="search" autocomplete="off" class="filter">
+                                    </label>
+                                </div>
+                                <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="chevron-down" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="icon svg-inline--fa fa-chevron-down fa-w-14 fa-fw">
+                                    <path fill="currentColor" d="M207.029 381.476L12.686 187.132c-9.373-9.373-9.373-24.569 0-33.941l22.667-22.667c9.357-9.357 24.522-9.375 33.901-.04L224 284.505l154.745-154.021c9.379-9.335 24.544-9.317 33.901.04l22.667 22.667c9.373 9.373 9.373 24.569 0 33.941L240.971 381.476c-9.373 9.372-24.569 9.372-33.942 0z" class=""></path>
+                                </svg>
+                                <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="times" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 352 512" class="icon right close svg-inline--fa fa-times fa-w-11">
+                                    <path fill="currentColor" d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z" class=""></path>
+                                </svg>
+                            </div>
+                            <div class="options">
+                                <div class="scroll-wrap">
+                                    <div class="option-group">
+                                        <c:forEach var="entry" items="${requestScope.mangaStatus}">
+                                            <div class="option">
+                                                <div class="label">
+                                                    <div class="name" value="${entry.name()}">${entry.toString()}</div>
+                                                    <div class="selected-icon circle">
+                                                        <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="check" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="svg-inline--fa fa-check fa-w-16">
+                                                            <path fill="currentColor" d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z" class=""></path>
+                                                        </svg>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </c:forEach>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- extra filters (hidden)-->
+                <div class="extra-filters-wrap">
+
+                    <!-- extra filters button -->
+                    <div id="extra-filters-button" class="open-btn active">
+                        <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="sliders-h" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon svg-inline--fa fa-sliders-h fa-w-16">
+                            <path fill="currentColor" d="M496 384H160v-16c0-8.8-7.2-16-16-16h-32c-8.8 0-16 7.2-16 16v16H16c-8.8 0-16 7.2-16 16v32c0 8.8 7.2 16 16 16h80v16c0 8.8 7.2 16 16 16h32c8.8 0 16-7.2 16-16v-16h336c8.8 0 16-7.2 16-16v-32c0-8.8-7.2-16-16-16zm0-160h-80v-16c0-8.8-7.2-16-16-16h-32c-8.8 0-16 7.2-16 16v16H16c-8.8 0-16 7.2-16 16v32c0 8.8 7.2 16 16 16h336v16c0 8.8 7.2 16 16 16h32c8.8 0 16-7.2 16-16v-16h80c8.8 0 16-7.2 16-16v-32c0-8.8-7.2-16-16-16zm0-160H288V48c0-8.8-7.2-16-16-16h-32c-8.8 0-16 7.2-16 16v16H16C7.2 64 0 71.2 0 80v32c0 8.8 7.2 16 16 16h208v16c0 8.8 7.2 16 16 16h32c8.8 0 16-7.2 16-16v-16h208c8.8 0 16-7.2 16-16V80c0-8.8-7.2-16-16-16z" class=""></path>
+                        </svg>
+                    </div>
+
+                    <!-- extra filters popup -->
+                    <div id="extra-filters" class="dropdown anime">
+                        <div class="filters-wrap">
+
+                            <!-- format -->
+                            <div class="filter filter-select">
+                                <div class="filter-name">Format</div>
+                                <div class="select-wrap multi-choice" name="format">
+                                    <div class="select">
+                                        <div class="value-wrap">
+                                            <div class="placeholder">Any</div>
+                                            <label>
+                                                <input type="search" autocomplete="off" class="filter">
+                                            </label>
+                                        </div>
+                                        <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="chevron-down" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="icon svg-inline--fa fa-chevron-down fa-w-14 fa-fw">
+                                            <path data-v-e3e1e202="" fill="currentColor" d="M207.029 381.476L12.686 187.132c-9.373-9.373-9.373-24.569 0-33.941l22.667-22.667c9.357-9.357 24.522-9.375 33.901-.04L224 284.505l154.745-154.021c9.379-9.335 24.544-9.317 33.901.04l22.667 22.667c9.373 9.373 9.373 24.569 0 33.941L240.971 381.476c-9.373 9.372-24.569 9.372-33.942 0z" class=""></path>
+                                        </svg>
+                                        <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="times" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 352 512" class="icon right close svg-inline--fa fa-times fa-w-11">
+                                            <path fill="currentColor" d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z" class=""></path>
+                                        </svg>
+                                    </div>
+                                    <div class="options">
+                                        <div class="scroll-wrap">
+                                            <div class="option-group">
+                                                <c:forEach var="entry" items="${requestScope.mangaTypes}">
+                                                    <div class="option">
+                                                        <div class="label">
+                                                            <div class="name" value="${entry.name()}">${entry.toString()}</div>
+                                                            <div class="selected-icon circle">
+                                                                <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="check" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="svg-inline--fa fa-check fa-w-16">
+                                                                    <path fill="currentColor" d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z" class=""></path>
+                                                                </svg>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </c:forEach>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- year range -->
+                            <div class="filter">
+                                <div class="range-wrap" name="year-range" style="--handle-0-position: 0px; --handle-1-position: 171px; --active-region-width: 171px; --min-val: 1930; --max-val: ${currentYear};">
+                                    <div class="header header-filters">
+                                        <div class="label">year range</div>
+                                    </div>
+                                    <div class="range">
+                                        <div class="rail">
+                                            <div value="1930" class="handle handle-0"></div>
+                                            <div class="active-region"></div>
+                                            <div value="${currentYear}" class="handle handle-1"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- rating range -->
+                            <div class="filter">
+                                <div class="range-wrap" name="rating-range" style="--handle-0-position: 0px; --handle-1-position: 171px; --active-region-width: 171px; --min-val: 0; --max-val: 10;">
+                                    <div class="header header-filters">
+                                        <div class="label">rating range</div>
+                                    </div>
+                                    <div class="range">
+                                        <div class="rail">
+                                            <div value="0" class="handle handle-0"></div>
+                                            <div class="active-region"></div>
+                                            <div value="10" class="handle handle-1"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <%-- This are the range inputs for the min and max start date --%>
-            <div>
-                <label  class="filter-name" for="startDate">Start Date:</label>
-                <input class="date" type="date" id="startDate" name="startDate">
-                <br/>
-                <label  class="filter-name" for="endDate">End Date:</label>
-                <input class="date" type="date" id="endDate" name="endDate">
+            <!-- select order -->
+            <div class="secondary-filters">
+                <div class="selects-wrap">
+                    <div class="sort-wrap sort-select">
+                        <svg class="icon svg-inline--fa fa-sort fa-w-10" value="1" data-name="Layer 3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+                            <path d="M92.729 20.643 101.19 35.3h.007l8.494 14.711a4.289 4.289 0 0 1-3.712 6.439v.01h-4.631v37.767H76.629V56.454h-4.622a4.3 4.3 0 0 1-3.565-6.7l8.347-14.457q.066-.115.139-.223L85.282 20.6a4.281 4.281 0 0 1 7.447.042zm-49.977 0L51.213 35.3h.007l8.493 14.711A4.289 4.289 0 0 1 56 56.445v.01h-4.629v37.772H26.652V56.454H22.03a4.3 4.3 0 0 1-3.565-6.7l8.347-14.457q.066-.115.139-.223L35.3 20.6a4.281 4.281 0 0 1 7.447.042z"/>
+                        </svg>
+                        <span id="sort" value="title" class="label">Title</span>
+                        <div class="dropdown">
+                            <div value="title" class="option active">Title</div>
+                            <div value="likes" class="option">Popularity</div>
+                            <div value="average_rating" class="option">Average Score</div>
+                            <div value="start_date" class="option">Release Date </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div>
-                <label  class="filter-name" for="orderBy">Order By:</label>
-                <select class="order" name="orderBy" id="orderBy">
-                    <option value="title 1">Title enc</option>
-                    <option value="title -1">Title dec</option>
-                    <option value="average_rating 1">Average Rating enc</option>
-                    <option value="average_rating -1">Average Rating dec</option>
-                    <option value="start_date 1">Start Date enc</option>
-                    <option value="start_date -1">Start Date dec</option>
-                </select>
+            <!-- results -->
+            <div class="results"></div>
+
+            <div class="container-pagination">
+                <ul class="page pagination">
+                </ul>
             </div>
-            <input class="search" type="submit" value="SEARCH">
-        </form>
-    </div>
+        </div>
 
-    <section id="resultsSection"></section>
 
-    <!-- page bar -->
-    <section id="changePage">
-        <form action="${pageContext.request.contextPath}/mainPage/manga" method="post">
-            <input type="hidden" name="action" value="sortAndPaginate">
+        <!--
+        <section id="resultsSection">
+            <h1 id="totalResults"></h1>
+            <div id="orderSelection"></div>
+            <div id="media-list" class="project-boxes jsGridView"></div>
+            <div id="pageSelection"></div>
+        </section> -->
 
-            <c:if test="${requestScope.page > 1}">
-                <button type="submit" class="navigation-button" name="page" value="${requestScope.page - 1}">Previous Page</button>
-            </c:if>
-            <c:if test="${requestScope.page < requestScope.mediaContentPage.getTotalPages()}">
-                <button type="submit" class="navigation-button" name="page" value="${requestScope.page + 1}">Next Page</button>
-            </c:if>
-        </form>
     </section>
 
-    <div id="spaceElement"></div>
-
-<script>
-    <c:set var="authenticatedUser" value="${not empty sessionScope[Constants.AUTHENTICATED_USER_KEY]}" />
-
-    const mediaDetailHRef = "${pageContext.request.contextPath}/manga?mediaId=";
-    const authenticatedUser = ${authenticatedUser};
-    const authURI = "${pageContext.request.contextPath}/auth";
-    const servletURI = "${pageContext.request.contextPath}/mainPage/manga";
-
-    document.addEventListener("DOMContentLoaded", function () {
-        let navBar = document.querySelector(".nav-bar");
-        let sectionHome = document.getElementById("home");
-
-        const searchForm = document.getElementById("searchForm");
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach((entry) => {
-                if (entry.isIntersecting) {
-                    // Element is out of the viewport
-                    navBar.classList.remove("fixed-nav");
-                    searchForm.style.marginTop = "20px";
-                } else {
-                    // Element is in the viewport
-                    navBar.classList.add("fixed-nav");
-                    searchForm.style.marginTop = "120px";
-                }
-            });
-        });
-
-        // Start observing changes in the sectionHome
-        observer.observe(sectionHome);
-    });
-
-    // Function to add space at the end of the page if it's shorter than 2 times the height of #home
-    function addSpaceIfNeeded() {
-        const homeDivHeight = document.getElementById('home').offsetHeight;
-        const pageHeight = Math.max(document.body.scrollHeight, document.body.offsetHeight, document.documentElement.clientHeight,
-            document.documentElement.scrollHeight, document.documentElement.offsetHeight);
-        if (pageHeight < 2 * homeDivHeight) {
-            const spaceElement = document.getElementById('spaceElement');
-            spaceElement.style.height = 2 * homeDivHeight - pageHeight + 'px';
-        }
-    }
-    // Call the function when the page has finished loading
-    window.addEventListener('load', addSpaceIfNeeded);
-
-    document.getElementById('down-arrow').addEventListener('click', function() {
-        const targetElement = document.getElementById('navbar');
-        const home = document.getElementById('home');
-        targetElement.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
-        setTimeout(() => {
-            home.style.display = 'none';
-        }, 500);
-        document.documentElement.style.overflow = 'auto';
-    });
-
-
-    document.getElementById('up-arrow').addEventListener('click', function() {
-        const home = document.getElementById('home');
-        const scrollPoint = document.getElementById('scroll-point');
-
-        home.style.display = 'flex';
-        document.documentElement.style.overflow = 'hidden';
-        console.log(scrollPoint.offsetTop);
-        window.scrollTo({ top: scrollPoint.offsetTop, behavior: 'instant' });
-        home.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
-    });
-</script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" defer></script>
+    <script src="${pageContext.request.contextPath}/js/main_page_test.js" defer></script>
+    <script src="${pageContext.request.contextPath}/js/navbar.js" defer></script>
+    <script src="${pageContext.request.contextPath}/js/filters.js" defer></script>
     <script>
-        function toggleFiltersDisplay() {
-            const filtersFormContainer = document.getElementById('filtersFormContainer');
-            filtersFormContainer.style.display = filtersFormContainer.style.display === 'none' ? 'block' : 'none';
-
-
-        }
+        const mediaType = "manga";
+        const authenticatedUser = ${isLogged};
+        const contextPath = "${pageContext.request.contextPath}";
+        const authURI = "${pageContext.request.contextPath}/auth";
+        const servletURI = "${pageContext.request.contextPath}/mainPage/manga";
+        const mangaDefaultImage = "${pageContext.request.contextPath}/${Constants.DEFAULT_COVER_MANGA}";
+        const animeDefaultImage = "${pageContext.request.contextPath}/${Constants.DEFAULT_COVER_ANIME}";
     </script>
 </body>
 </html>

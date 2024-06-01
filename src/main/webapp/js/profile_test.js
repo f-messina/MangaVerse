@@ -1,21 +1,13 @@
 const overlay = $("#overlay");
+
+/////////////////
+/// EDIT FORM ///
+/////////////////
+
 const editProfileDiv = $("#editPopup");
 const editButton = $("#edit-button");
 
-const followers = $("#followers");
-const followersList = $("#followers-list");
-const showFollowerButton = $("#show-followers");
-const followerSearch = $("#follower-search");
-
-const followings = $("#followings");
-const followingsList = $("#followings-list");
-const showFollowingButton = $("#show-followings");
-const followingSearch = $("#following-search");
-
-const userSearchButton = $("#user-search-button");
-const userSearch = $("#user-search");
-const usersList = $("#user-search-results");
-const userSearchSection = $("#user-search-section");
+// Validation functions for the edit form //
 
 // Helper function to check if a string starts with another string in a case-insensitive manner
 function startsWithCaseInsensitive(str, prefix) {
@@ -53,24 +45,51 @@ function validateUsername() {
     }
 }
 
-function storeOriginalValues(inputs) {
-    const values = {};
-    for (let i = 0; i < inputs.length; i++) {
-        values[inputs[i].name] = inputs[i].value;
+function validatePictureUrl() {
+    const pictureUrl = $("#profile-picture-url");
+    const pictureMessage = $("#check-image-message");
+    const pictureForm = $("#picture");
+    const preview = $("#profile-picture");
+
+    const img = new Image();
+
+    // Check if the picture URL has not changed
+    if (pictureUrl.val() === profile.picture ||
+        (pictureUrl.val() === "" && profile.picture === userDefaultImage)) {
+        pictureMessage.text("No changes made.");
+        pictureMessage.css("color", "red");
+        return;
     }
-    return values;
+
+    // If the picture URL is empty, use the default image
+    if (pictureUrl.val() === "") {
+        pictureMessage.text("Default image selected, save to apply changes.");
+        pictureMessage.css("color", "green");
+        preview.attr("src", userDefaultImage);
+        pictureForm.val("");
+        return;
+    }
+
+    // Validate the image URL and display a preview
+    img.onload = function() {
+        pictureMessage.text("URL valid, save to apply changes.");
+        pictureMessage.css("color", "green");
+        preview.attr("src", pictureUrl.val());
+        pictureForm.val(pictureUrl.val());
+    };
+
+    // If the image URL is invalid, display an error message
+    img.onerror = function() {
+        pictureMessage.text("Invalid URL. Please enter a valid image URL.");
+        pictureMessage.css("color", "red");
+    };
+
+    img.src = pictureUrl.val();
 }
 
-function restoreOriginalValues(inputs, originalValues) {
-    for (let i = 0; i < inputs.length; i++) {
-        const name = inputs[i].name;
-        if (originalValues.hasOwnProperty(name)) {
-            inputs[i].value = originalValues[name];
-        }
-    }
-}
 
 function showEditForm() {
+    resetForm();
     overlay.show();
     $("body").css("overflow-y", "hidden");
     editProfileDiv.css("display", "flex");
@@ -91,116 +110,109 @@ function hideEditForm() {
     editProfileDiv.hide();
 }
 
-function showFollowers(){
-    overlay.show();
-    $("body").css("overflow-y", "hidden");
-    getFollowers();
-    followers.show();
-    overlay.click(hideFollowers);
-}
-
-function getFollowers(searchValue) {
-    const inputData = {action: "getFollowers", userId: userId};
-    if (searchValue) {
-        inputData.searchValue = searchValue;
+function storeInitialValues() {
+    profile = {
+        username: $("#username").val(),
+        fullname: $("#fullname").val(),
+        description: $("#description").val(),
+        country: $("#country").val(),
+        birthdate: $("#birthdate").val(),
+        picture: $("#picture").val(),
+        gender: $("#gender").val()
     }
-    const errorMessage = $("<p>").addClass("user");
-
-    $.post(contextPath+"/user", inputData, function(data) {
-        if (data.success) {
-            followersList.empty();
-            for (let i = 0; i < data.followers.length; i++) {
-                const follower = data.followers[i];
-                const followerDiv = $("<div>").addClass("user");
-                // Create the image element and set the source
-                const img = $("<img src='" + follower.profilePicUrl + "'>").addClass("user-pic");
-                followerDiv.append(img);
-
-                // Create the paragraph element and set the text
-                const p = $("<p>").addClass("user-username").text(follower.username);
-                followerDiv.append(p);
-                followersList.append(followerDiv);
-            }
-        } else if (data.notFoundError) {
-            followersList.empty();
-            followersList.append(errorMessage.text("No followers found."));
-        }
-    }).fail(function() {
-        followersList.empty();
-        followersList.append(errorMessage.text("An error occurred. Please try again later."));
-    });
 }
 
-function hideFollowers(){
-    overlay.hide();
-    $("body").css("overflow-y", "auto");
-    followers.hide();
-}
-
-showFollowerButton.click(() => {
-        showFollowers();
+function resetForm() {
+    $("#username").val(profile.username);
+    $("#fullname").val(profile.fullname);
+    $("#description").val(profile.description);
+    $("#country").val(profile.country);
+    $("#birthdate").val(profile.birthdate);
+    if (profile.picture === "" || profile.picture === userDefaultImage) {
+        $("#profile-picture-url").val("");
+    } else {
+        $("#profile-picture-url").val(profile.picture);
     }
-);
-
-function showFollowings(){
-    overlay.show();
-    $("body").css("overflow-y", "hidden");
-    getFollowings();
-    followings.show();
-    overlay.click(hideFollowings);
+    $("#profile-picture").attr("src", profile.picture === "" ? userDefaultImage : profile.picture);
+    $("#gender").val(profile.gender);
+    $("#check-image-message").text("");
+    $("#username-error").text("");
+    $("#country-error").text("");
+    $("#general-error").text("");
+    editButton.prop("disabled", false);
 }
 
-function getFollowings(searchValue) {
-    const inputData = {action: "getFollowings", userId: userId};
-    if (searchValue) {
-        inputData.searchValue = searchValue;
+function setNewValues() {
+    const bio = $("#bio").empty();
+    const imageDisplayed = $("#profile-picture-display");
+    const usernameDisplayed = $("#username-displayed");
+    const picture = $("#picture");
+    const gender = $("#gender");
+    const welcomeMessage = $("#welcome-message");
+    const usernameValue = $("#username");
+
+    usernameDisplayed.text(usernameValue.val());
+    const username = $("<span>").text($("#fullname").val()).addClass("profile-real-name-px");
+    bio.append($("<p>").append(username));
+    bio.append($("<p>").text($("#description").val()));
+    if (gender.val() !== "UNKNOWN")
+        bio.append($("<p>").text(gender.find('option:selected').text()));
+    bio.append($("<p>").text($("#country").val()));
+    bio.append($("<p>").text($("#birthdate").val()));
+    if (picture.val() !== "" && picture.val() !== undefined) {
+        imageDisplayed.attr("src", picture.val());
+        $("#navbar-profile-picture").attr("src", picture.val());
+    } else {
+        imageDisplayed.attr("src", userDefaultImage);
+        $("#navbar-profile-picture").attr("src", userDefaultImage);
     }
-    const errorMessage = $("<p>").addClass("user");
+    welcomeMessage.text("Welcome " + usernameValue.val());
 
-    $.post(contextPath+"/user", inputData, function(data) {
-        if (data.success) {
-                followingsList.empty();
-                for (let i = 0; i < data.followings.length; i++) {
-                    const following = data.followings[i];
-                    const followingDiv = $("<div>").addClass("user");
-                    // Create the image element and set the source
-                    const img = $("<img src='" + following.profilePicUrl + "'>").addClass("user-pic");
-                    followingDiv.append(img);
+    storeInitialValues();
+}
 
-                    // Create the paragraph element and set the text
-                    const p = $("<p>").addClass("user-username").text(following.username);
-                    followingDiv.append(p);
-                    followingsList.append(followingDiv);
-                }
-            } else if (data.notFoundError) {
-                followingsList.empty();
-                followingsList.append(errorMessage.text("No followings found."));
+function getModifiedInfo(profile) {
+    // Initialize an empty object for inputData
+    const inputData = {};
+
+    // Get current form values
+    const formValues = {
+        username: $("#username").val(),
+        fullname: $("#fullname").val(),
+        description: $("#description").val(),
+        country: $("#country").val(),
+        birthdate: $("#birthdate").val(),
+        picture: $("#picture").val(),
+        gender: $("#gender").val()
+    };
+
+    // Loop through the keys in formValues
+    for (const key in formValues) {
+        if (formValues.hasOwnProperty(key)) {
+            // Only add to inputData if the value is different from profile
+            if (formValues[key] !== profile[key]) {
+                inputData[key] = formValues[key];
             }
         }
-    ).fail(function() {
-        followingsList.empty();
-        followingsList.append(errorMessage.text("An error occurred. Please try again later."));
-    });
-}
-
-function hideFollowings(){
-    overlay.hide();
-    $("body").css("overflow-y", "auto");
-    followings.hide();
-}
-
-showFollowingButton.click(() => {
-        showFollowings();
     }
-);
 
-editButton.click(function(event) {
-    event.preventDefault();
-    const editForm = $("#edit-profile-form");
-    $.post(editForm.attr("action"), editForm.serialize(), function(data) {
+    inputData.action = "editProfile";
+    return inputData;
+}
+
+editButton.click(function() {
+
+    const inputData = getModifiedInfo(profile);
+    if (Object.keys(inputData).length === 0) {
+        $("#general-error").text("No changes made.");
+        return;
+    }
+
+    $.post(contextPath + "/profile", inputData, function(data) {
         if (data.success) {
             editProfileDiv.hide();
             overlay.hide();
+            setNewValues();
         }
         $("#username-error").text(data.usernameError || "");
         $("#general-error").text(data.generalError || "");
@@ -209,69 +221,266 @@ editButton.click(function(event) {
     });
 });
 
-followerSearch.on("input", function() {
-    getFollowers(followerSearch.val());
-});
+//////////////////////////////
+/// FOLLOWERS & FOLLOWINGS ///
+//////////////////////////////
 
-followingSearch.on("input", function() {
-    getFollowings(followingSearch.val());
-});
+const followers = $("#followers");
+const followersList = $("#followers-list");
+const showFollowerButton = $("#show-followers");
+const followerSearch = $("#follower-search");
 
-function getUsers(searchValue) {
-    const inputData = {action: "getUsers"};
-    if (searchValue) {
-        inputData.searchValue = searchValue;
-    }
-    const errorMessage = $("<p>").addClass("user");
+const followings = $("#followings");
+const followingsList = $("#followings-list");
+const showFollowingButton = $("#show-followings");
+const followingSearch = $("#following-search");
 
-    $.post(contextPath+"/user", inputData, function(data) {
-        if (data.success) {
-            usersList.empty();
-            if (data.users.length === 0) {
-                usersList.append(errorMessage.text("No users found."));
-                return;
-            }
-            for (let i = 0; i < data.users.length; i++) {
-                const user = data.users[i];
-                const userDiv = $("<a>").addClass("user").attr("href", contextPath + "/profile?userId=" + user.id);
-                // Create the image element and set the source
-                const img = $("<img src='" + user.profilePicUrl + "'>").addClass("user-pic");
-                userDiv.append(img);
+showFollowerButton.click(() => showList("followers"));
+showFollowingButton.click(() => showList("followings"));
 
-                // Create the paragraph element and set the text
-                const p = $("<p>").addClass("user-username").text(user.username);
-                userDiv.append(p);
-                usersList.append(userDiv);
-            }
-        } else if (data.notFoundError) {
-            usersList.empty();
-            usersList.append(errorMessage.text("No users found."));
-        }
-    }).fail(function() {
-        usersList.empty();
-        usersList.append(errorMessage.text("An error occurred. Please try again later."));
+function showList(type) {
+    overlay.show();
+    $("body").css("overflow-y", "hidden");
+
+    const list = type === "followers" ? followers : followings;
+    const searchInput = type === "followers" ? followerSearch : followingSearch;
+    type === "followers" ? followerSearch.val("") : followingSearch.val("");
+
+    getList(type);
+    list.show();
+    overlay.click(() => {
+        overlay.hide();
+        $("body").css("overflow-y", "auto");
+        list.hide();
     });
 }
-userSearch.on("input", function() {
-    getUsers(userSearch.val());
-});
 
-userSearchButton.click(() => {
-    if (userSearch.val() === "" && usersList.children().length === 0) {
-        usersList.empty();
-        getUsers(null);
-    }
-    userSearch.addClass("active");
-    userSearchSection.show();
+followerSearch.on("input", () => getList("followers", followerSearch.val()));
+followingSearch.on("input", () => getList("followings", followingSearch.val()));
 
-    $("body").on("click.hideUserResults", function(event) {
-        console.log(event.target);
-        if (!$(event.target).closest(userSearch).length &&
-            !$(event.target).closest(usersList).length &&
-            !$(event.target).closest(userSearchButton).length) {
-            userSearch.removeClass("active");
-            userSearchSection.hide();
-            $("body").off("click.hideUserResults");
+function getList(type, searchValue) {
+    const action = type === "followers" ? "getFollowers" : "getFollowings";
+    const inputData = { action, userId };
+
+    if (searchValue) inputData.searchValue = searchValue;
+
+    $.post(`${contextPath}/user`, inputData, function (data) {
+        const listElement = type === "followers" ? followersList : followingsList;
+        listElement.empty();
+
+        if (data.success) {
+            const items = data[type];
+            items.forEach(item => {
+                const itemDiv = $(`<a href="${contextPath}/profile?userId=${item.id}">`).addClass("user");
+                const img = $(`<img src="${item.profilePicUrl}">`).addClass("user-pic")
+                    .on("error", () => setDefaultProfilePicture(img));
+                const p = $("<p>").addClass("user-username").text(item.username);
+                itemDiv.append(img, p);
+                listElement.append(itemDiv);
+            });
+        } else if (data.notFoundError) {
+            listElement.append($("<p>").addClass("user").text(`No ${type} found.`));
+        } else {
+            listElement.append($("<p>").addClass("user").text("An error occurred. Please try again later."));
         }
+    }).fail(() => {
+        const listElement = type === "followers" ? followersList : followingsList;
+        listElement.empty().append($("<p>").addClass("user").text("An error occurred. Please try again later."));
     });
-});
+}
+
+// Follow and unfollow functions
+function follow() {
+    changeFollowStatus("follow");
+}
+
+function unfollow() {
+    changeFollowStatus("unfollow");
+}
+
+function changeFollowStatus(action) {
+    const inputData = { action, userId };
+
+    $.post(`${contextPath}/profile`, inputData, function (data) {
+        if (data.success) {
+            const followButton = $(".profile-edit-btn-px");
+            followButton.text(action === "follow" ? "Followed" : "Follow");
+            followButton.attr("onclick", action === "follow" ? "unfollow()" : "follow()");
+        }
+    }).fail(xhr => console.error(`${action} failed: ${xhr.responseText}`));
+}
+
+
+///////////////////////
+/// LIKES & REVIEWS ///
+///////////////////////
+
+let mangaPage, totalMangaPages;
+let animePage, totalAnimePages;
+let reviewsPage, totalReviewsPages;
+
+function changeSection(button) {
+    const section = button.id.split("-")[0];
+    $(".selection-buttons button").removeClass("active");
+    button.classList.add("active");
+
+    const sections = { anime: "#anime-like", manga: "#manga-like", reviews: "#reviews" };
+    $.each(sections, (key, value) => $(value).toggle(key === section));
+
+    if (section === "reviews" && $("#reviews").children().first()) {
+        fetchData("getReviews");
+    } else if (section === "anime" && $("#anime-like").children().first()) {
+        fetchData("getAnimeLikes");
+    } else if (section === "manga" && $("#manga-like").children().first()) {
+        fetchData("getMangaLikes");
+    }
+}
+
+function fetchData(action, page = 1) {
+    $.post(`${contextPath}/profile`, { action, userId, page }, (data) => {
+        if (action === "getReviews") {
+            reviewsPage = page;
+            showReviews(data);
+        } else {
+            action === "getAnimeLikes" ? animePage = page : mangaPage = page;
+            showLikes(data, action);
+        }
+    }).fail((xhr) => console.error(`Profile data fetch failed: ${xhr.responseText}`));
+}
+
+function showLikes(data, action) {
+    const isAnime = action === "getAnimeLikes";
+    const likeList = isAnime ? $("#anime-list") : $("#manga-list");
+    const pagination = isAnime ? $(".anime-pagination") : $(".manga-pagination");
+
+    likeList.empty();
+    pagination.empty();
+
+    if (!data.mediaLikes || data.mediaLikes.totalPages === 0) {
+        likeList.append($("<p>").addClass("no-results-error").text("No likes found"));
+        isAnime ? totalAnimePages = 0 : totalMangaPages = 0;
+        return;
+    }
+
+    isAnime ? totalAnimePages = data.mediaLikes.totalPages : totalMangaPages = data.mediaLikes.totalPages;
+    updatePagination(isAnime ? "anime" : "manga");
+
+    data.mediaLikes.entries.forEach(media => {
+        const mediaWrapper = $("<div>").addClass("project-box-wrapper");
+        const mediaBox = $("<div>").addClass("project-box");
+        const picture = $("<img>").attr("src", media.imageUrl).attr("alt", media.title)
+            .addClass("box-image")
+            .on("error", () => setDefaultCover(picture, isAnime ? "anime" : "manga"));
+        const title = $("<a>").attr("href", `${contextPath}/${isAnime ? "anime" : "manga"}?mediaId=${media.id}`)
+            .addClass("box-title").text(media.title);
+
+        mediaBox.append(picture, title);
+        mediaWrapper.append(mediaBox);
+        likeList.append(mediaWrapper);
+    });
+}
+
+function setDefaultCover(image, type) {
+    image.off("error");
+    image.attr("src", type === "anime" ? animeDefaultImage : mangaDefaultImage);
+}
+
+function showReviews(data) {
+    const reviews = $("#reviews-list");
+    const pagination = $(".review-pagination");
+
+    reviews.empty();
+    pagination.empty();
+
+    if (!data.reviews || data.reviews.totalPages === 0) {
+        totalReviewsPages = 0;
+        reviews.append($("<p>").addClass("text-center no-results-error").text("No reviews found"));
+        return;
+    }
+
+    totalReviewsPages = data.reviews.totalPages;
+    updatePagination("reviews");
+
+    data.reviews.entries.forEach(review => {
+        const type = review.mediaContent.season === undefined ? "manga" : "anime";
+        const title = $("<a>").attr("href", `${contextPath}/${type}?mediaId=${review.mediaContent.id}`)
+            .addClass("review-media-title").text(review.mediaContent.title);
+        const rating = $("<p>").addClass("review-rating")
+            .text(review.rating === null ? "No rating" : `Rating: ${review.rating}`);
+        const firstRow = $("<div>").addClass("review-row").append(title, rating);
+        const comment = $("<p>").addClass("review-comment")
+            .text(review.comment === null ? "No comment" : review.comment);
+        const date = $("<p>").addClass("review-date").text(`Date: ${review.date}`);
+        const reviewBox = $("<div>").addClass("review-box").append(firstRow, comment, date);
+
+        reviews.append(reviewBox);
+    });
+}
+
+function updatePagination(section) {
+    let pagination, totalPages, currentPage, action;
+
+    if (section === "anime") {
+        pagination = $(".anime-pagination");
+        totalPages = totalAnimePages;
+        currentPage = animePage;
+        action = "getAnimeLikes";
+    } else if (section === "manga") {
+        pagination = $(".manga-pagination");
+        totalPages = totalMangaPages;
+        currentPage = mangaPage;
+        action = "getMangaLikes";
+    } else {
+        pagination = $(".review-pagination");
+        totalPages = totalReviewsPages;
+        currentPage = reviewsPage;
+        action = "getReviews";
+    }
+
+    pagination.empty();
+    if (totalPages === 1) return;
+
+    const createPageButton = (pageNumber, isActive = false) => {
+        const btn = $("<li>").addClass("page__numbers").text(pageNumber);
+        if (isActive) btn.addClass("active");
+        else btn.click(() => fetchData(action, pageNumber));
+        return btn;
+    };
+
+    const createArrowButton = (direction, enabled, targetPage) => {
+        const arrow = $("<li>").addClass("page__btn").html(`<span class="material-icons">chevron_${direction}</span>`);
+        if (enabled) arrow.addClass("active").click(() => fetchData(action, targetPage));
+        return arrow;
+    };
+
+    pagination.append(createArrowButton("left", currentPage > 1, currentPage - 1));
+
+    if (totalPages < 10) {
+        for (let i = 1; i <= totalPages; i++) {
+            pagination.append(createPageButton(i, i === currentPage));
+        }
+    } else {
+        if (currentPage < 6) {
+            for (let i = 1; i <= 7; i++) {
+                pagination.append(createPageButton(i, i === currentPage));
+            }
+            pagination.append($("<li>").addClass("page__dots").text("..."));
+        } else if (currentPage > totalPages - 6) {
+            pagination.append(createPageButton(1));
+            pagination.append($("<li>").addClass("page__dots").text("..."));
+            for (let i = totalPages - 6; i < totalPages; i++) {
+                pagination.append(createPageButton(i, i === currentPage));
+            }
+        } else {
+            pagination.append(createPageButton(1));
+            pagination.append($("<li>").addClass("page__dots").text("..."));
+            for (let i = currentPage - 2; i <= currentPage + 2; i++) {
+                pagination.append(createPageButton(i, i === currentPage));
+            }
+            pagination.append($("<li>").addClass("page__dots").text("..."));
+        }
+        pagination.append(createPageButton(totalPages, currentPage === totalPages));
+    }
+
+    pagination.append(createArrowButton("right", currentPage < totalPages, currentPage + 1));
+}

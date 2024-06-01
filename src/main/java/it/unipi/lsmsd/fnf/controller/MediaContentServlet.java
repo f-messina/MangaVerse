@@ -78,6 +78,7 @@ public class MediaContentServlet extends HttpServlet {
             response.sendRedirect("mainPage");
             return;
         }
+
         MediaContentType mediaType = MediaContentType.valueOf(request.getServletPath().substring(1).toUpperCase());
         String targetJSP = mediaType.equals(MediaContentType.ANIME) ? "WEB-INF/jsp/anime.jsp" : "WEB-INF/jsp/manga.jsp";
         try {

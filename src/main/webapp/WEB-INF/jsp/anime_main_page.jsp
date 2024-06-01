@@ -16,10 +16,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="preconnect" href="https://fonts.googleapis.com%22%3E/" crossorigin />
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/index.css"/>
     <script src="${pageContext.request.contextPath}/js/index.js" defer></script>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/range_input.css">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/main_page_test.css">
     <link
             href="https://fonts.googleapis.com/css2?family=Fira+Sans+Condensed:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:wght@300;400&display=swap"
             rel="stylesheet"
@@ -31,18 +28,20 @@
             crossorigin="anonymous"
             referrerpolicy="no-referrer"
     />
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/main-registered-user.css"/>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/main_page.css"/>
     <link
             rel="stylesheet"
             href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
     />
-    <script src="${pageContext.request.contextPath}/js/range_input.js" defer></script>
     <script src="https://code.jquery.com/jquery-3.6.4.min.js" defer></script>
     <script src="${pageContext.request.contextPath}/js/main_page_test.js" defer></script>
     <script src="${pageContext.request.contextPath}/js/anime_main_page_test.js" defer></script>
 </head>
+
 <body>
-    <section id="home" class="section-home">
+    <!-- Welcome section -->
+    <section id="welcome-section" class="section-home">
+        <!-- Home container -->
         <div class="home-container">
             <div class="home-wrapper">
                 <div class="selection-page-link"><a href="${pageContext.request.contextPath}/mainPage/manga" id="mangaLink">Manga</a></div>
@@ -55,12 +54,15 @@
                 <div class="active-page"><span id="animeLink">Anime</span></div>
             </div>
         </div>
+
+        <!-- Down arrow -->
         <div class="down-arrow">
             <span data-scroll="list" id="down-arrow">
                 <i class="fa-solid fa-chevron-down"></i>
             </span>
         </div>
     </section>
+
     <span id="scroll-point"></span>
     <div class="nav-bar" id="navbar">
         <nav>
@@ -97,7 +99,7 @@
             <input type="search" id="search" name="searchTerm" placeholder="Title">
             <input  class="search" type="submit" value="SEARCH">
         </form>
-        <button onclick="toggleFiltersDisplay()" class="more-filtering" id="toggleFilterButton" >See Detailed Filtering</button>
+        <button onclick="toggleFiltersDisplay()" class="show-filters-button" id="toggleFilterButton" >See Detailed Filtering</button>
     </div>
 
 
