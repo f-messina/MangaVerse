@@ -12,55 +12,18 @@
 <html>
 <head>
     <title>Manager Page - Anime Analytics</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com%22%3E/" crossorigin />
-    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
-    <link
-            href="https://fonts.googleapis.com/css2?family=Fira+Sans+Condensed:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:wght@300;400&display=swap"
-            rel="stylesheet"
-    />
-    <link
-            rel="stylesheet"
-            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-            integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
-            crossorigin="anonymous"
-            referrerpolicy="no-referrer"
-    />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/manager.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script type="text/javascript">
-
-
-
-        //function updateGenreChart() {
-            // Implement updating genre chart here
-           // console.log("Updating genre chart");
-        //}
-
-        //function updateThemeChart() {
-            // Implement updating theme chart here
-        //  console.log("Updating theme chart");
-        //}
-
-        //function updateDemographicChart() {
-            // Implement updating demographic chart here
-        //  console.log("Updating demographic chart");
-        ////}
-
-        //function updateAuthorChart() {
-            // Implement updating author chart here
-        //  console.log("Updating author chart");
-        //}
-    </script>
 </head>
+
 <body>
 <div class="all-page">
     <!-- navbar -->
     <div id="side-navbar" class="button-container">
-        <div><button id="user-button" class="options" onclick="changeSection(this)">Users</button></div>
-        <div><button id="manga-button" class="options" onclick="changeSection(this)">Manga</button></div>
-        <div><button id=anime-button" class="options" onclick="changeSection(this)">Anime</button></div>
+        <div><button id="user-button" class="options" onclick="changeSection('user')">Users</button></div>
+        <div><button id="manga-button" class="options" onclick="changeSection('manga')">Manga</button></div>
+        <div><button id=anime-button" class="options" onclick="changeSection('anime')">Anime</button></div>
     </div>
 
     <!-- manga statistics -->
@@ -74,6 +37,8 @@
                     <option value="genres">Genre</option>
                     <option value="themes">Theme</option>
                     <option value="demographics">Demographic</option>
+                    <option value="authors">Author</option>
+                    <option value="serializations">Serialization</option>
                 </select>
                     <div>
                         <canvas id="mangaCriteriaChart"> </canvas>
@@ -152,9 +117,8 @@
                 <label for="analyticsType2">Select Analytics Type:</label>
                 <select id="analyticsType2" onchange="getBestCriteria(this.value, 'anime', 1)">
                     <option value="tags">Tags</option>
-                    <option value="genres">Genres</option>
-                    <option value="themes">Themes</option>
-                    <option value="demographics">Demographics</option>
+                    <option value="producers">Producers</option>
+                    <option value="studios">Studios</option>
                 </select>
                     <div>
                         <canvas id="animeCriteriaChart"> </canvas>
@@ -265,6 +229,44 @@
 
 
 <script>
+    $(document).ready(function () {
+        // Bind the searchForm submission to the performAsyncSearch function
+        $("#searchForm").submit(function (event) {
+            event.preventDefault(); // Prevent the default form submission
+            performAsyncSearch("manga-searchForm", "manga-resultsSection");
+        });
+        getBestCriteria('genres','manga',1);
+        getBestCriteria('tags','anime',1);
+        distribution('gender', "user");
+        averageAppRatingByCriteria('gender', "user");
+        document.getElementById("user-button").classList.add("active");
+        document.getElementById("user-page").style.display = "flex";
+    });
+
+    function changeSection(section) {
+        $(".button-container button").removeClass("active");
+        $("#" + section + "-button").addClass("active");
+        $(".page").hide();
+        $("#" + section + "-page").css("display", "flex");
+        switch (section) {
+            case "user":
+                loadPage("getUserDefaultAnalytics");
+                break;
+            case "manga":
+                loadPage("getMangaDefaultAnalytics");
+                break;
+            case "anime":
+                loadPage("getAnimeDefaultAnalytics");
+                break;
+        }
+    }
+
+    function loadPage(action) {
+        $.post("${pageContext.request.contextPath}/manager", {action: action}, function (data) {
+            console.log(data);
+        });
+    }
+
     let startYear= null;
     let endYear = null;
     function averageRatingInYearRange(mediaId, startYear, endYear, section){
@@ -327,16 +329,17 @@
         });
     }
 
-    $(document).on('click', '#manga-list .media', function (){
+    $("#manga-list .media").click(function() {
         selectedMediaId = $(this).data('id');
-        if(startYear && endYear){
-            averageRatingInYearRange(selectedMediaId,startYear,endYear,'manga');
+        if (startYear && endYear) {
+            averageRatingInYearRange(selectedMediaId, startYear, endYear, 'manga');
         }
     });
-    $(document).on('click', '#anime-list .media', function (){
+
+    $("#anime-list .media").click(function() {
         selectedMediaId = $(this).data('id');
-        if(startYear && endYear){
-            averageRatingInYearRange(selectedMediaId,startYear,endYear,'anime');
+        if (startYear && endYear) {
+            averageRatingInYearRange(selectedMediaId, startYear, endYear, 'anime');
         }
     });
 
@@ -352,217 +355,6 @@
             averageRatingInYearRange(selectedMediaId,startYear,endYear,type);
         }
     }
-</script>
-
-<script>
-    $(document).ready(function () {
-        // Bind the searchForm submission to the performAsyncSearch function
-        $("#searchForm").submit(function (event) {
-            event.preventDefault(); // Prevent the default form submission
-            performAsyncSearch("manga-searchForm", "manga-resultsSection");
-        });
-    });
-
-    function performAsyncSearch(formId, containerId) {
-        const form = $("#" + formId);
-        const url = form.attr("action");
-        const formData = form.serialize();
-
-        $.post(url, formData, function (data) {
-            const container = $("#" + containerId).empty();
-            container.append(
-                $("<h1>").text("Total results: " + data.mediaContentList.totalCount),
-                $("<div>").attr("id", "manga-mediaContentContainer")
-            );
-
-            updateMediaContent(data, "manga-mediaContentContainer");
-        }, "json").fail(() => console.error("Error occurred during the asynchronous request"));
-    }
-
-    // Update media content in the specified container
-    function updateMediaContent(data, containerId) {
-        const mediaContentContainer = $("#" + containerId).empty();
-        mediaContentContainer.append(data.mediaContentList.entries.map(media => createArticleElement(media)));
-    }
-
-
-    // Create HTML element for a media article
-    function createArticleElement(media) {
-        const articleElement = $("<article>").attr("id", media.id).append(
-            $("<a>").text(media.title).attr("href", "#").on("click", function (event) {
-                event.preventDefault(); // Prevent default link behavior
-                // Make AJAX request to retrieve media information
-                $.ajax({
-                    url: "${pageContext.request.contextPath}/manager/manga",
-                    method: "GET",
-                    data: {mediaId: media.id, action: "show_info"}, // Pass media ID to servlet
-                    success: function (response) {
-                        // Handle successful response
-                        console.log("Media Info:", response);
-                        // You can handle the retrieved data as needed
-                        createInfoDiv(response);
-                    },
-                    error: function (xhr, status, error) {
-                        // Handle errors
-                        console.error("Error:", error);
-                    }
-                });
-            })
-        );
-        console.log(media.id + media.title);
-        return articleElement;
-    }
-
-    function createInfoDiv(response) {
-        // Clear previous content of mangaInfo div
-        $("#mangaInfo").empty();
-
-        // Create a div to contain the manga information
-        const mangaInfoDiv = $("<div>");
-        const mangaUpdatePopup = $("<form>").addClass("popup-container").addClass("hidden").attr("id", "manga-updatePopup");
-
-        // Iterate through the response and append each property to the mangaInfoDiv
-        Object.entries(response.manga).forEach(([key, value]) => {
-            // If the value is null, set it to the string "null"
-            if (value === null) {
-                value = "null";
-            }
-
-            if (key === "authors") {
-                let objectString = "";
-                Object.entries(value).forEach(([authorsKey, authorsValue]) => {
-                    Object.entries(authorsValue).forEach(([authorKey, authorValue]) => {
-                        if (authorKey !== "id") {
-                            objectString += authorKey + ": " + authorValue + ","
-                        }
-                    });
-                });
-
-                value = objectString.slice(0, -1);
-                ;
-            }
-            // Append the key-value pair to mangaInfoDiv
-            mangaInfoDiv.append("<p><strong>" + key + ":</strong>" + value + "</p>");
-            mangaUpdatePopup.append("<label>" + key + ":</label>");
-            mangaUpdatePopup.append($("<input>").attr("value", value))
-
-        });
-
-        // Add a delete button
-        const deleteButton = $("<button>Delete</button>");
-        deleteButton.on("click", function () {
-            // Send asynchronous request to delete the manga
-            $.ajax({
-                url: "${pageContext.request.contextPath}/manager/manga",
-                method: "POST",
-                data: {mediaId: response.manga.id, action: "delete_media"},
-                success: function () {
-                    console.log("Manga deleted successfully");
-                    $("#mangaInfo").empty();
-                    $("#" + response.manga.id).remove();
-                },
-                error: function (xhr, status, error) {
-                    // Handle error response
-                    console.error("Error deleting manga:", error);
-                }
-            });
-        });
-        mangaInfoDiv.append(deleteButton);
-
-        const updateButton = $("<button>Update<button>");
-        updateButton.on("click", function () {
-            $("#updatePopup").toggleClass("hidden");
-        })
-        updateButton.append(mangaUpdatePopup);
-        mangaInfoDiv.append(updateButton);
-
-        $("#mangaInfo").append(mangaInfoDiv);
-
-        //add select button
-        const selectButton = $("<button>Select</button>");
-        selectButton.on("click", function () {
-            // Send asynchronous request to select the manga
-            selectMangaForAnalytics(media.id);
-        });
-        mangaInfoDiv.append(selectButton);
-    }
-
-   /* function selectMangaForAnalytics(mediaId) {
-        // Get the selected manga's info
-        $.ajax({
-            url: "${pageContext.request.contextPath}/manager/manga",
-            method: "GET",
-            data: {mediaId: mediaId, action: "get_manga_info"},
-            success: function (response) {
-                // Handle successful response
-                console.log("Selected Manga Info:", response);
-                // You can store the selected manga info for later use
-                // For now, let's assume you store it in a global variable
-                selectedMangaInfo = response;
-                // Now, prompt the user to enter the year for analytics
-                var selectedYear = prompt("Enter year for analytics (YYYY):");
-                if (selectedYear) {
-                    // Update chart with the selected manga and year
-                    updateMonthlyChart(selectedMangaInfo, selectedYear);
-                }
-            },
-            error: function (xhr, status, error) {
-                // Handle errors
-                console.error("Error:", error);
-            }
-        });
-    }*/
-</script>
-<script>
-
-    const page = "${requestScope.page}";
-    console.log(page);
-    if (page === "manga") {
-        document.getElementById("manga-button").classList.add("active");
-        document.getElementById("manga-page").style.display = "flex";
-    } else if (page === "anime") {
-        document.getElementById("anime-button").classList.add("active");
-        document.getElementById("anime-page").style.display = "flex";
-    } else {
-        document.getElementById("user-button").classList.add("active");
-        document.getElementById("user-page").style.display = "flex";
-    }
-
-    function changeSection(button) {
-        const section = button.id.split("-")[0];
-        const animeSection = $("#anime-page");
-        const mangaSection = $("#manga-page");
-        const userSection = $("#user-page");
-        $(".button-container button").removeClass("active");
-        if (section === "user") {
-            button.classList.add("active");
-            animeSection.hide();
-            mangaSection.hide();
-            loadPage("getUserDefaultAnalytics");
-            userSection.css("display", "flex");
-        } else {
-            userSection.hide();
-            if (section === "anime") {
-                button.classList.add("active");
-                loadPage("getAnimeDefaultAnalytics");
-                animeSection.css("display", "flex");
-                mangaSection.hide();
-            } else {
-                button.classList.add("active");
-                loadPage("getMangaDefaultAnalytics");
-                mangaSection.css("display", "flex");
-                animeSection.hide();
-            }
-        }
-    }
-
-    $(document).ready(function (){
-        getBestCriteria('genres','manga',1);
-    });
-    $(document).ready(function (){
-        getBestCriteria('tags','anime',1);
-    });
-
 
     function getBestCriteria(criteria, section, page = 1) {
         const inputData = {
@@ -615,19 +407,6 @@
 
         window[canvasId + 'Instance'] = new Chart(ctx, config);
     }
-
-
-
-
-
-
-
-    function loadPage(action) {
-        $.post("${pageContext.request.contextPath}/manager", {action: action}, function (data) {
-            console.log(data);
-        });
-    }
-
 
     // media content average rating by month chart
 
@@ -863,15 +642,7 @@
 
 
 <script>
-    $(document).ready(function(){
-        // Append a canvas element for Chart.js
-        //$("#user-distribution-analytics div").append('<canvas id="myChart"></canvas>');
-        //$("#average-app-rating-by-criteria div").append('<canvas id="myChart2"></canvas>');
 
-        // Load the default chart for gender
-        distribution('gender', "user");
-        averageAppRatingByCriteria('gender', "user");
-    });
 
 
 
@@ -923,11 +694,6 @@
         window.myChartInstance = new Chart(ctx, config);
     }
 
-    $(document).ready(function(){
-        // Append a canvas element for Chart.js
-        $(".analytic-box2 div").append('<canvas id="myChart"></canvas>');
-    });
-
     function averageAppRatingByCriteria(criteria,section){
         const inputData ={
             action: "averageAppRatingByCriteria",
@@ -976,16 +742,6 @@
 
         window.myChartInstance2 = new Chart(ctx, config);
     }
-
-    $(document).ready(function(){
-        // Append a canvas element for Chart.js
-        $("#average-app-rating-by-criteria div").append('<canvas id="myChart2"></canvas>');
-    });
-
-
-
-
-
 
     function averageAppRatingByAgeRange(){
         const inputData={

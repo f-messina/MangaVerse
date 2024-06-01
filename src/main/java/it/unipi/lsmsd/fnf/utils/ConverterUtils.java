@@ -26,6 +26,7 @@ import java.util.stream.Stream;
 import static org.slf4j.LoggerFactory.getLogger;
 
 public class ConverterUtils {
+    private final static Logger logger = getLogger(ConverterUtils.class.getName());
 
     // Convert Date to LocalDate
     public static LocalDate dateToLocalDate(Date date) {
@@ -153,6 +154,7 @@ public class ConverterUtils {
                     buildDemographicsFilter(request),
                     buildYearFilter(request),
                     buildStatusFilter(request),
+                    buildFormatFilter(request),
                     buildYearRangeFilter(request),
                     buildRatingRangeFilter(request)
             ).filter(filter -> !filter.isEmpty()).toList();
@@ -162,19 +164,32 @@ public class ConverterUtils {
     }
 
     public static List<Map<String, Object>> fromRequestToAnimeFilters(HttpServletRequest request) {
-        List<Map<String, Object>> filters = new ArrayList<>();
-        return filters;
+        try {
+            return Stream.of(
+                    buildTitleFilter(request),
+                    buildTagsFilter(request),
+                    buildYearFilter(request),
+                    buildSeasonFilter(request),
+                    buildStatusFilter(request),
+                    buildFormatFilter(request),
+                    buildYearRangeFilter(request),
+                    buildRatingRangeFilter(request)
+            ).filter(filter -> !filter.isEmpty()).toList();
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid JSON data for manga filters");
+        }
     }
 
     private static Map<String, Object> buildTitleFilter(HttpServletRequest request) {
         String title = request.getParameter("title");
-        return !StringUtils.isEmpty(title) ? Map.of("$regex", Map.of("title", title)) : Collections.emptyMap();
+        Map<String, Object> titleFilter = new HashMap<>();
+        titleFilter = !StringUtils.isEmpty(title) ? Map.of("$regex", Map.of("title", title)) : Collections.emptyMap();
+        return titleFilter;
     }
 
     private static Map<String, Object> buildGenreFilter(HttpServletRequest request) {
         ObjectMapper mapper = new ObjectMapper();
         Map<String, Object> genreFilter = new HashMap<>();
-
         String genreSelectMode = request.getParameter("genreSelectMode");
         try {
             String[] selectedGenres = mapper.readValue(request.getParameter("genreSelected"), String[].class);
@@ -196,12 +211,46 @@ public class ConverterUtils {
         }
     }
 
+    private static Map<String, Object> buildTagsFilter(HttpServletRequest request) {
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String, Object> genreFilter = new HashMap<>();
+        String genreSelectMode = request.getParameter("genreSelectMode");
+        try {
+            String[] selectedGenres = mapper.readValue(request.getParameter("genreSelected"), String[].class);
+            String[] avoidedGenres = mapper.readValue(request.getParameter("genreAvoided"), String[].class);
+            String operator = genreSelectMode.equals("and") ? "$all" : "$in";
+            if ((selectedGenres != null && selectedGenres.length > 0 && avoidedGenres != null && avoidedGenres.length > 0)) {
+                genreFilter = Map.of("$and", Arrays.asList(
+                        Map.of(operator, Map.of("tags", Arrays.asList(selectedGenres))),
+                        Map.of("$nin", Map.of("tags", Arrays.asList(avoidedGenres)))
+                ));
+            } else if (selectedGenres != null && selectedGenres.length > 0) {
+                genreFilter = Map.of(operator, Map.of("tags", Arrays.asList(selectedGenres)));
+            } else if (avoidedGenres != null && avoidedGenres.length > 0) {
+                genreFilter = Map.of("$nin", Map.of("tags", Arrays.asList(avoidedGenres)));
+            }
+            return genreFilter;
+        } catch (JsonProcessingException e) {
+            throw new IllegalArgumentException("Invalid JSON data for genre filter");
+        }
+    }
+
     private static Map<String, Object> buildYearFilter(HttpServletRequest request) {
         String year = request.getParameter("year");
-        return !StringUtils.isEmpty(year) ? Map.of("$and", Arrays.asList(
-                Map.of("$gte", Map.of("start_date", LocalDate.of(Integer.parseInt(year), 1, 1))),
-                Map.of("$lte", Map.of("end_date", LocalDate.of(Integer.parseInt(year), 12, 31)))
-        )) : Collections.emptyMap();
+        if (request.getParameter("mediaType").equals("manga") && !StringUtils.isEmpty(year)) {
+            return Map.of("$and", Arrays.asList(
+                    Map.of("$gte", Map.of("start_date", LocalDate.of(Integer.parseInt(year), 1, 1))),
+                    Map.of("$lte", Map.of("end_date", LocalDate.of(Integer.parseInt(year), 12, 31)))
+            ));
+        } else if (request.getParameter("mediaType").equals("anime") && !StringUtils.isEmpty(year)) {
+            return Map.of("anime_season.year", Integer.parseInt(year));
+        }
+        return Collections.emptyMap();
+    }
+
+    private static Map<String, Object> buildSeasonFilter(HttpServletRequest request) {
+        String season = request.getParameter("season");
+        return !StringUtils.isEmpty(season) ? Map.of("anime_season.season", season) : Collections.emptyMap();
     }
 
     private static Map<String, Object> buildStatusFilter(HttpServletRequest request) {
@@ -218,7 +267,7 @@ public class ConverterUtils {
         ObjectMapper mapper = new ObjectMapper();
         try {
             String[] formats = mapper.readValue(request.getParameter("format"), String[].class);
-            return formats != null && formats.length > 0 ? Map.of("$in", Map.of("format", Arrays.asList(formats))) : Collections.emptyMap();
+            return formats != null && formats.length > 0 ? Map.of("$in", Map.of("type", Arrays.asList(formats))) : Collections.emptyMap();
         } catch (JsonProcessingException e) {
             throw new IllegalArgumentException("Invalid JSON data for format filter");
         }
@@ -230,10 +279,17 @@ public class ConverterUtils {
         if (StringUtils.isEmpty(minYear) || StringUtils.isEmpty(maxYear)) {
             return Collections.emptyMap();
         }
-        return Map.of("$and", Arrays.asList(
-                Map.of("$gte", Map.of("start_date", LocalDate.of(Integer.parseInt(minYear), 1, 1))),
-                Map.of("$lte", Map.of("start_date", LocalDate.of(Integer.parseInt(maxYear), 12, 31)))
-        ));
+        if (request.getParameter("mediaType").equals("anime")) {
+            return Map.of("$and", Arrays.asList(
+                    Map.of("$gte", Map.of("anime_season.year", Integer.parseInt(minYear))),
+                    Map.of("$lte", Map.of("anime_season.year", Integer.parseInt(maxYear)))
+            ));
+        } else {
+            return Map.of("$and", Arrays.asList(
+                    Map.of("$gte", Map.of("start_date", LocalDate.of(Integer.parseInt(minYear), 1, 1))),
+                    Map.of("$lte", Map.of("start_date", LocalDate.of(Integer.parseInt(maxYear), 12, 31)))
+            ));
+        }
     }
 
     private static Map<String, Object> buildRatingRangeFilter(HttpServletRequest request) {

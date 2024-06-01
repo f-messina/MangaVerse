@@ -17,8 +17,6 @@ import it.unipi.lsmsd.fnf.service.enums.ExecutorTaskServiceType;
 import it.unipi.lsmsd.fnf.service.impl.asinc_media_tasks.*;
 import it.unipi.lsmsd.fnf.service.impl.asinc_review_tasks.RemoveDeletedMediaReviewsTask;
 import it.unipi.lsmsd.fnf.service.impl.asinc_review_tasks.UpdateReviewRedundancyTask;
-import it.unipi.lsmsd.fnf.service.impl.asinc_user_tasks.CreateUserTask;
-import it.unipi.lsmsd.fnf.service.impl.asinc_user_tasks.UpdateUserTask;
 import it.unipi.lsmsd.fnf.service.interfaces.ExecutorTaskService;
 import it.unipi.lsmsd.fnf.service.interfaces.MediaContentService;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
@@ -97,17 +95,16 @@ public class MediaContentServiceImpl implements MediaContentService {
             if (mediaContent instanceof Anime anime) {
                 animeDAOMongoDB.updateMediaContent(anime);
                 if (mediaContent.getTitle() != null)
-                    reviewDAOMongoDB.updateMediaRedundancy(new AnimeDTO(anime.getId(), anime.getTitle()));
+                    aperiodicExecutorTaskService.executeTask(new UpdateReviewRedundancyTask(new AnimeDTO(anime.getId(), anime.getTitle()), null));
             } else if (mediaContent instanceof Manga manga) {
                 mangaDAOMongoDB.updateMediaContent(manga);
                 if (mediaContent.getTitle() != null)
-                    reviewDAOMongoDB.updateMediaRedundancy(new MangaDTO(manga.getId(), manga.getTitle()));
+                    aperiodicExecutorTaskService.executeTask(new UpdateReviewRedundancyTask(new MangaDTO(manga.getId(), manga.getTitle()), null));
             }
 
             // Create a task which update the node Anime/Manga in Neo4j
             if (mediaContent.getTitle() != null || mediaContent.getImageUrl() != null) {
                 aperiodicExecutorTaskService.executeTask(new UpdateMediaTask(mediaContent));
-                aperiodicExecutorTaskService.executeTask(new UpdateReviewRedundancyTask(mediaContent.toDTO(), null));
             }
 
         } catch (DAOException e) {
@@ -322,12 +319,26 @@ public class MediaContentServiceImpl implements MediaContentService {
      * @throws BusinessException If an error occurs during the operation.
      */
     @Override
-    public List<MediaContentDTO> getSuggestedMediaContent(String userId, MediaContentType type, Integer limit) throws BusinessException {
+    public List<MediaContentDTO> getSuggestedMediaContentByFollowings(String userId, MediaContentType type, Integer limit) throws BusinessException {
         try {
             if (MediaContentType.ANIME.equals(type))
-                return animeDAONeo4J.getSuggested(userId, limit);
+                return animeDAONeo4J.getSuggestedByFollowings(userId, limit);
             else
-                return mangaDAONeo4J.getSuggested(userId, limit);
+                return mangaDAONeo4J.getSuggestedByFollowings(userId, limit);
+
+        } catch (DAOException e) {
+            handleDAOException(e);
+            return null;
+        }
+    }
+
+    @Override
+    public List<MediaContentDTO> getSuggestedMediaContentByLikes(String userId, MediaContentType type, Integer limit) throws BusinessException {
+        try {
+            if (MediaContentType.ANIME.equals(type))
+                return animeDAONeo4J.getSuggestedByFollowings(userId, limit);
+            else
+                return mangaDAONeo4J.getSuggestedByFollowings(userId, limit);
 
         } catch (DAOException e) {
             handleDAOException(e);
@@ -343,12 +354,12 @@ public class MediaContentServiceImpl implements MediaContentService {
      * @throws BusinessException If an error occurs during the operation.
      */
     @Override
-    public Map<MediaContentDTO, Integer> getTrendMediaContentByYear(int year, MediaContentType type) throws BusinessException {
+    public Map<MediaContentDTO, Integer> getMediaContentTrendByYear(int year, Integer limit, MediaContentType type) throws BusinessException {
         try {
             if (MediaContentType.ANIME.equals(type))
-                return animeDAONeo4J.getTrendMediaContentByYear(year);
+                return animeDAONeo4J.getTrendMediaContentByYear(year, limit);
             else
-                return mangaDAONeo4J.getTrendMediaContentByYear(year);
+                return mangaDAONeo4J.getTrendMediaContentByYear(year, limit);
 
         } catch (DAOException e) {
             handleDAOException(e);
@@ -357,12 +368,12 @@ public class MediaContentServiceImpl implements MediaContentService {
     }
 
     @Override
-    public List<MediaContentDTO> getMediaContentTrendByLikes(MediaContentType type) throws BusinessException {
+    public List<MediaContentDTO> getMediaContentTrendByLikes(Integer limit, MediaContentType type) throws BusinessException {
         try {
             if (MediaContentType.ANIME.equals(type))
-                return animeDAONeo4J.getMediaContentTrendByLikes();
+                return animeDAONeo4J.getMediaContentTrendByLikes(limit);
             else
-                return mangaDAONeo4J.getMediaContentTrendByLikes();
+                return mangaDAONeo4J.getMediaContentTrendByLikes(limit);
 
         } catch (DAOException e) {
             handleDAOException(e);
@@ -375,12 +386,12 @@ public class MediaContentServiceImpl implements MediaContentService {
         try {
             if (MediaContentType.ANIME.equals(type)) {
                 if (!(criteria.equals("tags") || criteria.equals("producers") || criteria.equals("studios")))
-                    throw new BusinessException("Invalid criteria");
+                    throw new BusinessException(BusinessExceptionType.INVALID_INPUT, "Invalid criteria");
                 return animeDAOMongoDB.getBestCriteria(criteria, criteria.equals("tags"), page);
             } else {
                 if (!(criteria.equals("genres") || criteria.equals("demographics") ||
                         criteria.equals("themes") || criteria.equals("authors") || criteria.equals("serializations")))
-                    throw new BusinessException("Invalid criteria");
+                    throw new BusinessException(BusinessExceptionType.INVALID_INPUT, "Invalid criteria");
 
                 boolean isArray = criteria.equals("genres") || criteria.equals("demographics") ||
                         criteria.equals("themes") || criteria.equals("authors");

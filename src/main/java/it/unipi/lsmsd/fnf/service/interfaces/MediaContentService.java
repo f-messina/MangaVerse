@@ -20,9 +20,10 @@ public interface MediaContentService {
     void removeLike(String userId, String animeId, MediaContentType type) throws BusinessException;
     boolean isLiked(String userId, String mediaId, MediaContentType type) throws BusinessException;
     PageDTO<MediaContentDTO> getLikedMediaContent(String userId, int page, MediaContentType type) throws BusinessException;
-    List<MediaContentDTO> getSuggestedMediaContent(String userId, MediaContentType type, Integer limit) throws BusinessException;
-    Map<MediaContentDTO, Integer> getTrendMediaContentByYear(int year, MediaContentType type) throws BusinessException;
-    List<MediaContentDTO> getMediaContentTrendByLikes(MediaContentType type) throws BusinessException;
+    List<MediaContentDTO> getSuggestedMediaContentByFollowings(String userId, MediaContentType type, Integer limit) throws BusinessException;
+    List<MediaContentDTO> getSuggestedMediaContentByLikes(String userId, MediaContentType type, Integer limit) throws BusinessException;
+    Map<MediaContentDTO, Integer> getMediaContentTrendByYear(int year, Integer limit, MediaContentType type) throws BusinessException;
+    List<MediaContentDTO> getMediaContentTrendByLikes(Integer limit, MediaContentType type) throws BusinessException;
     Map<String, Double> getBestCriteria(String criteria, int page, MediaContentType type) throws BusinessException;
 
 

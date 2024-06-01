@@ -14,14 +14,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/profile_test.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/website.css"/>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/profile.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/navbar.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/user_list.css">
 
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js" ></script>
-    <script src="${pageContext.request.contextPath}/js/profile_test.js" defer></script>
-    <script src="${pageContext.request.contextPath}/js/country_dropdown.js" defer></script>
-    <script src="${pageContext.request.contextPath}/js/navbar.js" defer></script>
     <title>PROFILE</title>
 </head>
 <body>
@@ -48,11 +45,10 @@
             <a href="${pageContext.request.contextPath}/mainPage/manga" class="manga">Manga</a>
             <c:choose>
                 <c:when test="${isLogged}">
-                    <form action="${pageContext.request.contextPath}/auth" method="post">
-                        <input type="hidden" name="action" value="logout">
-                        <input type="hidden" name="targetServlet" value="auth">
-                        <button type="submit" class="logout">Log Out</button>
-                    </form>
+                    <div class="logout" onclick="logout('auth')">
+                        <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="sign-out-alt" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="logout-icon"><path data-v-04b245e6="" fill="currentColor" d="M497 273L329 441c-15 15-41 4.5-41-17v-96H152c-13.3 0-24-10.7-24-24v-96c0-13.3 10.7-24 24-24h136V88c0-21.4 25.9-32 41-17l168 168c9.3 9.4 9.3 24.6 0 34zM192 436v-40c0-6.6-5.4-12-12-12H96c-17.7 0-32-14.3-32-32V160c0-17.7 14.3-32 32-32h84c6.6 0 12-5.4 12-12V76c0-6.6-5.4-12-12-12H96c-53 0-96 43-96 96v192c0 53 43 96 96 96h84c6.6 0 12-5.4 12-12z" class=""></path></svg>
+                        <div class="logout-text">Log Out</div>
+                    </div>
                     <a href="${pageContext.request.contextPath}/profile" class="small-pic">
                         <img id="navbar-profile-picture" alt="profile bar" src="${sessionScope[Constants.AUTHENTICATED_USER_KEY].getProfilePicUrl()}">
                     </a>
@@ -66,8 +62,8 @@
 
     <div id="overlay" class="overlay"></div>
 
-    <!-- profile info -->
-    <section>
+    <section class="profile">
+        <!-- profile info -->
         <div class="container-px">
             <div class="profile-px">
 
@@ -130,135 +126,135 @@
                 </div>
             </div>
         </div>
-    </section>
 
-    <div id="editPopup" class="edit-container myAlert">
-        <div class="row myAlertBody">
-            <div class="col-xl-4">
-                <!-- Profile picture card-->
-                <div class="card mb-xl-0">
-                    <div class="card-header">Profile Picture</div>
-                    <div class="card-body text-center">
-                        <!-- Profile picture image-->
-                        <img id="profile-picture" class="img-account-profile" src="${userInfo.getProfilePicUrl()}" alt="">
-                        <!-- Profile picture help block-->
-                        <div class="gx-3">
-                            <label class="edit-label align-left" for="profile-picture-url">Profile Picture URL</label>
-                            <input class="form-control" id="profile-picture-url" name="profilePicture" type="text" placeholder="Enter the picture URL (Optional)">
-                            <p class="edit-label check-value" id="check-image-message"></p>
-                            <button class="btn btn-primary" type="button" onclick="validatePictureUrl()">Check URL</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xl-8">
-                <!-- Account details card-->
-                <div class="card">
-                    <div class="card-header">Account Details</div>
-                    <div class="card-body">
-                        <div id="edit-profile-form">
-                            <input type="hidden" name="action" value="edit-profile">
-                            <input type="hidden" id="picture" name="picture" value="${userInfo.getProfilePicUrl()}">
-                            <!-- Form Group (username)-->
+        <div id="editPopup" class="edit-container myAlert">
+            <div class="row myAlertBody">
+                <div class="col-xl-4">
+                    <!-- Profile picture card-->
+                    <div class="card mb-xl-0">
+                        <div class="card-header">Profile Picture</div>
+                        <div class="card-body text-center">
+                            <!-- Profile picture image-->
+                            <img id="profile-picture" class="img-account-profile" src="${userInfo.getProfilePicUrl()}" alt="">
+                            <!-- Profile picture help block-->
                             <div class="gx-3">
-                                <label class="edit-label" for="username">Username (how your name will appear to other users on the site)</label>
-                                <input class="form-control" id="username" name="username" type="text" placeholder="Enter your username" value="${userInfo.getUsername()}" oninput="validateUsername()">
-                                <span id="username-error" style="color: red"></span>
+                                <label class="edit-label align-left" for="profile-picture-url">Profile Picture URL</label>
+                                <input class="form-control" id="profile-picture-url" name="profilePicture" type="text" placeholder="Enter the picture URL (Optional)">
+                                <p class="edit-label check-value" id="check-image-message"></p>
+                                <button class="btn btn-primary" type="button" onclick="validatePictureUrl()">Check URL</button>
                             </div>
-                            <!-- Form Row-->
-                            <div class="row">
-                                <!-- Form Group (Email)-->
-                                <div class="col-md-6 gx-3">
-                                    <label class="edit-label" for="email">Email (non-editable)</label>
-                                    <input class="form-control" id="email" name="email" type="email" value="${userInfo.getEmail()}" disabled>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-8">
+                    <!-- Account details card-->
+                    <div class="card">
+                        <div class="card-header">Account Details</div>
+                        <div class="card-body">
+                            <div id="edit-profile-form">
+                                <input type="hidden" name="action" value="edit-profile">
+                                <input type="hidden" id="picture" name="picture" value="${userInfo.getProfilePicUrl()}">
+                                <!-- Form Group (username)-->
+                                <div class="gx-3">
+                                    <label class="edit-label" for="username">Username (how your name will appear to other users on the site)</label>
+                                    <input class="form-control" id="username" name="username" type="text" placeholder="Enter your username" value="${userInfo.getUsername()}" oninput="validateUsername()">
+                                    <span id="username-error" style="color: red"></span>
                                 </div>
-                                <!-- Form Group (Password)-->
-                                <div class="col-md-6 gx-3">
-                                    <label class="edit-label" for="password">Password (non-editable)</label>
-                                    <input class="form-control" id="password" name="password" type="password"  value="${empty userInfo.getPassword() ? "" : userInfo.getPassword()}" disabled>
+                                <!-- Form Row-->
+                                <div class="row">
+                                    <!-- Form Group (Email)-->
+                                    <div class="col-md-6 gx-3">
+                                        <label class="edit-label" for="email">Email (non-editable)</label>
+                                        <input class="form-control" id="email" name="email" type="email" value="${userInfo.getEmail()}" disabled>
+                                    </div>
+                                    <!-- Form Group (Password)-->
+                                    <div class="col-md-6 gx-3">
+                                        <label class="edit-label" for="password">Password (non-editable)</label>
+                                        <input class="form-control" id="password" name="password" type="password"  value="${empty userInfo.getPassword() ? "" : userInfo.getPassword()}" disabled>
+                                    </div>
                                 </div>
+                                <!-- Form Row-->
+                                <div class="row">
+                                    <!-- Form Group (Fullname)-->
+                                    <div class="col-md-6 gx-3">
+                                        <label class="edit-label" for="fullname">Full Name (optional)</label>
+                                        <input class="form-control" id="fullname" name="fullname" type="text" placeholder="Enter your fullname" value="${empty userInfo.getFullname() ? "" : userInfo.getFullname()}">
+                                    </div>
+                                    <!-- Form Group (Gender)-->
+                                    <div class="col-md-6 gx-3">
+                                        <label class="edit-label" for="gender">Gender</label>
+                                        <select class="form-control" id="gender" name="gender">
+                                            <c:set var="selectedGender" value="${userInfo.getGender()}" />
+                                            <c:forEach var="gender" items="${Gender.values()}">
+                                                <option class="gender-option" value="${gender.name()}" <c:if test="${gender.name() eq selectedGender}">selected</c:if>>${gender.toString()}</option>
+                                            </c:forEach>
+                                        </select>
+                                    </div>
+                                </div>
+                                <!-- Form Row        -->
+                                <div class="row">
+                                    <!-- Form Group (Country)-->
+                                    <div class="col-md-6 gx-3">
+                                        <label class="edit-label" for="country">Country (optional)</label>
+                                        <input class="form-control" id="country" name="country" type="text" placeholder="Enter your country" value="${empty userInfo.getLocation() ? "" : userInfo.getLocation()}" oninput="validateCountry()">
+                                        <div class="dropdown-content" id="country-dropdown" onclick="validateCountry()"></div>
+                                        <span id="country-error" style="color: red"></span>
+                                    </div>
+                                    <!-- Form Group (Birthday)-->
+                                    <div class="col-md-6 gx-3">
+                                        <label class="edit-label" for="birthdate">Birthday (optional)</label>
+                                        <input class="form-control" type="date" value="${userInfo.getBirthday()}" id="birthdate" name="birthdate" placeholder="Enter your Birthday">
+                                    </div>
+                                </div>
+                                <!-- Form Group (Description)-->
+                                <div class="textarea-group gx-3">
+                                    <label class="edit-label" for="description">Description (optional - maximum 300 characters)</label>
+                                    <textarea class="form-control textarea-ph-font" id="description" name="description" rows="3" maxlength="300" placeholder="Enter a description">${empty userInfo.getDescription() ? "" : userInfo.getDescription()}</textarea>
+                                </div>
+                                <!-- cancel and save changes buttons-->
+                                <button class="btn btn-secondary" onclick="hideEditForm()" type="button">Cancel</button>
+                                <button class="btn btn-primary" type="button" id="edit-button">Save changes</button>
+                                <span id="general-error" style="color: red;"></span>
                             </div>
-                            <!-- Form Row-->
-                            <div class="row">
-                                <!-- Form Group (Fullname)-->
-                                <div class="col-md-6 gx-3">
-                                    <label class="edit-label" for="fullname">Full Name (optional)</label>
-                                    <input class="form-control" id="fullname" name="fullname" type="text" placeholder="Enter your fullname" value="${empty userInfo.getFullname() ? "" : userInfo.getFullname()}">
-                                </div>
-                                <!-- Form Group (Gender)-->
-                                <div class="col-md-6 gx-3">
-                                    <label class="edit-label" for="gender">Gender</label>
-                                    <select class="form-control" id="gender" name="gender">
-                                        <c:set var="selectedGender" value="${userInfo.getGender()}" />
-                                        <c:forEach var="gender" items="${Gender.values()}">
-                                        <option class="gender-option" value="${gender.name()}" <c:if test="${gender.name() eq selectedGender}">selected</c:if>>${gender.toString()}</option>
-                                        </c:forEach>
-                                    </select>
-                                </div>
-                            </div>
-                            <!-- Form Row        -->
-                            <div class="row">
-                                <!-- Form Group (Country)-->
-                                <div class="col-md-6 gx-3">
-                                    <label class="edit-label" for="country">Country (optional)</label>
-                                    <input class="form-control" id="country" name="country" type="text" placeholder="Enter your country" value="${empty userInfo.getLocation() ? "" : userInfo.getLocation()}" oninput="validateCountry()">
-                                    <div class="dropdown-content" id="country-dropdown" onclick="validateCountry()"></div>
-                                    <span id="country-error" style="color: red"></span>
-                                </div>
-                                <!-- Form Group (Birthday)-->
-                                <div class="col-md-6 gx-3">
-                                    <label class="edit-label" for="birthdate">Birthday (optional)</label>
-                                    <input class="form-control" type="date" value="${userInfo.getBirthday()}" id="birthdate" name="birthdate" placeholder="Enter your Birthday">
-                                </div>
-                            </div>
-                            <!-- Form Group (Description)-->
-                            <div class="textarea-group gx-3">
-                                <label class="edit-label" for="description">Description (optional - maximum 300 characters)</label>
-                                <textarea class="form-control textarea-ph-font" id="description" name="description" rows="3" maxlength="300" placeholder="Enter a description">${empty userInfo.getDescription() ? "" : userInfo.getDescription()}</textarea>
-                            </div>
-                            <!-- cancel and save changes buttons-->
-                            <button class="btn btn-secondary" onclick="hideEditForm()" type="button">Cancel</button>
-                            <button class="btn btn-primary" type="button" id="edit-button">Save changes</button>
-                            <span id="general-error" style="color: red;"></span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- followers -->
-    <div id="followers" class="myAlert user-list-section">
-        <div  id="followersBody" class="myAlertBody">
-            <p class="user-list-name">Followers</p>
-            <!-- search bar -->
-            <div class="d-flex align-items-center">
-                <label for="follower-search"></label>
-                <input type="text" class="form-control me-2" id="follower-search" required
-                       placeholder="Search..." />
+        <!-- followers -->
+        <div id="followers" class="myAlert user-list-section">
+            <div  id="followersBody" class="myAlertBody">
+                <p class="user-list-name">Followers</p>
+                <!-- search bar -->
+                <div class="d-flex align-items-center">
+                    <label for="follower-search"></label>
+                    <input type="text" class="form-control me-2" id="follower-search" required
+                           placeholder="Search..." />
+                </div>
+
+                <!-- followers list -->
+                <div id="followers-list"></div>
             </div>
-
-            <!-- followers list -->
-            <div id="followers-list"></div>
         </div>
-    </div>
 
-    <!-- followings -->
-    <div id="followings" class="myAlert user-list-section">
-        <div  id="followingsBody" class="myAlertBody">
-            <p for="following-search" class="user-list-name">Following</p>
+        <!-- followings -->
+        <div id="followings" class="myAlert user-list-section">
+            <div  id="followingsBody" class="myAlertBody">
+                <p for="following-search" class="user-list-name">Following</p>
 
-            <!-- search bar -->
-            <div class="d-flex align-items-center">
-                <label for="following-search"></label>
-                <input type="text" class="form-control me-2" id="following-search" required
-                       placeholder="Search..." />
+                <!-- search bar -->
+                <div class="d-flex align-items-center">
+                    <label for="following-search"></label>
+                    <input type="text" class="form-control me-2" id="following-search" required
+                           placeholder="Search..." />
+                </div>
+
+                <!-- followers list -->
+                <div id="followings-list"></div>
             </div>
-
-            <!-- followers list -->
-            <div id="followings-list"></div>
         </div>
-    </div>
+    </section>
 
     <section class="profile-content">
         <div class="button-container">
@@ -313,6 +309,10 @@
 
     <div class="footer"></div>
 
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" defer></script>
+    <script src="${pageContext.request.contextPath}/js/profile.js" defer></script>
+    <script src="${pageContext.request.contextPath}/js/country_dropdown.js" defer></script>
+    <script src="${pageContext.request.contextPath}/js/navbar.js" defer></script>
     <script>
         const contextPath = "${pageContext.request.contextPath}";
         const userId = "${userInfo.getId()}";

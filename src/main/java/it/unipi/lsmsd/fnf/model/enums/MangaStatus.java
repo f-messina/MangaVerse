@@ -4,7 +4,8 @@ public enum MangaStatus {
     DISCONTINUED(1),
     ON_HIATUS(2),
     FINISHED(3),
-    ONGOING(4);
+    ONGOING(4),
+    UNKNOWN(5);
     private final int code;
 
     /**
@@ -33,6 +34,7 @@ public enum MangaStatus {
             case ONGOING -> "Ongoing";
             case DISCONTINUED -> "Discontinued";
             case ON_HIATUS -> "On Hiatus";
+            case UNKNOWN -> "Unknown";
         };
     }
 }

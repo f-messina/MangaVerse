@@ -73,3 +73,9 @@ $(document).ready(function() {
 
     profilePicture.on("error", () => setDefaultProfilePicture($(this)));
 });
+
+function logout(targetServlet) {
+    $.post(contextPath+"/auth", {action: "logout"}, function() {
+        window.location.href = contextPath + "/" + targetServlet;
+    });
+}

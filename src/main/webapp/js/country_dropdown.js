@@ -60,6 +60,11 @@ input.on("input", function() {
     }
 });
 
+// Helper function to check if a string starts with another string in a case-insensitive manner
+function startsWithCaseInsensitive(str, prefix) {
+    return str.toUpperCase().indexOf(prefix) === 0;
+}
+
 // Add a click event listener for the dropdown
 dropdown.on("click", function() {
     // Show all country options when the dropdown is clicked

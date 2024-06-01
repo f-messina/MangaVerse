@@ -40,7 +40,7 @@ nav .nav-items {
     display: flex;
     align-items: center;
     gap: 40px;
-    font-size: 1.25em;
+    font-size: 2rem;
 }
 
 nav .nav-items a {
@@ -103,6 +103,29 @@ nav .nav-items a {
     width: 300px;
     background-color: white;
     border: 2px solid rgba(41, 20, 130, 0.85);
+    z-index: 999;
+}
+
+/* logout */
+
+.logout {
+    cursor: pointer;
+    display: flex;
+    align-items: last baseline;
+}
+
+.logout:hover {
+    color: #9b1010;
+}
+
+.logout-icon {
+    width: 1.5rem;
+}
+
+.logout-text {
+    border-style: none;
+    background-color: transparent;
+    padding: 0 0 0 6px;
 }
 
 /* lens icon */
@@ -129,3 +152,4 @@ nav .nav-items a {
 .fa-search:before {
     content:"\f002"
 }
+

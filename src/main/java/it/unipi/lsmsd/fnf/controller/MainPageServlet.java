@@ -4,15 +4,11 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
-import com.sun.tools.jconsole.JConsoleContext;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
-import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
-import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.enums.*;
 import it.unipi.lsmsd.fnf.service.interfaces.MediaContentService;
 import it.unipi.lsmsd.fnf.service.ServiceLocator;
-import it.unipi.lsmsd.fnf.service.interfaces.UserService;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 import it.unipi.lsmsd.fnf.utils.Constants;
 import it.unipi.lsmsd.fnf.utils.ConverterUtils;
@@ -33,7 +29,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Objects;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -63,13 +59,13 @@ public class MainPageServlet extends HttpServlet {
     }
 
     private void handleLoadPage(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        if (request.getServletPath().equals("/mainPage")) {
-            response.sendRedirect("mainPage/manga");
-            return;
-        }
-
+        String path = request.getServletPath();
         String targetJSP;
-        String mediaType = request.getServletPath().equals("/mainPage/manga") ? "manga" : "anime";
+        String mediaType = path.equals("/mainPage/anime") ? "anime" : "manga";
+
+        if (path.equals("/mainPage") || Objects.equals(request.getParameter("scroll"), "false")) {
+            request.setAttribute("scroll", false);
+        }
 
         if (mediaType.equals("manga")) {
             request.setAttribute("mangaGenres", Constants.MANGA_GENRES);
@@ -132,14 +128,16 @@ public class MainPageServlet extends HttpServlet {
             int direction = Integer.parseInt(request.getParameter("sortDirection"));
             Map<String, Integer> orderBy = Map.of(order, direction);
 
-            logger.info("Filters: " + filters);
-            logger.info("Order by: " + orderBy);
             mediaList = mediaContentService.searchByFilter(filters, orderBy, page, mediaContentType);
 
             // Add the search results to the JSON response
-            JsonNode mediaListNode = objectMapper.valueToTree(mediaList);
-            jsonResponse.set("mediaPage", mediaListNode);
-            jsonResponse.put("success", true);
+            if (mediaList.getTotalCount() == 0) {
+                jsonResponse.put("noResults", "No results found");
+            } else {
+                JsonNode mediaListNode = objectMapper.valueToTree(mediaList);
+                jsonResponse.set("mediaPage", mediaListNode);
+                jsonResponse.put("success", true);
+            }
         } catch (BusinessException e) {
             jsonResponse.put("error", "Error occurred during search operation");
         } catch (IllegalArgumentException e) {
@@ -159,7 +157,7 @@ public class MainPageServlet extends HttpServlet {
         objectMapper.registerModule(new JavaTimeModule());
         ObjectNode jsonResponse = objectMapper.createObjectNode();
         try {
-            List<? extends MediaContentDTO> suggestions = mediaContentService.getSuggestedMediaContent(userId, isManga ? MediaContentType.MANGA : MediaContentType.ANIME, 5);
+            List<? extends MediaContentDTO> suggestions = mediaContentService.getSuggestedMediaContentByFollowings(userId, isManga ? MediaContentType.MANGA : MediaContentType.ANIME, 5);
             JsonNode suggestionsNode = objectMapper.valueToTree(suggestions);
             jsonResponse.set("suggestions", suggestionsNode);
         } catch (BusinessException e) {

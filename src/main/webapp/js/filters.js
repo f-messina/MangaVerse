@@ -1,49 +1,55 @@
+
+// filter functions
+
 const titleFilter = $("#title-filter");
+const selectWrap = $(".select-wrap");
 const selectInputFilters = $(".select-wrap input");
 const genreCheckboxType = $("#genre-checkbox-type");
 const removeSelectionButton = $(".filter-select .close");
-const sortType = $("#sort");
-const sortDirection = $(".secondary-filters .icon");
 
 removeSelectionButton.on("click", function (event) {
     event.stopPropagation();
-    const selectWrap = $(this).closest(".select-wrap");
-    selectWrap.find(".option").removeClass("selected");
-    selectWrap.find(".option").removeClass("avoided");
-    selectWrap.find(".options").hide();
-    updateValueWrap(selectWrap);
+    if ($(this).is("#title-remove-button")) {
+        titleFilter.val("");
+        $(this).hide();
+    } else {
+        const selectWrap = $(this).closest(".select-wrap");
+        selectWrap.find(".option").removeClass("selected");
+        selectWrap.find(".option").removeClass("avoided");
+        selectWrap.find(".options").hide();
+        updateValueWrap(selectWrap);
+    }
+    $(this).closest(".filter-select").removeClass("active");
+    toggleClearAllButton();
     getMediaContent();
 });
 
 titleFilter.on("input", function () {
     if ($(this).val() !== "") {
         titleFilter.closest(".filter-select").addClass("active");
+        $("#title-remove-button").show();
+        $(".filter.clear-all").show();
     } else {
         titleFilter.closest(".filter-select").removeClass("active");
     }
+    toggleClearAllButton();
     getMediaContent();
 });
 
-$("#title-remove-button").on("click", function () {
-    titleFilter.val("");
-    $(this).hide();
-    getMediaContent();
+selectWrap.click(function () {
+    // Hide options of all other select-wraps
+    $(".options").hide();
+
+    // Show options of the clicked select-wrap
+    $(this).find(".options").show();
+});
+
+$("#extra-filters-button").click(function () {
+    $("#extra-filters").toggle();
 });
 
 $(document).ready(function () {
     genreCheckboxType.prop("checked", false);
-
-    $(".select-wrap").click(function () {
-        // Hide options of all other select-wraps
-        $(".options").hide();
-
-        // Show options of the clicked select-wrap
-        $(this).find(".options").show();
-    });
-
-    $("#extra-filters-button").click(function () {
-        $("#extra-filters").toggle();
-    });
 
     $(document).click(function (event) {
         if (!$(event.target).closest('.select-wrap').length) {
@@ -52,10 +58,6 @@ $(document).ready(function () {
 
         if (!$(event.target).closest("#extra-filters-button").length && !$(event.target).closest("#extra-filters").length) {
             $("#extra-filters").hide();
-        }
-
-        if (!$(event.target).closest(sortType).length) {
-            $(".dropdown").hide();
         }
     });
 
@@ -111,7 +113,8 @@ $(document).ready(function () {
                 header.find('.values').remove();
                 if (handles.eq(0).attr("value") !== rangeWrap.css("--min-val") || handles.eq(1).attr("value") !== rangeWrap.css("--max-val")) {
                     const valuesDiv = $('<div>', { class: 'values', text: handles.eq(0).attr("value") + " - " + handles.eq(1).attr("value") });
-                    const timesIcon = $('<svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="times" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 352 512" class="clear-btn svg-inline--fa fa-times fa-w-11"><path fill="currentColor" d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"></path></svg>');
+                    const timesIcon = $('<svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="times" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 352 512" class="clear-btn close svg-inline--fa fa-times fa-w-11"><path fill="currentColor" d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"></path></svg>');
+                    rangeWrap.closest(".filter").addClass("active");
                     valuesDiv.append(timesIcon).on("click", function (event) {
                         event.stopPropagation();
                         handles.eq(0).attr("value", rangeWrap.css("--min-val"));
@@ -120,11 +123,15 @@ $(document).ready(function () {
                         rangeWrap.css('--handle-1-position', rail.width() + 'px');
                         rangeWrap.css('--active-region-width', rail.width() + 'px');
                         header.find('.values').remove();
+                        rangeWrap.closest(".filter").removeClass("active");
+                        toggleClearAllButton();
                         getMediaContent();
                     });
                     header.append(valuesDiv);
+                } else {
+                    rangeWrap.closest(".filter").removeClass("active");
                 }
-
+                toggleClearAllButton();
                 getMediaContent();
             }
         });
@@ -170,17 +177,15 @@ function updateValueWrap(selectWrap) {
     valueWrap.find(".tags").remove(); // Clear existing tags
     valueWrap.find(".value").remove(); // Clear existing tags
     selectWrap.find(".placeholder").hide();
+    selectWrap.find("input").val("");
     selectWrap.closest(".filter-select").eq(0).addClass("active");
+    toggleClearAllButton();
 
     if (selectWrap.hasClass("multi-choice") && (selectedOptions.length > 0 || avoidedOptions.length > 0)) {
         const tagsDiv = $("<div class='tags'></div>");
         if (selectedOptions.length > 0) {
             const firstSelectedOption = selectedOptions.first();
-            tagsDiv.append("<div class='tag'>" + firstSelectedOption.find(".name").text() + "</div>").click(function (event) {
-                event.stopPropagation();
-                selectedOptions.eq(0).removeClass("selected");
-                updateValueWrap(selectWrap);
-            });
+            tagsDiv.append("<div class='tag'>" + firstSelectedOption.find(".name").text() + "</div>");
             if (selectedOptions.length > 1) {
                 tagsDiv.append("<div class='tag'>+" + (selectedOptions.length - 1) + "</div>");
             }
@@ -197,6 +202,22 @@ function updateValueWrap(selectWrap) {
         selectWrap.find(".placeholder").show();
     }
 }
+
+function toggleClearAllButton() {
+    const clearAllButton = $(".filter.clear-all");
+
+    if ($(".filter.active").length > 0) {
+        clearAllButton.show();
+    } else {
+        clearAllButton.hide();
+    }
+}
+
+$(".filter.clear-all").on("click", function () {
+    $(".filter .close").click();
+    $(this).hide();
+    getMediaContent();
+});
 
 // input event listeners for select filters where the options can be searched
 selectInputFilters.on("focus", function () {
@@ -235,22 +256,58 @@ genreCheckboxType.change(function () {
     getMediaContent();
 });
 
+
+// sorting functions
+
+const sortType = $("#sort");
+const sortDirection = $(".sort-wrap .icon");
+const sortDropdown = $(".secondary-filters .dropdown");
+const sortOptions = $(".secondary-filters .option");
+
+sortType.click(function () {
+    $(this).closest(".selects-wrap").find(".dropdown").toggle();
+});
+
+sortOptions.on("click", function (event) {
+    event.stopPropagation(); // Stop event propagation
+    if (!$(this).hasClass("active")) {
+        $(this).addClass("active").siblings().removeClass("active");
+        getMediaContent();
+        sortType.text($(this).text());
+    }
+    sortDropdown.hide();
+});
+
+sortDirection.on("click", function (event) {
+    event.stopPropagation()
+    const icon = $(this);
+    icon.toggleClass("down");
+    icon.attr("value", icon.hasClass("down") ? "-1" : "1");
+    getMediaContent();
+});
+
+$(document).click(function (event) {
+    if (!$(event.target).closest(sortType).length) {
+        sortDropdown.hide();
+    }
+});
+
+// create the filter parameters and sorting parameters to send to the server
+
 function createFilterParams() {
     const params = {
         "action": "search",
         "mediaType": mediaType,
         "genreSelectMode": genreCheckboxType.val(),
-        "sortParam": $(".secondary-filters .option").filter(".active").attr("value"),
+        "sortParam": sortOptions.filter(".active").attr("value"),
         "sortDirection": sortDirection.attr("value"),
     };
-
-    console.log(params);
 
     if (titleFilter.val() !== "") {
         params["title"] = titleFilter.val();
     }
 
-    $(".select-wrap").each(function () {
+    selectWrap.each(function () {
         const selectWrap = $(this);
         const filterName = selectWrap.attr("name");
         if (selectWrap.hasClass("multi-choice")) {
@@ -262,7 +319,7 @@ function createFilterParams() {
 
             if (filterName === "genre") {
                 const avoidedOptions = selectWrap.find(".option.avoided");
-                params[filterName + "Avoided"] = JSON.stringify(avoidedOptions.map(function () {
+                params["genreAvoided"] = JSON.stringify(avoidedOptions.map(function () {
                     return $(this).find(".name").attr("value");
                 }).get());
             }
@@ -283,27 +340,6 @@ function createFilterParams() {
         params[rangeName + "Max"] = maxVal;
     });
 
+    console.log(params);
     return params;
 }
-
-sortType.click(function () {
-    $(this).closest(".selects-wrap").find(".dropdown").toggle();
-});
-
-$(".secondary-filters .option").on("click", function (event) {
-    event.stopPropagation(); // Stop event propagation
-    if (!$(this).hasClass("active")) {
-        $(this).addClass("active").siblings().removeClass("active");
-        getMediaContent();
-        sortType.text($(this).text());
-    }
-    $(".dropdown").hide();
-});
-
-sortDirection.on("click", function (event) {
-    event.stopPropagation()
-    const icon = $(this);
-    icon.toggleClass("down");
-    icon.attr("value", icon.hasClass("down") ? "-1" : "1");
-    getMediaContent();
-});

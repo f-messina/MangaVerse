@@ -272,6 +272,7 @@ class ReviewDAOMongoImplTest {
 
             System.out.println(averageRating.toString());
         });
+
         // test 2
         assertDoesNotThrow(() -> {
             Map<String, Double> averageRating = reviewDAO.getMediaContentRatingByMonth(MediaContentType.MANGA, "657ac61bb34f5514b91ea226", 2010);

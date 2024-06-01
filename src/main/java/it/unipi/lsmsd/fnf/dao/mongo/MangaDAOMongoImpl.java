@@ -16,6 +16,7 @@ import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
+import it.unipi.lsmsd.fnf.model.mediaContent.MangaAuthor;
 import it.unipi.lsmsd.fnf.utils.Constants;
 
 import com.mongodb.client.MongoCollection;
@@ -26,6 +27,7 @@ import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 import java.util.*;
 
@@ -99,7 +101,8 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
             }
 
             Bson filter = eq("_id", new ObjectId(manga.getId()));
-            Bson update = new Document("$set", mangaToDocument(manga));
+            Bson update = new Document("$set", mangaToDocument(manga))
+                    .append("$unset", mangaToUnsetMangaFieldsDocument(manga));
 
             UpdateResult result = mangaCollection.updateOne(filter, update);
             if (result.getMatchedCount() == 0) {
@@ -461,7 +464,11 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
                 Double avgRating = doc.get("criteria_average_rating") instanceof Integer?
                         doc.getInteger("criteria_average_rating").doubleValue() :
                         doc.getDouble("criteria_average_rating");
-                bestCriteria.put(doc.get("_id").toString(), avgRating);
+                if (criteria.equals("authors")) {
+                    bestCriteria.put(doc.get("_id", Document.class).getString("name"), avgRating);
+                } else {
+                    bestCriteria.put(doc.get("_id").toString(), avgRating);
+                }
             }
 
             return bestCriteria;
@@ -519,18 +526,23 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override
-    public List<MediaContentDTO> getSuggested(String userId, Integer limit) throws DAOException {
-        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
-    }
-    @Override
-    public Map<MediaContentDTO, Integer> getTrendMediaContentByYear(int year) throws DAOException {
+    public List<MediaContentDTO> getSuggestedByFollowings(String userId, Integer limit) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
 
     @Override
-    public List<MediaContentDTO> getMediaContentTrendByLikes() throws DAOException {
+    public List<MediaContentDTO> getSuggestedByLikes(String userId, Integer limit) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
 
+    @Override
+    public Map<MediaContentDTO, Integer> getTrendMediaContentByYear(int year, Integer limit) throws DAOException {
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
+    }
+
+    @Override
+    public List<MediaContentDTO> getMediaContentTrendByLikes(Integer limit) throws DAOException {
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
+    }
 }
 
