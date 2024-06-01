@@ -386,12 +386,12 @@ public class MediaContentServiceImpl implements MediaContentService {
         try {
             if (MediaContentType.ANIME.equals(type)) {
                 if (!(criteria.equals("tags") || criteria.equals("producers") || criteria.equals("studios")))
-                    throw new BusinessException("Invalid criteria");
+                    throw new BusinessException(BusinessExceptionType.INVALID_INPUT, "Invalid criteria");
                 return animeDAOMongoDB.getBestCriteria(criteria, criteria.equals("tags"), page);
             } else {
                 if (!(criteria.equals("genres") || criteria.equals("demographics") ||
                         criteria.equals("themes") || criteria.equals("authors") || criteria.equals("serializations")))
-                    throw new BusinessException("Invalid criteria");
+                    throw new BusinessException(BusinessExceptionType.INVALID_INPUT, "Invalid criteria");
 
                 boolean isArray = criteria.equals("genres") || criteria.equals("demographics") ||
                         criteria.equals("themes") || criteria.equals("authors");

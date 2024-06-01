@@ -14,5 +14,6 @@ public enum BusinessExceptionType {
     RETRYABLE_ERROR,
     DATABASE_ERROR, NO_CHANGE,
     NO_LIKES,
-    NO_REVIEWS;
+    NO_REVIEWS,
+    INVALID_INPUT;
 }

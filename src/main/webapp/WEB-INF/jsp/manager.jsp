@@ -33,25 +33,25 @@
 
 
 
-        function updateGenreChart() {
+        //function updateGenreChart() {
             // Implement updating genre chart here
-            console.log("Updating genre chart");
-        }
+           // console.log("Updating genre chart");
+        //}
 
-        function updateThemeChart() {
+        //function updateThemeChart() {
             // Implement updating theme chart here
-            console.log("Updating theme chart");
-        }
+        //  console.log("Updating theme chart");
+        //}
 
-        function updateDemographicChart() {
+        //function updateDemographicChart() {
             // Implement updating demographic chart here
-            console.log("Updating demographic chart");
-        }
+        //  console.log("Updating demographic chart");
+        ////}
 
-        function updateAuthorChart() {
+        //function updateAuthorChart() {
             // Implement updating author chart here
-            console.log("Updating author chart");
-        }
+        //  console.log("Updating author chart");
+        //}
     </script>
 </head>
 <body>
@@ -77,21 +77,23 @@
                     <option value="authors">Author</option>
                     <option value="serializations">Serialization</option>
                 </select>
-
-                <!-- Demographics Chart -->
-                <div id="demographicChartContainer" class="chart-container" >
-                    <canvas id="mangaDemographicsChart" width="500" height="400"></canvas>
-                </div>
+                    <div>
+                        <canvas id="mangaCriteriaChart"> </canvas>
+                    </div>
 
             </div>
 
-            <div class="analytic-box" id="manga-search-name">
-                <form id="searchForm" action="${pageContext.request.contextPath}/mainPage/manga" method="post">
-                    <input type="hidden" name="action" value="search">
-                    <label class="filter-name" for="manga-search">Title:</label>
-                    <input type="search" id="manga-search" name="searchTerm" placeholder="Title">
-                    <input class="search" type="submit" value="SEARCH">
-                </form>
+            <div id="manga-search-name" class="media-list-section analytic-box">
+                <div  id="mangaBody">
+                    <div class="d-flex align-items-center">
+                        <label class="filter-name" for="manga-search">Title:</label>
+                        <input type="search" id="manga-search" name="searchTerm" placeholder="Title" oninput="getMediaContent('manga')">
+                    </div>
+                    <!-- manga list -->
+                    <div id="manga-list" class="media-list"></div>
+                    <!-- manga selected -->
+                    <div id="manga-selected"></div>
+                </div>
             </div>
 
             <section id="manga-resultsSection"></section>
@@ -102,9 +104,10 @@
                 <div class="diagram-parameter">
                     <div>
                         <canvas id="manga-monthlyRatesChart" width="500" height="400"></canvas>
+                        <p id="not-found-monthly-rate-manga"> </p>
                     </div>
 
-                    <%
+                  <%
                         // Assuming you have some data containing rates for each month
                         // You can replace this with your actual data
                         double[] rates = {5.6, 6.2, 7.8, 8.5, 7.3, 8.1, 9.2, 8.6, 7.9, 6.4, 5.8, 6.7};
@@ -113,7 +116,7 @@
                     <div class="select">
                         <label for="manga-year">Select Year:</label>
                         <input type="text" id="manga-year" name="year">
-                        <button onclick="selectYear()">Select</button>
+                        <button id="select-button" onclick="selectYear('manga')">Select</button>
                     </div>
                 </div>
             </div>
@@ -136,7 +139,7 @@
                         <input type="number" id="manga-startYear" name="startYear" min="2000" max="2100" value="">
                         <label for="manga-endYear">Select Ending Year:</label>
                         <input type="number" id="manga-endYear" name="endYear" min="2000" max="2100" value="">
-                        <button onclick="updateChart()">Select</button>
+                        <button onclick="selectYearRange('manga')">Select</button>
                     </div>
                 </div>
             </div>
@@ -148,19 +151,29 @@
         <div id="anime-analytics">
             <h1>ANIME ANALYTICS</h1>
             <div class="analytic-box" id="anime-tag-analytics">
-                <%--genre - theme - demographic -author  --%>
-                <label for="analyticsType">Select Analytics Type:</label>
-                <select id="analyticsType" onchange="getBestCriteria(this.value, 'anime', 1)">
+                <label for="analyticsType2">Select Analytics Type:</label>
+                <select id="analyticsType2" onchange="getBestCriteria(this.value, 'anime', 1)">
                     <option value="tags">Tags</option>
                     <option value="producers">Producers</option>
                     <option value="studios">Studios</option>
                 </select>
+                    <div>
+                        <canvas id="animeCriteriaChart"> </canvas>
+                    </div>
             </div>
 
-            <div class="analytic-box" id="anime-search-name">
-                <input type="text" id="anime-searchInput"  placeholder="Search for anime...">
-                <div id="anime-searchResults"></div>
-                <%--Solve the search bar here to show the result as heep writing--%>
+
+            <div id="anime-search-name" class="media-list-section analytic-box">
+                <div  id="animeBody">
+                    <div class="d-flex align-items-center">
+                        <label class="filter-name" for="anime-search">Title:</label>
+                        <input type="search" id="anime-search" name="searchTerm" placeholder="Title" oninput="getMediaContent('anime')">
+                    </div>
+                    <!-- anime list -->
+                    <div id="anime-list" class="media-list"></div>
+                    <!-- anime selected -->
+                    <div id="anime-selected"></div>
+                </div>
             </div>
 
             <div class="analytic-box" id="anime-rate-of-months">
@@ -168,6 +181,7 @@
                 <div class="diagram-parameter">
                     <div>
                         <canvas id="anime-monthlyRatesChart" width="500" height="400"></canvas>
+
                     </div>
 
                     <%
@@ -179,7 +193,7 @@
                     <div class="select">
                         <label for="anime-year">Select Year:</label>
                         <input type="text" id="anime-year" name="year">
-                        <button onclick="selectYear()">Select</button>
+                        <button id="select-button2" onclick="selectYear('anime')">Select</button>
                     </div>
                 </div>
             </div>
@@ -203,7 +217,7 @@
                         <input type="number" id="anime-startYear" name="startYear" min="2000" max="2100" value="">
                         <label for="anime-endYear">Select Ending Year:</label>
                         <input type="number" id="anime-endYear" name="endYear" min="2000" max="2100" value="">
-                        <button onclick="updateChart()">Select</button>
+                        <button onclick="selectYearRange('anime')">Select</button>
                     </div>
                 </div>
             </div>
@@ -213,139 +227,135 @@
 
     <!-- user statistics -->
     <div id="user-page" class="page">
-        USER ANALYTICS
+        <div id="user-analytics">
+            <h1>USER ANALYTICS</h1>
+            <div class="analytic-box2" id="user-distribution-analytics">
+                <label for="distributionType">Select Distribution Type:</label>
+                <select id="distributionType" onchange="distribution(this.value)">
+                    <option value="gender">Gender</option>
+                    <option value="location">Location</option>
+                    <option value="birthday">Birthday</option>
+                    <option value="joined-on">Joined On</option>
+                </select>
+
+                <div>
+                    <canvas id="myChart"></canvas>
+                </div>
+            </div>
+
+            <div class="analytic-box2" id="average-app-rate-by-age-range">
+                <p>Average App Rate By Age Range</p>
+                <canvas id="ageRangeChart" width="500" height="400"></canvas>
+            </div>
+
+            <div class="analytic-box2" id="average-app-rating-by-criteria">
+                <label for="criteria">Average App Rating by Criteria</label>
+                <select id="criteria" onchange="averageAppRatingByCriteria(this.value)">
+                    <option value="gender">Gender</option>
+                    <option value="location">Location</option>
+                </select>
+
+                <div>
+                    <canvas id="myChart2"></canvas>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
 
 
 <script>
-    const mangaCtxMonthly = document.getElementById('manga-monthlyRatesChart').getContext('2d');
-    let mangaMyMonthlyChart;
-
-    function selectYear() {
-        const selectedYear = document.getElementById('manga-year').value;
-        // Here you can use the selectedYear to fetch data for that year and update the chart accordingly
-        console.log("Selected year:", selectedYear);
-        updateMonthlyChart(selectedYear);
-    }
-
-    function updateMonthlyChart(selectedYear) {
-        // Assuming you have a function to fetch data for the selected year
-        // You need to implement this function according to your data source
-        // Update chart with new data
-        mangaMyMonthlyChart.data.datasets[0].data = fetchDataForYear(selectedYear);
-        mangaMyMonthlyChart.update();
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        mangaMyMonthlyChart = new Chart(mangaCtxMonthly, {
-            type: 'bar',
-            data: {
-                labels: [<% for (int i = 0; i < months.length; i++) { %>"<%= months[i] %>",<% } %>],
-                datasets: [{
-                    label: 'Monthly Rates',
-                    data: [<% for (int i = 0; i < rates.length; i++) { %><%= rates[i] %>,<% } %>],
-                    backgroundColor: 'rgba(54, 162, 235, 0.2)', // Adjust color as needed
-                    borderColor: 'rgba(54, 162, 235, 1)', // Adjust color as needed
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    yAxes: [{
-                        ticks: {
-                            beginAtZero: true,
-                            suggestedMax: 10 // Set max value for y-axis
-                        }
-                    }]
-                }
-            }
-        });
-    });
-</script>
-<script>
-    const mangaCtxYearly = document.getElementById('manga-yearlyRatesChart').getContext('2d');
-    let mangaMyYearlyChart;
-
-    function updateChart() {
-        const startYear = document.getElementById('manga-startYear').value;
-        const endYear = document.getElementById('manga-endYear').value;
-        // Here you can use the startYear and endYear to fetch data for that year range and update the chart accordingly
-        console.log("Selected start year:", startYear);
-        console.log("Selected end year:", endYear);
-        fetchDataAndUpdateChart(startYear, endYear);
-    }
-
-    function fetchDataAndUpdateChart(startYear, endYear) {
-        // Assuming you have a function to fetch data for the given year range
-        // You need to implement this function according to your data source
-        const yearRangeData = fetchDataForYearRange(startYear, endYear);
-
-        // Update chart with new data
-        mangaMyYearlyChart.data.labels = yearRangeData.years;
-        mangaMyYearlyChart.data.datasets[0].data = yearRangeData.rates;
-        mangaMyYearlyChart.update();
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        mangaMyYearlyChart = new Chart(mangaCtxYearly, {
-            type: 'bar', // Change to bar chart
-            data: {
-                labels: [<% for (int i = startYear; i <= endYear; i++) { %>"<%= i %>",<% } %>],
-                datasets: [{
-                    label: 'Yearly Rates',
-                    data: [<% for (int i = 0; i < rates2.length; i++) { %><%= rates2[i] %>,<% } %>],
-                    backgroundColor: 'rgba(54, 162, 235, 0.2)', // Adjust color as needed
-                    borderColor: 'rgba(54, 162, 235, 1)', // Adjust color as needed
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    yAxes: [{
-                        ticks: {
-                            beginAtZero: true,
-                            suggestedMax: 10 // Set max value for y-axis
-                        }
-                    }]
-                }
-            }
-        });
-    });
-</script>
-<script>
-    // Demographics Data
-    const mangaDemographicsData = {
-        labels: ['Josei', 'Shoujo', 'Seinen', 'Shounen', 'Kids'],
-        datasets: [{
-            label: 'Rates',
-            data: [6, 8, 7, 9, 5], // Random rates for demo purposes
-            backgroundColor: 'rgba(54, 162, 235, 0.2)', // Adjust color as needed
-            borderColor: 'rgba(54, 162, 235, 1)', // Adjust color as needed
-            borderWidth: 1
-        }]
-    };
-
-
-    // Configuration
-    const mangaConfig = {
-        type: 'bar',
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    suggestedMax: 10 // Maximum value on y-axis
-                }
-            }
+    let startYear= null;
+    let endYear = null;
+    function averageRatingInYearRange(mediaId, startYear, endYear, section){
+        let mediaCtxYearly = null;
+        if(section === 'manga'){
+            mediaCtxYearly = document.getElementById('manga-yearlyRatesChart').getContext('2d');
+        }else if(section === 'anime'){
+            mediaCtxYearly = document.getElementById('anime-yearlyRatesChart').getContext('2d');
         }
-    };
+        let myYearlyChart;
 
-    // Create Demographics Chart
-    mangaConfig.data = mangaDemographicsData;
-    var mangaDemographicsChart = new Chart(document.getElementById('manga-mangaDemographicsChart'), mangaConfig);
+        const inputData={
+            action: "averageRatingByYear",
+            mediaContentId: mediaId,
+            startYear: startYear,
+            endYear: endYear,
+            section: section
+        };
+        $.post("${pageContext.request.contextPath}/manager", inputData, function(data){
+            console.log(data)
+            if (data.success){
+                const years = Object.keys(data.averageRatingByYear);
+                const rates = Object.values(data.averageRatingByYear);
 
+                if(!myYearlyChart){
+                    myYearlyChart = new Chart(mediaCtxYearly,{
+                        type: 'bar', // Change to bar chart
+                        data: {
+                            labels: years,
+                            datasets: [{
+                                label: 'Yearly Rates',
+                                data: rates,
+                                backgroundColor: 'rgba(54, 162, 235, 0.2)', // Adjust color as needed
+                                borderColor: 'rgba(54, 162, 235, 1)', // Adjust color as needed
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                yAxes: [{
+                                    ticks: {
+                                        beginAtZero: true,
+                                        suggestedMax: 10 // Set max value for y-axis
+                                    }
+                                }]
+                            }
+                        }
+                    })
+                }else{
+                    myYearlyChart.data.labels = years;
+                    myYearlyChart.data.datasets[0].data = rates;
+                    myYearlyChart.update();
+                }
+            }else if(data.not_found){
+                const notFound = document.getElementById('not-found-yearly-rate-manga');
+                notFound.textContent = data.not_found;
+            }
+        }).fail(function(){
+            console.error('Failed to fetch data from server.');
+        });
+    }
 
+    $(document).on('click', '#manga-list .media', function (){
+        selectedMediaId = $(this).data('id');
+        if(startYear && endYear){
+            averageRatingInYearRange(selectedMediaId,startYear,endYear,'manga');
+        }
+    });
+    $(document).on('click', '#anime-list .media', function (){
+        selectedMediaId = $(this).data('id');
+        if(startYear && endYear){
+            averageRatingInYearRange(selectedMediaId,startYear,endYear,'anime');
+        }
+    });
+
+    function selectYearRange(type){
+        if (type === "manga"){
+            startYear = document.getElementById('manga-startYear').value;
+            endYear = document.getElementById('manga-endYear').value;
+        }else if(type === "anime"){
+            startYear = document.getElementById('anime-startYear').value;
+            endYear = document.getElementById('anime-endYear').value;
+        }console.log("Selected range: ", startYear, "- ", endYear);
+        if(selectedMediaId && startYear && endYear){
+            averageRatingInYearRange(selectedMediaId,startYear,endYear,type);
+        }
+    }
+</script>
+
+<script>
     $(document).ready(function () {
         // Bind the searchForm submission to the performAsyncSearch function
         $("#searchForm").submit(function (event) {
@@ -478,7 +488,7 @@
         mangaInfoDiv.append(selectButton);
     }
 
-    function selectMangaForAnalytics(mediaId) {
+   /* function selectMangaForAnalytics(mediaId) {
         // Get the selected manga's info
         $.ajax({
             url: "${pageContext.request.contextPath}/manager/manga",
@@ -502,107 +512,10 @@
                 console.error("Error:", error);
             }
         });
-    }
+    }*/
 </script>
 <script>
-    var ctxMonthly = document.getElementById('anime-monthlyRatesChart').getContext('2d');
-    var myMonthlyChart;
 
-    function selectYear() {
-        var selectedYear = document.getElementById('anime-year').value;
-        // Here you can use the selectedYear to fetch data for that year and update the chart accordingly
-        console.log("Selected year:", selectedYear);
-        updateMonthlyChart(selectedYear);
-    }
-
-    function updateMonthlyChart(selectedYear) {
-        // Assuming you have a function to fetch data for the selected year
-        // You need to implement this function according to your data source
-        var yearData = fetchDataForYear(selectedYear);
-
-        // Update chart with new data
-        myMonthlyChart.data.datasets[0].data = yearData;
-        myMonthlyChart.update();
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        myMonthlyChart = new Chart(ctxMonthly, {
-            type: 'bar',
-            data: {
-                labels: [<% for (int i = 0; i < months.length; i++) { %>"<%= months[i] %>", <% } %>],
-                datasets: [{
-                    label: 'Monthly Rates',
-                    data: [<% for (int i = 0; i < rates.length; i++) { %><%= rates[i] %>, <% } %>],
-                    backgroundColor: 'rgba(54, 162, 235, 0.2)', // Adjust color as needed
-                    borderColor: 'rgba(54, 162, 235, 1)', // Adjust color as needed
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    yAxes: [{
-                        ticks: {
-                            beginAtZero: true,
-                            suggestedMax: 10 // Set max value for y-axis
-                        }
-                    }]
-                }
-            }
-        });
-    });
-</script>
-<script>
-    var ctxYearly = document.getElementById('anime-yearlyRatesChart').getContext('2d');
-    var myYearlyChart;
-
-    function updateChart() {
-        var startYear = document.getElementById('anime-startYear').value;
-        var endYear = document.getElementById('anime-endYear').value;
-        // Here you can use the startYear and endYear to fetch data for that year range and update the chart accordingly
-        console.log("Selected start year:", startYear);
-        console.log("Selected end year:", endYear);
-        fetchDataAndUpdateChart(startYear, endYear);
-    }
-
-    function fetchDataAndUpdateChart(startYear, endYear) {
-        // Assuming you have a function to fetch data for the given year range
-        // You need to implement this function according to your data source
-        var yearRangeData = fetchDataForYearRange(startYear, endYear);
-
-        // Update chart with new data
-        myYearlyChart.data.labels = yearRangeData.years;
-        myYearlyChart.data.datasets[0].data = yearRangeData.rates;
-        myYearlyChart.update();
-    }
-
-    document.addEventListener('DOMContentLoaded', function () {
-        myYearlyChart = new Chart(ctxYearly, {
-            type: 'bar', // Change to bar chart
-            data: {
-                labels: [<% for (int i = startYear; i <= endYear; i++) { %>"<%= i %>", <% } %>],
-                datasets: [{
-                    label: 'Yearly Rates',
-                    data: [<% for (int i = 0; i < rates2.length; i++) { %><%= rates2[i] %>, <% } %>],
-                    backgroundColor: 'rgba(54, 162, 235, 0.2)', // Adjust color as needed
-                    borderColor: 'rgba(54, 162, 235, 1)', // Adjust color as needed
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    yAxes: [{
-                        ticks: {
-                            beginAtZero: true,
-                            suggestedMax: 10 // Set max value for y-axis
-                        }
-                    }]
-                }
-            }
-        });
-    });
-</script>
-
-<script>
     const page = "${requestScope.page}";
     console.log(page);
     if (page === "manga") {
@@ -644,6 +557,14 @@
         }
     }
 
+    $(document).ready(function (){
+        getBestCriteria('genres','manga',1);
+    });
+    $(document).ready(function (){
+        getBestCriteria('tags','anime',1);
+    });
+
+
     function getBestCriteria(criteria, section, page = 1) {
         const inputData = {
             action: "getBestCriteria",
@@ -654,14 +575,479 @@
 
         $.post("${pageContext.request.contextPath}/manager", inputData, function (data) {
             console.log(data);
-        });
+            const canvasId = section === 'manga' ? 'mangaCriteriaChart' : 'animeCriteriaChart';
+            showChart(criteria,data.bestCriteria, canvasId);
+        },
+        'json');
     }
+    function showChart(criteria, bestCriteriaData, canvasId){
+
+        const ctx = document.getElementById(canvasId).getContext('2d');
+        const labels = Object.keys(bestCriteriaData);
+        const values = Object.values(bestCriteriaData);
+
+        const chartData = {
+            labels: labels,
+            datasets: [{
+                label: `Best ${criteria}`,
+                data: values,
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        };
+
+        const config = {
+            type: 'bar',
+            data: chartData,
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        };
+
+        // Destroy existing chart instance if exists to avoid overlap
+        if (window[canvasId + 'Instance']) {
+            window[canvasId + 'Instance'].destroy();
+        }
+
+        window[canvasId + 'Instance'] = new Chart(ctx, config);
+    }
+
+
+
+
+
+
 
     function loadPage(action) {
         $.post("${pageContext.request.contextPath}/manager", {action: action}, function (data) {
             console.log(data);
         });
     }
+
+
+    // media content average rating by month chart
+
+    let selectedMediaId =null;
+    let selectedYear = null;
+
+    function averageRatingByMonth(mediaId, year,section) {
+        let mediaCtxMonthly = null ;
+            if(section === 'manga'){
+                mediaCtxMonthly = document.getElementById('manga-monthlyRatesChart').getContext('2d');
+            }else if(section === 'anime'){
+                mediaCtxMonthly = document.getElementById('anime-monthlyRatesChart').getContext('2d');
+            }
+
+        let MyMonthlyChart;
+
+
+        const inputData ={
+            action: "averageRatingByMonth",
+            mediaContentId: mediaId,
+            year: year,
+            section: section
+        };
+
+        $.post("${pageContext.request.contextPath}/manager", inputData, function(data){
+            console.log(data)
+            if (data.success){
+                const months = Object.keys(data.averageRatingByMonth);
+                const rates = Object.values(data.averageRatingByMonth);
+
+
+                if (!MyMonthlyChart) {
+                    MyMonthlyChart = new Chart(mediaCtxMonthly, {
+                        type: 'bar',
+                        data: {
+                            labels: months,
+                            datasets: [{
+                                label: 'Monthly Rates',
+                                data: rates,
+                                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                yAxes: [{
+                                    ticks: {
+                                        beginAtZero: true,
+                                        suggestedMax: 10
+                                    }
+                                }]
+                            }
+                        }
+                    });
+                }
+                else {
+                    MyMonthlyChart.data.labels = months;
+                    MyMonthlyChart.data.datasets[0].data = rates;
+                    MyMonthlyChart.update();
+                }
+            }else if(data.not_found){
+                const notFound = document.getElementById('not-found-monthly-rate-manga');
+                notFound.textContent = data.not_found;
+            }
+
+        }).fail(function(){
+                console.error('Failed to fetch data from server.');
+            });
+    }
+
+    $(document).on('click', '#manga-list .media', function() {
+        selectedMediaId = $(this).data('id');
+        if (selectedYear) {
+            averageRatingByMonth(selectedMediaId, selectedYear,'manga');
+        }
+    });
+    $(document).on('click', '#anime-list .media', function() {
+        selectedMediaId = $(this).data('id');
+        if (selectedYear) {
+            averageRatingByMonth(selectedMediaId, selectedYear,'anime');
+        }
+    });
+
+
+
+
+   /* // Event listener for the "Select" button
+    $(document).on('click', '#select-button', function() {
+        selectedYear = document.getElementById('manga-year').value;
+        if (selectedMediaId && selectedYear) {
+            // Call the function to update the chart with selected manga and year
+            averageRatingByMonth(selectedMediaId, selectedYear,'manga');
+        } else {
+            alert("Please select a media and enter a year.");
+        }
+    });
+    // Event listener for the "Select" button
+    $(document).on('click', '#select-button2', function() {
+        selectedYear = document.getElementById('anime-year').value;
+
+        if (selectedMediaId && selectedYear) {
+            // Call the function to update the chart with selected anime and year
+            averageRatingByMonth(selectedMediaId, selectedYear,'anime');
+        } else {
+            alert("Please select a media and enter a year.");
+        }
+    });*/
+
+    function selectYear(type) {
+        if (type === "manga"){
+            selectedYear = document.getElementById('manga-year').value;
+        }else if(type === "anime"){
+            selectedYear = document.getElementById('anime-year').value;
+        }
+        console.log("Selected year:", selectedYear);
+        if (selectedMediaId && selectedYear) {
+            averageRatingByMonth(selectedMediaId,selectedYear,type)
+        }
+    }
+
+
+    function getMediaContent(type){
+        const mangaList = $("#manga-list");
+        const animeList = $("#anime-list");
+        let mediaTitle;
+        if (type === "manga"){
+            mediaTitle = $("#manga-search").val();
+        }else if(type === "anime"){
+            mediaTitle =$("#anime-search").val();
+        }
+        else{
+            return;
+        }
+        const inputData = {
+            action: "getMediaContentByTitle",
+            type: type,
+            mediaTitle: mediaTitle
+        }
+        $.post("${pageContext.request.contextPath}/"+ type, inputData, function (data) {
+            mangaList.empty();
+            if (data.success) {
+                if (type === "manga"){
+                    for (let i = 0; i < data.mangaList.length; i++) {
+                        const manga = data.mangaList[i];
+                        const mangaDiv = $("<div>").addClass("media").click(function() {
+                            getMediaContentById(manga.id, type);
+                        });
+
+                        // Create the image element and set the source
+                        const img = $("<img src='" + manga.imageUrl + "'>").addClass("media-pic");
+                        mangaDiv.append(img);
+
+                        // Create the paragraph element and set the text
+                        const p = $("<p>").addClass("media-title").text(manga.title);
+                        mangaDiv.append(p);
+                        mangaList.append(mangaDiv);
+                    }
+                }else {
+                    for (let i = 0; i < data.animeList.length; i++) {
+                        const anime = data.animeList[i];
+                        const animeDiv = $("<div>").addClass("media").click(function() {
+                            getMediaContentById(anime.id, type);
+                        });
+                        // Create the image element and set the source
+                        const img = $("<img src='" + anime.imageUrl + "'>").addClass("media-pic");
+                        animeDiv.append(img);
+
+                        // Create the paragraph element and set the text
+                        const p = $("<p>").addClass("media-title").text(anime.title);
+                        animeDiv.append(p);
+                        animeList.append(animeDiv);
+                    }
+                }
+            } else if (data.mediaSearchFailed) {
+                mangaList.append($("<div>").text(data.mediaSearchFailed));
+            }
+        }).fail(function() {
+            mangaList.empty();
+            mangaList.append($("<div>").text("An error occurred. Please try again later."));
+        });
+    }
+
+    function getMediaContentById(id,type){
+
+        const manga = $("#manga-selected");
+        const anime= $("#anime-selected");
+
+        const inputData = {
+            action: "getMediaContent",
+            type: type,
+            mediaId: id
+        }
+        console.log(inputData)
+        $.post("${pageContext.request.contextPath}/"+ type, inputData, function (data) {
+            manga.empty();
+            if (data.success) {
+                if (type === "manga"){
+                    console.log(data)
+                    selectedMediaId = data.manga.id;
+                    const map = data.manga;
+                    for (const key in map) {
+                        if (map.hasOwnProperty(key)) {
+                            const value = map[key];
+                            const div = $("<div>");
+                            div.text(value);
+                            manga.append(div);
+                        }
+                    }
+                }else {
+                    selectedMediaId = data.anime.id;
+                    const map = data.anime;
+                    for (const key in map) {
+                        if (map.hasOwnProperty(key)) {
+                            const value = map[key];
+                            const div = $("<div>");
+                            div.text(value);
+                            anime.append(div);
+                        }
+                    }
+                }
+            } else if (data.mediaSearchFailed) {
+                manga.append($("<div>").text(data.mediaSearchFailed));
+            }
+        }).fail(function() {
+            manga.empty();
+            manga.append($("<div>").text("An error occurred. Please try again later."));
+        });
+    }
+
+
 </script>
+
+
+<script>
+    $(document).ready(function(){
+        // Append a canvas element for Chart.js
+        //$("#user-distribution-analytics div").append('<canvas id="myChart"></canvas>');
+        //$("#average-app-rating-by-criteria div").append('<canvas id="myChart2"></canvas>');
+
+        // Load the default chart for gender
+        distribution('gender', "user");
+        averageAppRatingByCriteria('gender', "user");
+    });
+
+
+
+    function distribution(criteria, section){
+        const inputData ={
+            action: "distribution",
+            criteria: criteria,
+            section: section
+        };
+        $.post("${pageContext.request.contextPath}/manager",inputData, function (data){
+                console.log(data);
+                renderChart(criteria,data.distribution);
+            },
+            'json');
+    }
+    function renderChart(criteria, distributionData) {
+        const ctx = document.getElementById('myChart').getContext('2d');
+        const labels = Object.keys(distributionData);
+        const values = Object.values(distributionData);
+
+        const chartData = {
+            labels: labels,
+            datasets: [{
+                label: `User Distribution by ${criteria}`,
+                data: values,
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        };
+
+        const config = {
+            type: 'bar',
+            data: chartData,
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        };
+
+        // Destroy existing chart instance if exists to avoid overlap
+        if (window.myChartInstance) {
+            window.myChartInstance.destroy();
+        }
+
+        window.myChartInstance = new Chart(ctx, config);
+    }
+
+    $(document).ready(function(){
+        // Append a canvas element for Chart.js
+        $(".analytic-box2 div").append('<canvas id="myChart"></canvas>');
+    });
+
+    function averageAppRatingByCriteria(criteria,section){
+        const inputData ={
+            action: "averageAppRatingByCriteria",
+            criteria: criteria,
+            section: section
+        };
+        $.post("${pageContext.request.contextPath}/manager",inputData, function (data){
+                console.log(data);
+                renderChart2(criteria,data.averageAppRatingByCriteria);
+            },
+            'json');
+    }
+
+    function renderChart2(criteria, averageAppRatingData) {
+        const ctx = document.getElementById('myChart2').getContext('2d');
+        const labels = Object.keys(averageAppRatingData);
+        const values = Object.values(averageAppRatingData);
+
+        const chartData = {
+            labels: labels,
+            datasets: [{
+                label: `Average App Rating by ${criteria}`,
+                data: values,
+                backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                borderColor: 'rgba(153, 102, 255, 1)',
+                borderWidth: 1
+            }]
+        };
+
+        const config = {
+            type: 'bar',
+            data: chartData,
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        };
+
+        // Destroy existing chart instance if exists to avoid overlap
+        if (window.myChartInstance2) {
+            window.myChartInstance2.destroy();
+        }
+
+        window.myChartInstance2 = new Chart(ctx, config);
+    }
+
+    $(document).ready(function(){
+        // Append a canvas element for Chart.js
+        $("#average-app-rating-by-criteria div").append('<canvas id="myChart2"></canvas>');
+    });
+
+
+
+
+
+
+    function averageAppRatingByAgeRange(){
+        const inputData={
+            action: "averageAppRatingByAgeRange"
+        };
+        $.post("${pageContext.request.contextPath}/manager",inputData, function (response){
+            console.log(response);
+
+            const data = response.averageAppRatingByAgeRange;
+
+            // Parse the data into labels and ratings
+            const labels = Object.keys(data);
+            const ratings = Object.values(data);
+
+            // Create the chart
+            const ctx = document.getElementById('ageRangeChart').getContext('2d');
+            const ageRangeChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Average App Rating',
+                        data: ratings,
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Average Rating'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Age Range'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    }
+                }
+            });
+        });
+    }
+    // Call the function to load and display the chart
+    averageAppRatingByAgeRange();
+
+</script>
+
+
+
+
 </body>
 </html>

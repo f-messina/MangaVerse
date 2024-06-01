@@ -1,6 +1,7 @@
 package it.unipi.lsmsd.fnf.service.impl;
 
 import com.mongodb.client.MongoCollection;
+import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dao.mongo.BaseMongoDBDAO;
 import it.unipi.lsmsd.fnf.dao.neo4j.BaseNeo4JDAO;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
@@ -26,14 +27,17 @@ import org.bson.Document;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.neo4j.driver.Result;
+import org.neo4j.driver.Session;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static com.mongodb.client.model.Filters.exists;
+import static it.unipi.lsmsd.fnf.dao.neo4j.BaseNeo4JDAO.getSession;
 import static it.unipi.lsmsd.fnf.service.ServiceLocator.getExecutorTaskService;
+import static java.lang.String.valueOf;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 class MediaContentServiceImplTest {
@@ -110,7 +114,7 @@ class MediaContentServiceImplTest {
     void deleteMediaContent() {
         try {
             MediaContentService mediaContentService = ServiceLocator.getMediaContentService();
-            String id = mediaContentService.searchByTitle("Sample Anime", 1, MediaContentType.ANIME).getEntries().getFirst().getId();
+            String id = mediaContentService.searchByTitle("Updated Anime", 1, MediaContentType.ANIME).getEntries().getFirst().getId();
             mediaContentService.deleteMediaContent(id, MediaContentType.ANIME);
             System.out.println("Anime deleted");
 
@@ -253,10 +257,10 @@ class MediaContentServiceImplTest {
             UserService userService = ServiceLocator.getUserService();
 
             String userId = userService.searchFirstNUsers("exampleUser", 1, null).getFirst().getId();
-            PageDTO<MediaContentDTO> likedAnime = mediaContentService.getLikedMediaContent(userId, 0, MediaContentType.ANIME);
+            PageDTO<MediaContentDTO> likedAnime = mediaContentService.getLikedMediaContent(userId, 1, MediaContentType.ANIME);
             System.out.println("Liked anime: " + likedAnime.getEntries());
 
-            PageDTO<MediaContentDTO>  likedManga = mediaContentService.getLikedMediaContent(userId, 0, MediaContentType.MANGA);
+            PageDTO<MediaContentDTO>  likedManga = mediaContentService.getLikedMediaContent(userId, 1, MediaContentType.MANGA);
             System.out.println("Liked manga: " + likedManga.getEntries());
 
         } catch (BusinessException e) {
@@ -372,6 +376,43 @@ class MediaContentServiceImplTest {
 
     }
 
+    //Test passed but it took 3 minutes
+    @Test
+    void matchIds() throws DAOException, InterruptedException {
+        //take the ids of the anime and manga from mongo
+        List<String> animeIds = getAnimeIds();
+        List<String> mangaIds = getMangaIds();
+        //take the ids of the anime and manga from neo4j
+        List<String> animeIdsNeo4j = getAnimeIdsNeo4J();
+        List<String> mangaIdsNeo4j = getMangaIdsNeo4J();
+        //check if the ids are the same, if the id is not on mongo, delete the node in neo4j
+        for (String animeId : animeIdsNeo4j) {
+            if (!animeIds.contains(animeId)) {
+                try (Session session = getSession()) {
+                    session.writeTransaction(tx -> {
+                        tx.run("MATCH (a:Anime {id: $id}) DETACH DELETE a", Map.of("id", animeId));
+                        return null; // Return null because the lambda must return a value
+                    });
+                } catch (Exception e) {
+                    throw new DAOException("Error deleting anime node from Neo4J", e);
+                }
+            }
+        }
+        for (String mangaId : mangaIdsNeo4j) {
+            if (!mangaIds.contains(mangaId)) {
+                try (Session session = getSession()) {
+                    session.writeTransaction(tx -> {
+                        tx.run("MATCH (m:Manga {id: $id}) DETACH DELETE m", Map.of("id", mangaId));
+                        return null; // Return null because the lambda must return a value
+                    });
+                } catch (Exception e) {
+                    throw new DAOException("Error deleting manga node from Neo4J", e);
+                }
+            }
+        }
+        Thread.sleep(1000);
+    }
+
     List <String> getAnimeIds() {
 
         MongoCollection<Document> animeCollection = BaseMongoDBDAO.getCollection("anime");
@@ -392,6 +433,38 @@ class MediaContentServiceImplTest {
                 .map(doc -> doc.getObjectId("_id").toHexString())
                 .into(mangaIds);
         return mangaIds;
+    }
+
+
+    List <String> getAnimeIdsNeo4J() throws DAOException {
+        List<String> animeIdsNeo4j = new ArrayList<>();
+        try (Session session = getSession()) {
+            session.readTransaction(tx -> {
+                Result result = tx.run("MATCH (a:Anime) RETURN a.id AS id");
+                while (result.hasNext()) {
+                    animeIdsNeo4j.add(result.next().get("id").asString());
+                }
+                return null; // Return null because the lambda must return a value
+            });
+        } catch (Exception e) {
+            throw new DAOException("Error retrieving anime IDs from Neo4J", e);
+        }
+        return animeIdsNeo4j;
+    }
+    List <String> getMangaIdsNeo4J() throws DAOException {
+        List<String> mangaIdsNeo4j = new ArrayList<>();
+        try (Session session = getSession()) {
+            session.readTransaction(tx -> {
+                Result result = tx.run("MATCH (m:Manga) RETURN m.id AS id");
+                while (result.hasNext()) {
+                    mangaIdsNeo4j.add(result.next().get("id").asString());
+                }
+                return null; // Return null because the lambda must return a value
+            });
+        } catch (Exception e) {
+            throw new DAOException("Error retrieving anime IDs from Neo4J", e);
+        }
+        return mangaIdsNeo4j;
     }
 
     private Anime createSampleAnime() {

@@ -673,6 +673,8 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
             );
 
             List<Document> result = reviewCollection.aggregate(pipeline).into(new ArrayList<>());
+            Logger logger = LoggerFactory.getLogger(ReviewDAOMongoImpl.class);
+            logger.info("Result: " + result.toString());
             if (result.isEmpty()) {
                 throw new MongoException("ReviewDAOMongoImpl: getMediaContentRatingByMonth: No reviews found");
             }
