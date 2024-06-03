@@ -103,10 +103,31 @@ It provides a layer of abstraction between the database and the rest of the appl
 \end{itemize}
 
 \subsection*{DTO (Data Transfer Objects)}
+The DTO modules are the intermediary class between presentation layer and the DAO module in the web application.
+They transfer data structures between different layers and components of the application in a more standardized way.
+
+
 \subsection*{Model}
+\begin{itemize}
+    \item Enums
+    \item Media Content \\
+    - Anime\\
+    - Manga \\
+    - Manga Author \\
+    - Media Content
+    \item Registered User\\
+    - Mangager\\
+    - Registered User\\
+    - User
+    \item Review 
+\end{itemize}
+
 \subsection*{Service}
-\subsection*{Utils}
-\subsection*{User Interface}
+Service module has also important role in the web application. The classes in the service module are responsible for containing
+the business logic and maintaining interaction between the DAO classes and the presentation layer. 
+
+
+
 
 \section{Adopted Patterns and Techniques}
 
