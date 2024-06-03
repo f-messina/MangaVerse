@@ -252,16 +252,6 @@ class UserServiceImplTest {
         }
     }
 
-    @Test
-    void averageAppRatingByAgeRangeTest() {
-        try {
-            UserService userService = new UserServiceImpl();
-            System.out.println(userService.averageAppRatingByAgeRange());
-        } catch (BusinessException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     //Get the number of following of the users
 
     @Test

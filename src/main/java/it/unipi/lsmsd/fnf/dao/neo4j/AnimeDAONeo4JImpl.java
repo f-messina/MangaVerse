@@ -415,7 +415,8 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
                     WITH a2, COUNT(DISTINCT f) AS num_likes
                     RETURN a2 AS anime
                     ORDER BY num_likes DESC
-                    LIMIT $n""";
+                    LIMIT $n
+                    """;
 
             // Try to get suggestions based on likes in the last 6 months
             Value params1 = parameters("userId", userId, "n", n, "startDate", today.minusMonths(6).toString());

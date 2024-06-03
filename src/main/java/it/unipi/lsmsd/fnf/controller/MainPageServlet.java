@@ -18,6 +18,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,9 +28,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -51,6 +50,7 @@ public class MainPageServlet extends HttpServlet {
         processRequest(request, response);
     }
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        request.setAttribute("mediaType", request.getServletPath().equals("/mainPage/anime") ? "anime" : "manga");
         switch (request.getParameter("action")){
             case "search" -> handleSearch(request,response);
             case "suggestions" -> handleSuggestion(request,response);
@@ -61,13 +61,12 @@ public class MainPageServlet extends HttpServlet {
     private void handleLoadPage(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String path = request.getServletPath();
         String targetJSP;
-        String mediaType = path.equals("/mainPage/anime") ? "anime" : "manga";
 
         if (path.equals("/mainPage") || Objects.equals(request.getParameter("scroll"), "false")) {
             request.setAttribute("scroll", false);
         }
 
-        if (mediaType.equals("manga")) {
+        if (request.getAttribute("mediaType").equals("manga")) {
             request.setAttribute("mangaGenres", Constants.MANGA_GENRES);
             request.setAttribute("mangaTypes", MangaType.values());
             request.setAttribute("mangaDemographics", MangaDemographics.values());
@@ -102,25 +101,17 @@ public class MainPageServlet extends HttpServlet {
         // Register the module with the ObjectMapper
         objectMapper.registerModule(javaTimeModule);
 
-        int page = request.getParameter("page") != null ? Integer.parseInt(request.getParameter("page")) : 1;
-        String mediaType = request.getParameter("mediaType");
-        MediaContentType mediaContentType = mediaType.equals("manga") ? MediaContentType.MANGA : MediaContentType.ANIME;
+        int page = request.getAttribute("page") != null ? Integer.parseInt(request.getParameter("page")) : 1;
+        MediaContentType mediaContentType = request.getAttribute("mediaType").equals("manga") ? MediaContentType.MANGA : MediaContentType.ANIME;
 
         try {
             PageDTO<? extends MediaContentDTO> mediaList;
             List<Map<String, Object>> filters;
-            if (mediaType.equals("manga")) {
-                filters = ConverterUtils.fromRequestToMangaFilters(request);
-            } else if (mediaType.equals("anime")) {
-                filters = ConverterUtils.fromRequestToAnimeFilters(request);
-            } else {
-                jsonResponse.put("error", "Invalid media type");
 
-                // Set the content type and write the JSON response
-                response.setContentType("application/json");
-                response.setCharacterEncoding("UTF-8");
-                response.getWriter().write(jsonResponse.toString());
-                return;
+            if (request.getAttribute("mediaType").equals("manga")) {
+                filters = ConverterUtils.fromRequestToMangaFilters(request);
+            } else {
+                filters = ConverterUtils.fromRequestToAnimeFilters(request);
             }
 
             // Take order parameter and direction

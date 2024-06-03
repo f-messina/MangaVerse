@@ -22,6 +22,8 @@ import it.unipi.lsmsd.fnf.service.interfaces.MediaContentService;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 import it.unipi.lsmsd.fnf.service.exception.enums.BusinessExceptionType;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -206,10 +208,10 @@ public class MediaContentServiceImpl implements MediaContentService {
     public PageDTO<MediaContentDTO> searchByTitle(String title, int page, MediaContentType type) throws BusinessException {
         try {
             if (MediaContentType.ANIME.equals(type))
-                return animeDAOMongoDB.search(List.of(Map.of("title", title)), Map.of("score", 1), page);
-            else
-                return mangaDAOMongoDB.search(List.of(Map.of("title", title)), Map.of("score", 1), page);
-
+                return animeDAOMongoDB.search(List.of(Map.of("$regex", Map.of("title", title))), Map.of("title", 1), page);
+            else {
+                return mangaDAOMongoDB.search(List.of(Map.of("$regex", Map.of("title", title))), Map.of("title", 1), page);
+            }
         } catch (DAOException e) {
             if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {
                 throw new BusinessException(BusinessExceptionType.NOT_FOUND, e.getMessage());

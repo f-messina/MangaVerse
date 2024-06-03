@@ -237,12 +237,12 @@ public class ConverterUtils {
 
     private static Map<String, Object> buildYearFilter(HttpServletRequest request) {
         String year = request.getParameter("year");
-        if (request.getParameter("mediaType").equals("manga") && !StringUtils.isEmpty(year)) {
+        if (request.getAttribute("mediaType").equals("manga") && !StringUtils.isEmpty(year)) {
             return Map.of("$and", Arrays.asList(
                     Map.of("$gte", Map.of("start_date", LocalDate.of(Integer.parseInt(year), 1, 1))),
                     Map.of("$lte", Map.of("end_date", LocalDate.of(Integer.parseInt(year), 12, 31)))
             ));
-        } else if (request.getParameter("mediaType").equals("anime") && !StringUtils.isEmpty(year)) {
+        } else if (request.getAttribute("mediaType").equals("anime") && !StringUtils.isEmpty(year)) {
             return Map.of("anime_season.year", Integer.parseInt(year));
         }
         return Collections.emptyMap();
@@ -279,7 +279,7 @@ public class ConverterUtils {
         if (StringUtils.isEmpty(minYear) || StringUtils.isEmpty(maxYear)) {
             return Collections.emptyMap();
         }
-        if (request.getParameter("mediaType").equals("anime")) {
+        if (request.getAttribute("mediaType").equals("anime")) {
             return Map.of("$and", Arrays.asList(
                     Map.of("$gte", Map.of("anime_season.year", Integer.parseInt(minYear))),
                     Map.of("$lte", Map.of("anime_season.year", Integer.parseInt(maxYear)))

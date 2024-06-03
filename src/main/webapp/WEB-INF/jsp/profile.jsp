@@ -1,10 +1,3 @@
-<%--
-  Created by IntelliJ IDEA.
-  User: messi
-  Date: 02/02/2024
-  Time: 15:46
-  To change this template use File | Settings | File Templates.
---%>
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>

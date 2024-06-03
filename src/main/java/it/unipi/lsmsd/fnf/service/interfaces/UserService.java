@@ -22,7 +22,6 @@ public interface UserService {
 
     Map<String, Integer> getDistribution(String criteria) throws BusinessException;
     Map<String, Double> averageAppRating(String criteria) throws BusinessException;
-    Map<String, Double> averageAppRatingByAgeRange() throws BusinessException;
     void follow(String followerUserId, String followingUserId) throws BusinessException;
     void unfollow(String followerUserId, String followingUserId) throws BusinessException;
     boolean isFollowing(String followerUserId, String followingUserId) throws BusinessException;
