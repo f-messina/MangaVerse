@@ -1,5 +1,5 @@
 \chapter{Design}
-
+The web application needs to handle a big amount of data, so we decided to use a combination of different databases to store and manage the data. We will use a document database to store users, media contents and reviews data, and a graph database to store relationships between users and media content. This will allow us to efficiently store and retrieve data, as well as handle complex relationships between data. 
 
 \section{Document Database}
 For the document database, we will use MongoDB. MongoDB is a NoSQL database that stores data in flexible, JSON-like documents. It is a popular choice for applications that require flexibility and scalability. MongoDB is a document database, which means it stores data in JSON-like documents. These documents are flexible, meaning they can have different fields and structures. This makes MongoDB a good choice for applications that require flexibility in their data model. MongoDB is also a scalable database, meaning it can handle large amounts of data and traffic. It is designed to scale out, meaning you can add more servers to handle more traffic. This makes MongoDB a good choice for applications that need to scale quickly.
@@ -169,9 +169,319 @@ Users:
     \end{lstlisting}
 \end{mdframed}
 
-\textbf{Indexes}
-\newline
+\subsection{Indexes}
+
 We created two indexes in the reviews collection to improve query performance. One for the users id and another for the anime and manga id. This will allow us to quickly retrieve reviews for a specific user or media content. 
+
+\section {MongoDB queries}
+Some of the most important MongoDB queries for analytic and suggestion porpouses. 
+
+
+\textbf{USERS:}
+\begin{itemize}
+  \item GetDistribution query to get the user's location, gender, birthday year that gave the highest rating to the application:
+  
+\end{itemize}
+\begin{lstlisting}[language=JavaScript, caption=get distribution]
+  // Match stage to filter documents where 'criteriaOfSearch' exists
+  db.collection.aggregate([
+      {
+          $match: {
+              [criteriaOfSearch]: { $exists: true }
+          }
+      },
+      // Project stage to include 'criteriaOfSearch' and 'app_rating' fields
+      {
+          $project: {
+              [criteriaOfSearch]: 1,
+              app_rating: 1
+          }
+      },
+      // Group stage to count occurrences of each 'criteriaOfSearch'
+      {
+          $group: {
+              _id: "$" + criteriaOfSearch,
+              count: { $sum: 1 }
+          }
+      },
+      // Sort stage to sort documents by 'count' in descending order
+      {
+          $sort: {
+              count: -1
+          }
+      }
+  ]);
+  \end{lstlisting}
+  
+
+
+\textbf{ANIME/MANGA:}
+
+\begin{itemize}
+
+\item GetBestCriteria query, the criteria can be genres, demographics, themes, authors and serialization for manga; tags, producers, studios for anime:
+\begin{lstlisting}[language=JavaScript, caption=get best criteria]
+  db.collection.aggregate([
+      // Match stage to filter documents where 'criteria' exists and 'average_rating' is not null
+      {
+          $match: {
+              criteria: { $exists: true },
+              average_rating: { $ne: null }
+          }
+      },
+      // Unwind stage to deconstruct the 'criteria' array field
+      {
+          $unwind: "$" + criteria
+      },
+      // Group stage to calculate the average rating for each criteria
+      {
+          $group: {
+              _id: "$" + criteria,
+              criteria_average_rating: { $avg: "$average_rating" }
+          }
+      },
+      // Sort stage to sort documents by 'criteria_average_rating' in descending order
+      {
+          $sort: {
+              criteria_average_rating: -1
+          }
+      },
+      // Skip stage to skip the first 'pageOffset' documents
+      {
+          $skip: pageOffset
+      },
+      // Limit stage to limit the results to 25 documents
+      {
+          $limit: 25
+      }
+  ]);
+  \end{lstlisting}
+
+\end{itemize}
+
+\textbf{REVIEWS:}
+
+\begin{itemize}
+\item GetMediaContentRatingByYear query to get the average rating of media content by year:
+\end{itemize}
+\begin{lstlisting}[language=JavaScript, caption=Query per db.collection.aggregate]
+  // Match stage to filter documents based on specified conditions
+  db.collection.aggregate([
+      {
+          $match: {
+              [`${nodeType}.id`]: new ObjectId(mediaContentId),
+              rating: { $exists: true },
+              date: { $gte: startDate, $lt: endDate }
+          }
+      },
+      // Group stage to group documents by year and calculate the average rating
+      {
+          $group: {
+              _id: { $year: "$date" },
+              average_rating: { $avg: "$rating" }
+          }
+      },
+      // Project stage to shape the output documents
+      {
+          $project: {
+              _id: 0,
+              year: "$_id",
+              average_rating: 1
+          }
+      },
+      // Sort stage to sort documents by year in ascending order
+      {
+          $sort: { year: 1 }
+      }
+  ]);
+  \end{lstlisting}
+
+
+
+
+SuggestMediaContent
+
+\subsection {CRUD operations}
+\begin{itemize}
+    \item Create: This operation will allow users to create new documents in the database. For example, users can create new reviews for anime and manga.
+    \item Read: This operation will allow users to read documents from the database. For example, users can read information about anime and manga.
+    \item Update: This operation will allow users to update documents in the database. For example, users can update their reviews for anime and manga.
+    \item Delete: This operation will allow users to delete documents from the database. For example, users can delete their reviews for anime and manga.
+\end{itemize}
+
+
+\section {MongoDB queries}
+Some of the most important MongoDB queries for analytic and suggestion porpouses. 
+
+
+\textbf{USERS:}
+\begin{itemize}
+  \item GetDistribution query to get the user's location, gender, birthday year that gave the highest rating to the application:
+  
+\end{itemize}
+\begin{lstlisting}[language=JavaScript, caption=GetDistribution]
+  // Match stage to filter documents where 'criteriaOfSearch' exists
+  db.collection.aggregate([
+      {
+          $match: {
+              [criteriaOfSearch]: { $exists: true }
+          }
+      },
+      // Project stage to include 'criteriaOfSearch' and 'app_rating' fields
+      {
+          $project: {
+              [criteriaOfSearch]: 1,
+              app_rating: 1
+          }
+      },
+      // Group stage to count occurrences of each 'criteriaOfSearch'
+      {
+          $group: {
+              _id: "$" + criteriaOfSearch,
+              count: { $sum: 1 }
+          }
+      },
+      // Sort stage to sort documents by 'count' in descending order
+      {
+          $sort: {
+              count: -1
+          }
+      }
+  ]);
+  \end{lstlisting}
+  
+
+
+\textbf{ANIME/MANGA:}
+
+\begin{itemize}
+
+\item GetBestCriteria query, the criteria can be genres, demographics, themes, authors and serialization for manga; tags, producers, studios for anime:
+\begin{lstlisting}[language=JavaScript, caption=GetBestCriteria]
+  db.collection.aggregate([
+      // Match stage to filter documents where 'criteria' exists and 'average_rating' is not null
+      {
+          $match: {
+              criteria: { $exists: true },
+              average_rating: { $ne: null }
+          }
+      },
+      // Unwind stage to deconstruct the 'criteria' array field
+      {
+          $unwind: "$" + criteria
+      },
+      // Group stage to calculate the average rating for each criteria
+      {
+          $group: {
+              _id: "$" + criteria,
+              criteria_average_rating: { $avg: "$average_rating" }
+          }
+      },
+      // Sort stage to sort documents by 'criteria_average_rating' in descending order
+      {
+          $sort: {
+              criteria_average_rating: -1
+          }
+      },
+      // Skip stage to skip the first 'pageOffset' documents
+      {
+          $skip: pageOffset
+      },
+      // Limit stage to limit the results to 25 documents
+      {
+          $limit: 25
+      }
+  ]);
+  \end{lstlisting}
+
+\end{itemize}
+
+\textbf{REVIEWS:}
+
+\begin{itemize}
+\item GetMediaContentRatingByYear query to get the average rating of media content by year:
+\end{itemize}
+
+
+\begin{lstlisting}[language=JavaScript, caption=GetMediaContentRatingByYear]
+  // Match stage to filter documents based on specified conditions
+  db.collection.aggregate([
+      {
+          $match: {
+              [`${nodeType}.id`]: new ObjectId(mediaContentId),
+              rating: { $exists: true },
+              date: { $gte: startDate, $lt: endDate }
+          }
+      },
+      // Group stage to group documents by year and calculate the average rating
+      {
+          $group: {
+              _id: { $year: "$date" },
+              average_rating: { $avg: "$rating" }
+          }
+      },
+      // Project stage to shape the output documents
+      {
+          $project: {
+              _id: 0,
+              year: "$_id",
+              average_rating: 1
+          }
+      },
+      // Sort stage to sort documents by year in ascending order
+      {
+          $sort: { year: 1 }
+      }
+  ]);
+  \end{lstlisting}
+
+
+\begin{itemize}
+  \item SuggestMediaContent query to suggest media content based on common criteria, like birthday or location:
+  
+\end{itemize}
+
+\begin{lstlisting}[language=JavaScript, caption=SuggestMediaContent]
+  db.collection.aggregate([
+  {
+    // Match documents based on a dynamic user criteria
+    $match: {
+      ["user." + criteriaType]: criteriaValue
+    }
+  },
+  {
+    // Group documents by node type ID and calculate the first title and average rating
+    $group: {
+      _id: "$" + nodeType + ".id", // Group by the node type's ID
+      title: { $first: "$" + nodeType + ".title" }, // Get the first title in the group
+      average_rating: { $avg: "$rating" } // Calculate the average rating for the group
+    }
+  },
+  {
+    // Sort the grouped documents by average rating in descending order
+    $sort: { average_rating: -1 }
+  },
+  {
+    // Limit the number of results to the page size constant
+    $limit: Constants.PAGE_SIZE
+  }
+]);
+\end{lstlisting}
+
+
+
+
+
+
+
+\subsection {CRUD operations}
+\begin{itemize}
+    \item Create: This operation will allow users to create new documents in the database. For example, users can create new reviews for anime and manga.
+    \item Read: This operation will allow users to read documents from the database. For example, users can read information about anime and manga and about other users.
+    \item Update: This operation will allow users to update documents in the database. For example, users can update their reviews for anime and manga, they can also update their own profile, the manager can update media contents.
+    \item Delete: This operation will allow users to delete documents from the database. For example, users can delete their reviews for anime and manga, the manager can delete media contents.
+\end{itemize}
+
 
 \section{Graph Database}
 For the graph database, we will use Neo4j. Neo4j is a graph database that stores data in nodes and relationships. It is a popular choice for applications that require complex relationships between data. Neo4j is a graph database, which means it stores data in nodes and relationships. Nodes represent entities, such as users or products, and relationships represent connections between nodes. This makes Neo4j a good choice for applications that require complex relationships between data. Neo4j is also a scalable database, meaning it can handle large amounts of data and traffic. It is designed to scale out, meaning you can add more servers to handle more traffic. This makes Neo4j a good choice for applications that need to scale quickly.
@@ -204,3 +514,126 @@ The database will have the following relationships:
     \caption{GraphDB}
     \label{fig:GraohDB}
 \end{figure}
+
+\section{GraphDB queries}
+USERS:
+
+
+Follow
+
+
+Unfollow 
+
+
+IsFollowing 
+
+
+GetNumOfFollowers
+
+
+GetNumOfFollowed
+
+
+SuggestUsersByCommonFollowings
+
+
+SuggestUsersByCommonLikes
+
+
+ANIME/MANGA:
+
+
+Like 
+
+
+Unlike 
+
+
+IsLiked
+
+
+GetNumOfLikes
+
+
+GetLiked 
+
+
+GetSuggested 
+
+
+GetTrendMediaContentByYear
+
+
+GetMediaContentTrendByLikes
+
+
+\subsection{CRUD operations}
+\begin{itemize}
+    \item Create: This operation will allow users to create new nodes and relationships in the database. For example, users can create new nodes for anime and manga and relationships between users and media content.
+    \item Read: This operation will allow users to read nodes and relationships from the database. For example, users can read information about anime and manga and relationships between users and media content.
+    \item Update: This operation will allow users to update nodes and relationships in the database. For example, users can update their likes for anime and manga and relationships between users.
+    \item Delete: This operation will allow users to delete nodes and relationships from the database. For example, users can delete their likes for anime and manga and relationships between users.
+\end{itemize}
+
+
+\section{GraphDB queries}
+USERS:
+
+
+Follow
+
+
+Unfollow 
+
+
+IsFollowing 
+
+
+GetNumOfFollowers
+
+
+GetNumOfFollowed
+
+
+SuggestUsersByCommonFollowings
+
+
+SuggestUsersByCommonLikes
+
+
+ANIME/MANGA:
+
+
+Like 
+
+
+Unlike 
+
+
+IsLiked
+
+
+GetNumOfLikes
+
+
+GetLiked 
+
+
+GetSuggested 
+
+
+GetTrendMediaContentByYear
+
+
+GetMediaContentTrendByLikes
+
+
+\subsection{CRUD operations}
+\begin{itemize}
+    \item Create: This operation will allow users to create new nodes and relationships in the database. For example, users can create new nodes for anime and manga and relationships between users and media content.
+    \item Read: This operation will allow users to read nodes and relationships from the database. For example, users can read information about anime and manga and relationships between users and media content.
+    \item Update: This operation will allow users to update nodes and relationships in the database. For example, users can update their likes for anime and manga and relationships between users.
+    \item Delete: This operation will allow users to delete nodes and relationships from the database. For example, users can delete their likes for anime and manga and relationships between users.
+\end{itemize}
+
+

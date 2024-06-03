@@ -137,3 +137,21 @@
 
 \section{UML class diagram}
 %TODO: Add final class diagram
+\section{Data Modeling}
+\subsection{Data Collection}
+\textit{Sources:} https://www.kaggle.com/datasets/dbdmobile/myanimelist-dataset?select=users-score-2023.csv, MyAnimeList.net,	anilist.com,  kitsu.io,			  livechart.me,
+anime-planet.com,		nofity.moe,	   anisearch.com,		  anidb.net 	
+
+\textit{Description:} Manga, users and scores datasets were collected from MyAnimeList.net site using the official API and another unofficial API (Jikan). The anime datasets were collected from all the sources. 
+
+\textit{Variety:} The datasets contain a variety of data types, including text, numbers, and dates. Anime are collected from 8 different sources. All the information is collected in 4 different csv files.
+
+\textit{Volume:} The datasets contain a large volume of data, with thousands of entries for anime, manga, users, and scores. The total size of the datasets is around 3 GB.
+
+\subsection{Data Cleaning and Preprocessing}
+Python scripts were used to clean and preprocess the data. The following steps were performed:
+reviews were created by merging the users and scores datasets, and creating comments about the media contents;
+the anime dataset was created by putting togethere the diffrerent sources;
+the manga dataset was created from MyAnimeList.net;
+the users dataset was cleaned and missing information, like email and password, was added.
+
