@@ -43,15 +43,70 @@ integrated development environment for developing software in an efficient way.
     \item Model 
     \item Service
     \item Utils
+    \item User Interface
 \end{itemize}
 \subsection*{Configuration}
+Configuration module contains a class named \textit{AppServletContextListener} which is responsible for 
+initializing and managing database connections for the web application. The configuration class 
+implements ServletContextListener interface. \textit{@WebListener} annotation is used to provide listening for 
+application lifecycle events. This annotation contains two methods, which are \textit{contextInitialized(ServletContextEvent sce)} and
+\textit{contextDestroyed(ServletContextEvent sce)}. The first method is called when the web application is started and the second method is called when the web application is shut down.\\ \\
+\textbf{Database Connection Management:} Database connection is provided with \textit{openConnection()} and \textit{closeConnection()} methods. They are both initialized for managing connection
+for MongoDB and Neo4j databases. Connections are managed with corresponding DAO classes which are BaseMongoDBDAO and BaseNeo4jDAO.\\ \\
+With using the configuration module for database connection, web application ensures robustness and reliability in its data access layer.
+
 \subsection*{Controller}
+The controller modules plays a role as intermediary between the user requests and backend of the MangaVerse wab application as servlet classes.
+they receives the user requests, process them and returns with the corresponding response. The controller module contains the following classes:
+\begin{itemize}
+    \item Exception \\
+    NotAuthorizedException: This exception is thrown when the user is not authorized to access the requested resource.
+    \item AuthServlet \\
+    The AuthServlet class handles the user authentication and authorization processes. It includes login, logout and sign up functions
+    \item MainPageServlet \\
+    The MainPageServlet class is responsible for handling the main page of the web application. It includes the main page of the web application and the search functionality.
+    It provides request related to displaying main page and searching media contents.
+    \item ManagerServlet \\
+    The ManagerServlet class manages administrative requests in manager page. These request are primarily about manga, anime and user analytics such \textit{averageRatingByMonth(), trendMediaContentByYear(), getBestCriteria()...}
+    \item MediaContentServlet \\
+    The MediaContentServlet class is responsible for managing request related with media contents. These requests include like, adding,deleting or editing reviews and retrieving media content details. 
+    \item ProfileServlet \\
+    The ProfileServlet class is responsible for managing user profile related requests. These requests include updating user profile, following/unfollowing other users, getting user profile details such as liked anime and manga and user reviews.
+    \item UserServlet \\
+    The UserServlet class is responsible for managing user related requests and interactions. These requests include retrieving followers list, following list and user information. 
+\end{itemize}
+
 \subsection*{DAO (Data Access Objects)}
+The DAO module includes the logic for accessing and managing data in the database and provides data retrieval, 
+storage and manipulation. This module includes classes with CRUD (create, read, update, delete) operations and query executions. 
+It provides a layer of abstraction between the database and the rest of the application and ensures the separation of concerns. The DAO module contains the following classes:
+\begin{itemize}
+    \item Enums \\
+    - DataRepositoryEnum
+    \item Exceptions 
+    \item Interfaces \\
+    - MedıaContentDAO \\
+    - ReviewDAO \\
+    - UserDAO 
+    \item Mongo \\
+    - AnimeDAOMongoImpl \\
+    - BaseMongoDBDAO \\
+    - MangaDAOMongoImpl \\
+    - ReviewDAOMongoImpl \\
+    - UserDAOMongoImpl 
+    \item Neo4j \\
+    - AnimeDAONeo4jImpl \\
+    - BaseNeo4jDAO \\
+    - MangaDAONeo4jImpl \\
+    - UserDAONeo4jImpl 
+    \item DAOLocator 
+\end{itemize}
+
 \subsection*{DTO (Data Transfer Objects)}
 \subsection*{Model}
 \subsection*{Service}
 \subsection*{Utils}
-
+\subsection*{User Interface}
 
 \section{Adopted Patterns and Techniques}
 
