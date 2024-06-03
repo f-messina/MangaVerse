@@ -100,8 +100,6 @@ public abstract class BaseMongoDBDAO {
     protected Bson buildFilter(List<Map<String, Object>> filterList) {
         if (filterList == null || filterList.isEmpty()) {
             return empty();
-        } else if (filterList.getFirst().containsKey("title")) {
-            return regex("title", filterList.getFirst().get("title").toString(), "i");
         } else {
             List<Bson> filter = buildFilterInternal(filterList);
             return and(filter);
@@ -163,6 +161,10 @@ public abstract class BaseMongoDBDAO {
             case "$exists" -> {
                 Map.Entry<String, Object> entry = ((Map<String, Object>) value).entrySet().iterator().next();
                 yield exists(entry.getKey(), (Boolean) entry.getValue());
+            }
+            case "$regex" -> {
+                Map.Entry<String, Object> entry = ((Map<String, Object>) value).entrySet().iterator().next();
+                yield regex(entry.getKey(), entry.getValue().toString(), "i");
             }
             default -> eq(fieldName, value);
         };

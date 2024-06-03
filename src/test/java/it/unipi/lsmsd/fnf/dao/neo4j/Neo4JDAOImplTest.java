@@ -4,8 +4,6 @@ import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dao.mongo.BaseMongoDBDAO;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
-import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
-import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import org.junit.jupiter.api.AfterEach;
@@ -178,45 +176,103 @@ public class Neo4JDAOImplTest{
             System.out.println(user);
     }
 
-
     @Test
-    public void testGetTrendAnimeByYear() throws DAOException {
+    public void getSuggestedAnimeByLikes() throws DAOException {
         AnimeDAONeo4JImpl neo4JDAO = new AnimeDAONeo4JImpl();
-        Map<MediaContentDTO, Integer> anime = neo4JDAO.getTrendMediaContentByYear(2019);
-        for (Map.Entry<MediaContentDTO, Integer> entry : anime.entrySet()) {
-            System.out.println("id: " + entry.getKey().getId() + ", title: " + entry.getKey().getTitle() + ", picture: " + entry.getKey().getImageUrl() + ", likes: " + entry.getValue());
+        List<MediaContentDTO> anime = neo4JDAO.getSuggestedByLikes("6577877be683762347605859", 100);
+        System.out.println(anime.size());
+        if (anime == null || anime.isEmpty()) {
+            fail("No suggested anime found");
         }
-    }
-
-    @Test
-    public void testGetTrendMangaByYear() throws DAOException {
-        MangaDAONeo4JImpl neo4JDAO = new MangaDAONeo4JImpl();
-        Map<MediaContentDTO, Integer> manga = neo4JDAO.getTrendMediaContentByYear(2019);
-        for (Map.Entry<MediaContentDTO, Integer> entry : manga.entrySet()) {
-            System.out.println("id: " + entry.getKey().getId() + ", title: " + entry.getKey().getTitle() + ", picture: " + entry.getKey().getImageUrl() + ", likes: " + entry.getValue());
-        }
-    }
-
-    @Test
-    public void testGetAnimeTrendByLikes() throws DAOException{
-        AnimeDAONeo4JImpl neo4JDAO = new AnimeDAONeo4JImpl();
-
-        List<MediaContentDTO> anime = neo4JDAO.getMediaContentTrendByLikes();
-
         for (MediaContentDTO animeDTO : anime) {
             System.out.println("id: " + animeDTO.getId() + ", title: " + animeDTO.getTitle() + ", picture: " + animeDTO.getImageUrl());
         }
     }
 
     @Test
-    public void testGetMangaTrendByLikes() throws DAOException{
+    public void getSuggestedMangaByLikes() throws DAOException {
         MangaDAONeo4JImpl neo4JDAO = new MangaDAONeo4JImpl();
-
-        List<MediaContentDTO> manga = neo4JDAO.getMediaContentTrendByLikes();
-
+        List<MediaContentDTO> manga = neo4JDAO.getSuggestedByLikes("6577877be68376234760585d", 100);
+        if (manga == null || manga.isEmpty()) {
+            fail("No suggested manga found");
+        }
         for (MediaContentDTO mangaDTO : manga) {
             System.out.println("id: " + mangaDTO.getId() + ", title: " + mangaDTO.getTitle() + ", picture: " + mangaDTO.getImageUrl());
         }
     }
 
+    @Test
+    public void getSuggestedAnimeByFollowings() throws DAOException {
+        AnimeDAONeo4JImpl neo4JDAO = new AnimeDAONeo4JImpl();
+        List<MediaContentDTO> anime = neo4JDAO.getSuggestedByFollowings("6577877be683762347605859", 100);
+        System.out.println(anime.size());
+        if (anime == null || anime.isEmpty()) {
+            fail("No suggested anime found");
+        }
+        for (MediaContentDTO animeDTO : anime) {
+            System.out.println("id: " + animeDTO.getId() + ", title: " + animeDTO.getTitle() + ", picture: " + animeDTO.getImageUrl());
+        }
+    }
+
+    @Test
+    public void getSuggestedMangaByFollowings() throws DAOException {
+        MangaDAONeo4JImpl neo4JDAO = new MangaDAONeo4JImpl();
+        List<MediaContentDTO> manga = neo4JDAO.getSuggestedByFollowings("6577877be68376234760585d", 100);
+        if (manga == null || manga.isEmpty()) {
+            fail("No suggested manga found");
+        }
+        for (MediaContentDTO mangaDTO : manga) {
+            System.out.println("id: " + mangaDTO.getId() + ", title: " + mangaDTO.getTitle() + ", picture: " + mangaDTO.getImageUrl());
+        }
+    }
+
+    @Test
+    public void getTrendAnimeByYear() throws DAOException {
+        AnimeDAONeo4JImpl neo4JDAO = new AnimeDAONeo4JImpl();
+        Map<MediaContentDTO, Integer> anime = neo4JDAO.getTrendMediaContentByYear(2020, 300);
+        System.out.println(anime.size());
+        if (anime == null || anime.isEmpty()) {
+            fail("No trend anime found");
+        }
+        for (Map.Entry<MediaContentDTO, Integer> entry : anime.entrySet()) {
+            System.out.println("id: " + entry.getKey().getId() + ", title: " + entry.getKey().getTitle() + ", picture: " + entry.getKey().getImageUrl() + ", likes: " + entry.getValue());
+        }
+    }
+
+    @Test
+    public void getTrendMangaByYear() throws DAOException {
+        MangaDAONeo4JImpl neo4JDAO = new MangaDAONeo4JImpl();
+        Map<MediaContentDTO, Integer> manga = neo4JDAO.getTrendMediaContentByYear(2020, 25);
+        if (manga == null || manga.isEmpty()) {
+            fail("No trend manga found");
+        }
+        for (Map.Entry<MediaContentDTO, Integer> entry : manga.entrySet()) {
+            System.out.println("id: " + entry.getKey().getId() + ", title: " + entry.getKey().getTitle() + ", picture: " + entry.getKey().getImageUrl() + ", likes: " + entry.getValue());
+        }
+    }
+
+    @Test
+    public void getTrendAnimeByLikes() throws DAOException {
+        AnimeDAONeo4JImpl neo4JDAO = new AnimeDAONeo4JImpl();
+        List<MediaContentDTO> anime = neo4JDAO.getMediaContentTrendByLikes(300);
+        System.out.println(anime.size());
+        if (anime == null || anime.isEmpty()) {
+            fail("No trend anime found");
+        }
+        for (MediaContentDTO animeDTO : anime) {
+            System.out.println("id: " + animeDTO.getId() + ", title: " + animeDTO.getTitle() + ", picture: " + animeDTO.getImageUrl());
+        }
+    }
+
+    @Test
+    public void getTrendMangaByLikes() throws DAOException {
+        MangaDAONeo4JImpl neo4JDAO = new MangaDAONeo4JImpl();
+        List<MediaContentDTO> manga = neo4JDAO.getMediaContentTrendByLikes(25);
+        if (manga == null || manga.isEmpty()) {
+            fail("No trend manga found");
+        }
+        for (MediaContentDTO mangaDTO : manga) {
+            System.out.println("id: " + mangaDTO.getId() + ", title: " + mangaDTO.getTitle() + ", picture: " + mangaDTO.getImageUrl());
+        }
+    }
 }

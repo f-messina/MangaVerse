@@ -1,5 +1,6 @@
 package it.unipi.lsmsd.fnf.dao.mongo;
 
+import com.mongodb.client.model.Updates;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
 import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
@@ -9,10 +10,14 @@ import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 
+import org.bson.conversions.Bson;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static com.mongodb.client.model.Filters.*;
+import static com.mongodb.client.model.Updates.unset;
+import static it.unipi.lsmsd.fnf.dao.mongo.BaseMongoDBDAO.getCollection;
 import static org.junit.jupiter.api.Assertions.*;
 
 import it.unipi.lsmsd.fnf.dto.PageDTO;
@@ -262,10 +267,9 @@ class ReviewDAOMongoImplTest {
 
         // test 1
         assertDoesNotThrow(() -> {
-            Map<String, Double> averageRating = reviewDAO.getMediaContentRatingByMonth(MediaContentType.ANIME, "65789bb52f5d29465d0abcfb", 2013);
+            Map<String, Double> averageRating = reviewDAO.getMediaContentRatingByMonth(MediaContentType.ANIME, "65789bb52f5d29465d0abcfb", 2020);
             System.out.println(averageRating.toString());
         });
-
         // test 2
         assertDoesNotThrow(() -> {
             Map<String, Double> averageRating = reviewDAO.getMediaContentRatingByMonth(MediaContentType.MANGA, "657ac61bb34f5514b91ea226", 2010);
@@ -336,5 +340,18 @@ class ReviewDAOMongoImplTest {
         review.setRating(5);
         review.setComment("This is a test review");
         return review;
+    }
+
+    @Test
+    public void removeNullComments() {
+        ReviewDAOMongoImpl reviewDAO = new ReviewDAOMongoImpl();
+        try {
+            Bson filter = and(exists("comment", true), eq("comment", null));
+            Bson update = unset("comment");
+            getCollection("reviews").updateMany(filter, update);
+            System.out.println("Null comments removed");
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
     }
 }

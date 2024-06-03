@@ -1,5 +1,7 @@
 package it.unipi.lsmsd.fnf.model.enums;
 
+import it.unipi.lsmsd.fnf.utils.Constants;
+
 /**
  * Enumeration representing different types of manga.
  */
@@ -10,7 +12,8 @@ public enum MangaType {
     NOVEL(4),
     ONE_SHOT(5),
     DOUJINSHI(6),
-    LIGHT_NOVEL(7);
+    LIGHT_NOVEL(7),
+    UNKNOWN(8);
 
     private final int code;
 
@@ -58,6 +61,7 @@ public enum MangaType {
             case ONE_SHOT -> "One Shot";
             case DOUJINSHI -> "Doujinshi";
             case LIGHT_NOVEL -> "Light Novel";
+            case UNKNOWN -> Constants.NULL_STRING;
         };
     }
 }

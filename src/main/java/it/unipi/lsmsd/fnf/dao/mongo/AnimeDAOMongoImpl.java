@@ -97,7 +97,8 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
 
             // Update the anime in the database
             Bson filter = Filters.eq("_id", new ObjectId(anime.getId()));
-            Bson update = new Document("$set", animeToDocument(anime));
+            Bson update = new Document("$set", animeToDocument(anime))
+                    .append("$unset", DocumentUtils.animeToUnsetAnimeFieldsDocument(anime));
 
             UpdateResult result = animeCollection.updateOne(filter, update);
 
@@ -193,7 +194,7 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
             // Build the MongoDB query pipeline
             Bson filter = buildFilter(filters);
             Bson sort = buildSort(orderBy);
-            Bson projection = include("title", "picture", "average_rating", "anime_season");
+            Bson projection = include("title", "picture", "average_rating", "anime_season", "likes");
 
             int pageOffset = (page - 1) * Constants.PAGE_SIZE;
 
@@ -402,7 +403,10 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
                 updateOperations.add(set("latest_reviews.$[elem].user.username", userSummaryDTO.getUsername()));
             }
             if (userSummaryDTO.getProfilePicUrl() != null) {
-                updateOperations.add(set("latest_reviews.$[elem].user.picture", userSummaryDTO.getProfilePicUrl()));
+                if (!userSummaryDTO.getProfilePicUrl().equals(Constants.NULL_STRING))
+                    updateOperations.add(set("latest_reviews.$[elem].user.picture", userSummaryDTO.getProfilePicUrl()));
+                else
+                    updateOperations.add(unset("latest_reviews.$[elem].user.picture"));
             }
             UpdateOptions options = new UpdateOptions().arrayFilters(
                     List.of(Filters.eq("elem.user.id", new ObjectId(userSummaryDTO.getId())))
@@ -412,10 +416,7 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
             if (!updateOperations.isEmpty()) {
                 Bson update = combine(updateOperations);
                 UpdateResult result = animeCollection.updateMany(filter, update, options);
-                if (result.getMatchedCount() == 0) {
-                    throw new MongoException("AnimeDAOMongoDBImpl : updateUserRedundancy: No user redundancy was found");
-                }
-                if (result.getModifiedCount() == 0) {
+                if (result.getMatchedCount() != 0 && result.getModifiedCount() == 0) {
                     throw new MongoException("AnimeDAOMongoDBImpl : updateUserRedundancy: No user redundancy was updated");
                 }
             } else {
@@ -528,15 +529,22 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
     @Override
-    public List<MediaContentDTO> getSuggested(String userId, Integer limit) throws DAOException {
+    public List<MediaContentDTO> getSuggestedByFollowings(String userId, Integer limit) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
+
     @Override
-    public Map<MediaContentDTO, Integer> getTrendMediaContentByYear(int year) throws DAOException {
+    public List<MediaContentDTO> getSuggestedByLikes(String userId, Integer limit) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
+
     @Override
-    public List<MediaContentDTO> getMediaContentTrendByLikes() throws DAOException {
+    public Map<MediaContentDTO, Integer> getTrendMediaContentByYear(int year, Integer limit) throws DAOException {
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
+    }
+
+    @Override
+    public List<MediaContentDTO> getMediaContentTrendByLikes(Integer limit) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
 }

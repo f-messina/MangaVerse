@@ -5,10 +5,11 @@ import it.unipi.lsmsd.fnf.model.mediaContent.MediaContent;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class Review {
     private String id;
-    private LocalDate date;
+    private LocalDateTime date;
     private String comment;
     private Integer rating;
     private MediaContent mediaContent;
@@ -18,7 +19,7 @@ public class Review {
         return id;
     }
 
-    public LocalDate getDate() {
+    public LocalDateTime getDate() {
         return date;
     }
 
@@ -42,7 +43,7 @@ public class Review {
         this.id = id;
     }
 
-    public void setDate(LocalDate date) {
+    public void setDate(LocalDateTime date) {
         this.date = date;
     }
 

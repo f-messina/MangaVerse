@@ -1,145 +1,109 @@
-<%--
-  Created by IntelliJ IDEA.
-  User: lenovo
-  Date: 13.03.2024
-  Time: 16:32
-  To change this template use File | Settings | File Templates.
---%>
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
-
-
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ page contentType="text/html;charset=UTF-8"%>
 
 <html>
 <head>
     <title>Manager Page - Anime Analytics</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com%22%3E/" crossorigin />
-    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/index.css"/>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/range_input.css">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/main_page_test.css">
-    <link
-            href="https://fonts.googleapis.com/css2?family=Fira+Sans+Condensed:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:wght@300;400&display=swap"
-            rel="stylesheet"
-    />
-    <link
-            rel="stylesheet"
-            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-            integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
-            crossorigin="anonymous"
-            referrerpolicy="no-referrer"
-    />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/manager.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous" />
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/website.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script type="text/javascript">
-
-
-
-        function updateGenreChart() {
-            // Implement updating genre chart here
-            console.log("Updating genre chart");
-        }
-
-        function updateThemeChart() {
-            // Implement updating theme chart here
-            console.log("Updating theme chart");
-        }
-
-        function updateDemographicChart() {
-            // Implement updating demographic chart here
-            console.log("Updating demographic chart");
-        }
-
-        function updateAuthorChart() {
-            // Implement updating author chart here
-            console.log("Updating author chart");
-        }
-    </script>
 </head>
+
 <body>
 <div class="all-page">
     <!-- navbar -->
-    <div id="side-navbar" class="button-container">
-        <div><button id="user-button" class="options" onclick="changeSection(this)">Users</button></div>
-        <div><button id="manga-button" class="options" onclick="changeSection(this)">Manga</button></div>
-        <div><button id=anime-button" class="options" onclick="changeSection(this)">Anime</button></div>
+    <div class="navbar-container">
+        <div id="side-navbar" class="button-container">
+            <button id="user-button" class="options active">USER</button>
+            <button id="manga-button" class="options">MANGA</button>
+            <button id="anime-button" class="options">ANIME</button>
+        </div>
+    </div>
+
+    <!-- user statistics -->
+    <div id="user-page" class="page selected">
+        <h1>User Analytics</h1>
+        <div class="analytic-box" id="user-distribution">
+            <div class="analytic-title">
+                <label for="user-distribution-type">Select Distribution Type:</label>
+                <select id="user-distribution-type">
+                    <option value="gender">Gender</option>
+                    <option value="location">Location</option>
+                    <option value="birthday">Birthday</option>
+                    <option value="joined_on">Joined On</option>
+                </select>
+            </div>
+            <canvas id="user-distribution-chart" height="700" width="1400"></canvas>
+        </div>
+
+        <div class="analytic-box" id="user-criteria-rating">
+            <div class="analytic-title">
+                <label for="user-rating-criteria">Average App Rating by:</label>
+                <select id="user-rating-criteria">
+                    <option value="gender">Gender</option>
+                    <option value="location">Location</option>
+                    <option value="age">Age</option>
+                </select>
+            </div>
+            <canvas id="app-rating-chart" height="700" width="1400"></canvas>
+        </div>
     </div>
 
     <!-- manga statistics -->
     <div id="manga-page" class="page">
-        <div id="manga-analytics">
-            <h1>MANGA ANALYTICS</h1>
-            <div class="analytic-box" id="manga-tag-analytics">
-                <%--genre - theme - demographic -author  --%>
-                <label for="analyticsType">Select Analytics Type:</label>
-                <select id="analyticsType" onchange="getBestCriteria(this.value, 'manga', 1)">
-                    <option value="genres">Genre</option>
-                    <option value="themes">Theme</option>
-                    <option value="demographics">Demographic</option>
-                    <option value="authors">Author</option>
-                    <option value="serializations">Serialization</option>
+        <h1>Manga Analytics</h1>
+        <div class="analytic-box" id="manga-average-rating">
+            <div class="analytic-title">
+                <label for="manga-analytics-type">Average Rating by:</label>
+                <select id="manga-analytics-type">
+                    <option value="genres">Genres</option>
+                    <option value="themes">Themes</option>
+                    <option value="demographics">Demographics</option>
+                    <option value="authors">Authors</option>
+                    <option value="serializations">Serializations</option>
                 </select>
-
-                <!-- Demographics Chart -->
-                <div id="demographicChartContainer" class="chart-container" >
-                    <canvas id="mangaDemographicsChart" width="500" height="400"></canvas>
-                </div>
-
             </div>
+            <canvas id="manga-criteria-rating-chart" height="700" width="1400"></canvas>
+        </div>
 
-            <div class="analytic-box" id="manga-search-name">
-                <form id="searchForm" action="${pageContext.request.contextPath}/mainPage/manga" method="post">
-                    <input type="hidden" name="action" value="search">
-                    <label class="filter-name" for="manga-search">Title:</label>
-                    <input type="search" id="manga-search" name="searchTerm" placeholder="Title">
-                    <input class="search" type="submit" value="SEARCH">
-                </form>
-            </div>
-
-            <section id="manga-resultsSection"></section>
-            <div id="mangaInfo"></div>
-
-            <div class="analytic-box" id="manga-rate-of-months">
-                <p class="analytic-title">Average Rate of Months in a Specific Year</p>
-                <div class="diagram-parameter">
-                    <div>
-                        <canvas id="manga-monthlyRatesChart" width="500" height="400"></canvas>
-                    </div>
-
-                    <%
-                        // Assuming you have some data containing rates for each month
-                        // You can replace this with your actual data
-                        double[] rates = {5.6, 6.2, 7.8, 8.5, 7.3, 8.1, 9.2, 8.6, 7.9, 6.4, 5.8, 6.7};
-                        String[] months = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
-                    %>
-                    <div class="select">
-                        <label for="manga-year">Select Year:</label>
-                        <input type="text" id="manga-year" name="year">
-                        <button onclick="selectYear()">Select</button>
+        <div id="single-manga-analytics" class="analytic-box">
+            <div id="manga-search-section" class="media-list-section">
+                <div class="analytic-title">
+                    <div id="manga-search-body">
+                        <div class="d-flex align-items-center">
+                            <label class="filter-name" for="manga-search">Title:</label>
+                            <input type="search" id="manga-search" name="searchTerm" placeholder="Enter Manga Title">
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="analytic-box" id="manga-rate-of-years">
-                <p class="analytic-title">Average Rate in Years Ranger</p>
-                <div class="diagram-parameter">
-                    <div>
-                        <canvas id="manga-yearlyRatesChart" width="500" height="400"></canvas>
+            <div id="manga-list" class="media-list"></div>
+
+            <div class="media-popup">
+                <div id="manga-selected"></div>
+                <div class="analytic-box">
+                    <div class="analytic-title">
+                        <label class="analytic-title" for="manga-period-selection">Average Rating by: </label>
+                        <select id="manga-period-selection">
+                            <option value="month">MONTH</option>
+                            <option value="year">YEAR</option>
+                        </select>
                     </div>
-                    <%
-                        // Assuming you have some data containing rates for each year within the given range
-                        // You can replace this with your actual data
-                        double[] rates2 = {5.6, 6.2, 7.8, 8.5, 7.3, 8.1, 9.2, 8.6, 7.9, 6.4, 5.8, 6.7,5.6, 6.2, 7.8, 8.5, 7.3, 8.1, 9.2, 8.6, 7.9, 6.4, 5.8};
-                        int startYear = 2000;
-                        int endYear = 2022;
-                    %>
-                    <div class="select">
-                        <label for="manga-startYear">Select Starting Year:</label>
-                        <input type="number" id="manga-startYear" name="startYear" min="2000" max="2100" value="">
-                        <label for="manga-endYear">Select Ending Year:</label>
-                        <input type="number" id="manga-endYear" name="endYear" min="2000" max="2100" value="">
-                        <button onclick="updateChart()">Select</button>
+                    <div class="diagram-parameter">
+                        <div class="select">
+                            <label for="manga-year">Select Year:</label>
+                            <input type="text" id="manga-year" name="year">
+                        </div>
+                    </div>
+                    <div class="diagram-parameter">
+                        <div class="select">
+                            <label for="manga-start-year">Start Year:</label>
+                            <input type="number" id="manga-start-year" name="startYear" min="2000" max="2100">
+                            <label for="manga-end-year">End Year:</label>
+                            <input type="number" id="manga-end-year" name="endYear" min="2000" max="2100">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -148,523 +112,291 @@
 
     <!-- anime statistics -->
     <div id="anime-page" class="page">
-        <div id="anime-analytics">
-            <h1>ANIME ANALYTICS</h1>
-            <div class="analytic-box" id="anime-tag-analytics">
-                <%--genre - theme - demographic -author  --%>
-                <label for="analyticsType">Select Analytics Type:</label>
-                <select id="analyticsType" onchange="getBestCriteria(this.value, 'anime', 1)">
+        <h1>Anime Analytics</h1>
+        <div id="anime-average-rating" class="analytic-box">
+            <div class="analytic-title">
+                <label for="anime-analytics-type">Select Analytics Type:</label>
+                <select id="anime-analytics-type">
                     <option value="tags">Tags</option>
                     <option value="producers">Producers</option>
                     <option value="studios">Studios</option>
                 </select>
             </div>
-
-            <div class="analytic-box" id="anime-search-name">
-                <input type="text" id="anime-searchInput"  placeholder="Search for anime...">
-                <div id="anime-searchResults"></div>
-                <%--Solve the search bar here to show the result as heep writing--%>
-            </div>
-
-            <div class="analytic-box" id="anime-rate-of-months">
-                <p class="anime-analytic-title">Average Rate of Months in a Specific Year</p>
-                <div class="diagram-parameter">
-                    <div>
-                        <canvas id="anime-monthlyRatesChart" width="500" height="400"></canvas>
-                    </div>
-
-                    <%
-                        // Assuming you have some data containing rates for each month
-                        // You can replace this with your actual data
-                        double[] animeRates = {5.6, 6.2, 7.8, 8.5, 7.3, 8.1, 9.2, 8.6, 7.9, 6.4, 5.8, 6.7};
-                        String[] animeMonths = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
-                    %>
-                    <div class="select">
-                        <label for="anime-year">Select Year:</label>
-                        <input type="text" id="anime-year" name="year">
-                        <button onclick="selectYear()">Select</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="analytic-box" id="anime-rate-of-years">
-                <p class="analytic-title">Average Rate in Years Ranger</p>
-                <div class="diagram-parameter">
-                    <div>
-                        <canvas id="anime-yearlyRatesChart" width="500" height="400"></canvas>
-                    </div>
-                    <%
-                        // Assuming you have some data containing rates for each year within the given range
-                        // You can replace this with your actual data
-                        double[] animeRates2 = {5.6, 6.2, 7.8, 8.5, 7.3, 8.1, 9.2, 8.6, 7.9, 6.4, 5.8, 6.7,5.6, 6.2, 7.8, 8.5, 7.3, 8.1, 9.2, 8.6, 7.9, 6.4, 5.8};
-                        int animeStartYear = 2000;
-                        int animeEndYear = 2022;
-                    %>
-
-                    <div class="select">
-                        <label for="anime-startYear">Select Starting Year:</label>
-                        <input type="number" id="anime-startYear" name="startYear" min="2000" max="2100" value="">
-                        <label for="anime-endYear">Select Ending Year:</label>
-                        <input type="number" id="anime-endYear" name="endYear" min="2000" max="2100" value="">
-                        <button onclick="updateChart()">Select</button>
-                    </div>
-                </div>
-            </div>
-
+            <canvas id="anime-criteria-rating-chart" height="700" width="1400"></canvas>
         </div>
-    </div>
 
-    <!-- user statistics -->
-    <div id="user-page" class="page">
-        USER ANALYTICS
+        <div id="single-anime-analytics" class="analytic-box">
+            <div id="anime-search-section" class="media-list-section">
+                <div class="analytic-title">
+                    <div class="d-flex align-items-center">
+                        <label class="filter-name" for="anime-search">Title:</label>
+                        <input type="search" id="anime-search" name="searchTerm" placeholder="Enter Anime Title">
+                    </div>
+                </div>
+            </div>
+
+            <div id="anime-list" class="media-list"></div>
+
+            <div class="media-popup">
+                <div id="anime-selected"></div>
+                <div class="analytic-box">
+                    <div class="analytic-title">
+                        <label class="analytic-title" for="anime-period-selection">Average Rating by: </label>
+                        <select id="anime-period-selection">
+                            <option value="month">MONTH</option>
+                            <option value="year">YEAR</option>
+                        </select>
+                    </div>
+                    <div class="diagram-parameter">
+                        <div class="select">
+                            <label for="anime-year">Select Year:</label>
+                            <input type="text" id="anime-year" name="year">
+                        </div>
+                    </div>
+                    <div class="diagram-parameter">
+                        <div class="select">
+                            <label for="anime-start-year">Start Year:</label>
+                            <input type="number" id="anime-start-year" name="startYear" min="2000" max="2100">
+                            <label for="anime-end-year">End Year:</label>
+                            <input type="number" id="anime-end-year" name="endYear" min="2000" max="2100">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
-
-
 <script>
-    const mangaCtxMonthly = document.getElementById('manga-monthlyRatesChart').getContext('2d');
-    let mangaMyMonthlyChart;
+    const contextPath = '${pageContext.request.contextPath}';
+    const animeDefaultImage = contextPath + '/images/anime-image-default.png';
+    const mangaDefaultImage = contextPath + '/images/manga-image-default.png';
+    let mangaSectionAccessed = false;
+    let animeSectionAccessed = false;
+    let animeTotalPages;
+    let mangaTotalPages;
 
-    function selectYear() {
-        const selectedYear = document.getElementById('manga-year').value;
-        // Here you can use the selectedYear to fetch data for that year and update the chart accordingly
-        console.log("Selected year:", selectedYear);
-        updateMonthlyChart(selectedYear);
+    function fetchData(inputData, chartId, chartType) {
+        $.post(contextPath + "/manager", inputData, function(data) {
+            if (data.success) {
+                let max;
+                const labels = Object.keys(data.results);
+                const values = Object.values(data.results);
+
+                // Destroy the existing chart
+                const existingChart = Chart.getChart(chartId);
+                if (existingChart) {
+                    existingChart.destroy();
+                }
+
+                if (chartType === 'bar' && chartId === 'app-rating-chart') {
+                    max = 5;
+                } else if (chartType === 'bar' && chartId === 'user-distribution-chart') {
+                    max = null;
+                } else {
+                    max = 10;
+                }
+
+                createChart(chartId, labels, values, chartType, max);
+            }
+        });
     }
 
-    function updateMonthlyChart(selectedYear) {
-        // Assuming you have a function to fetch data for the selected year
-        // You need to implement this function according to your data source
-        // Update chart with new data
-        mangaMyMonthlyChart.data.datasets[0].data = fetchDataForYear(selectedYear);
-        mangaMyMonthlyChart.update();
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        mangaMyMonthlyChart = new Chart(mangaCtxMonthly, {
-            type: 'bar',
+    function createChart(chartId, labels, values, chartType, max) {
+        const ctx = $('#' + chartId)[0].getContext('2d');
+        new Chart(ctx, {
+            type: chartType,
             data: {
-                labels: [<% for (int i = 0; i < months.length; i++) { %>"<%= months[i] %>",<% } %>],
+                labels: labels,
                 datasets: [{
-                    label: 'Monthly Rates',
-                    data: [<% for (int i = 0; i < rates.length; i++) { %><%= rates[i] %>,<% } %>],
-                    backgroundColor: 'rgba(54, 162, 235, 0.2)', // Adjust color as needed
-                    borderColor: 'rgba(54, 162, 235, 1)', // Adjust color as needed
-                    borderWidth: 1
+                    label: chartType === 'bar' ? 'Average Rating' : 'Distribution',
+                    data: values,
+                    backgroundColor: chartType === 'bar' ? '#36A2EB' : ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'],
                 }]
             },
             options: {
-                scales: {
-                    yAxes: [{
-                        ticks: {
-                            beginAtZero: true,
-                            suggestedMax: 10 // Set max value for y-axis
-                        }
-                    }]
-                }
-            }
-        });
-    });
-</script>
-<script>
-    const mangaCtxYearly = document.getElementById('manga-yearlyRatesChart').getContext('2d');
-    let mangaMyYearlyChart;
-
-    function updateChart() {
-        const startYear = document.getElementById('manga-startYear').value;
-        const endYear = document.getElementById('manga-endYear').value;
-        // Here you can use the startYear and endYear to fetch data for that year range and update the chart accordingly
-        console.log("Selected start year:", startYear);
-        console.log("Selected end year:", endYear);
-        fetchDataAndUpdateChart(startYear, endYear);
-    }
-
-    function fetchDataAndUpdateChart(startYear, endYear) {
-        // Assuming you have a function to fetch data for the given year range
-        // You need to implement this function according to your data source
-        const yearRangeData = fetchDataForYearRange(startYear, endYear);
-
-        // Update chart with new data
-        mangaMyYearlyChart.data.labels = yearRangeData.years;
-        mangaMyYearlyChart.data.datasets[0].data = yearRangeData.rates;
-        mangaMyYearlyChart.update();
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        mangaMyYearlyChart = new Chart(mangaCtxYearly, {
-            type: 'bar', // Change to bar chart
-            data: {
-                labels: [<% for (int i = startYear; i <= endYear; i++) { %>"<%= i %>",<% } %>],
-                datasets: [{
-                    label: 'Yearly Rates',
-                    data: [<% for (int i = 0; i < rates2.length; i++) { %><%= rates2[i] %>,<% } %>],
-                    backgroundColor: 'rgba(54, 162, 235, 0.2)', // Adjust color as needed
-                    borderColor: 'rgba(54, 162, 235, 1)', // Adjust color as needed
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    yAxes: [{
-                        ticks: {
-                            beginAtZero: true,
-                            suggestedMax: 10 // Set max value for y-axis
-                        }
-                    }]
-                }
-            }
-        });
-    });
-</script>
-<script>
-    // Demographics Data
-    const mangaDemographicsData = {
-        labels: ['Josei', 'Shoujo', 'Seinen', 'Shounen', 'Kids'],
-        datasets: [{
-            label: 'Rates',
-            data: [6, 8, 7, 9, 5], // Random rates for demo purposes
-            backgroundColor: 'rgba(54, 162, 235, 0.2)', // Adjust color as needed
-            borderColor: 'rgba(54, 162, 235, 1)', // Adjust color as needed
-            borderWidth: 1
-        }]
-    };
-
-
-    // Configuration
-    const mangaConfig = {
-        type: 'bar',
-        options: {
-            scales: {
                 y: {
-                    beginAtZero: true,
-                    suggestedMax: 10 // Maximum value on y-axis
-                }
-            }
-        }
-    };
-
-    // Create Demographics Chart
-    mangaConfig.data = mangaDemographicsData;
-    var mangaDemographicsChart = new Chart(document.getElementById('manga-mangaDemographicsChart'), mangaConfig);
-
-
-    $(document).ready(function () {
-        // Bind the searchForm submission to the performAsyncSearch function
-        $("#searchForm").submit(function (event) {
-            event.preventDefault(); // Prevent the default form submission
-            performAsyncSearch("manga-searchForm", "manga-resultsSection");
-        });
-    });
-
-    function performAsyncSearch(formId, containerId) {
-        const form = $("#" + formId);
-        const url = form.attr("action");
-        const formData = form.serialize();
-
-        $.post(url, formData, function (data) {
-            const container = $("#" + containerId).empty();
-            container.append(
-                $("<h1>").text("Total results: " + data.mediaContentList.totalCount),
-                $("<div>").attr("id", "manga-mediaContentContainer")
-            );
-
-            updateMediaContent(data, "manga-mediaContentContainer");
-        }, "json").fail(() => console.error("Error occurred during the asynchronous request"));
-    }
-
-    // Update media content in the specified container
-    function updateMediaContent(data, containerId) {
-        const mediaContentContainer = $("#" + containerId).empty();
-        mediaContentContainer.append(data.mediaContentList.entries.map(media => createArticleElement(media)));
-    }
-
-
-    // Create HTML element for a media article
-    function createArticleElement(media) {
-        const articleElement = $("<article>").attr("id", media.id).append(
-            $("<a>").text(media.title).attr("href", "#").on("click", function (event) {
-                event.preventDefault(); // Prevent default link behavior
-                // Make AJAX request to retrieve media information
-                $.ajax({
-                    url: "${pageContext.request.contextPath}/manager/manga",
-                    method: "GET",
-                    data: {mediaId: media.id, action: "show_info"}, // Pass media ID to servlet
-                    success: function (response) {
-                        // Handle successful response
-                        console.log("Media Info:", response);
-                        // You can handle the retrieved data as needed
-                        createInfoDiv(response);
-                    },
-                    error: function (xhr, status, error) {
-                        // Handle errors
-                        console.error("Error:", error);
-                    }
-                });
-            })
-        );
-        console.log(media.id + media.title);
-        return articleElement;
-    }
-
-    function createInfoDiv(response) {
-        // Clear previous content of mangaInfo div
-        $("#mangaInfo").empty();
-
-        // Create a div to contain the manga information
-        const mangaInfoDiv = $("<div>");
-        const mangaUpdatePopup = $("<form>").addClass("popup-container").addClass("hidden").attr("id", "manga-updatePopup");
-
-        // Iterate through the response and append each property to the mangaInfoDiv
-        Object.entries(response.manga).forEach(([key, value]) => {
-            // If the value is null, set it to the string "null"
-            if (value === null) {
-                value = "null";
-            }
-
-            if (key === "authors") {
-                let objectString = "";
-                Object.entries(value).forEach(([authorsKey, authorsValue]) => {
-                    Object.entries(authorsValue).forEach(([authorKey, authorValue]) => {
-                        if (authorKey !== "id") {
-                            objectString += authorKey + ": " + authorValue + ","
-                        }
-                    });
-                });
-
-                value = objectString.slice(0, -1);
-                ;
-            }
-            // Append the key-value pair to mangaInfoDiv
-            mangaInfoDiv.append("<p><strong>" + key + ":</strong>" + value + "</p>");
-            mangaUpdatePopup.append("<label>" + key + ":</label>");
-            mangaUpdatePopup.append($("<input>").attr("value", value))
-
-        });
-
-        // Add a delete button
-        const deleteButton = $("<button>Delete</button>");
-        deleteButton.on("click", function () {
-            // Send asynchronous request to delete the manga
-            $.ajax({
-                url: "${pageContext.request.contextPath}/manager/manga",
-                method: "POST",
-                data: {mediaId: response.manga.id, action: "delete_media"},
-                success: function () {
-                    console.log("Manga deleted successfully");
-                    $("#mangaInfo").empty();
-                    $("#" + response.manga.id).remove();
+                    duration: 1000,
+                    easing: 'easeOutQuad',
+                    from: chartType === 'bar' ? 0 : 10, // Start from 0 for bar chart, or from the maximum value for other types
+                    loop: false
                 },
-                error: function (xhr, status, error) {
-                    // Handle error response
-                    console.error("Error deleting manga:", error);
-                }
-            });
-        });
-        mangaInfoDiv.append(deleteButton);
-
-        const updateButton = $("<button>Update<button>");
-        updateButton.on("click", function () {
-            $("#updatePopup").toggleClass("hidden");
-        })
-        updateButton.append(mangaUpdatePopup);
-        mangaInfoDiv.append(updateButton);
-
-        $("#mangaInfo").append(mangaInfoDiv);
-
-        //add select button
-        const selectButton = $("<button>Select</button>");
-        selectButton.on("click", function () {
-            // Send asynchronous request to select the manga
-            selectMangaForAnalytics(media.id);
-        });
-        mangaInfoDiv.append(selectButton);
-    }
-
-    function selectMangaForAnalytics(mediaId) {
-        // Get the selected manga's info
-        $.ajax({
-            url: "${pageContext.request.contextPath}/manager/manga",
-            method: "GET",
-            data: {mediaId: mediaId, action: "get_manga_info"},
-            success: function (response) {
-                // Handle successful response
-                console.log("Selected Manga Info:", response);
-                // You can store the selected manga info for later use
-                // For now, let's assume you store it in a global variable
-                selectedMangaInfo = response;
-                // Now, prompt the user to enter the year for analytics
-                var selectedYear = prompt("Enter year for analytics (YYYY):");
-                if (selectedYear) {
-                    // Update chart with the selected manga and year
-                    updateMonthlyChart(selectedMangaInfo, selectedYear);
-                }
-            },
-            error: function (xhr, status, error) {
-                // Handle errors
-                console.error("Error:", error);
+                responsive: false,
+                plugins: {
+                    legend: {
+                        position: chartType === 'bar' ? 'top' : "right"
+                    },
+                },
+                scales: chartType === 'bar' ? {
+                    y: {
+                        beginAtZero: true,
+                        max: max
+                    }
+                } : {}
             }
         });
     }
-</script>
-<script>
-    var ctxMonthly = document.getElementById('anime-monthlyRatesChart').getContext('2d');
-    var myMonthlyChart;
 
-    function selectYear() {
-        var selectedYear = document.getElementById('anime-year').value;
-        // Here you can use the selectedYear to fetch data for that year and update the chart accordingly
-        console.log("Selected year:", selectedYear);
-        updateMonthlyChart(selectedYear);
-    }
-
-    function updateMonthlyChart(selectedYear) {
-        // Assuming you have a function to fetch data for the selected year
-        // You need to implement this function according to your data source
-        var yearData = fetchDataForYear(selectedYear);
-
-        // Update chart with new data
-        myMonthlyChart.data.datasets[0].data = yearData;
-        myMonthlyChart.update();
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        myMonthlyChart = new Chart(ctxMonthly, {
-            type: 'bar',
-            data: {
-                labels: [<% for (int i = 0; i < months.length; i++) { %>"<%= months[i] %>", <% } %>],
-                datasets: [{
-                    label: 'Monthly Rates',
-                    data: [<% for (int i = 0; i < rates.length; i++) { %><%= rates[i] %>, <% } %>],
-                    backgroundColor: 'rgba(54, 162, 235, 0.2)', // Adjust color as needed
-                    borderColor: 'rgba(54, 162, 235, 1)', // Adjust color as needed
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    yAxes: [{
-                        ticks: {
-                            beginAtZero: true,
-                            suggestedMax: 10 // Set max value for y-axis
-                        }
-                    }]
-                }
-            }
-        });
-    });
-</script>
-<script>
-    var ctxYearly = document.getElementById('anime-yearlyRatesChart').getContext('2d');
-    var myYearlyChart;
-
-    function updateChart() {
-        var startYear = document.getElementById('anime-startYear').value;
-        var endYear = document.getElementById('anime-endYear').value;
-        // Here you can use the startYear and endYear to fetch data for that year range and update the chart accordingly
-        console.log("Selected start year:", startYear);
-        console.log("Selected end year:", endYear);
-        fetchDataAndUpdateChart(startYear, endYear);
-    }
-
-    function fetchDataAndUpdateChart(startYear, endYear) {
-        // Assuming you have a function to fetch data for the given year range
-        // You need to implement this function according to your data source
-        var yearRangeData = fetchDataForYearRange(startYear, endYear);
-
-        // Update chart with new data
-        myYearlyChart.data.labels = yearRangeData.years;
-        myYearlyChart.data.datasets[0].data = yearRangeData.rates;
-        myYearlyChart.update();
-    }
-
-    document.addEventListener('DOMContentLoaded', function () {
-        myYearlyChart = new Chart(ctxYearly, {
-            type: 'bar', // Change to bar chart
-            data: {
-                labels: [<% for (int i = startYear; i <= endYear; i++) { %>"<%= i %>", <% } %>],
-                datasets: [{
-                    label: 'Yearly Rates',
-                    data: [<% for (int i = 0; i < rates2.length; i++) { %><%= rates2[i] %>, <% } %>],
-                    backgroundColor: 'rgba(54, 162, 235, 0.2)', // Adjust color as needed
-                    borderColor: 'rgba(54, 162, 235, 1)', // Adjust color as needed
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    yAxes: [{
-                        ticks: {
-                            beginAtZero: true,
-                            suggestedMax: 10 // Set max value for y-axis
-                        }
-                    }]
-                }
-            }
-        });
-    });
-</script>
-
-<script>
-    const page = "${requestScope.page}";
-    console.log(page);
-    if (page === "manga") {
-        document.getElementById("manga-button").classList.add("active");
-        document.getElementById("manga-page").style.display = "flex";
-    } else if (page === "anime") {
-        document.getElementById("anime-button").classList.add("active");
-        document.getElementById("anime-page").style.display = "flex";
-    } else {
-        document.getElementById("user-button").classList.add("active");
-        document.getElementById("user-page").style.display = "flex";
-    }
-
-    function changeSection(button) {
-        const section = button.id.split("-")[0];
-        const animeSection = $("#anime-page");
-        const mangaSection = $("#manga-page");
-        const userSection = $("#user-page");
-        $(".button-container button").removeClass("active");
-        if (section === "user") {
-            button.classList.add("active");
-            animeSection.hide();
-            mangaSection.hide();
-            loadPage("getUserDefaultAnalytics");
-            userSection.css("display", "flex");
-        } else {
-            userSection.hide();
-            if (section === "anime") {
-                button.classList.add("active");
-                loadPage("getAnimeDefaultAnalytics");
-                animeSection.css("display", "flex");
-                mangaSection.hide();
-            } else {
-                button.classList.add("active");
-                loadPage("getMangaDefaultAnalytics");
-                mangaSection.css("display", "flex");
-                animeSection.hide();
-            }
-        }
-    }
-
-    function getBestCriteria(criteria, section, page = 1) {
+    function search(searchTerm, type) {
         const inputData = {
-            action: "getBestCriteria",
-            criteria: criteria,
-            section: section,
-            page: page
-        };
-
-        $.post("${pageContext.request.contextPath}/manager", inputData, function (data) {
-            console.log(data);
+            title: searchTerm,
+            action: 'searchByTitle'
+        }
+        $.post(contextPath + "/" + type, inputData, function(data) {
+            if (data.success) {
+                const mediaList = type === 'anime' ? $('#anime-list') : $('#manga-list');
+                mediaList.empty(); // Clear previous search results
+                data.results.entries.forEach(function(entry) {
+                    const mediaItem = $('<div class="media-item"></div>');
+                    const image = $('<img src="' + entry.imageUrl + '" alt="' + entry.title + '" class="media-image">')
+                        .on("error", () =>  setDefaultCover(image, type));
+                    const title = $('<div class="media-title">' + entry.title + '</div>');
+                    mediaItem.append(image, title);
+                    mediaList.append(mediaItem);
+                });
+                if (type === 'anime')
+                    animeTotalPages = data.results.totalPages;
+                else
+                    mangaTotalPages = data.results.totalPages;
+            } else if (data.noResults) {
+                const mediaList = type === 'anime' ? $('#anime-list') : $('#manga-list');
+                mediaList.empty(); // Clear previous search results
+                mediaList.append('<div class="no-results">No results found</div>');
+            } else {
+                console.log('Failed to search');
+            }
+        }).fail(function() {
+            console.log('Failed to search');
         });
     }
 
-    function loadPage(action) {
-        $.post("${pageContext.request.contextPath}/manager", {action: action}, function (data) {
-            console.log(data);
-        });
+    function setDefaultCover(image, type) {
+        image.off("error");
+        image.attr("src", type === "anime" ? animeDefaultImage : mangaDefaultImage);
     }
+
+    function resetPage() {
+        $("input").val("");
+        $("select").prop('selectedIndex', 0);
+    }
+
+    function getDefaultAnalytics(type) {
+        const action = type === 'anime' ? 'getAnimeDefaultAnalytics' : 'getMangaDefaultAnalytics';
+        $.post(contextPath + "/manager", {action: action}, function(data) {
+            if (data.success) {
+                const chartId = type === 'anime' ? 'anime-criteria-rating-chart' : 'manga-criteria-rating-chart';
+                const labels = Object.keys(data.bestCriteria);
+                const values = Object.values(data.bestCriteria);
+                createChart(chartId, labels, values, 'bar');
+                if (type === 'anime')
+                    animeSectionAccessed = true;
+                else
+                    mangaSectionAccessed = true;
+            }
+        });
+
+    }
+
+    $(document).ready(function() {
+        resetPage();
+        // Extract labels and values from the distribution map
+        const distributionLabels = [];
+        const distributionData = [];
+        <c:forEach var="entry" items="${distribution}">
+        distributionLabels.push('<c:out value="${entry.key}"/>');
+        distributionData.push(<c:out value="${entry.value}"/>);
+        </c:forEach>
+        createChart('user-distribution-chart', distributionLabels, distributionData, 'pie');
+
+        // Extract labels and values from the average app rating map
+        const averageAppRatingLabels = [];
+        const averageAppRatingData = [];
+        <c:forEach var="entry" items="${averageAppRating}">
+        averageAppRatingLabels.push('<c:out value="${entry.key}"/>');
+        averageAppRatingData.push(<c:out value="${entry.value}"/>);
+        </c:forEach>
+        createChart('app-rating-chart', averageAppRatingLabels, averageAppRatingData, 'bar');
+
+        $('#user-distribution-type').change(function () {
+            const criteria = $('#user-distribution-type').val();
+            let chartType = 'pie';
+            const inputData = {
+                criteria: criteria,
+                action: 'getDistribution'
+            }
+            if (criteria === 'birthday' || criteria === 'joined_on') {
+                chartType = 'bar';
+            }
+            fetchData(inputData, 'user-distribution-chart', chartType);
+        });
+
+        $('#user-rating-criteria').change(function () {
+            const inputData = {
+                criteria: $('#user-rating-criteria').val(),
+                action: 'getAverageAppRatingByCriteria'
+            }
+            fetchData(inputData, 'app-rating-chart', 'bar',);
+        });
+
+        $('#manga-analytics-type').change(function () {
+            const inputData = {
+                criteria: $('#manga-analytics-type').val(),
+                action: 'getBestCriteria',
+                type: 'manga',
+                page: 1
+            }
+            fetchData(inputData, 'manga-criteria-rating-chart', 'bar');
+        });
+
+        $('#anime-analytics-type').change(function () {
+            const inputData = {
+                criteria: $('#anime-analytics-type').val(),
+                action: 'getBestCriteria',
+                type: 'anime',
+                page: 1
+            }
+            fetchData(inputData, 'anime-criteria-rating-chart', 'bar');
+        });
+
+        function showPage(pageId, button) {
+            $('.page').removeClass('selected');
+            $(pageId).addClass('selected');
+            $('.options').removeClass('active');
+            $(button).addClass('active');
+        }
+
+        // page triggers
+
+        $('#user-button').click(function () {
+            showPage('#user-page', $(this));
+        });
+
+        $('#manga-button').click(function () {
+            if (!mangaSectionAccessed)
+                getDefaultAnalytics('manga');
+            showPage('#manga-page', $(this));
+        });
+
+        $('#anime-button').click(function () {
+            if (!animeSectionAccessed) {
+                getDefaultAnalytics('anime');
+            }
+            showPage('#anime-page', $(this));
+        });
+
+
+        // search triggers
+
+        $('#manga-search').on('input', function () {
+            const searchTerm = $('#manga-search').val();
+            search(searchTerm, 'manga');
+        });
+
+        $('#anime-search').on('input', function () {
+            const searchTerm = $('#anime-search').val();
+            search(searchTerm, 'anime');
+        });
+    });
 </script>
 </body>
 </html>

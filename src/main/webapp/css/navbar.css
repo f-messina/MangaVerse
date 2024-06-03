@@ -1,0 +1,155 @@
+nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 50px 40px;
+    width: 100%;
+    height: 60px;
+    background-color: white;
+    z-index: 999;
+}
+
+nav h1 {
+    font-weight: 300;
+    font-size: 40px;
+}
+
+.small-pic {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 50px;
+}
+
+nav img {
+    width: 60px;
+    height: auto;
+
+}
+
+.small-pic img {
+    border-radius: 50%;
+    aspect-ratio: 1/1;
+}
+
+nav .nav-items {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    font-size: 2rem;
+}
+
+nav .nav-items a {
+    text-decoration: none;
+    color: black;
+}
+
+.clickable {
+    cursor: pointer;
+}
+
+/* search users */
+
+.search-box {
+    width: 200px;
+    position: relative;
+}
+
+.btn-search {
+    width: 50px;
+    height: 50px;
+    border-style: none;
+    font-size: 20px;
+    cursor: pointer;
+    position: absolute;
+    right: 0;
+    color: rgba(41, 20, 130, 0.85);
+    background-color: transparent;
+}
+
+.input-search {
+    height: 50px;
+    width: 50px;
+    border-style: none;
+    outline: none;
+    transition: all .5s ease-in-out;
+    padding: 10px 40px 10px 10px;
+    color:rgba(41, 20, 130, 0.85);
+    font-size: 15px;
+    letter-spacing: 1px;
+}
+
+.input-search::placeholder {
+    color:rgba(41, 20, 130, 0.85);
+    font-size: 15px;
+    letter-spacing: 1px;
+}
+
+.input-search.active {
+    width: 200px;
+    border-bottom:1px solid rgba(41, 20, 130, 0.85);
+    transition: all 500ms cubic-bezier(0, 0.110, 0.35, 1.5);
+}
+
+.users-results {
+    position: absolute;
+    display: none;
+    margin-top: 10px;
+    padding: 10px !important;
+    width: 300px;
+    background-color: white;
+    border: 2px solid rgba(41, 20, 130, 0.85);
+    z-index: 999;
+}
+
+/* logout */
+
+.logout {
+    cursor: pointer;
+    display: flex;
+    align-items: last baseline;
+}
+
+.logout:hover {
+    color: #9b1010;
+}
+
+.logout-icon {
+    width: 1.5rem;
+}
+
+.logout-text {
+    border-style: none;
+    background-color: transparent;
+    padding: 0 0 0 6px;
+}
+
+/* lens icon */
+
+@font-face {
+    font-family: 'FontAwesome';
+    src: url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/fonts/fontawesome-webfont.eot?v=4.7.0');
+    src: url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/fonts/fontawesome-webfont.eot?#iefix&v=4.7.0') format('embedded-opentype'),
+    url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/fonts/fontawesome-webfont.woff2?v=4.7.0') format('woff2'),
+    url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/fonts/fontawesome-webfont.woff?v=4.7.0') format('woff'),
+    url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/fonts/fontawesome-webfont.ttf?v=4.7.0') format('truetype'),
+    url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/fonts/fontawesome-webfont.svg?v=4.7.0#fontawesomeregular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+.fa {
+    display:inline-block;
+    font:normal normal normal 14px/1 FontAwesome;
+    font-size:inherit;
+    text-rendering:auto;
+}
+
+.fa-search:before {
+    content:"\f002"
+}
+

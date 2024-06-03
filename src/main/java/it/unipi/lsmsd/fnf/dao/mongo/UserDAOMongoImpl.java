@@ -16,7 +16,6 @@ import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.model.enums.UserType;
 import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
-import it.unipi.lsmsd.fnf.utils.Constants;
 import it.unipi.lsmsd.fnf.utils.DocumentUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
@@ -24,7 +23,6 @@ import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 
 import java.util.*;
-import java.util.logging.Logger;
 
 import static com.mongodb.client.model.Accumulators.avg;
 import static com.mongodb.client.model.Accumulators.sum;
@@ -34,7 +32,7 @@ import static com.mongodb.client.model.Projections.*;
 import static com.mongodb.client.model.Sorts.ascending;
 import static com.mongodb.client.model.Sorts.descending;
 import static it.unipi.lsmsd.fnf.utils.DocumentUtils.RegisteredUserToDocument;
-import static it.unipi.lsmsd.fnf.utils.DocumentUtils.UsertToUnsetUserFieldsDocument;
+import static it.unipi.lsmsd.fnf.utils.DocumentUtils.UserToUnsetUserFieldsDocument;
 
 
 /**
@@ -66,7 +64,7 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
             else if(emailExists)
                 throw new DuplicatedException(DuplicatedExceptionType.DUPLICATED_EMAIL, "UserDAOMongoImpl: saveUser: Email already in use");
 
-            Optional.ofNullable(usersCollection.insertOne(RegisteredUserToDocument(user, Constants .DEFAULT_PROFILE_PICTURE)).getInsertedId())
+            Optional.ofNullable(usersCollection.insertOne(RegisteredUserToDocument(user)).getInsertedId())
                     .map(result -> result.asObjectId().getValue().toHexString())
                     .map(id -> { user.setId(id); return id; })
                     .orElseThrow(() -> new MongoException("UserDAOMongoImpl: saveUser: Error saving user"));
@@ -111,7 +109,7 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
             // Update the document in the collection and check if the update was successful
             Bson filter = eq("_id", new ObjectId(user.getId()));
             Bson update = new Document("$set", RegisteredUserToDocument(user))
-                    .append("$unset", UsertToUnsetUserFieldsDocument(user));
+                    .append("$unset", UserToUnsetUserFieldsDocument(user));
 
             UpdateResult result = usersCollection.updateOne(filter, update);
             if (result.getMatchedCount() == 0) {

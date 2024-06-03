@@ -1,10 +1,6 @@
 const signUpButton = $("#signup");
 const overlay = $("#overlay");
 
-function startsWithCaseInsensitive(str, prefix) {
-    return str.toUpperCase().indexOf(prefix.toUpperCase()) === 0;
-}
-
 function validateUsername() {
     signUpButton.prop("disabled", true);
 
@@ -87,9 +83,12 @@ function showSignUpForm() {
     $("body").css("overflow-y", "hidden");
     const signupDiv = $("#signupPopup");
     signupDiv.find("input:not(#action):not(#signup)").val("");
-    $("#gender").val("unknown");
+    signupDiv.find("span.error").text("");
+    const genderInput = $("#gender");
+    genderInput.val("I prefer not to answer");
+    genderInput.attr("data-value", "unknown");
     signupDiv.show();
-    overlay.click(hideEditForm);
+    overlay.click(hideSignUpForm);
 
 }
 
@@ -101,7 +100,10 @@ function hideSignUpForm() {
 
 signUpButton.click(function(event) {
     event.preventDefault();
-    const signupForm = $("#register-form");
+    const genderInput = $("#gender");
+    genderInput.val(genderInput.attr("data-value"));
+    const signupData = $("#register-form").serialize();
+    console.log(signupData);
     $.post(signupForm.attr("action"), signupForm.serialize(), function(data) {
         if (data.success) {
             window.location.href = data.redirect;
@@ -112,5 +114,40 @@ signUpButton.click(function(event) {
         $("#general-error").text(data.generalError || "");
     }).fail(function() {
         $("#general-error").text("An error occurred. Please try again later.");
+    });
+});
+
+$(".overlay").click(function() {
+    hideSignUpForm();
+});
+
+
+// gender select dropdown
+
+document.addEventListener("DOMContentLoaded", function() {
+    const dropdown = document.querySelector("#gender-div");
+    const input = dropdown.querySelector("input");
+    const options = dropdown.querySelector(".dropdown-options");
+
+    input.addEventListener("click", function() {
+        options.style.display = options.style.display !== "none" ? "none" : "flex";
+    });
+
+    options.addEventListener("click", function(event) {
+        if (event.target.classList.contains("option")) {
+            input.value = event.target.textContent;
+            input.dataset.value = event.target.dataset.value;
+
+            options.querySelectorAll(".option").forEach(option => {
+            });
+
+            options.style.display = "none";
+        }
+    });
+
+    document.addEventListener("click", function(event) {
+        if (!dropdown.contains(event.target)) {
+            options.style.display = "none";
+        }
     });
 });

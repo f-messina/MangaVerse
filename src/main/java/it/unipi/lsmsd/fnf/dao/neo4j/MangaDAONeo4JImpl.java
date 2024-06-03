@@ -6,7 +6,8 @@ import it.unipi.lsmsd.fnf.dao.exception.enums.DAOExceptionType;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
 import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
-import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
+import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
+import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
@@ -73,7 +74,7 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
     @Override
     public void updateMediaContent(Manga manga) throws DAOException {
         try (Session session = getSession()) {
-            StringBuilder queryBuilder = new StringBuilder("MATCH (a:Manga {id: $id}) SET");
+            StringBuilder queryBuilder = new StringBuilder("MATCH (m:Manga {id: $id}) SET");
 
             if (manga.getTitle() == null && manga.getImageUrl() == null) {
                 throw new IllegalArgumentException("Manga object must have at least one field to update");
@@ -90,7 +91,7 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
                 queryBuilder.append(" a.picture = $picture ");
                 param.put("picture", manga.getImageUrl());
             }
-            queryBuilder.append("RETURN a");
+            queryBuilder.append("RETURN m");
             String query = queryBuilder.toString();
 
             session.executeWrite(tx -> {
@@ -122,9 +123,9 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
     @Override
     public void deleteMediaContent(String mangaId) throws DAOException {
         try (Session session = getSession()) {
-            String query = "MATCH (a:Manga {id: $id}) DETACH " +
+            String query = "MATCH (m:Manga {id: $id}) DETACH " +
                     "DELETE a " +
-                    "RETURN a";
+                    "RETURN m";
 
             session.executeWrite(tx -> {
                 boolean deleted = tx.run(query, parameters("id", mangaId)).hasNext();
@@ -321,20 +322,71 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
      * @throws DAOException If an error occurs while retrieving suggested Manga.
      */
     @Override
-    public List<MediaContentDTO> getSuggested(String userId, Integer limit) throws DAOException {
+    public List<MediaContentDTO> getSuggestedByFollowings(String userId, Integer limit) throws DAOException {
+        int n = limit == null ? 5 : limit;
+        List<MediaContentDTO> suggested;
+        LocalDate today = LocalDate.now();
+
         try (Session session = getSession()) {
-            String query = "MATCH (u:User {id: $userId})-[:FOLLOWS]->(f:User)-[:LIKE]->(m:Manga) " +
-                    "WITH m, COUNT(DISTINCT f) AS num_likes  " +
-                    "RETURN m as manga " +
-                    "LIMIT $n";
+            String query1 = """
+                MATCH (u:User {id: $userId})-[:FOLLOWS]->(f:User)-[r:LIKE]->(m:Manga)
+                WHERE NOT (u)-[:LIKE]->(m) AND r.date >= $startDate
+                WITH m, COUNT(DISTINCT f) AS num_likes
+                RETURN m AS manga
+                ORDER BY num_likes DESC
+                LIMIT $n""";
 
+            // try to get suggestions based on likes in the last 6 months
+            Value params1 = parameters("userId", userId, "n", n, "startDate", today.minusMonths(6).toString());
             List<Record> records = session.executeRead(
-                    tx -> tx.run(query, parameters("userId", userId, "n", limit == null ? 5 : limit)).list()
+                    tx -> tx.run(query1, params1).list()
             );
-
-            return records.isEmpty() ? null : records.stream()
+            n -= records.isEmpty() ? 0 : records.size();
+            suggested = records.stream()
                     .map(record -> (MangaDTO) recordToMediaContentDTO(record))
                     .collect(Collectors.toList());
+
+            // if there are not enough suggestions, add more results from the last 2 years
+            if (n > 0) {
+                String query2 = """
+                MATCH (u:User {id: $userId})-[:FOLLOWS]->(f:User)-[r:LIKE]->(m:Manga)
+                WHERE NOT (u)-[:LIKE]->(m) AND r.date >= $startDate AND r.date <= $endDate
+                WITH m, COUNT(DISTINCT f) AS num_likes
+                RETURN m AS manga
+                ORDER BY num_likes DESC
+                LIMIT $n""";
+                Value params2 = parameters("userId", userId, "n", n, "startDate", today.minusYears(2).toString(), "endDate", today.minusMonths(6).toString());
+                records = session.executeRead(
+                        tx -> tx.run(query2, params2).list()
+                );
+                n -= records.isEmpty() ? 0 : records.size();
+                for (Record record : records) {
+                    MangaDTO mangaDTO = (MangaDTO) recordToMediaContentDTO(record);
+                    suggested.add(mangaDTO);
+                }
+            }
+
+            // if there are not enough suggestions, try to get suggestions based on all likes
+            if (n > 0) {
+                String query3 = """
+                    MATCH (u:User {id: $userId})-[:FOLLOWS]->(f:User)-[r:LIKE]->(m:Manga)
+                    WHERE NOT (u)-[:LIKE]->(m) AND r.date <= $endDate
+                    WITH m, COUNT(DISTINCT f) AS num_likes
+                    RETURN m AS manga
+                    ORDER BY num_likes DESC
+                    LIMIT $n""";
+                Value params3 = parameters("userId", userId, "n", n, "endDate", today.minusYears(2).toString());
+                records = session.executeRead(
+                        tx -> tx.run(query3, params3).list()
+                );
+
+                for (Record record : records) {
+                    MangaDTO mangaDTO = (MangaDTO) recordToMediaContentDTO(record);
+                    suggested.add(mangaDTO);
+                }
+            }
+
+            return suggested.isEmpty() ? null : suggested;
 
         } catch (Neo4jException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
@@ -342,7 +394,95 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
         } catch (Exception e) {
             throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
         }
+    }
 
+
+    public List<MediaContentDTO> getSuggestedByLikes(String userId, Integer limit) throws DAOException {
+        int n = limit == null ? 5 : limit;
+        List<MediaContentDTO> suggested;
+        LocalDate today = LocalDate.now();
+
+        try (Session session = getSession()) {
+            String query1 = """
+                    MATCH (u:User {id: $userId})-[r1:LIKE]->(m:Manga)<-[:LIKE]-(f:User)
+                    WHERE r1.date >= $startDate
+                    WITH u, f, COUNT(m) AS common_likes
+                    ORDER BY common_likes DESC
+                    LIMIT 50
+                    MATCH (f)-[:LIKE]->(m2:Manga)
+                    WHERE NOT (u)-[:LIKE]->(m2)
+                    WITH m2, COUNT(DISTINCT f) AS num_likes
+                    RETURN m2 AS manga
+                    ORDER BY num_likes DESC
+                    LIMIT $n""";
+
+            // Try to get suggestions based on likes in the last 6 months
+            Value params1 = parameters("userId", userId, "n", n, "startDate", today.minusMonths(6).toString());
+            List<Record> records = session.executeRead(
+                    tx -> tx.run(query1, params1).list()
+            );
+            n -= records.isEmpty() ? 0 : records.size();
+            suggested = records.stream()
+                    .map(record -> (MangaDTO) recordToMediaContentDTO(record))
+                    .collect(Collectors.toList());
+
+            // If there are not enough suggestions, add more results from the last 2 years
+            if (n > 0) {
+                String query2 = """
+                    MATCH (u:User {id: $userId})-[r1:LIKE]->(m:Manga)<-[:LIKE]-(f:User)
+                    WHERE r1.date >= $startDate AND r1.date <= $endDate
+                    WITH u, f, COUNT(m) AS common_likes
+                    ORDER BY common_likes DESC
+                    LIMIT 50
+                    MATCH (f)-[:LIKE]->(m2:Manga)
+                    WHERE NOT (u)-[:LIKE]->(m2)
+                    WITH m2, COUNT(DISTINCT f) AS num_likes
+                    RETURN m2 AS manga
+                    ORDER BY num_likes DESC
+                    LIMIT $n""";
+                Value params2 = parameters("userId", userId, "n", n, "startDate", today.minusYears(2).toString(), "endDate", today.minusMonths(6).toString());
+                records = session.executeRead(
+                        tx -> tx.run(query2, params2).list()
+                );
+                n -= records.isEmpty() ? 0 : records.size();
+                for (Record record : records) {
+                    MangaDTO mangaDTO = (MangaDTO) recordToMediaContentDTO(record);
+                    suggested.add(mangaDTO);
+                }
+            }
+
+            // If there are not enough suggestions, add more results based on all likes
+            if (n > 0) {
+                String query3 = """
+                        MATCH (u:User {id: $userId})-[r1:LIKE]->(m:Manga)<-[:LIKE]-(f:User)
+                        WHERE r1.date <= $endDate
+                        WITH u, f, COUNT(m) AS common_likes
+                        ORDER BY common_likes DESC
+                        MATCH (f)-[:LIKE]->(m2:Manga)
+                        WHERE NOT (u)-[:LIKE]->(m2)
+                        WITH m2, COUNT(DISTINCT f) AS num_likes
+                        RETURN m2 AS manga
+                        ORDER BY num_likes DESC
+                        LIMIT $n""";
+                Value params3 = parameters("userId", userId, "n", n, "endDate", today.minusYears(2).toString());
+                records = session.executeRead(
+                        tx -> tx.run(query3, params3).list()
+                );
+
+                for (Record record : records) {
+                    MangaDTO mangaDTO = (MangaDTO) recordToMediaContentDTO(record);
+                    suggested.add(mangaDTO);
+                }
+            }
+
+            return suggested.isEmpty() ? null : suggested;
+
+        } catch (Neo4jException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
+        } catch (Exception e) {
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+        }
     }
 
     /**
@@ -353,21 +493,24 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
      * @throws DAOException If an error occurs while retrieving trending Manga.
      */
     @Override
-    public Map<MediaContentDTO, Integer> getTrendMediaContentByYear(int year) throws DAOException {
+    public Map<MediaContentDTO, Integer> getTrendMediaContentByYear(int year, Integer limit) throws DAOException {
+        int n = limit == null ? 5 : limit;
         try (Session session = getSession()) {
-            LocalDateTime startDate = LocalDateTime.of(year, 1, 1, 0, 0);
-            LocalDateTime endDate = LocalDateTime.of(year + 1, 1, 1, 0, 0);
-            String query = """
-                    MATCH (m:Manga)<-[r:LIKE]-(u:User)
-                    WHERE r.date >= $startDate AND r.date < $endDate
-                    WITH m, count(r) AS numLikes
-                    ORDER BY numLikes DESC
-                    RETURN m as manga, numLikes
-                    LIMIT 5
-                    """;
+            String startDate = LocalDate.of(year, 1, 1).toString();
+            String endDate = LocalDate.of(year + 1, 1, 1).toString();
 
+            String query = """
+            MATCH (m:Manga)<-[r:LIKE]-(u:User)
+            WHERE r.date >= $startDate AND r.date < $endDate
+            WITH m, count(r) AS numLikes
+            ORDER BY numLikes DESC
+            RETURN m AS manga, numLikes
+            LIMIT $n
+            """;
+
+            Value params = parameters("startDate", startDate, "endDate", endDate, "n", n);
             List<Record> records = session.executeRead(
-                    tx -> tx.run(query, parameters("startDate", startDate, "endDate", endDate)).list()
+                    tx -> tx.run(query, params).list()
             );
 
             return records.stream().map(record -> {
@@ -384,6 +527,8 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
         }
     }
 
+
+
     /**
      * Retrieves a list of trending MangaDTO objects by likes from the Neo4j database.
      *
@@ -391,23 +536,70 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
      * @throws DAOException If an error occurs while retrieving trending Manga by likes.
      */
     @Override
-    public List<MediaContentDTO> getMediaContentTrendByLikes() throws DAOException {
+    public List<MediaContentDTO> getMediaContentTrendByLikes(Integer limit) throws DAOException {
+        int n = limit == null ? 5 : limit;
+        List<MediaContentDTO> trendingContent;
+        LocalDate today = LocalDate.now();
+
         try (Session session = getSession()) {
-            String query = "MATCH (u:User)-[r:LIKE]->(m:Manga) " +
-                    "WHERE r.date >= $startDate AND r.date <= $endDate " +
-                    "WITH m, COUNT(r) as numLikes " +
-                    "ORDER BY numLikes DESC " +
-                    "RETURN m as manga, numLikes " +
-                    "LIMIT 5";
-            LocalDateTime today = LocalDateTime.now();
+            String query1 = """
+                MATCH (u:User)-[r:LIKE]->(m:Manga)
+                WHERE r.date >= $startDate
+                WITH m, COUNT(r) AS numLikes
+                ORDER BY numLikes DESC
+                RETURN m AS manga, numLikes
+                LIMIT $n
+                """;
 
+            // First attempt: last 6 months
+            Value params1 = parameters("startDate", today.minusMonths(6).toString(), "n", n);
             List<Record> records = session.executeRead(
-                    tx -> tx.run(query, parameters("startDate", today.minusMonths(6), "endDate", today)).list()
+                    tx -> tx.run(query1, params1).list()
             );
-
-            return records.stream()
+            n -= records.isEmpty() ? 0 : records.size();
+            trendingContent = records.stream()
                     .map(record -> (MangaDTO) recordToMediaContentDTO(record))
                     .collect(Collectors.toList());
+
+            // If not enough results, add more results from the last year
+            String query2 = """
+                MATCH (u:User)-[r:LIKE]->(m:Manga)
+                WHERE r.date >= $startDate AND r.date <= $endDate
+                WITH m, COUNT(r) AS numLikes
+                ORDER BY numLikes DESC
+                RETURN m AS manga, numLikes
+                LIMIT $n
+                """;
+            if (n > 0) {
+                Value params2 = parameters("startDate", today.minusYears(1).toString(), "endDate", today.minusMonths(6).toString(), "n", n);
+                records = session.executeRead(
+                        tx -> tx.run(query2, params2).list()
+                );
+                n -= records.isEmpty() ? 0 : records.size();
+                for (Record record : records) {
+                    MangaDTO mangaDTO = (MangaDTO) recordToMediaContentDTO(record);
+                    trendingContent.add(mangaDTO);
+                }
+            }
+
+            // If still not enough results, add more results from the last 5 years
+            if (n > 0) {
+                Value params3 = parameters("startDate", today.minusYears(5).toString(), "endDate", today.minusYears(1).toString(), "n", n);
+                records = session.executeRead(
+                        tx -> tx.run(query2, params3).list()
+                );
+
+                for (Record record : records) {
+                    MangaDTO mangaDTO = (MangaDTO) recordToMediaContentDTO(record);
+                    if (!trendingContent.contains(mangaDTO)) {
+                        trendingContent.add(mangaDTO);
+                    }
+                    if (trendingContent.size() == n)
+                        break;
+                }
+            }
+
+            return trendingContent.isEmpty() ? null : trendingContent;
 
         } catch (Neo4jException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
@@ -416,6 +608,7 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
             throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
+
 
     private MediaContentDTO recordToMediaContentDTO(Record record) {
         MediaContentDTO mangaDTO = new MangaDTO();

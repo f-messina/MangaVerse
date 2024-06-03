@@ -11,13 +11,12 @@ import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.service.ServiceLocator;
 import it.unipi.lsmsd.fnf.service.enums.ExecutorTaskServiceType;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
-import it.unipi.lsmsd.fnf.service.interfaces.ExecutorTaskService;
-import it.unipi.lsmsd.fnf.service.interfaces.MediaContentService;
-import it.unipi.lsmsd.fnf.service.interfaces.TaskManager;
-import it.unipi.lsmsd.fnf.service.interfaces.UserService;
+import it.unipi.lsmsd.fnf.service.interfaces.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -81,7 +80,8 @@ class ReviewServiceImplTest {
     @Test
     void deleteReview() {
         ReviewServiceImpl reviewService = new ReviewServiceImpl();
-        assertDoesNotThrow(() -> reviewService.deleteReview("664a8143e46f76d1dd692183", "664a6d0de46f76d1dd691746", MediaContentType.ANIME));
+        assertDoesNotThrow(() -> reviewService.deleteReview("66553b08ba4c6afe234c0e0b", "664f4cf4859fa1fd6f1dbd81", MediaContentType.ANIME));
+        assertDoesNotThrow(() -> reviewService.deleteReview("66553b08ba4c6afe234c0e12", "664f4cf4859fa1fd6f1dbd83", MediaContentType.MANGA));
         System.out.println("Review deleted");
     }
 
@@ -98,7 +98,12 @@ class ReviewServiceImplTest {
     }
 
     @Test
-    void getMediaContentRatingByMonth() {
+    void getMediaContentRatingByMonth() throws BusinessException {
+        String id = "657ac61bb34f5514b91ea223";
+        int year = 2019;
+        ReviewService reviewService = ServiceLocator.getReviewService();
+        Map<String,Double> map = reviewService.getMediaContentRatingByMonth(MediaContentType.MANGA, id,year);
+        System.out.println(map);
     }
 
     @Test
@@ -129,5 +134,19 @@ class ReviewServiceImplTest {
         review.setRating(5);
         review.setComment("This is a test review");
         return review;
+    }
+
+    @Test
+    public void createSampleMangaReviewTest() throws BusinessException {
+        ReviewDTO review = new ReviewDTO();
+        UserService userService = ServiceLocator.getUserService();
+        MediaContentService mediaContentService = ServiceLocator.getMediaContentService();
+        UserSummaryDTO user = userService.searchFirstNUsers("exampleUser", 1, null).getFirst();
+        MangaDTO manga = (MangaDTO) mediaContentService.searchByTitle("Sample Manga", 1, MediaContentType.MANGA).getEntries().getFirst();
+        review.setUser(user);
+        review.setMediaContent(manga);
+        review.setRating(5);
+        review.setComment("This is a test review");
+        System.out.println(review);
     }
 }

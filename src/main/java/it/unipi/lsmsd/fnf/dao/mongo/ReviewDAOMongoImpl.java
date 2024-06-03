@@ -13,6 +13,7 @@ import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dao.exception.enums.DAOExceptionType;
 import it.unipi.lsmsd.fnf.dao.exception.DuplicatedException;
 import it.unipi.lsmsd.fnf.dao.exception.enums.DuplicatedExceptionType;
+import it.unipi.lsmsd.fnf.dto.LoggedUserDTO;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
@@ -27,8 +28,11 @@ import it.unipi.lsmsd.fnf.utils.DocumentUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static com.mongodb.client.model.Accumulators.avg;
@@ -89,7 +93,7 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
                 throw new DAOException("Invalid media content type");
             }
 
-            reviewDTO.setDate(LocalDate.now());
+            reviewDTO.setDate(LocalDateTime.now());
             Bson update = setOnInsert(reviewDTOToDocument(reviewDTO));
 
             // Insert the reviewDTO if it does not exist
@@ -200,16 +204,26 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
 
             Bson filter = eq("user.id", new ObjectId(userSummaryDTO.getId()));
 
-            UpdateResult result = reviewCollection.updateMany(filter, new Document("$set", userDoc));
+            Bson update = new Document("$set", userDoc);
+            if (Objects.equals(userSummaryDTO.getProfilePicUrl(),Constants.NULL_STRING)) {
+                update = combine(update, unset("user.picture"));
+            }
+            if (Objects.equals(userSummaryDTO.getLocation(), Constants.NULL_STRING)) {
+                update = combine(update, unset("user.location"));
+            }
+            if (Objects.equals(userSummaryDTO.getBirthDate(), Constants.NULL_DATE)) {
+                update = combine(update, unset("user.birthday"));
+            }
+            UpdateResult result = reviewCollection.updateMany(filter, update);
             if (result.getMatchedCount() != 0 && result.getModifiedCount() == 0) {
                 throw new MongoException("ReviewDAOMongoImpl: updateUserRedundancy: No reviews modified");
             }
 
         } catch (MongoException e) {
-            throw new DAOException(DAOExceptionType.DATABASE_ERROR, "The review is not found.");
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
 
         } catch (Exception e) {
-            throw new DAOException(DAOExceptionType.GENERIC_ERROR, "Error updating the review");
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
 
@@ -659,6 +673,8 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
             );
 
             List<Document> result = reviewCollection.aggregate(pipeline).into(new ArrayList<>());
+            Logger logger = LoggerFactory.getLogger(ReviewDAOMongoImpl.class);
+            logger.info("Result: " + result.toString());
             if (result.isEmpty()) {
                 throw new MongoException("ReviewDAOMongoImpl: getMediaContentRatingByMonth: No reviews found");
             }

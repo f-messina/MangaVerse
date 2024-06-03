@@ -110,7 +110,7 @@ public class UserServiceImpl implements UserService {
         try {
             userDAO.updateUser(user);
 
-            // Create a task which update the node User in Neo4j
+            // Create a task which update the node User in Neo4j and the user redundancy inside anime and manga
             if (user.getUsername() != null || user.getProfilePicUrl() != null) {
                 aperiodicExecutorTaskService.executeTask(new UpdateUserTask(user));
                 aperiodicExecutorTaskService.executeTask(new UpdateMediaRedundancyTask(user.toSummaryDTO()));
@@ -336,23 +336,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public Map<String, Double> averageAppRating(String criteria) throws BusinessException {
         try {
-            if(!(criteria.equals("location") || (criteria.equals("gender")))) {
+            if(criteria.equals("location") || (criteria.equals("gender")))
+                return userDAO.averageAppRating(criteria);
+            else if(criteria.equals("age"))
+                return userDAO.averageAppRatingByAgeRange();
+            else
                 throw new BusinessException("Invalid criteria");
-            }
-            return userDAO.averageAppRating(criteria);
-
-        } catch (DAOException e) {
-            if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {
-                throw new BusinessException(BusinessExceptionType.DATABASE_ERROR, e.getMessage());
-            }
-            throw new BusinessException(BusinessExceptionType.GENERIC_ERROR, e.getMessage());
-        }
-    }
-
-    @Override
-    public Map<String, Double> averageAppRatingByAgeRange() throws BusinessException {
-        try {
-            return userDAO.averageAppRatingByAgeRange();
 
         } catch (DAOException e) {
             if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {

@@ -1,94 +1,98 @@
-html {
-    scroll-behavior: smooth;
-}
-
-* {
-    margin: 20px;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: "Fira Sans Condensed", sans-serif;
-}
-
 .all-page {
     display: flex;
-    gap: 20px;
-}
-
-.page {
-    display: none;
-    gap: 30px;
-    margin: 50px;
+    margin: 2rem;
 }
 
 /* Sidebar */
 
 #side-navbar {
     display: flex;
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
     flex-direction: column;
-    gap: 20px;
+    gap: 10rem;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     background-color: white;
     z-index: 999;
-    width: 150px;
-    padding: 10px;
+    width: 18rem;
+    height: 40%;
+    padding: 20px;
+    justify-content: center;
+    border-radius: 10px;
 }
 
-/* Optional: Style the buttons for better appearance */
-.button-container button {
+.navbar-container {
+    min-width: 20rem;
+}
+
+.options:hover, .options.active {
+    background-color: #907be4;
+    color: white;
+}
+
+.options {
+    text-decoration: none;
+    color: black;
+    font-weight: bold;
     padding: 10px 10px;
     margin: 0 10px;
     border-radius: 10px;
-    font-size: 16px;
+    font-size: 2.5rem;
     cursor: pointer;
     transition: background-color 0.3s ease;
     background: none;
     border: none;
 }
+/* Main content */
 
-.button-container button:hover {
-    background-color: rgba(162, 143, 232, 0.91);
-}
-
-.button-container button.active {
-    background-color: #907be4;
-    color: white;
-}
-
-#analytics{
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    background-color: white;
-    z-index: 999;
+.page {
+    display: none;
+    gap: 30px;
+    margin: 50px auto; /* Automatically centers the element horizontally */
+    background-color: transparent;
     padding: 20px;
+    flex-direction: column;
+    align-items: center;
+    width: 70%;
+    max-width: 200rem;
+}
+
+.page.selected {
+    display: flex;
+}
+
+.analytic-box {
+    width: 100%;
+    height: auto;
+    max-height: 91rem;
+    padding: 40px;
+    gap: 5rem;
+    margin: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background-color: rgb(var(--color-background-100));
+    border-radius: 10px;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    align-items: center;
 }
-.options{
-    text-decoration: none;
-    color: black;
-    font-size: 20px;
-    font-weight: bold;
-}
-.analytic-box{
-    height: auto;
-    padding: 15px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    background-color: white;
-    z-index: 999;
-}
-.analytic-title{
+
+.analytic-title {
     font-weight: bold;
     font-size: 20px;
 }
-.diagram-parameter{
+
+.diagram-parameter {
     display: inline-flex;
     gap: 25px;
 }
+
 .select{
     display: flex;
     flex-direction: column;
     gap: 20px;
 }
+
 .select button{
     padding: 4px;
     width: 50%;
@@ -98,19 +102,51 @@ html {
     z-index: 999;
 }
 
-.popup-container.hidden {
+/* list of media content */
+
+.media-list {
+    height: 100%;
+    overflow-y: auto;
+    width: 100%;
+}
+
+.media-item {
+    display: flex;
+    gap: 20px;
+    padding: 10px;
+    margin: 10px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background-color: white;
+    align-items: center;
+}
+
+.media-item:hover {
     display: none;
 }
 
-.popup-container {
+.media-item img {
+    width: 9rem;
+    height: 12rem;
+}
+
+/* media content details */
+.media-popup {
+    display: none;
     position: fixed;
-    top: 0;
-    left: 0;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 50%;
+    height: 80%;
+    background-color: white;
+    z-index: 999;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+canvas {
+    height: 70rem;
     width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5); /* semi-transparent overlay */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000; /* adjust as needed */
 }
