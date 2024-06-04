@@ -124,7 +124,8 @@ Manga:
 }
     \end{lstlisting}
 \end{mdframed}
-\newpage
+
+
 Reviews:
 \begin{mdframed}[backgroundcolor=yellow!20, innerleftmargin=10pt, innerrightmargin=10pt]
     \begin{lstlisting}[language=java]
@@ -173,141 +174,6 @@ Users:
 
 We created two indexes in the reviews collection to improve query performance. One for the users id and another for the anime and manga id. This will allow us to quickly retrieve reviews for a specific user or media content. 
 
-\section {MongoDB queries}
-Some of the most important MongoDB queries for analytic and suggestion porpouses. 
-
-
-\textbf{USERS:}
-\begin{itemize}
-  \item GetDistribution query to get the user's location, gender, birthday year that gave the highest rating to the application:
-  
-\end{itemize}
-\begin{lstlisting}[language=JavaScript, caption=get distribution]
-  // Match stage to filter documents where 'criteriaOfSearch' exists
-  db.collection.aggregate([
-      {
-          $match: {
-              [criteriaOfSearch]: { $exists: true }
-          }
-      },
-      // Project stage to include 'criteriaOfSearch' and 'app_rating' fields
-      {
-          $project: {
-              [criteriaOfSearch]: 1,
-              app_rating: 1
-          }
-      },
-      // Group stage to count occurrences of each 'criteriaOfSearch'
-      {
-          $group: {
-              _id: "$" + criteriaOfSearch,
-              count: { $sum: 1 }
-          }
-      },
-      // Sort stage to sort documents by 'count' in descending order
-      {
-          $sort: {
-              count: -1
-          }
-      }
-  ]);
-  \end{lstlisting}
-  
-
-
-\textbf{ANIME/MANGA:}
-
-\begin{itemize}
-
-\item GetBestCriteria query, the criteria can be genres, demographics, themes, authors and serialization for manga; tags, producers, studios for anime:
-\begin{lstlisting}[language=JavaScript, caption=get best criteria]
-  db.collection.aggregate([
-      // Match stage to filter documents where 'criteria' exists and 'average_rating' is not null
-      {
-          $match: {
-              criteria: { $exists: true },
-              average_rating: { $ne: null }
-          }
-      },
-      // Unwind stage to deconstruct the 'criteria' array field
-      {
-          $unwind: "$" + criteria
-      },
-      // Group stage to calculate the average rating for each criteria
-      {
-          $group: {
-              _id: "$" + criteria,
-              criteria_average_rating: { $avg: "$average_rating" }
-          }
-      },
-      // Sort stage to sort documents by 'criteria_average_rating' in descending order
-      {
-          $sort: {
-              criteria_average_rating: -1
-          }
-      },
-      // Skip stage to skip the first 'pageOffset' documents
-      {
-          $skip: pageOffset
-      },
-      // Limit stage to limit the results to 25 documents
-      {
-          $limit: 25
-      }
-  ]);
-  \end{lstlisting}
-
-\end{itemize}
-
-\textbf{REVIEWS:}
-
-\begin{itemize}
-\item GetMediaContentRatingByYear query to get the average rating of media content by year:
-\end{itemize}
-\begin{lstlisting}[language=JavaScript, caption=Query per db.collection.aggregate]
-  // Match stage to filter documents based on specified conditions
-  db.collection.aggregate([
-      {
-          $match: {
-              [`${nodeType}.id`]: new ObjectId(mediaContentId),
-              rating: { $exists: true },
-              date: { $gte: startDate, $lt: endDate }
-          }
-      },
-      // Group stage to group documents by year and calculate the average rating
-      {
-          $group: {
-              _id: { $year: "$date" },
-              average_rating: { $avg: "$rating" }
-          }
-      },
-      // Project stage to shape the output documents
-      {
-          $project: {
-              _id: 0,
-              year: "$_id",
-              average_rating: 1
-          }
-      },
-      // Sort stage to sort documents by year in ascending order
-      {
-          $sort: { year: 1 }
-      }
-  ]);
-  \end{lstlisting}
-
-
-
-
-SuggestMediaContent
-
-\subsection {CRUD operations}
-\begin{itemize}
-    \item Create: This operation will allow users to create new documents in the database. For example, users can create new reviews for anime and manga.
-    \item Read: This operation will allow users to read documents from the database. For example, users can read information about anime and manga.
-    \item Update: This operation will allow users to update documents in the database. For example, users can update their reviews for anime and manga.
-    \item Delete: This operation will allow users to delete documents from the database. For example, users can delete their reviews for anime and manga.
-\end{itemize}
 
 
 \section {MongoDB queries}
@@ -516,124 +382,160 @@ The database will have the following relationships:
 \end{figure}
 
 \section{GraphDB queries}
-USERS:
+Some of the most important Neo4j queries for analytic and suggestion porpouses.
 
 
-Follow
+\textbf{USERS:}
+
+\begin{itemize}
+  \item Suggest other users followings in common:
+\end{itemize}
+\begin{lstlisting}[language=Cypher, caption=SuggestUsersByCommonFollowings]
+
+MATCH (u:User {id: $userId})-[:FOLLOWS]->(following:User)<-[:FOLLOWS]-(suggested:User) 
+WHERE NOT (u)-[:FOLLOWS]->(suggested) AND u <> suggested 
+WITH suggested, COUNT(DISTINCT following) AS commonFollowers 
+WHERE commonFollowers > 5 
+RETURN suggested as user, commonFollowers 
+ORDER BY commonFollowers DESC 
+LIMIT $n
+\end{lstlisting}
+
+\begin{itemize}
+  \item Suggest other users likes in common:
+\end{itemize}
+\begin{lstlisting}[language=Cypher, caption=SuggestUsersByCommonLikes]
+  MATCH (u:User {id: $userId})-[r:LIKE]->(media:Manga)<-[:LIKE]-(suggested:User) 
+  WHERE u <> suggested AND r.date >= $date
+  WITH suggested, COUNT(DISTINCT media) AS commonLikes
+  WHERE commonLikes > $min
+  RETURN suggested AS user, commonLikes
+  ORDER BY commonLikes DESC
+  LIMIT $n
+\end{lstlisting}
 
 
-Unfollow 
+
+\textbf{ANIME/MANGA:}
+
+\begin{itemize}
+  \item Suggest anime and manga based on following in common:
+\end{itemize}
+\begin{lstlisting}[language=Cypher, caption=GetSuggestedByFollowings]
+  MATCH (u:User {id: $userId})-[:FOLLOWS]->(f:User)-[r:LIKE]->(a:Anime)
+  WHERE NOT (u)-[:LIKE]->(a) AND r.date >= $startDate
+  WITH a, COUNT(DISTINCT f) AS num_likes
+  RETURN a AS anime
+  ORDER BY num_likes DESC
+  LIMIT $n
+  
+\end{lstlisting}
 
 
-IsFollowing 
+\begin{itemize}
+  \item Suggest anime and manga based on likes in common between followers:
+\end{itemize}
+\begin{lstlisting}[language=Cypher, caption=GetSuggestedByLikes]
+  MATCH (u:User {id: $userId})-[r1:LIKE]->(a:Anime)<-[:LIKE]-(f:User)
+  WHERE r1.date >= $startDate
+  WITH u, f, COUNT(a) AS common_likes
+  ORDER BY common_likes DESC
+  LIMIT 20
+  MATCH (f)-[:LIKE]->(a2:Anime)
+  WHERE NOT (u)-[:LIKE]->(a2)
+  WITH a2, COUNT(DISTINCT f) AS num_likes
+  RETURN a2 AS anime
+  ORDER BY num_likes DESC
+  LIMIT $n
+  
+\end{lstlisting}
 
 
-GetNumOfFollowers
+\begin{itemize}
+  \item Get the trend of media contents in a specific year based on the number of likes:
+\end{itemize}
+\begin{lstlisting}[language=Cypher, caption=GetTrendMediaContentByYear]
+  MATCH (a:Anime)<-[r:LIKE]-(u:User)
+  WHERE r.date >= $startDate AND r.date < $endDate
+  WITH a, count(r) AS numLikes
+  ORDER BY numLikes DESC
+  RETURN a AS anime, numLikes
+  LIMIT $n
+  
+\end{lstlisting}
 
-
-GetNumOfFollowed
-
-
-SuggestUsersByCommonFollowings
-
-
-SuggestUsersByCommonLikes
-
-
-ANIME/MANGA:
-
-
-Like 
-
-
-Unlike 
-
-
-IsLiked
-
-
-GetNumOfLikes
-
-
-GetLiked 
-
-
-GetSuggested 
-
-
-GetTrendMediaContentByYear
-
-
-GetMediaContentTrendByLikes
+\begin{itemize}
+  \item Get the general trend of media contents based on the number of likes:
+\end{itemize}
+\begin{lstlisting}[language=Cypher, caption=GetMediaContentTrendByLikes]
+  MATCH (u:User)-[r:LIKE]->(a:Anime)
+  WHERE r.date >= $startDate
+  WITH a, COUNT(r) AS numLikes
+  ORDER BY numLikes DESC
+  RETURN a AS anime, numLikes
+  LIMIT $n
+  
+\end{lstlisting}
 
 
 \subsection{CRUD operations}
 \begin{itemize}
-    \item Create: This operation will allow users to create new nodes and relationships in the database. For example, users can create new nodes for anime and manga and relationships between users and media content.
+    \item Create: This operation will allow users to create new nodes and relationships in the database. For example, users can create new relationships between users and media content:
+    
+    An user can LIKE a media content: 
+    \begin{lstlisting}[language=Cypher, caption=Create Like Relationship]
+    MATCH (u:User {id: $userId}), (a:Anime {id: $animeId}) 
+    WHERE NOT (u)-[:LIKE]->(a) 
+    CREATE (u)-[r:LIKE {date: $date} ]->(a)
+    RETURN r
+    \end{lstlisting}
+
+    A user can FOLLOW another user:
+    \begin{lstlisting}[language=Cypher, caption=Create Follow Relationship]
+    MATCH (u:User {id: $userId}), (f:User {id: $followedUserId}) 
+    WHERE NOT (u)-[:FOLLOWS]->(f) 
+    CREATE (u)-[r:FOLLOWS]->(f) 
+    RETURN r
+    \end{lstlisting}
+
     \item Read: This operation will allow users to read nodes and relationships from the database. For example, users can read information about anime and manga and relationships between users and media content.
+    An user can read the list of liked media contents:
+    \begin{lstlisting}[language=Cypher, caption=Read Liked Media Contents]
+  
+    MATCH (u:User {id: $userId})-[:LIKE]->(a:Anime)
+    RETURN a
+    \end{lstlisting}
+
+    An user can read the list of followers:
+    \begin{lstlisting}[language=Cypher, caption=Read Followers]
+    MATCH (u:User {id: $userId})<-[:FOLLOWS]-(f:User)
+    RETURN f
+    \end{lstlisting}
+  
     \item Update: This operation will allow users to update nodes and relationships in the database. For example, users can update their likes for anime and manga and relationships between users.
+    
     \item Delete: This operation will allow users to delete nodes and relationships from the database. For example, users can delete their likes for anime and manga and relationships between users.
+    
+    An user can unlike a media content:
+    \begin{lstlisting}[language=Cypher, caption=Delete Like Relationship]
+    MATCH (u:User {id: $userId})-[r:LIKE]->(a:Anime {id: $animeId})
+    DELETE r
+    RETURN r
+    \end{lstlisting}
+
+    An user can unfollow another user: 
+    \begin{lstlisting}[language=Cypher, caption=Delete Follow Relationship]
+    MATCH (:User {id: $followerUserId})-[r:FOLLOWS]->(:User {id: $followingUserId})
+    DELETE r 
+    RETURN r
+    \end{lstlisting}
 \end{itemize}
 
-
-\section{GraphDB queries}
-USERS:
+\section{Redundancy}
 
 
-Follow
 
+\section{Replicas}
 
-Unfollow 
-
-
-IsFollowing 
-
-
-GetNumOfFollowers
-
-
-GetNumOfFollowed
-
-
-SuggestUsersByCommonFollowings
-
-
-SuggestUsersByCommonLikes
-
-
-ANIME/MANGA:
-
-
-Like 
-
-
-Unlike 
-
-
-IsLiked
-
-
-GetNumOfLikes
-
-
-GetLiked 
-
-
-GetSuggested 
-
-
-GetTrendMediaContentByYear
-
-
-GetMediaContentTrendByLikes
-
-
-\subsection{CRUD operations}
-\begin{itemize}
-    \item Create: This operation will allow users to create new nodes and relationships in the database. For example, users can create new nodes for anime and manga and relationships between users and media content.
-    \item Read: This operation will allow users to read nodes and relationships from the database. For example, users can read information about anime and manga and relationships between users and media content.
-    \item Update: This operation will allow users to update nodes and relationships in the database. For example, users can update their likes for anime and manga and relationships between users.
-    \item Delete: This operation will allow users to delete nodes and relationships from the database. For example, users can delete their likes for anime and manga and relationships between users.
-\end{itemize}
 
 

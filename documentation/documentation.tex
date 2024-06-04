@@ -84,6 +84,17 @@
     commentstyle=\color{java_comment},
 }
 
+\lstdefinelanguage{Cypher}{
+  keywords={MATCH, WHERE, NOT, CREATE, RETURN},
+  keywordstyle=\color{blue}\bfseries,
+  ndkeywords={id, date},
+  ndkeywordstyle=\color{orange}\bfseries,
+  comment=[l]{//},
+  morestring=[b]',
+  morestring=[b]"
+}
+
+\lstset{style=mystyle}
 
 % Set the dimension of titles of chapters to \LARGE and 
 \titleformat{\chapter}[display]
