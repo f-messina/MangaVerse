@@ -9,6 +9,7 @@ public abstract class MediaContent {
     protected Double averageRating;
     protected String synopsis;
     protected Integer likes;
+    //review_ids
 
     public String getId() {
         return id;

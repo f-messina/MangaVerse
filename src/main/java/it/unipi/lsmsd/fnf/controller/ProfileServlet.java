@@ -37,6 +37,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 @WebServlet("/profile")
@@ -261,7 +263,7 @@ public class ProfileServlet extends HttpServlet {
         // Register the module with the ObjectMapper
         objectMapper.registerModule(javaTimeModule);
 
-        String userId = request.getParameter("userId");
+        List<String> reviewIds = Collections.singletonList(request.getParameter("review_ids"));
         String pageString = request.getParameter("page");
         int page = 0;
         if (pageString != null) {
@@ -271,11 +273,11 @@ public class ProfileServlet extends HttpServlet {
         try {
             LoggedUserDTO authUser = SecurityUtils.getAuthenticatedUser(request);
 
-            if (authUser == null || !userId.equals(authUser.getId())) {
+            if (authUser == null || !reviewIds.equals(authUser.getId())) {
                 throw new NotAuthorizedException("Trying to update profile without being logged in.");
             }
             // Get the page of reviews
-            PageDTO<ReviewDTO> reviews = reviewService.findByUser(userId, page);
+            PageDTO<ReviewDTO> reviews = reviewService.findByUser(reviewIds, page);
 
             // Convert the page to a JSON Object
             if (reviews == null) {

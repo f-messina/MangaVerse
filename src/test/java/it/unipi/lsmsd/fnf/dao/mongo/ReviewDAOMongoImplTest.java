@@ -1,5 +1,6 @@
 package it.unipi.lsmsd.fnf.dao.mongo;
 
+import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Updates;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
@@ -10,18 +11,23 @@ import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 
+import org.bson.Document;
 import org.bson.conversions.Bson;
+import org.bson.types.ObjectId;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static com.mongodb.client.model.Filters.*;
+import static com.mongodb.client.model.Projections.include;
+import static com.mongodb.client.model.Updates.set;
 import static com.mongodb.client.model.Updates.unset;
 import static it.unipi.lsmsd.fnf.dao.mongo.BaseMongoDBDAO.getCollection;
 import static org.junit.jupiter.api.Assertions.*;
 
 import it.unipi.lsmsd.fnf.dto.PageDTO;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -130,6 +136,32 @@ class ReviewDAOMongoImplTest {
         System.out.println("Non-existent user redundancy update failed");
     }
 
+   //Add a list of reviews id connected to the users: DONE
+    @Test
+    public void addReviewsIdToUsersTest() throws DAOException {
+        //Get list of users ids
+        UserDAOMongoImpl userDAO = new UserDAOMongoImpl();
+        //Anime collection
+        MongoCollection<Document> userCollection = getCollection("users");
+        //Reviews collection
+        MongoCollection<Document> reviewsCollection = getCollection("reviews");
+
+        try {
+            userCollection.find().projection(include("_id")).forEach((Document user) ->
+            {
+                List <String> reviewIds = new ArrayList<>();
+
+                ObjectId id = user.getObjectId("_id");
+                reviewsCollection.find(eq("user.id", id)).projection(include("_id")).forEach((Document review) -> reviewIds.add(review.getObjectId("_id").toHexString()));
+
+                userCollection.updateOne(eq("_id", id), set("review_ids", reviewIds));
+
+            });
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
     // test 1: update average rating
     @Test
     void updateAverageRatingMediaTest() {
@@ -143,9 +175,11 @@ class ReviewDAOMongoImplTest {
     @Test
     void deleteReviewTest() throws DAOException {
         ReviewDAOMongoImpl reviewDAO = new ReviewDAOMongoImpl();
+        List<String> reviewIds = new ArrayList<>();
+        reviewIds = List.of("66360c83bbca010b06d85622", "66360c83bbca010b06d85623", "66360c83bbca010b06d85624");
 
         // test 1
-        reviewDAO.getReviewByUser("66360c83bbca010b06d85602", 1).getEntries().forEach(review -> {
+        reviewDAO.getReviewByUser(reviewIds, 1).getEntries().forEach(review -> {
             assertDoesNotThrow(() -> reviewDAO.deleteReview(review.getId()));
             System.out.println("Review deleted: " + review.getId());
         });
@@ -193,16 +227,20 @@ class ReviewDAOMongoImplTest {
         ReviewDAOMongoImpl reviewDAO = new ReviewDAOMongoImpl();
 
         // test 1
-        String userId = "66360c83bbca010b06d85602";
+        List<String> reviewIds = new ArrayList<>();
+        reviewIds = List.of("66360c83bbca010b06d85622", "66360c83bbca010b06d85623", "66360c83bbca010b06d85624");
+
+        List<String> finalReviewIds = reviewIds;
         assertDoesNotThrow(() -> {
-            PageDTO<ReviewDTO> reviews =  reviewDAO.getReviewByUser(userId, 1);
+            PageDTO<ReviewDTO> reviews =  reviewDAO.getReviewByUser(finalReviewIds, 1);
             for (ReviewDTO review : reviews.getEntries()) {
                 System.out.println(review);
             }
         });
 
         // test 2
-        assertThrows(DAOException.class, () -> reviewDAO.getReviewByUser("66360c83bbca010b06d85293", 1));
+        List<String> finalReviewIds1 = reviewIds;
+        assertThrows(DAOException.class, () -> reviewDAO.getReviewByUser(finalReviewIds1, 1));
         System.out.println("Non-existent review retrieval failed");
     }
 

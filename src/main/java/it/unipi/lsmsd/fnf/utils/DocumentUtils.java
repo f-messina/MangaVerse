@@ -85,6 +85,10 @@ public class DocumentUtils {
         return doc;
     }
 
+    //When I get the user, from document to model, memorize in a variable the list of ids
+    //Add the review_ids in the models of media content and user
+
+
     /**
      * Converts a Manga object to a MongoDB Document.
      *
@@ -220,6 +224,7 @@ public class DocumentUtils {
      * @return An Anime object representing the Document.
      */
     public static Anime documentToAnime(Document doc) {
+        //Add anime doc.getlist(review_ids)
         Anime anime = new Anime();
         anime.setId(doc.getObjectId("_id").toString());
         anime.setTitle(doc.getString("title"));
@@ -422,6 +427,7 @@ public class DocumentUtils {
             manager.setTitle(doc.getString("title"));
             user = manager;
         } else {
+            //Add get review_ids
             User normalUser = new User();
             normalUser.setUsername(doc.getString("username"));
             normalUser.setBirthday(ConverterUtils.dateToLocalDate(doc.getDate("birthday")));

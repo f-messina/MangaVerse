@@ -302,6 +302,7 @@ class UserServiceImplTest {
     }
 
     // IMPORTANT: The following tests are for the purpose of removing the default image from the database
+    //Run this test also for anime and manga(before find the default image in the frontend)
     @Test
     public void updateDefaultProfilePictureOnMongoDB() throws Exception {
         MongoCollection<Document> usersCollection = BaseMongoDBDAO.getCollection("users");

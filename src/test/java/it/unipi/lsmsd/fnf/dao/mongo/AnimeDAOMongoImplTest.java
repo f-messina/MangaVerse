@@ -1,5 +1,6 @@
 package it.unipi.lsmsd.fnf.dao.mongo;
 
+import com.mongodb.client.MongoCollection;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
@@ -8,12 +9,16 @@ import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.enums.AnimeStatus;
 import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
+import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import javax.swing.text.Document;
-
+import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Projections.include;
+import static com.mongodb.client.model.Updates.set;
+import static it.unipi.lsmsd.fnf.dao.mongo.BaseMongoDBDAO.getCollection;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.time.LocalDate;
@@ -265,10 +270,35 @@ class AnimeDAOMongoImplTest {
         }
     }
 
-    //Add a list of reviews id connected to the anime
+    //Add a list of reviews id connected to the anime: DONE
     @Test
     public void addReviewsIdTest() throws DAOException {
         //Get list of anime ids
+        AnimeDAOMongoImpl animeDAO = new AnimeDAOMongoImpl();
+        //Anime collection
+        MongoCollection<Document> animeCollection = getCollection("anime");
+        //Reviews collection
+        MongoCollection<Document> reviewsCollection = getCollection("reviews");
+
+        try {
+            animeCollection.find().projection(include("_id")).forEach((Document anime) ->
+            {
+                List <String> reviewIds = new ArrayList<>();
+
+                ObjectId id = anime.getObjectId("_id");
+                reviewsCollection.find(eq("anime.id", id)).projection(include("_id")).forEach((Document review) -> reviewIds.add(review.getObjectId("_id").toHexString()));
+
+                animeCollection.updateOne(eq("_id", id), set("review_ids", reviewIds));
+
+            });
+
+
+
+
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+
 
     }
 

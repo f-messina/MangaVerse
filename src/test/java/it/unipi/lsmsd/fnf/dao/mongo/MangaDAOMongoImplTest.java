@@ -1,5 +1,6 @@
 package it.unipi.lsmsd.fnf.dao.mongo;
 
+import com.mongodb.client.MongoCollection;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
@@ -9,6 +10,8 @@ import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.enums.MangaStatus;
 import it.unipi.lsmsd.fnf.model.enums.MangaType;
 import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
+import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,6 +22,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Projections.include;
+import static com.mongodb.client.model.Updates.set;
+import static it.unipi.lsmsd.fnf.dao.mongo.BaseMongoDBDAO.getCollection;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -253,6 +260,35 @@ class MangaDAOMongoImplTest {
                 System.out.println("Number of reviews updated");
             });
         }
+    }
+
+    //Add a list of reviews id connected to the manga
+    @Test
+    public void addReviewsIdInMangaTest() throws DAOException {
+        //Get list of anime ids
+        MangaDAOMongoImpl mangaDAO = new MangaDAOMongoImpl();
+        //Anime collection
+        MongoCollection<Document> mangaCollection = getCollection("manga");
+        //Reviews collection
+        MongoCollection<Document> reviewsCollection = getCollection("reviews");
+
+        try {
+            mangaCollection.find().projection(include("_id")).forEach((Document manga) ->
+            {
+                List <String> reviewIds = new ArrayList<>();
+
+                ObjectId id = manga.getObjectId("_id");
+                reviewsCollection.find(eq("manga.id", id)).projection(include("_id")).forEach((Document review) -> reviewIds.add(review.getObjectId("_id").toHexString()));
+
+                mangaCollection.updateOne(eq("_id", id), set("review_ids", reviewIds));
+
+            });
+
+
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+
     }
 
     private Manga createSampleManga() {

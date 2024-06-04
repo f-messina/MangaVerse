@@ -21,6 +21,7 @@ public class User extends RegisteredUser {
     private List<MediaContent> likedMediaContent = new ArrayList<>();
     private Integer followers;
     private Integer followed;
+    //add review_ids
 
     public User() {
     }

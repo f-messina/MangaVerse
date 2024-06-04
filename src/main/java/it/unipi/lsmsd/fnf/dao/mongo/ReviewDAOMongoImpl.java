@@ -1,10 +1,7 @@
 package it.unipi.lsmsd.fnf.dao.mongo;
 
 import com.mongodb.MongoException;
-import com.mongodb.client.model.Accumulators;
-import com.mongodb.client.model.Facet;
-import com.mongodb.client.model.Filters;
-import com.mongodb.client.model.UpdateOptions;
+import com.mongodb.client.model.*;
 import com.mongodb.client.result.UpdateResult;
 import com.mongodb.client.MongoCollection;
 
@@ -45,6 +42,13 @@ import static com.mongodb.client.model.Sorts.descending;
 import static com.mongodb.client.model.Updates.*;
 import static it.unipi.lsmsd.fnf.utils.DocumentUtils.appendIfNotNull;
 import static it.unipi.lsmsd.fnf.utils.DocumentUtils.reviewDTOToDocument;
+import static com.mongodb.client.model.Filters.in;
+
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Projections;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Implementation of ReviewDAO interface for MongoDB data access operations related to reviews.
@@ -54,6 +58,7 @@ import static it.unipi.lsmsd.fnf.utils.DocumentUtils.reviewDTOToDocument;
 public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
     private static final String COLLECTION_NAME = "reviews";
 
+    //Add and remove review, add the id in the other collections.
     /**
      * Inserts a new review into the database or updates an existing one if the user has already reviewed the media content.
      *
@@ -78,6 +83,9 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
                         eq("anime.id", new ObjectId(reviewDTO.getMediaContent().getId())),
                         eq("user.id", new ObjectId(reviewDTO.getUser().getId()))
                 );
+                //Add the review id to the anime
+                mediaCollection.updateOne(eq("_id", new ObjectId(reviewDTO.getMediaContent().getId())), addToSet("review_ids", new ObjectId(reviewDTO.getId())));
+
             } else if (reviewDTO.getMediaContent() instanceof MangaDTO) {
                 mediaCollection = getCollection("manga");
                 // Check if the manga exists
@@ -89,12 +97,16 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
                         eq("manga.id", new ObjectId(reviewDTO.getMediaContent().getId())),
                         eq("user.id", new ObjectId(reviewDTO.getUser().getId()))
                 );
+                //Add the review id to the manga
+                mediaCollection.updateOne(eq("_id", new ObjectId(reviewDTO.getMediaContent().getId())), addToSet("review_ids", new ObjectId(reviewDTO.getId())));
             } else {
                 throw new DAOException("Invalid media content type");
             }
 
             reviewDTO.setDate(LocalDateTime.now());
             Bson update = setOnInsert(reviewDTOToDocument(reviewDTO));
+            //Add the review id to the user
+            getCollection("users").updateOne(eq("_id", new ObjectId(reviewDTO.getUser().getId())), addToSet("review_ids", new ObjectId(reviewDTO.getId())));
 
             // Insert the reviewDTO if it does not exist
             UpdateResult result = reviewCollection.updateOne(filter, update, new UpdateOptions().upsert(true));
@@ -304,6 +316,15 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
                 throw new MongoException("ReviewDAOMongoImpl: deleteReview: Review not found");
             }
 
+            // Remove the review id from the anime and manga
+            Bson pullReviewId = pull("review_ids", new ObjectId(reviewId));
+
+            getCollection("anime").updateMany(eq("review_ids", new ObjectId(reviewId)), pullReviewId);
+            getCollection("manga").updateMany(eq("review_ids", new ObjectId(reviewId)), pullReviewId);
+            //Remove the review id from the user
+            getCollection("users").updateMany(eq("review_ids", new ObjectId(reviewId)), pull("review_ids", new ObjectId(reviewId)));
+
+
         } catch (MongoException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR,"The review is not found.");
 
@@ -500,74 +521,90 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
     }
 
 
+    //When we get review by user or by media, put in input not the user id or media content id, but the list of id(review_ids)
+
     @Override
-    public PageDTO<ReviewDTO> getReviewByUser(String userId, Integer page) throws DAOException {
+    //id reviews in input
+    public PageDTO<ReviewDTO> getReviewByUser(List<String> reviewIds, Integer page) throws DAOException {
         try {
-            MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
+            // Convert reviewIds to ObjectId list
+            List<ObjectId> reviewObjectIds = new ArrayList<>();
+            for (String id : reviewIds) {
+                reviewObjectIds.add(new ObjectId(id));
+            }
 
-            Bson filter = eq("user.id", new ObjectId(userId));
-            Bson projection = exclude("user");
+            // Get the Reviews collection
+            MongoCollection<Document> reviewCollection = getCollection("reviews");
 
+            // Create a filter using the reviewObjectIds
+            Bson filter = Filters.in("_id", reviewObjectIds);
+            Bson projection = Projections.exclude("user");
+
+            List<ReviewDTO> result;
             if (page == null) {
-                List<ReviewDTO> result = reviewCollection.find(filter).projection(projection)
+                result = reviewCollection.find(filter).projection(projection)
                         .sort(descending("date"))
-                        .map(DocumentUtils::documentToReviewDTO).into(new ArrayList<>());
+                        .map(DocumentUtils::documentToReviewDTO)
+                        .into(new ArrayList<>());
 
                 if (result.isEmpty()) {
-                    throw new MongoException("ReviewDAOMongoImpl: getReviewByUser: No reviews found");
+                    throw new MongoException("ReviewDAOMongoImpl: getReviewByIds: No reviews found");
                 } else {
                     return new PageDTO<>(result, result.size());
                 }
             } else {
                 int offset = (page - 1) * Constants.PAGE_SIZE;
-                List<ReviewDTO> result = reviewCollection.find(filter).projection(projection)
-                        .sort(descending("date")).skip(offset).limit(Constants.PAGE_SIZE)
-                        .map(DocumentUtils::documentToReviewDTO).into(new ArrayList<>());
+                result = reviewCollection.find(filter).projection(projection)
+                        .sort(descending("date"))
+                        .skip(offset)
+                        .limit(Constants.PAGE_SIZE)
+                        .map(DocumentUtils::documentToReviewDTO)
+                        .into(new ArrayList<>());
+
                 int totalCount = (int) reviewCollection.countDocuments(filter);
 
                 if (result.isEmpty()) {
-                    throw new MongoException("ReviewDAOMongoImpl: getReviewByUser: No reviews found");
+                    throw new MongoException("ReviewDAOMongoImpl: getReviewByIds: No reviews found");
                 } else {
                     return new PageDTO<>(result, totalCount);
                 }
             }
         } catch (MongoException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
-
         } catch (Exception e) {
             throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
-
         }
     }
 
     /**
      * Retrieves a page of reviews associated with a specific media content from the database.
      *
-     * @param mediaId The ID of the media content for which reviews should be retrieved.
+     * @param reviewIds The list of review IDs to be retrieved.
      * @param type    The type of media content (anime or manga).
      * @param page    The page number of the reviews to be retrieved.
      * @return A PageDTO object containing the reviews associated with the specified media content.
      * @throws DAOException If an error occurs during the retrieval process.
      */
     @Override
-    public PageDTO<ReviewDTO> getReviewByMedia(String mediaId, MediaContentType type, Integer page) throws DAOException {
+    //id media content in input
+    public PageDTO<ReviewDTO> getReviewByMedia(List<String> reviewIds, MediaContentType type, Integer page) throws DAOException {
         try {
             MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
 
-            Bson filter;
-            Bson projection;
-            if (type == MediaContentType.ANIME) {
-                filter = eq("anime.id", new ObjectId(mediaId));
-                projection = exclude("anime");
-            } else if (type == MediaContentType.MANGA) {
-                filter = eq("manga.id", new ObjectId(mediaId));
-                projection = exclude("manga");
-            } else {
-                throw new Exception("ReviewDAOMongoImpl: getReviewByMedia: Invalid media content type");
+            // Convert reviewIds to ObjectId list
+            List<ObjectId> reviewObjectIds = new ArrayList<>();
+            for (String id : reviewIds) {
+                reviewObjectIds.add(new ObjectId(id));
             }
 
+            // Create a filter using the reviewObjectIds
+            Bson filter = Filters.in("_id", reviewObjectIds);
+            Bson projection = Projections.exclude(type == MediaContentType.ANIME ? "anime" : "manga");
+
+            List <ReviewDTO> result;
+
             if (page == null) {
-                List<ReviewDTO> result = reviewCollection.find(filter).projection(projection)
+                result = reviewCollection.find(filter).projection(projection)
                         .sort(descending("date"))
                         .map(DocumentUtils::documentToReviewDTO).into(new ArrayList<>());
 
@@ -579,7 +616,7 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
                 return new PageDTO<>(result, result.size());
             } else {
                 int offset = (page - 1) * Constants.PAGE_SIZE;
-                List<ReviewDTO> result = reviewCollection.find(filter).projection(projection)
+                result = reviewCollection.find(filter).projection(projection)
                         .sort(descending("date")).skip(offset).limit(Constants.PAGE_SIZE)
                         .map(DocumentUtils::documentToReviewDTO).into(new ArrayList<>());
                 int totalCount = (int) reviewCollection.countDocuments(filter);
