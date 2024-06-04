@@ -73,7 +73,9 @@ class ReviewDAOMongoImplTest {
         ReviewDAOMongoImpl reviewDAO = new ReviewDAOMongoImpl();
 
         // test 1
-        List<ReviewDTO> reviewList = reviewDAO.getReviewByMedia("663606354276578429fe47e9", MediaContentType.ANIME, 1).getEntries();
+        List<String> reviewIds = new ArrayList<>();
+        reviewIds = List.of("66360c83bbca010b06d85622", "66360c83bbca010b06d85623", "66360c83bbca010b06d85624");
+        List<ReviewDTO> reviewList = reviewDAO.getReviewByMedia(reviewIds, MediaContentType.ANIME, 1).getEntries();
         if (!reviewList.isEmpty()) {
             ReviewDTO review = reviewList.getFirst();
             assertDoesNotThrow(() -> reviewDAO.updateReview(review.getId(), "This is a new comment", 4));
@@ -81,7 +83,7 @@ class ReviewDAOMongoImplTest {
         }
 
         // test 2
-        reviewList = reviewDAO.getReviewByMedia("6635fe844276578429fe445d", MediaContentType.MANGA, 1).getEntries();
+        reviewList = reviewDAO.getReviewByMedia(reviewIds, MediaContentType.MANGA, 1).getEntries();
         if (!reviewList.isEmpty()) {
             ReviewDTO review = reviewList.getFirst();
             assertDoesNotThrow(() -> reviewDAO.updateReview(review.getId(), "This is a new comment", 4));
@@ -252,23 +254,29 @@ class ReviewDAOMongoImplTest {
         ReviewDAOMongoImpl reviewDAO = new ReviewDAOMongoImpl();
 
         // test 1
+        List<String> reviewIds = new ArrayList<>();
+        reviewIds = List.of("66360c83bbca010b06d85622", "66360c83bbca010b06d85623", "66360c83bbca010b06d85624");
+
+        List<String> finalReviewIds = reviewIds;
         assertDoesNotThrow(() -> {
-            PageDTO<ReviewDTO> reviews = reviewDAO.getReviewByMedia("663606354276578429fe47e9", MediaContentType.ANIME, 1);
+            PageDTO<ReviewDTO> reviews = reviewDAO.getReviewByMedia(finalReviewIds, MediaContentType.ANIME, 1);
             for (ReviewDTO review : reviews.getEntries()) {
                 System.out.println(review);
             }
         });
 
         // test 2
+        List<String> finalReviewIds1 = reviewIds;
         assertDoesNotThrow(() -> {
-            PageDTO<ReviewDTO> reviews = reviewDAO.getReviewByMedia("6635fe844276578429fe445d", MediaContentType.MANGA, 1);
+            PageDTO<ReviewDTO> reviews = reviewDAO.getReviewByMedia(finalReviewIds1, MediaContentType.MANGA, 1);
             for (ReviewDTO review : reviews.getEntries()) {
                 System.out.println(review);
             }
         });
 
         // test 3
-        assertThrows(DAOException.class, () -> reviewDAO.getReviewByMedia("6635fe844276578429fe4422", MediaContentType.MANGA, 1));
+        List<String> finalReviewIds2 = reviewIds;
+        assertThrows(DAOException.class, () -> reviewDAO.getReviewByMedia(finalReviewIds2, MediaContentType.MANGA, 1));
         System.out.println("Non-existent review retrieval failed");
     }
 
