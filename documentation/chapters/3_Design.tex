@@ -125,7 +125,7 @@ Manga:
     \end{lstlisting}
 \end{mdframed}
 
-
+\newpage
 Reviews:
 \begin{mdframed}[backgroundcolor=yellow!20, innerleftmargin=10pt, innerrightmargin=10pt]
     \begin{lstlisting}[language=java]
@@ -170,12 +170,16 @@ Users:
     \end{lstlisting}
 \end{mdframed}
 
+
+The field \texttt{"app\_rating"} is used to know the general satisfaction of the user with the application.
+
+
 \subsection{Indexes}
 
 We created two indexes in the reviews collection to improve query performance. One for the users id and another for the anime and manga id. This will allow us to quickly retrieve reviews for a specific user or media content. 
 
 
-
+\newpage
 \section {MongoDB queries}
 Some of the most important MongoDB queries for analytic and suggestion porpouses. 
 
@@ -348,7 +352,7 @@ Some of the most important MongoDB queries for analytic and suggestion porpouses
     \item Delete: This operation will allow users to delete documents from the database. For example, users can delete their reviews for anime and manga, the manager can delete media contents.
 \end{itemize}
 
-
+\newpage
 \section{Graph Database}
 For the graph database, we will use Neo4j. Neo4j is a graph database that stores data in nodes and relationships. It is a popular choice for applications that require complex relationships between data. Neo4j is a graph database, which means it stores data in nodes and relationships. Nodes represent entities, such as users or products, and relationships represent connections between nodes. This makes Neo4j a good choice for applications that require complex relationships between data. Neo4j is also a scalable database, meaning it can handle large amounts of data and traffic. It is designed to scale out, meaning you can add more servers to handle more traffic. This makes Neo4j a good choice for applications that need to scale quickly.
 
@@ -381,6 +385,7 @@ The database will have the following relationships:
     \label{fig:GraohDB}
 \end{figure}
 
+\newpage
 \section{GraphDB queries}
 Some of the most important Neo4j queries for analytic and suggestion porpouses.
 
@@ -522,7 +527,7 @@ LIMIT $n
     DELETE r
     RETURN r
     \end{lstlisting}
-
+    \newpage
     An user can unfollow another user: 
     \begin{lstlisting}[language=Cypher, caption=Delete Follow Relationship]
     MATCH (:User {id: $followerUserId})-[r:FOLLOWS]->(:User {id: $followingUserId})
@@ -532,10 +537,39 @@ LIMIT $n
 \end{itemize}
 
 \section{Redundancy}
+The performance of the application is critical, so we need to ensure that the system is highly available and fault-tolerant. To achieve this, we gave priority to fast responses, rather than reducing memory consumption.
 
 
+\textbf{Latest reviews}
+
+
+In the anime and manga collections, there's a field containing the latest 5 reviews written for that specific media content, in this way it's fast to retrieve. 
+
+
+\textbf{Average rating}
+
+
+In the anime and manga collections, there's a field containing the average rating of the media content, this field is updated every time a new review is written.
+
+
+\textbf{Number of likes}
+
+
+In the anime and manga collections, there's a field containing the number of likes, this field is updated every time a new like relationship is created or deleted.
+
+
+\textbf{Followers and Followings}
+
+
+In the user collection, there are fields containing the number of followers and followings, this field is updated every time a new follow relationship is created or deleted.
+
+
+\textbf{User field in Reviews}
+
+
+In the reviews collection, there's a field containing the user data, such as id, username, picture, and also location and birthday, which are used for suggestion porpouses.
 
 \section{Replicas}
-
+The performance of the application is critical, so we need to ensure that the system is highly available and fault-tolerant. To achieve this, we will use a replication strategy for both the document and graph databases. This will allow us to have multiple copies of the data, so if one server fails, the system can continue to operate without any downtime.
 
 
