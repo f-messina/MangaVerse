@@ -57,7 +57,30 @@ With using the configuration module for database connection, web application ens
 
 \subsection*{Controller}
 The controller modules plays a role as intermediary between the user requests and backend of the MangaVerse wab application as servlet classes.
-they receives the user requests, process them and returns with the corresponding response. The controller module contains the following classes:
+they receives the user requests, process them and returns with the corresponding response.
+Each controller class utilized a switch-case structure to determine the action requested and invokes the appropriate handler method accordingly.\\
+\newline
+\textbf{Example code snippet from MediaContentServlet:}
+\begin{mdframed}[backgroundcolor=yellow!20, innerleftmargin=10pt, innerrightmargin=10pt]
+    \begin{lstlisting}[language=java]
+{
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String action = request.getParameter("action");
+
+        switch (action) {
+            case "toggleLike" -> handleToggleLike(request, response);
+            case "addReview" -> handleAddReview(request, response);
+            case "deleteReview" -> handleDeleteReview(request, response);
+            case "editReview" -> handleEditReview(request, response);
+            case "getMediaContent" -> handleGetMediaContentById(request,response);
+            case "getMediaContentByTitle" -> handleSearchMediaContentByTitle(request,response);
+            case null, default -> handleLoadPage(request,response);
+        }
+    }
+}
+    \end{lstlisting}
+\end{mdframed}
+The controller module contains the following classes:
 \begin{itemize}
     \item Exception \\
     NotAuthorizedException: This exception is thrown when the user is not authorized to access the requested resource.
@@ -101,6 +124,114 @@ It provides a layer of abstraction between the database and the rest of the appl
     - UserDAONeo4jImpl 
     \item DAOLocator 
 \end{itemize}
+\newpage
+\textbf{Example code snippet from MangaDAOMongoImpl:}
+\begin{mdframed}[backgroundcolor=yellow!20, innerleftmargin=10pt, innerrightmargin=10pt]
+    \begin{lstlisting}[language=java]
+{
+    //MongoDB queries
+    //Best genres/themes/demographics/authors based on the average rating
+    @Override
+    public Map<String, Double> getBestCriteria (String criteria, boolean isArray, int page) throws DAOException {
+        try  {
+            MongoCollection<Document> mangaCollection = getCollection(COLLECTION_NAME);
+            int pageOffset = (page-1)*Constants.PAGE_SIZE;
+
+            List<Bson> pipeline;
+            if (isArray) {
+                pipeline = List.of(
+                        match(and(exists(criteria), ne("average_rating", null))),
+                        unwind("$" + criteria),
+                        group("$" + criteria, avg("criteria_average_rating", "$average_rating")),
+                        sort(descending("criteria_average_rating")),
+                        skip(pageOffset),
+                        limit(25)
+                );
+            } else {
+                pipeline = List.of(
+                        match(Filters.exists(criteria)),
+                        group("$" + criteria, avg("criteria_average_rating", "$average_rating")),
+                        sort(new Document("criteria_average_rating", -1)),
+                        skip(pageOffset),
+                        limit(25)
+                );
+            }
+
+            List <Document> document = mangaCollection.aggregate(pipeline).into(new ArrayList<>());
+            Map<String, Double> bestCriteria = new LinkedHashMap<>();
+            for (Document doc : document) {
+                Double avgRating = doc.get("criteria_average_rating") instanceof Integer?
+                        doc.getInteger("criteria_average_rating").doubleValue() :
+                        doc.getDouble("criteria_average_rating");
+                if (criteria.equals("authors")) {
+                    bestCriteria.put(doc.get("_id", Document.class).getString("name"), avgRating);
+                } else {
+                    bestCriteria.put(doc.get("_id").toString(), avgRating);
+                }
+            }
+
+            return bestCriteria;
+
+        } catch (Exception e) {
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+        }
+    }
+}
+    \end{lstlisting}
+\end{mdframed}
+
+
+\newpage
+\textbf{Example code snippet from UserDAONeo4jImpl:}
+\begin{mdframed}[backgroundcolor=yellow!20, innerleftmargin=10pt, innerrightmargin=10pt]
+    \begin{lstlisting}[language=java]
+{
+    /**
+    * Retrieves a list of users following a specific user from the Neo4j database.
+    *
+    * @param userId The ID of the user whose followers are to be retrieved.
+    * @param loggedUserId The ID of the user requesting the list of followers.
+    * @return A list of RegisteredUserDTO objects representing the followers of the specified user.
+    * @throws DAOException If an error occurs while retrieving the followers list.
+    */
+   @Override
+   public List<UserSummaryDTO> getFirstNFollowers(String userId, String loggedUserId) throws DAOException {
+       try (Session session = getSession()) {
+           StringBuilder queryBuilder = new StringBuilder("MATCH (follower:User)-[:FOLLOWS]->(:User {id: $userId}) ");
+           if (loggedUserId != null) {
+               queryBuilder.append("WHERE follower.id <> $loggedUserId ");
+           }
+           queryBuilder.append("RETURN follower AS user ");
+           queryBuilder.append("ORDER BY follower.username ");
+           queryBuilder.append("LIMIT 10");
+           String query = queryBuilder.toString();
+
+           Map<String, Object> params = new HashMap<>();
+           params.put("userId", userId);
+           if (loggedUserId != null) {
+               params.put("loggedUserId", loggedUserId);
+           }
+
+           List<Record> records = session.executeRead(
+                   tx -> tx.run(query, params).list()
+           );
+
+           return records.isEmpty() ? null : records.stream()
+                   .map(this::recordToUserSummaryDTO)
+                   .toList();
+
+       } catch (Neo4jException e) {
+           throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
+       } catch (Exception e) {
+           throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+       }
+   }
+}
+    \end{lstlisting}
+\end{mdframed}
+\newpage
+
 
 \subsection*{DTO (Data Transfer Objects)}
 The DTO modules are the intermediary class between presentation layer and the DAO module in the web application.
@@ -126,7 +257,53 @@ They transfer data structures between different layers and components of the app
 Service module has also important role in the web application. The classes in the service module are responsible for containing
 the business logic and maintaining interaction between the DAO classes and the presentation layer. 
 It handles complex operations with guarantying that the application's core functionalities are executed correctly. Some of the services
-that are provided in the service module are: \textit{UserService, MediaContentService, ReviewService, TaskManager, ExecuterTaskService}
+that are provided in the service module are: \textit{UserService, MediaContentService, ReviewService, TaskManager, ExecuterTaskService}. The 
+package structure of Service module is as follows:
+
+
+
+
+
+\begin{itemize}
+    \item enums \\
+    - ExecuterTaskService
+    \item exceptions \\
+    - enums \\
+    ----- BusinessExceptionType \\
+    - BusinessException
+    \item impl \\
+    - asinc media tasks\\
+    ----- CreateMediaTask\\
+    ----- DeleteMediaTask\\
+    ----- UpdateAverageRatingTask\\
+    ----- UpdateMediaRedundancyTask\\
+    ----- UpdateMediaTask\\
+    ----- UpdateNumberofLikesTask\\
+    - asinc review tasks\\
+    ----- RemoveDeletedMediaReviewsTask\\
+    ----- RemoveDeletedUserReviewsTask\\
+    ----- UpdateReviewRedundancyTask\\
+    - asinc user tasks\\
+    ----- CreateUserTask\\
+    ----- DeleteUserTask\\
+    ----- UpdateNumberOfFollowedTask\\
+    ----- UpdateNumberOfFollowersTask\\
+    ---- UpdateUserTask\\
+    - AperiodicExecutorTaskServiceImpl\\
+    - ErrorTaskManager\\
+    - MediaContentServiceImpl\\
+    - PeriodicExecutorTaskServiceImpl\\
+    - ReviewServiceImpl\\
+    - UserServiceImpl\\
+    - interfaces \\
+    ----- ExecuterTaskService\\
+    ----- MediaContentService\\
+    ----- ReviewService\\
+    ----- Task\\
+    ----- TaskManager\\
+    ----- UserService
+    \item ServiceLocator
+\end{itemize}
 
 
 \section{Adopted Patterns and Techniques}
