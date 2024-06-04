@@ -11,6 +11,9 @@ import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import javax.swing.text.Document;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.time.LocalDate;
@@ -260,6 +263,13 @@ class AnimeDAOMongoImplTest {
                 System.out.println("Number of likes updated");
             });
         }
+    }
+
+    //Add a list of reviews id connected to the anime
+    @Test
+    public void addReviewsIdTest() throws DAOException {
+        //Get list of anime ids
+
     }
 
     private Anime createSampleAnime() {
