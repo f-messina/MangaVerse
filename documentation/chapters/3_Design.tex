@@ -487,7 +487,7 @@ LIMIT $n
 \begin{itemize}
     \item Create: This operation will allow users to create new nodes and relationships in the database. For example, users can create new relationships between users and media content:
     
-    An user can LIKE a media content: 
+    A user can LIKE a media content: 
     \begin{lstlisting}[language=Cypher, caption=Create Like Relationship]
     MATCH (u:User {id: $userId}), (a:Anime {id: $animeId}) 
     WHERE NOT (u)-[:LIKE]->(a) 
@@ -504,14 +504,14 @@ LIMIT $n
     \end{lstlisting}
 
     \item Read: This operation will allow users to read nodes and relationships from the database. For example, users can read information about anime and manga and relationships between users and media content.
-    An user can read the list of liked media contents:
+    A user can read the list of liked media contents:
     \begin{lstlisting}[language=Cypher, caption=Read Liked Media Contents]
   
     MATCH (u:User {id: $userId})-[:LIKE]->(a:Anime)
     RETURN a
     \end{lstlisting}
 
-    An user can read the list of followers:
+    A user can read the list of followers:
     \begin{lstlisting}[language=Cypher, caption=Read Followers]
     MATCH (u:User {id: $userId})<-[:FOLLOWS]-(f:User)
     RETURN f
@@ -521,20 +521,23 @@ LIMIT $n
     
     \item Delete: This operation will allow users to delete nodes and relationships from the database. For example, users can delete their likes for anime and manga and relationships between users.
     
-    An user can unlike a media content:
+    A user can unlike a media content:
     \begin{lstlisting}[language=Cypher, caption=Delete Like Relationship]
     MATCH (u:User {id: $userId})-[r:LIKE]->(a:Anime {id: $animeId})
     DELETE r
     RETURN r
     \end{lstlisting}
     \newpage
-    An user can unfollow another user: 
+    A user can unfollow another user: 
     \begin{lstlisting}[language=Cypher, caption=Delete Follow Relationship]
     MATCH (:User {id: $followerUserId})-[r:FOLLOWS]->(:User {id: $followingUserId})
     DELETE r 
     RETURN r
     \end{lstlisting}
 \end{itemize}
+
+\section {Availability and Partition Tolerance}
+MangaVerse, as a social network, gives priority to the AP configuration of the CAP theorem, ensuring Availability and Partition Tolerance. This allows users to access the application and interact with other users and media content, even if the data is not always consistent (Eventual Consistency).
 
 \section{Redundancy}
 The performance of the application is critical, so we need to ensure that the system is highly available and fault-tolerant. To achieve this, we gave priority to fast responses, rather than reducing memory consumption.
@@ -569,7 +572,13 @@ In the user collection, there are fields containing the number of followers and 
 
 In the reviews collection, there's a field containing the user data, such as id, username, picture, and also location and birthday, which are used for suggestion porpouses.
 
+
+\textbf{Review Ids}
+A list of review ids is stored in the anime, manga and users collections, this is used to quickly retrieve the reviews of a media content and of a user.
+
 \section{Replicas}
-The performance of the application is critical, so we need to ensure that the system is highly available and fault-tolerant. To achieve this, we will use a replication strategy for both the document and graph databases. This will allow us to have multiple copies of the data, so if one server fails, the system can continue to operate without any downtime.
+A cluster of three nodes is available for this project, allowing deployment of replicas: however, replicas were only implemented in MongoDB, as Neo4j required the Enterprise version for it.
+We have 3 replicas for MongoDB and 1 for Neo4J.
+In MongDB we have one primary and two secondary replicas, the primary is used for write operations and the secondaries are used for read operations. This will allow us to distribute the load and improve the performance of the application. In case of failure of the primary node, one of the secondary nodes will be promoted to primary, ensuring high availability of the system.
 
 
