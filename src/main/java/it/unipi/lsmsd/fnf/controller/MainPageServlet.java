@@ -118,7 +118,6 @@ public class MainPageServlet extends HttpServlet {
         JavaTimeModule javaTimeModule = new JavaTimeModule();
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy");
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM);
-        DateTimeFormatter dateTimeFormatter =  DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM);
         logger.info("serialization of LocalDate and LocalDateTime objects");
         // Register the formatters for serialization
         javaTimeModule.addSerializer(LocalDate.class, new LocalDateSerializer(dateFormatter));
