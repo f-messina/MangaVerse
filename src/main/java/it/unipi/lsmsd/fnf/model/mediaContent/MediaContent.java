@@ -2,6 +2,8 @@ package it.unipi.lsmsd.fnf.model.mediaContent;
 
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 
+import java.util.List;
+
 public abstract class MediaContent {
     protected String id;
     protected String title;
@@ -9,6 +11,8 @@ public abstract class MediaContent {
     protected Double averageRating;
     protected String synopsis;
     protected Integer likes;
+    //review_ids
+    protected List<String> reviewIds;
 
     public String getId() {
         return id;
@@ -34,6 +38,10 @@ public abstract class MediaContent {
         return likes;
     }
 
+    public List<String> getReviewIds () {
+        return reviewIds;
+    }
+
     public void setId(String id) {
         this.id = id;
     }
@@ -56,6 +64,9 @@ public abstract class MediaContent {
 
     public void setLikes(Integer likes) {
         this.likes = likes;
+    }
+    public void setReviewIds(List<String> reviewIds) {
+        this.reviewIds = reviewIds;
     }
 
     /**
