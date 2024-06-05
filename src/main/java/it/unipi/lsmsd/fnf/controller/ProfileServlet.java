@@ -14,6 +14,7 @@ import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
+import it.unipi.lsmsd.fnf.model.enums.UserType;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import it.unipi.lsmsd.fnf.service.ServiceLocator;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
@@ -68,20 +69,36 @@ public class ProfileServlet extends HttpServlet {
             case "getAnimeLikes" -> handleGetAnimeLikes(request, response);
             case "getMangaLikes" -> handleGetMangaLikes(request, response);
             case "getReviews" -> handleGetReviews(request, response);
+            case "rateApp" -> handleRateApp(request, response);
             case null, default -> {
                 String targetJSP = "WEB-INF/jsp/profile.jsp";
-                String userId = request.getParameter("userId");
+                LoggedUserDTO authUser = SecurityUtils.getAuthenticatedUser(request);
+                User user;
                 try {
-                    LoggedUserDTO authUser = SecurityUtils.getAuthenticatedUser(request);
-                    if (authUser == null && userId == null) {
-                        targetJSP = "WEB-INF/jsp/auth.jsp";
+                    if (authUser == null && request.getParameter("userId") == null) {
+                        response.sendRedirect("auth");
+                        return;
                     } else {
-                        if (authUser != null && userId == null) {
-                            userId = authUser.getId();
-                        } else if (authUser != null && !userId.equals(authUser.getId())) {
-                            request.setAttribute("isFollowed", userService.isFollowing(authUser.getId(), userId));
+                        if (authUser != null) {
+                            String userId = request.getParameter("userId") == null ? authUser.getId() : request.getParameter("userId");
+                            boolean isCurrentUser = userId.equals(authUser.getId());
+                            boolean isFollowed = false;
+
+                            if (isCurrentUser && authUser.getType().equals(UserType.MANAGER)) {
+                                response.sendRedirect("manager");
+                                return;
+                            }
+
+                            if (!isCurrentUser) {
+                                isFollowed = userService.isFollowing(authUser.getId(), userId);
+                            }
+
+                            user = userService.getUserById(userId, isCurrentUser);
+                            request.setAttribute("isFollowed", isFollowed);
+                        } else {
+                            user = userService.getUserById(request.getParameter("userId"), false);
                         }
-                        User user = userService.getUserById(userId);
+
                         user.setProfilePicUrl(ConverterUtils.getProfilePictureUrlOrDefault(user.getProfilePicUrl(), request));
                         request.setAttribute("userInfo", user);
                     }
@@ -294,6 +311,27 @@ public class ProfileServlet extends HttpServlet {
             jsonResponse.put("error", e.getMessage());
         } catch (NotAuthorizedException e) {
             jsonResponse.put("generalError", "You are not authorized to view these reviews.");
+        }
+
+        // Write the JSON response
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(jsonResponse.toString());
+    }
+
+    private void handleRateApp(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode jsonResponse = objectMapper.createObjectNode();
+
+        String userId = SecurityUtils.getAuthenticatedUser(request).getId();
+        String ratingString = request.getParameter("rating");
+        int rating = Integer.parseInt(ratingString);
+
+        try {
+            userService.rateApp(userId, rating);
+            jsonResponse.put("success", true);
+        } catch (BusinessException e) {
+            jsonResponse.put("error", e.getMessage());
         }
 
         // Write the JSON response

@@ -1,4 +1,3 @@
-
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ page import="it.unipi.lsmsd.fnf.model.enums.Gender" %>
@@ -120,6 +119,7 @@
             </div>
         </div>
 
+        <c:if test="${isLogged and sessionScope[Constants.AUTHENTICATED_USER_KEY].getId() eq userInfo.id}">
         <div id="editPopup" class="edit-container myAlert">
             <div class="row myAlertBody">
                 <div class="col-xl-4">
@@ -214,6 +214,7 @@
                 </div>
             </div>
         </div>
+        </c:if>
 
         <!-- followers -->
         <div id="followers" class="myAlert user-list-section">
@@ -233,8 +234,8 @@
 
         <!-- followings -->
         <div id="followings" class="myAlert user-list-section">
-            <div  id="followingsBody" class="myAlertBody">
-                <p for="following-search" class="user-list-name">Following</p>
+            <div id="followingsBody" class="myAlertBody">
+                <p class="user-list-name">Following</p>
 
                 <!-- search bar -->
                 <div class="d-flex align-items-center">
@@ -248,6 +249,34 @@
             </div>
         </div>
     </section>
+
+    <c:if test="${isLogged and sessionScope[Constants.AUTHENTICATED_USER_KEY].getId() eq userInfo.id}">
+        <section class="app-rating-container">
+            <div class="app-rating-form">
+                <br />
+                <c:choose>
+                    <c:when test="${empty userInfo.appRating}">
+                        <h1 id="no-app-rating-message">Would you like to add your score to the website?</h1>
+                    </c:when>
+                    <c:otherwise>
+                        <h1 id="app-rating-title">App rating:</h1>
+                    </c:otherwise>
+                </c:choose>
+                <div class="stars">
+                    <c:forEach var="i" begin="1" end="5">
+                        <c:choose>
+                            <c:when test="${empty userInfo.appRating or i > userInfo.appRating}">
+                                <span onclick="setAppRating(${i})" class="star">★</span>
+                            </c:when>
+                            <c:otherwise>
+                                <span onclick="setAppRating(${i})" class="star checked">★</span>
+                            </c:otherwise>
+                        </c:choose>
+                    </c:forEach>
+                </div>
+            </div>
+        </section>
+    </c:if>
 
     <section class="profile-content">
         <div class="button-container">
@@ -319,7 +348,8 @@
             country: "${empty userInfo.getLocation() ? "" : userInfo.getLocation()}",
             birthdate: "${empty userInfo.getBirthday() ? "" : userInfo.getBirthday()}",
             picture: "${userInfo.getProfilePicUrl()}",
-            gender: "${userInfo.getGender().name()}"
+            gender: "${userInfo.getGender().name()}",
+            appRating: parseInt("${empty userInfo.appRating ? "" : userInfo.appRating}")
         }
     </script>
 </body>

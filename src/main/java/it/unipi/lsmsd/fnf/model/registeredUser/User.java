@@ -24,6 +24,7 @@ public class User extends RegisteredUser {
     //add review_ids
     private List<String> reviewIds;
 
+    private Integer appRating;
     public User() {
     }
 
@@ -77,6 +78,9 @@ public class User extends RegisteredUser {
     public List<String> getReviewIds () {
         return reviewIds;
     }
+    public Integer getAppRating() {
+        return appRating;
+    }
 
     public void setUsername(String username) {
         this.username = username;
@@ -109,6 +113,10 @@ public class User extends RegisteredUser {
     public void setFollowed(Integer followed) {
         this.followed = followed;
     }
+    public void setAppRating(Integer appRating) {
+        this.appRating = appRating;
+    }
+
     public void setLikedMediaContent(List<MediaContent> likedMediaContent) {
         this.likedMediaContent = likedMediaContent;
     }

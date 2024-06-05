@@ -18,6 +18,8 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/user_list.css"/>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/filters.css"/>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
     <title>MAIN PAGE</title>
 </head>
 
@@ -87,6 +89,68 @@
     <!-- Main section -->
     <section id="main-section" class="scrollable">
         <div class="container">
+            <div class="search-landing landing">
+                <!-- trending now -->
+                <div class="landing-section">
+                    <div class="title link">
+                        <h3>Trending now</h3>
+                        <div class="expand clickable" onclick="viewAll('trends', this)">View All</div>
+                    </div>
+                    <div class="results">
+                        <c:forEach items="${requestScope.trending}" var="manga">
+                            <div class="media-card" >
+                                <a href="${pageContext.request.contextPath}/manga?mediaId=${manga.getId()}" class="cover">
+                                    <img src="${manga.getImageUrl()}" class="image loaded">
+                                </a>
+                                <a href="${pageContext.request.contextPath}/manga?mediaId=${manga.getId()}" class="title">${manga.getTitle()}</a>
+                            </div>
+                        </c:forEach>
+                    </div>
+                    <div class="results extended" style="display: none"></div>
+                </div>
+
+                <c:if test="${isLogged}">
+                <!-- suggestions by likes -->
+                <div class="landing-section">
+                    <div class="title link">
+                        <h3>Recommended for you</h3>
+                        <div class="expand clickable" onclick="viewAll('suggestionsByLikes', this)">View All</div>
+                    </div>
+                    <div class="results">
+                        <c:forEach items="${requestScope.suggestionsByLikes}" var="manga">
+                            <div class="media-card" >
+                                <a href="${pageContext.request.contextPath}/manga?mediaId=${manga.getId()}" class="cover">
+                                    <img src="${manga.getImageUrl()}" class="image loaded">
+                                </a>
+                                <a href="${pageContext.request.contextPath}/manga?mediaId=${manga.getId()}" class="title">${manga.getTitle()}</a>
+                            </div>
+                        </c:forEach>
+                    </div>
+                    <div class="results extended" style="display: none"></div>
+                </div>
+
+                <!-- suggestions by followings -->
+                <div class="landing-section">
+                    <div class="title link">
+                        <h3>Recommended by your followings</h3>
+                        <div class="expand clickable" onclick="viewAll('suggestionsByFollowings', this)">View All</div>
+                    </div>
+                    <div class="results">
+                        <c:forEach items="${requestScope.suggestionsByFollowings}" var="manga">
+                            <div class="media-card" >
+                                <a href="${pageContext.request.contextPath}/manga?mediaId=${manga.getId()}" class="cover">
+                                    <img src="${manga.getImageUrl()}" class="image loaded">
+                                </a>
+                                <a href="${pageContext.request.contextPath}/manga?mediaId=${manga.getId()}" class="title">${manga.getTitle()}</a>
+                            </div>
+                        </c:forEach>
+                    </div>
+                    <div class="results extended" style="display: none"></div>
+                </div>
+                </c:if>
+            </div>
+
+
             <!-- filters div -->
             <div class="filters-wrap primary-filters">
 
@@ -401,7 +465,7 @@
 
             <!-- results -->
             <div class="no-results"> No Results </div>
-            <div class="results"></div>
+            <div id="results" class="results"></div>
 
             <div class="container-pagination">
                 <ul class="page pagination">
@@ -410,7 +474,6 @@
         </div>
     </section>
 
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js" defer></script>
     <script src="${pageContext.request.contextPath}/js/main_page_test.js" defer></script>
     <script src="${pageContext.request.contextPath}/js/navbar.js" defer></script>
     <script src="${pageContext.request.contextPath}/js/filters.js" defer></script>
@@ -422,6 +485,20 @@
         const mangaDefaultImage = "${pageContext.request.contextPath}/${Constants.DEFAULT_COVER_MANGA}";
         const animeDefaultImage = "${pageContext.request.contextPath}/${Constants.DEFAULT_COVER_ANIME}";
         const scrollToMain = ${scroll != null ? scroll : 'true'};
+
+        $(document).ready(function() {
+            $(".landing-section img").on("error", function() {
+                setDefaultCover($(this));
+            });
+            // Check if the image has already failed to load after a delay
+            setTimeout(function() {
+                $(".landing-section img").each(function() {
+                    if (!this.complete || this.naturalWidth === 0) {
+                        setDefaultCover($(this));
+                    }
+                });
+            }, 50); // Adjust the delay time (in milliseconds) as needed
+        });
     </script>
 </body>
 </html>

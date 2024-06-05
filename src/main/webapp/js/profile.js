@@ -305,6 +305,30 @@ function changeFollowStatus(action) {
     }).fail(xhr => console.error(`${action} failed: ${xhr.responseText}`));
 }
 
+//////////////////
+/// APP RATING ///
+//////////////////
+
+let appRating = profile.appRating;
+
+// Function to update rating
+function setAppRating(n) {
+    const stars = $(".star");
+    const appRatingRequestMessage = $("#no-app-rating-message");
+    if (appRating === n) return;
+    $.post(contextPath + "/profile", { action: "rateApp", rating: n }, function(data) {
+        if (data.success) {
+            appRatingRequestMessage.text("Thanks for rating the app!");
+            stars.removeClass("checked");
+
+            for (let i = 0; i < n; i++) {
+                if (i <= n)
+                    stars.eq(i).addClass("checked");
+            }
+            appRating = n;
+        }
+    }).fail(() => console.error(`Rating failed`));
+}
 
 ///////////////////////
 /// LIKES & REVIEWS ///

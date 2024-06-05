@@ -2,6 +2,13 @@ html {
     overflow: hidden;
 }
 
+a {
+    color: inherit;
+    text-decoration: none;
+    transition: .15s;
+    outline: 0;
+}
+
 body {
     margin: 0;
     padding: 0;
@@ -44,7 +51,6 @@ body {
 .section-home span, .selection-page-link {
     font-size: 2em;
     font-weight: 300;
-    text-decoration: none;
     color: black;
 }
 
@@ -139,6 +145,47 @@ iframe {
     background: rgb(var(--color-background-200));
 }
 
+/* suggestions and trend section */
+
+.search-landing {
+    margin-top: 5rem;
+}
+
+.landing-section {
+    margin-bottom: 50px;
+}
+
+.landing-section .title h3 {
+    color: rgb(var(--color-gray-800));
+    font-size: 2rem;
+    font-weight: 600;
+    letter-spacing: .03em;
+    text-transform: uppercase;
+    margin: 0;
+}
+
+.landing-section .title {
+    margin: 2rem 0;
+}
+
+.title.link {
+    align-items: flex-end;
+    display: flex;
+}
+
+.link .expand:hover, .link:hover {
+    color: rgb(var(--color-gray-900));
+}
+
+.link .expand {
+    color: rgb(var(--color-gray-600));
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-left: auto;
+    text-transform: none;
+    transition: color .2s ease;
+}
+
 /* media grid */
 
 .no-results {
@@ -158,7 +205,6 @@ iframe {
     justify-content: space-between;
     z-index: 5;
     position: relative;
-    text-align: center;
 }
 
 .media-card {
@@ -182,13 +228,6 @@ iframe {
     z-index: 5;
 }
 
-.media-card a {
-    color: inherit;
-    text-decoration: none;
-    transition: .15s;
-    outline: 0;
-}
-
 .background-color.loaded, .image.loaded {
     opacity: 1;
 }
@@ -210,7 +249,7 @@ iframe {
 
 .title {
     color: rgb(var(--color-gray-700));
-    font-size: 1.4rem;
+    font-size: 1.7rem;
     font-weight: 600;
     line-height: 21px;
     margin-top: 10px;

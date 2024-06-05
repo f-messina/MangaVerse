@@ -43,17 +43,19 @@ public class AuthServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
         String targetJSP = "WEB-INF/jsp/auth.jsp";
-        logger.info("Action: " + action);
 
         switch (action) {
             case "signup" -> handleSignUp(request, response);
             case "login" -> handleLogin(request, response);
             case "logout" -> handleLogout(request, response);
             case null, default -> {
-                if (SecurityUtils.getAuthenticatedUser(request) != null)
-                    response.sendRedirect("profile");
-                else
+                LoggedUserDTO loggedUser = SecurityUtils.getAuthenticatedUser(request);
+                if (loggedUser != null) {
+                    String servlet = loggedUser.getType() == UserType.MANAGER ? "manager" : "profile";
+                    response.sendRedirect(servlet);
+                } else {
                     request.getRequestDispatcher(targetJSP).forward(request, response);
+                }
             }
         }
     }

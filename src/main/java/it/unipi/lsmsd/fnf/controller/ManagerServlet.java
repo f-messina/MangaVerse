@@ -10,8 +10,10 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import it.unipi.lsmsd.fnf.dao.exception.enums.DAOExceptionType;
+import it.unipi.lsmsd.fnf.dto.LoggedUserDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
+import it.unipi.lsmsd.fnf.model.enums.UserType;
 import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
 import it.unipi.lsmsd.fnf.service.exception.enums.BusinessExceptionType;
 import it.unipi.lsmsd.fnf.service.interfaces.MediaContentService;
@@ -20,6 +22,7 @@ import it.unipi.lsmsd.fnf.service.ServiceLocator;
 import it.unipi.lsmsd.fnf.service.interfaces.UserService;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 import it.unipi.lsmsd.fnf.utils.Constants;
+import it.unipi.lsmsd.fnf.utils.SecurityUtils;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -84,7 +87,16 @@ public class ManagerServlet extends HttpServlet {
     }
 
     public void handleLoadPage(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String targetJSP = "/WEB-INF/jsp/manager.jsp";
+        LoggedUserDTO loggedUser = SecurityUtils.getAuthenticatedUser(request);
+
+        if (loggedUser == null) {
+            response.sendRedirect("auth");
+            return;
+
+        } else if (!loggedUser.getType().equals(UserType.MANAGER)) {
+            response.sendRedirect("profile");
+            return;
+        }
 
         try {
             Map<String, Integer> distribution = userService.getDistribution("gender");
@@ -95,7 +107,7 @@ public class ManagerServlet extends HttpServlet {
             throw new RuntimeException(e);
         }
 
-        request.getRequestDispatcher(targetJSP).forward(request, response);
+        request.getRequestDispatcher("/WEB-INF/jsp/manager.jsp").forward(request, response);
     }
 
     public void handleGetAnimeDefaultAnalytics(HttpServletRequest request, HttpServletResponse response) throws IOException {

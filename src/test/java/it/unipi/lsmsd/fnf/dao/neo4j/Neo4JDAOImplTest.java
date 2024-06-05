@@ -179,7 +179,7 @@ public class Neo4JDAOImplTest{
     @Test
     public void getSuggestedAnimeByLikes() throws DAOException {
         AnimeDAONeo4JImpl neo4JDAO = new AnimeDAONeo4JImpl();
-        List<MediaContentDTO> anime = neo4JDAO.getSuggestedByLikes("6577877be683762347605859", 100);
+        List<MediaContentDTO> anime = neo4JDAO.getSuggestedByLikes("6577877be68376234760585d", 100);
         System.out.println(anime.size());
         if (anime == null || anime.isEmpty()) {
             fail("No suggested anime found");
@@ -204,7 +204,7 @@ public class Neo4JDAOImplTest{
     @Test
     public void getSuggestedAnimeByFollowings() throws DAOException {
         AnimeDAONeo4JImpl neo4JDAO = new AnimeDAONeo4JImpl();
-        List<MediaContentDTO> anime = neo4JDAO.getSuggestedByFollowings("6577877be683762347605859", 100);
+        List<MediaContentDTO> anime = neo4JDAO.getSuggestedByFollowings("6577877be68376234760585d", 100);
         System.out.println(anime.size());
         if (anime == null || anime.isEmpty()) {
             fail("No suggested anime found");
@@ -267,7 +267,7 @@ public class Neo4JDAOImplTest{
     @Test
     public void getTrendMangaByLikes() throws DAOException {
         MangaDAONeo4JImpl neo4JDAO = new MangaDAONeo4JImpl();
-        List<MediaContentDTO> manga = neo4JDAO.getMediaContentTrendByLikes(25);
+        List<MediaContentDTO> manga = neo4JDAO.getMediaContentTrendByLikes(6);
         if (manga == null || manga.isEmpty()) {
             fail("No trend manga found");
         }

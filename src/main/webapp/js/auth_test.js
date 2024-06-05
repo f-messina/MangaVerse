@@ -102,8 +102,8 @@ signUpButton.click(function(event) {
     event.preventDefault();
     const genderInput = $("#gender");
     genderInput.val(genderInput.attr("data-value"));
-    const signupData = $("#register-form").serialize();
-    console.log(signupData);
+    const signupForm = $("#register-form");
+
     $.post(signupForm.attr("action"), signupForm.serialize(), function(data) {
         if (data.success) {
             window.location.href = data.redirect;

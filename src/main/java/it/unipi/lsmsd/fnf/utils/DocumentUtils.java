@@ -427,10 +427,8 @@ public class DocumentUtils {
         if (doc.getBoolean("is_manager") != null) {
             Manager manager = new Manager();
             manager.setHiredDate(ConverterUtils.dateToLocalDate(doc.getDate("hired_on")));
-            manager.setTitle(doc.getString("title"));
             user = manager;
         } else {
-            //Add get review_ids
             User normalUser = new User();
             normalUser.setUsername(doc.getString("username"));
             normalUser.setBirthday(ConverterUtils.dateToLocalDate(doc.getDate("birthday")));
@@ -440,6 +438,7 @@ public class DocumentUtils {
             normalUser.setFollowers(doc.getInteger("followers"));
             normalUser.setFollowed(doc.getInteger("followed"));
             normalUser.setReviewIds(doc.getList("review_ids", String.class));
+            normalUser.setAppRating(doc.getInteger("app_rating"));
             user = normalUser;
         }
 
