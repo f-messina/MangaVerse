@@ -262,7 +262,7 @@ class MangaDAOMongoImplTest {
         }
     }
 
-    //Add a list of reviews id connected to the manga
+    //Add a list of reviews id connected to the manga: DONE
     @Test
     public void addReviewsIdInMangaTest() throws DAOException {
         //Get list of anime ids

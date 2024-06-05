@@ -85,8 +85,7 @@ public class DocumentUtils {
         return doc;
     }
 
-    //When I get the user, from document to model, memorize in a variable the list of ids
-    //Add the review_ids in the models of media content and user
+
 
 
     /**
@@ -257,6 +256,8 @@ public class DocumentUtils {
         anime.setReviews(reviewList);
 
         anime.setLikes(doc.getInteger("likes"));
+
+        anime.setReviewIds(doc.getList("review_ids", String.class));
         return anime;
     }
 
@@ -381,6 +382,8 @@ public class DocumentUtils {
 
         manga.setLikes(document.getInteger("likes"));
 
+        manga.setReviewIds(document.getList("review_ids", String.class));
+
         return manga;
     }
 
@@ -436,6 +439,7 @@ public class DocumentUtils {
             normalUser.setLocation(doc.getString("location"));
             normalUser.setFollowers(doc.getInteger("followers"));
             normalUser.setFollowed(doc.getInteger("followed"));
+            normalUser.setReviewIds(doc.getList("review_ids", String.class));
             user = normalUser;
         }
 
