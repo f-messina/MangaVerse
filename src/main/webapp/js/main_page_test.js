@@ -36,13 +36,42 @@ $(document).ready(function () {
     getMediaContent();
 });
 
+// suggestions and trends show/hide
+
+function viewAll(nameList, button) {
+    const resultsContainer = $(button).closest(".landing-section").find(".results");
+    if (resultsContainer.eq(1).children().length === 0) {
+        $.post(contextPath + "/mainPage/" + mediaType, {nameList: nameList, action: "viewAll"}, function (data) {
+            if (data.success) {
+                resultsContainer.toggle();
+                data.mediaList.forEach(media => {
+                    const mediaCard = $("<div>").addClass("media-card");
+                    const mediaImgLink = $("<a>").addClass("cover").attr("href", contextPath + "/" + mediaType + "?mediaId=" + media.id);
+                    const mediaImg = $("<img>").attr("src", media.imageUrl === null ? animeDefaultImage : media.imageUrl).attr("alt", media.title).addClass("image loaded")
+                        .on("error", () => setDefaultCover(mediaImg, mediaType));
+                    mediaImgLink.append(mediaImg);
+                    const title = $("<a>").attr("href", contextPath + "/" + mediaType + "?mediaId=" + media.id).addClass("title").text(media.title);
+                    mediaCard.append(mediaImgLink, title);
+                    resultsContainer.eq(1).append(mediaCard);
+                });
+            }
+        }).fail(function () {
+            alert("Error occurred during the asynchronous request");
+        });
+    } else {
+        resultsContainer.toggle();
+    }
+}
+
+// get the media by the selected filters
 let currentPage, totalPages;
 
 // get the query results based on the selected filters
 function getMediaContent(page = 1) {
     const filters = createFilterParams();
     filters.page = page;
-    const resultsContainer = $(".results");
+    const resultsContainer = $("#results");
+    console.log(filters);
     $.post(contextPath + "/mainPage/" + mediaType, filters, function (data) {
         if (data.success) {
             currentPage = page;

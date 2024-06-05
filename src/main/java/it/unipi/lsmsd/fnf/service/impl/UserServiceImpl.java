@@ -150,9 +150,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUserById(String userId) throws BusinessException {
+    public User getUserById(String userId, boolean isUserLoggedInfo) throws BusinessException {
         try {
-            return (User) userDAO.readUser(userId, false);
+            return (User) userDAO.readUser(userId, false, isUserLoggedInfo);
 
         } catch (DAOException e) {
             if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {
@@ -318,6 +318,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public void rateApp(String userId, Integer rating) throws BusinessException {
+        try {
+            userDAO.rateApp(userId, rating);
+
+        } catch (DAOException e) {
+            if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {
+                throw new BusinessException(BusinessExceptionType.DATABASE_ERROR, e.getMessage());
+            }
+            throw new BusinessException(BusinessExceptionType.GENERIC_ERROR, e.getMessage());
+        }
+    }
+
+    @Override
     public Map<String, Integer> getDistribution(String criteria) throws BusinessException {
         try {
             if(!(criteria.equals("location") || (criteria.equals("gender")) || (criteria.equals("birthday") || (criteria.equals("joined_on"))))) {
@@ -336,23 +349,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public Map<String, Double> averageAppRating(String criteria) throws BusinessException {
         try {
-            if(!(criteria.equals("location") || (criteria.equals("gender")))) {
+            if(criteria.equals("location") || (criteria.equals("gender")))
+                return userDAO.averageAppRating(criteria);
+            else if(criteria.equals("age"))
+                return userDAO.averageAppRatingByAgeRange();
+            else
                 throw new BusinessException("Invalid criteria");
-            }
-            return userDAO.averageAppRating(criteria);
-
-        } catch (DAOException e) {
-            if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {
-                throw new BusinessException(BusinessExceptionType.DATABASE_ERROR, e.getMessage());
-            }
-            throw new BusinessException(BusinessExceptionType.GENERIC_ERROR, e.getMessage());
-        }
-    }
-
-    @Override
-    public Map<String, Double> averageAppRatingByAgeRange() throws BusinessException {
-        try {
-            return userDAO.averageAppRatingByAgeRange();
 
         } catch (DAOException e) {
             if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {

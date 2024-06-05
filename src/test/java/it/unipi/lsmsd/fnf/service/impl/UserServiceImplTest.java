@@ -182,7 +182,7 @@ class UserServiceImplTest {
         try {
             UserService userService = new UserServiceImpl();
             UserSummaryDTO userSummaryDTO = userService.searchFirstNUsers("exampleUser", 1, null).getFirst();
-            System.out.println(userService.getUserById(userSummaryDTO.getId()));
+            System.out.println(userService.getUserById(userSummaryDTO.getId(), false));
             Thread.sleep(2*1000);
         } catch (BusinessException e) {
             System.err.println(e.getMessage() + " " + e.getType());
@@ -247,16 +247,6 @@ class UserServiceImplTest {
             UserService userService = new UserServiceImpl();
             System.out.println(userService.averageAppRating("location"));
             System.out.println(userService.averageAppRating("gender"));
-        } catch (BusinessException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Test
-    void averageAppRatingByAgeRangeTest() {
-        try {
-            UserService userService = new UserServiceImpl();
-            System.out.println(userService.averageAppRatingByAgeRange());
         } catch (BusinessException e) {
             throw new RuntimeException(e);
         }

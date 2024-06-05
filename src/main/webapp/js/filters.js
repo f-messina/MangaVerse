@@ -297,7 +297,6 @@ $(document).click(function (event) {
 function createFilterParams() {
     const params = {
         "action": "search",
-        "mediaType": mediaType,
         "genreSelectMode": genreCheckboxType.val(),
         "sortParam": sortOptions.filter(".active").attr("value"),
         "sortDirection": sortDirection.attr("value"),
@@ -340,6 +339,5 @@ function createFilterParams() {
         params[rangeName + "Max"] = maxVal;
     });
 
-    console.log(params);
     return params;
 }

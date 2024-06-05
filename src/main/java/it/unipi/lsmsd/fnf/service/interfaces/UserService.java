@@ -14,15 +14,14 @@ public interface UserService {
     LoggedUserDTO login(String email, String password) throws BusinessException;
     void updateUserInfo(User user) throws BusinessException;
     void deleteUser(String userId) throws BusinessException;
-    User getUserById(String userId) throws BusinessException;
+    User getUserById(String userId, boolean isLoggedUserInfo) throws BusinessException;
     List<UserSummaryDTO> suggestUsersByCommonFollowings(String userId) throws BusinessException;
     List<UserSummaryDTO> searchFirstNUsers(String username, Integer n, String loggedUser) throws BusinessException;
-
     List<UserSummaryDTO> suggestUsersByCommonLikes(String userId) throws BusinessException;
+    void rateApp(String userId, Integer rating) throws BusinessException;
 
     Map<String, Integer> getDistribution(String criteria) throws BusinessException;
     Map<String, Double> averageAppRating(String criteria) throws BusinessException;
-    Map<String, Double> averageAppRatingByAgeRange() throws BusinessException;
     void follow(String followerUserId, String followingUserId) throws BusinessException;
     void unfollow(String followerUserId, String followingUserId) throws BusinessException;
     boolean isFollowing(String followerUserId, String followingUserId) throws BusinessException;

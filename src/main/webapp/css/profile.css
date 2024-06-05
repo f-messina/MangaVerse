@@ -533,6 +533,42 @@ select.form-control {
 
 }
 
+/*//////////////
+// APP RATING //
+//////////////*/
+
+.app-rating-container {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+    margin-bottom: 3rem;
+}
+
+.app-rating-form {
+    padding: 0 3rem;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+    border-radius: 0.5rem;
+}
+
+.app-rating-form h1 {
+    padding-top: 1rem;
+    margin: 0;
+}
+
+.stars {
+    padding: 3rem 0;
+}
+
+.star {
+    font-size: 5vh;
+    cursor: pointer;
+}
+
+.star.checked {
+    color: rgb(var(--color-yellow));
+}
+
 /*//////////////////////////////////*/
 /* SECTION GRID MANGA/ANIME/REVIEWS */
 /*//////////////////////////////////*/
@@ -544,7 +580,6 @@ select.form-control {
 .no-results-error {
     font-size: 6rem;
 }
-
 
 /* like and reviews list button css */
 
