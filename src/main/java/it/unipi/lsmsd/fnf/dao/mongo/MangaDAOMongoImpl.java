@@ -188,13 +188,18 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
      * @return A PageDTO containing the results and total count.
      * @throws DAOException If an error occurs during search.
      */
-    public PageDTO<MediaContentDTO> search(List<Map<String, Object>> filters, Map<String, Integer> orderBy, int page) throws DAOException {
+    public PageDTO<MediaContentDTO> search(List<Map<String, Object>> filters, Map<String, Integer> orderBy, int page, boolean reducedInfo) throws DAOException {
         try {
             MongoCollection<Document> mangaCollection = getCollection(COLLECTION_NAME);
             Bson filter = buildFilter(filters);
             Bson sort = buildSort(orderBy);
 
-            Bson projection = include("title", "picture", "average_rating", "start_date", "end_date", "likes");
+            Bson projection;
+            if (reducedInfo) {
+                projection = include("title", "picture");
+            } else {
+                projection = include("title", "picture", "average_rating", "start_date", "end_date", "likes");
+            }
             int pageOffset = (page - 1) * Constants.PAGE_SIZE;
 
             List<Bson> pipeline = List.of(

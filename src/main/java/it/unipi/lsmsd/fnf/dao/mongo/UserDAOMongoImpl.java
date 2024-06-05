@@ -168,16 +168,18 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
      * @throws DAOException If an error occurs while retrieving the user.
      */
     @Override
-    public RegisteredUser readUser(String userId, boolean onlyStatsInfo) throws DAOException {
+    public RegisteredUser readUser(String userId, boolean onlyStatsInfo, boolean isLoggedUserInfo) throws DAOException {
         try {
             MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
 
-            Bson filter = eq("_id", new ObjectId(userId));
+            Bson filter = and(eq("_id", new ObjectId(userId)), exists("is_manager", false));
             Bson projection;
             if (onlyStatsInfo) {
                 projection = fields(include("location", "birthday"), excludeId());
-            } else {
+            } else if (isLoggedUserInfo) {
                 projection = exclude("is_manager", "password");
+            } else {
+                projection = exclude("is_manager", "password", "email", "joined_on", "app_rating");
             }
 
             return Optional.ofNullable(usersCollection.find(filter).projection(projection).first())
@@ -435,6 +437,29 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
                 throw new MongoException("UserDAOMongoImpl: updateNumOfFollowers: Number of followers not updated");
             }
 
+        } catch (MongoException e) {
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
+        } catch (Exception e) {
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+
+        }
+    }
+
+    @Override
+    public void rateApp(String userId, Integer rating) throws DAOException {
+        try {
+            MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
+
+            Bson filter = eq("_id", new ObjectId(userId));
+            Bson update = new Document("$set", new Document("app_rating", rating));
+
+            UpdateResult result = usersCollection.updateOne(filter, update);
+            if (result.getMatchedCount() == 0) {
+                throw new MongoException("UserDAOMongoImpl: rateApp: User not found");
+            } else if (result.getModifiedCount() == 0) {
+                throw new MongoException("UserDAOMongoImpl: rateApp: App rating not updated");
+            }
         } catch (MongoException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
 

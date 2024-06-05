@@ -339,6 +339,5 @@ function createFilterParams() {
         params[rangeName + "Max"] = maxVal;
     });
 
-    console.log(params);
     return params;
 }

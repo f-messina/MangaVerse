@@ -184,9 +184,9 @@ public class MediaContentServiceImpl implements MediaContentService {
     public PageDTO<MediaContentDTO> searchByFilter(List<Map<String, Object>> filters, Map<String, Integer> orderBy, int page, MediaContentType type) throws BusinessException {
         try {
             if (MediaContentType.ANIME.equals(type))
-                return animeDAOMongoDB.search(filters, orderBy, page);
+                return animeDAOMongoDB.search(filters, orderBy, page, false);
             else
-                return mangaDAOMongoDB.search(filters, orderBy, page);
+                return mangaDAOMongoDB.search(filters, orderBy, page, false);
 
         } catch (DAOException e) {
             if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {
@@ -208,9 +208,9 @@ public class MediaContentServiceImpl implements MediaContentService {
     public PageDTO<MediaContentDTO> searchByTitle(String title, int page, MediaContentType type) throws BusinessException {
         try {
             if (MediaContentType.ANIME.equals(type))
-                return animeDAOMongoDB.search(List.of(Map.of("$regex", Map.of("title", title))), Map.of("title", 1), page);
+                return animeDAOMongoDB.search(List.of(Map.of("$regex", Map.of("title", title))), Map.of("title", 1), page, true);
             else {
-                return mangaDAOMongoDB.search(List.of(Map.of("$regex", Map.of("title", title))), Map.of("title", 1), page);
+                return mangaDAOMongoDB.search(List.of(Map.of("$regex", Map.of("title", title))), Map.of("title", 1), page, true);
             }
         } catch (DAOException e) {
             if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {
@@ -338,9 +338,9 @@ public class MediaContentServiceImpl implements MediaContentService {
     public List<MediaContentDTO> getSuggestedMediaContentByLikes(String userId, MediaContentType type, Integer limit) throws BusinessException {
         try {
             if (MediaContentType.ANIME.equals(type))
-                return animeDAONeo4J.getSuggestedByFollowings(userId, limit);
+                return animeDAONeo4J.getSuggestedByLikes(userId, limit);
             else
-                return mangaDAONeo4J.getSuggestedByFollowings(userId, limit);
+                return mangaDAONeo4J.getSuggestedByLikes(userId, limit);
 
         } catch (DAOException e) {
             handleDAOException(e);

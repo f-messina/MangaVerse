@@ -187,14 +187,19 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
      * @throws DAOException If an error occurs during the search process.
      */
     @Override
-    public PageDTO<MediaContentDTO> search(List<Map<String, Object>> filters, Map<String, Integer> orderBy, int page) throws DAOException {
+    public PageDTO<MediaContentDTO> search(List<Map<String, Object>> filters, Map<String, Integer> orderBy, int page, boolean reducedInfo) throws DAOException {
         try {
             MongoCollection<Document> animeCollection = getCollection(COLLECTION_NAME);
 
             // Build the MongoDB query pipeline
             Bson filter = buildFilter(filters);
             Bson sort = buildSort(orderBy);
-            Bson projection = include("title", "picture", "average_rating", "anime_season", "likes");
+            Bson projection;
+
+            if (reducedInfo)
+                projection = include("title", "picture");
+            else
+                projection = include("title", "picture", "average_rating", "anime_season", "likes");
 
             int pageOffset = (page - 1) * Constants.PAGE_SIZE;
 

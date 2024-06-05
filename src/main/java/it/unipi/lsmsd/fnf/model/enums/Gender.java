@@ -47,7 +47,7 @@ public enum Gender {
             case "Non Binary" -> NON_BINARY;
             case "Male" -> MALE;
             case "Female" -> FEMALE;
-            case Constants.NULL_GENDER, "" -> UNKNOWN;
+            case Constants.NULL_GENDER, "", "unknown" -> UNKNOWN;
             case null -> UNKNOWN;
             default -> throw new IllegalArgumentException("No enum constant for string: " + value);
         };

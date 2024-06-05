@@ -419,7 +419,6 @@ public class DocumentUtils {
         if (doc.getBoolean("is_manager") != null) {
             Manager manager = new Manager();
             manager.setHiredDate(ConverterUtils.dateToLocalDate(doc.getDate("hired_on")));
-            manager.setTitle(doc.getString("title"));
             user = manager;
         } else {
             User normalUser = new User();
@@ -430,6 +429,7 @@ public class DocumentUtils {
             normalUser.setLocation(doc.getString("location"));
             normalUser.setFollowers(doc.getInteger("followers"));
             normalUser.setFollowed(doc.getInteger("followed"));
+            normalUser.setAppRating(doc.getInteger("app_rating"));
             user = normalUser;
         }
 

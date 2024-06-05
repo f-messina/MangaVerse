@@ -425,7 +425,7 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
             );
 
             // Delete reviews with anime IDs or manga IDs not present in the anime or manga collection
-            System.out.println(reviewCollection.deleteMany(filter).getDeletedCount());
+            reviewCollection.deleteMany(filter);
 
         } catch (MongoException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
@@ -442,7 +442,7 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
 
             Bson filter = or(eq("anime.id", new ObjectId(mediaId)), eq("manga.id", new ObjectId(mediaId)));
 
-            System.out.println("Deleted reviews:" + reviewCollection.deleteMany(filter).getDeletedCount());
+            reviewCollection.deleteMany(filter);
 
         } catch (MongoException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
@@ -470,7 +470,7 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
             MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
 
             // Delete reviews with user IDs not present in the users collection
-            System.out.println(reviewCollection.deleteMany(nin("user.id", userIds)).getDeletedCount());
+            reviewCollection.deleteMany(nin("user.id", userIds));
 
         } catch (MongoException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
@@ -488,7 +488,7 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
 
             Bson filter = eq("user.id", new ObjectId(userId));
 
-            System.out.println("Deleted reviews:" + reviewCollection.deleteMany(filter).getDeletedCount());
+            reviewCollection.deleteMany(filter);
 
         } catch (MongoException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
@@ -505,7 +505,7 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
         try {
             MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
 
-            Bson filter = eq("user.id", new ObjectId(userId));
+            Bson filter = in("_id", new ObjectId(userId));
             Bson projection = exclude("user");
 
             if (page == null) {
@@ -735,6 +735,7 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
                     first("title", "$" + nodeType + ".title"),
                     avg("average_rating", "$rating")),
                     sort(descending("average_rating")),
+                    project(include("title")),
                     limit(Constants.PAGE_SIZE)));
 
             List<Document> result = reviewCollection.aggregate(pipeline).into(new ArrayList<>());

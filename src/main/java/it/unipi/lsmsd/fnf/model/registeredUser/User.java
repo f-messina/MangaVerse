@@ -21,7 +21,7 @@ public class User extends RegisteredUser {
     private List<MediaContent> likedMediaContent = new ArrayList<>();
     private Integer followers;
     private Integer followed;
-
+    private Integer appRating;
     public User() {
     }
 
@@ -72,6 +72,9 @@ public class User extends RegisteredUser {
     public Integer getFollowed() {
         return followed;
     }
+    public Integer getAppRating() {
+        return appRating;
+    }
 
     public void setUsername(String username) {
         this.username = username;
@@ -104,6 +107,10 @@ public class User extends RegisteredUser {
     public void setFollowed(Integer followed) {
         this.followed = followed;
     }
+    public void setAppRating(Integer appRating) {
+        this.appRating = appRating;
+    }
+
     public void setLikedMediaContent(List<MediaContent> likedMediaContent) {
         this.likedMediaContent = likedMediaContent;
     }

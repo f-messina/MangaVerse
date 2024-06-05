@@ -150,9 +150,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUserById(String userId) throws BusinessException {
+    public User getUserById(String userId, boolean isUserLoggedInfo) throws BusinessException {
         try {
-            return (User) userDAO.readUser(userId, false);
+            return (User) userDAO.readUser(userId, false, isUserLoggedInfo);
 
         } catch (DAOException e) {
             if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {
@@ -309,6 +309,19 @@ public class UserServiceImpl implements UserService {
                 users.addAll(userDAONeo4J.suggestUsersByCommonLikes(userId, 5 + users.size(), MediaContentType.MANGA));
             }
             return users;
+        } catch (DAOException e) {
+            if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {
+                throw new BusinessException(BusinessExceptionType.DATABASE_ERROR, e.getMessage());
+            }
+            throw new BusinessException(BusinessExceptionType.GENERIC_ERROR, e.getMessage());
+        }
+    }
+
+    @Override
+    public void rateApp(String userId, Integer rating) throws BusinessException {
+        try {
+            userDAO.rateApp(userId, rating);
+
         } catch (DAOException e) {
             if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {
                 throw new BusinessException(BusinessExceptionType.DATABASE_ERROR, e.getMessage());

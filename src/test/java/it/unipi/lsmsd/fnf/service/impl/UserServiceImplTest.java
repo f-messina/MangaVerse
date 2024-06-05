@@ -182,7 +182,7 @@ class UserServiceImplTest {
         try {
             UserService userService = new UserServiceImpl();
             UserSummaryDTO userSummaryDTO = userService.searchFirstNUsers("exampleUser", 1, null).getFirst();
-            System.out.println(userService.getUserById(userSummaryDTO.getId()));
+            System.out.println(userService.getUserById(userSummaryDTO.getId(), false));
             Thread.sleep(2*1000);
         } catch (BusinessException e) {
             System.err.println(e.getMessage() + " " + e.getType());

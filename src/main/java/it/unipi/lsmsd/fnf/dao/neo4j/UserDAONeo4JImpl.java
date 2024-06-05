@@ -508,10 +508,12 @@ public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
     public LoggedUserDTO authenticate(String email, String password) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
+
     @Override
-    public RegisteredUser readUser(String userId, boolean onlyStatsInfo) throws DAOException {
+    public RegisteredUser readUser(String userId, boolean onlyStatsInfo, boolean isLoggedUserInfo) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
+
     @Override
     public List<UserSummaryDTO> searchFirstNUsers(String username, Integer n, String loggedUser) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
@@ -539,6 +541,11 @@ public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
 
     @Override
     public void updateNumOfFollowed(String userId, Integer followed) throws DAOException {
+        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
+    }
+
+    @Override
+    public void rateApp(String userId, Integer rating) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
 

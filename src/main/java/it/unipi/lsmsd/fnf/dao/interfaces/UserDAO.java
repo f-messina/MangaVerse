@@ -16,17 +16,16 @@ public interface UserDAO {
     void saveUser(UserRegistrationDTO user) throws DAOException;
     void updateUser(User user) throws DAOException;
     void deleteUser(String userId) throws DAOException;
-
     List<UserSummaryDTO> suggestUsersByCommonLikes(String userId, Integer limit, MediaContentType type) throws DAOException;
-
     LoggedUserDTO authenticate(String email, String password) throws DAOException;
-    RegisteredUser readUser(String userId, boolean onlyStatsInfo) throws DAOException;
+    RegisteredUser readUser(String userId, boolean onlyStatsInfo, boolean isLoggedUserInfo) throws DAOException;
     List<UserSummaryDTO> searchFirstNUsers(String username, Integer n, String loggedUser) throws DAOException;
     Map<String, Integer> getDistribution(String criteria) throws DAOException; // MANAGER (PIE CHART)
     Map<String, Double> averageAppRating(String criteria) throws DAOException; // MANAGER (TABLE OR BAR CHART)
     Map<String, Double> averageAppRatingByAgeRange() throws DAOException; // MANAGER (TABLE OR BAR CHART)
     void updateNumOfFollowers(String userId, Integer followers) throws DAOException;
     void updateNumOfFollowed(String userId, Integer followed) throws DAOException;
+    void rateApp(String userId, Integer rating) throws DAOException;
 
     //Neo4J queries
     void follow(String followerUserId, String followedUserId) throws DAOException;
