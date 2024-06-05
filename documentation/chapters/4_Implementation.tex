@@ -307,4 +307,22 @@ package structure of Service module is as follows:
 
 
 \section{Adopted Patterns and Techniques}
+\subsection*{Patterns}
 
+
+\subsection*{Techniques}
+
+\textbf{Task Manager:}\\
+Task Manager class which is located in the service module of the system provides asynchronous task execution with using 
+\textit{PriorityBlockingQueue}. It helps to order the tasks according to their prioritizes. 
+After that prioritization, it ensures that higher priority tasks will be executed first and if two tasks have the 
+same priority the one which is created before will be executed first. While Task Manager class is able to start and stop the tasks within the functions inside,
+it can also take tasks to the queue in a thread-safe way. By using taskComparator for ordering the tasks,
+the system provides also effective scheduling and execution. \\ \\
+\textbf{Aperiodic Executor Task Service:}\\
+Executor Task Service class which is located inside the service module of the system is an important part for providing the eventual consistency. Executing tasks in asynchronous way with threads guarantees
+eventual consistency across different collections, mongoDB and neo4j and different replicas. 
+With the help of the Executor Task Service, tasks that are needed to be executed in an asynchronous way are handled by ensuring that changes propagate correctly across different part of the system.
+While using multiple databases and data replicas for this web application, it is important for maintain data integrity and eventual consistency.
+Executing the tasks in an asynchronous way using threads allows to perform operations without blocking the main execution flow.
+Aperiodic executer task service class is implemented by using the interface of executor service. 
