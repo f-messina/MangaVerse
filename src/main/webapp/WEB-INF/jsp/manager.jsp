@@ -1,6 +1,8 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ page contentType="text/html;charset=UTF-8"%>
+<%@ page import="static java.time.LocalDate.now" %>
 
+<!DOCTYPE html>
 <html>
 <head>
     <title>Manager Page - Anime Analytics</title>
@@ -11,6 +13,8 @@
 </head>
 
 <body>
+<c:set var="currentYear" value="<%= now().getYear() %>" />
+
 <div class="all-page">
     <!-- navbar -->
     <div class="navbar-container">
@@ -67,46 +71,43 @@
             <canvas id="manga-criteria-rating-chart" height="700" width="1400"></canvas>
         </div>
 
-        <div id="single-manga-analytics" class="analytic-box">
-            <div id="manga-search-section" class="media-list-section">
+        <div id="manga-search-section" class="analytic-box">
+            <div class="media-list-section">
                 <div class="analytic-title">
-                    <div id="manga-search-body">
-                        <div class="d-flex align-items-center">
-                            <label class="filter-name" for="manga-search">Title:</label>
-                            <input type="search" id="manga-search" name="searchTerm" placeholder="Enter Manga Title">
-                        </div>
+                    <div class="d-flex align-items-center">
+                        <label class="filter-name" for="manga-search">Title:</label>
+                        <input type="search" id="manga-search" name="searchTerm" placeholder="Enter Anime Title">
                     </div>
                 </div>
             </div>
 
             <div id="manga-list" class="media-list"></div>
+        </div>
 
-            <div class="media-popup">
-                <div id="manga-selected"></div>
-                <div class="analytic-box">
-                    <div class="analytic-title">
-                        <label class="analytic-title" for="manga-period-selection">Average Rating by: </label>
-                        <select id="manga-period-selection">
-                            <option value="month">MONTH</option>
-                            <option value="year">YEAR</option>
-                        </select>
-                    </div>
-                    <div class="diagram-parameter">
-                        <div class="select">
-                            <label for="manga-year">Select Year:</label>
-                            <input type="text" id="manga-year" name="year">
-                        </div>
-                    </div>
-                    <div class="diagram-parameter">
-                        <div class="select">
-                            <label for="manga-start-year">Start Year:</label>
-                            <input type="number" id="manga-start-year" name="startYear" min="2000" max="2100">
-                            <label for="manga-end-year">End Year:</label>
-                            <input type="number" id="manga-end-year" name="endYear" min="2000" max="2100">
-                        </div>
-                    </div>
+        <div id="single-manga-analytics" class="analytic-box" style="display: none;">
+            <h1 id="manga-selected"></h1>
+            <div class="analytic-title">
+                <label class="analytic-title" for="manga-period-selection">Average Rating by: </label>
+                <select id="manga-period-selection">
+                    <option value="month">MONTH</option>
+                    <option value="year">YEAR</option>
+                </select>
+            </div>
+            <div id="manga-year-form" class="diagram-parameter">
+                <div class="select active">
+                    <label for="manga-year">Select Year:</label>
+                    <input type="number" id="manga-year" name="year" min="1900" max="${currentYear}">
                 </div>
             </div>
+            <div id="manga-year-range-form" class="diagram-parameter">
+                <div class="select">
+                    <label for="manga-start-year">Start Year:</label>
+                    <input type="number" id="manga-start-year" name="startYear" min="1900" max="${currentYear}">
+                    <label for="manga-end-year">End Year:</label>
+                    <input type="number" id="manga-end-year" name="endYear" min="1900" max="${currentYear}">
+                </div>
+            </div>
+            <canvas id="manga-chart" height="700" width="1400"></canvas>
         </div>
     </div>
 
@@ -125,8 +126,8 @@
             <canvas id="anime-criteria-rating-chart" height="700" width="1400"></canvas>
         </div>
 
-        <div id="single-anime-analytics" class="analytic-box">
-            <div id="anime-search-section" class="media-list-section">
+        <div id="anime-search-section" class="analytic-box">
+            <div class="media-list-section">
                 <div class="analytic-title">
                     <div class="d-flex align-items-center">
                         <label class="filter-name" for="anime-search">Title:</label>
@@ -136,33 +137,32 @@
             </div>
 
             <div id="anime-list" class="media-list"></div>
+        </div>
 
-            <div class="media-popup">
-                <div id="anime-selected"></div>
-                <div class="analytic-box">
-                    <div class="analytic-title">
-                        <label class="analytic-title" for="anime-period-selection">Average Rating by: </label>
-                        <select id="anime-period-selection">
-                            <option value="month">MONTH</option>
-                            <option value="year">YEAR</option>
-                        </select>
-                    </div>
-                    <div class="diagram-parameter">
-                        <div class="select">
-                            <label for="anime-year">Select Year:</label>
-                            <input type="text" id="anime-year" name="year">
-                        </div>
-                    </div>
-                    <div class="diagram-parameter">
-                        <div class="select">
-                            <label for="anime-start-year">Start Year:</label>
-                            <input type="number" id="anime-start-year" name="startYear" min="2000" max="2100">
-                            <label for="anime-end-year">End Year:</label>
-                            <input type="number" id="anime-end-year" name="endYear" min="2000" max="2100">
-                        </div>
-                    </div>
+        <div id="single-anime-analytics" class="analytic-box" style="display: none;">
+            <h1 id="anime-selected"></h1>
+            <div class="analytic-title">
+                <label class="analytic-title" for="anime-period-selection">Average Rating by: </label>
+                <select id="anime-period-selection">
+                    <option value="month">MONTH</option>
+                    <option value="year">YEAR</option>
+                </select>
+            </div>
+            <div id="anime-year-form" class="diagram-parameter">
+                <div class="select active">
+                    <label for="anime-year">Select Year:</label>
+                    <input type="number" id="anime-year" name="year" min="1900" max="${currentYear}">
                 </div>
             </div>
+            <div id="anime-year-range-form" class="diagram-parameter">
+                <div class="select">
+                    <label for="anime-start-year">Start Year:</label>
+                    <input type="number" id="anime-start-year" name="startYear" min="1900" max="${currentYear}">
+                    <label for="anime-end-year">End Year:</label>
+                    <input type="number" id="anime-end-year" name="endYear" min="1900" max="${currentYear}">
+                </div>
+            </div>
+            <canvas id="anime-chart" height="700" width="1400"></canvas>
         </div>
     </div>
 </div>
@@ -173,16 +173,17 @@
     const mangaDefaultImage = contextPath + '/images/manga-image-default.png';
     let mangaSectionAccessed = false;
     let animeSectionAccessed = false;
-    let animeTotalPages;
-    let mangaTotalPages;
+    let animeSelectedId;
+    let mangaSelectedId;
 
     function fetchData(inputData, chartId, chartType) {
         $.post(contextPath + "/manager", inputData, function(data) {
+            console.log(data);
             if (data.success) {
                 let max;
                 const labels = Object.keys(data.results);
                 const values = Object.values(data.results);
-
+                console.log(data);
                 // Destroy the existing chart
                 const existingChart = Chart.getChart(chartId);
                 if (existingChart) {
@@ -224,7 +225,7 @@
                 responsive: false,
                 plugins: {
                     legend: {
-                        position: chartType === 'bar' ? 'top' : "right"
+                        position: chartType === 'pie' ? 'right' : "top"
                     },
                 },
                 scales: chartType === 'bar' ? {
@@ -250,8 +251,20 @@
                     const mediaItem = $('<div class="media-item"></div>');
                     const image = $('<img src="' + entry.imageUrl + '" alt="' + entry.title + '" class="media-image">')
                         .on("error", () =>  setDefaultCover(image, type));
-                    const title = $('<div class="media-title">' + entry.title + '</div>');
-                    mediaItem.append(image, title);
+                    const title = $('<div class="media-title">' + entry.title + '</div>').click(function() {
+                        type === 'anime' ? animeSelectedId = entry.id : mangaSelectedId = entry.id;
+                        $('#' + type + '-selected').text("Selected " + type + ": " + entry.title);
+                        const inputData = {
+                            mediaId: entry.id,
+                            action: 'getAverageRatingByMonth',
+                            type: type,
+                            year: new Date().getFullYear()
+                        }
+                        fetchData(inputData, type + '-chart', 'line');
+                        $('#single-' + type + '-analytics').show();
+                    });
+                    const link = $('<a>').attr('href', contextPath + '/' + type + '?mediaId=' + entry.id).text('View Details');
+                    mediaItem.append(image, title, link);
                     mediaList.append(mediaItem);
                 });
                 if (type === 'anime')
@@ -276,8 +289,16 @@
     }
 
     function resetPage() {
-        $("input").val("");
         $("select").prop('selectedIndex', 0);
+        $("input").each(function() {
+            if ($(this).attr("name") === "startYear") {
+                $(this).val(new Date().getFullYear() - 1);
+            } else if ($(this).attr("type") === "search") {
+                $(this).val("");
+            } else {
+                $(this).val(new Date().getFullYear());
+            }
+        });
     }
 
     function getDefaultAnalytics(type) {
@@ -386,15 +407,85 @@
 
 
         // search triggers
+        mediaTypes = ['manga', 'anime'];
+        mediaTypes.forEach(function(type) {
+            const year = $('#' + type + '-year');
+            const startYearInput = $('#' + type + '-start-year');
+            const endYearInput = $('#' + type + '-end-year');
 
-        $('#manga-search').on('input', function () {
-            const searchTerm = $('#manga-search').val();
-            search(searchTerm, 'manga');
-        });
+            $('#' + type + '-search').on('input', function () {
+                const searchTerm = $('#' + type + '-search').val();
+                search(searchTerm, type);
+            });
 
-        $('#anime-search').on('input', function () {
-            const searchTerm = $('#anime-search').val();
-            search(searchTerm, 'anime');
+            year.on('input', function () {
+                if (year.val() < 1900 || year.val() > new Date().getFullYear()) {
+                    return;
+                }
+                const inputData = {
+                    mediaId: type === 'anime' ? animeSelectedId : mangaSelectedId,
+                    action: 'getAverageRatingByMonth',
+                    type: type,
+                    year: year.val()
+                }
+                fetchData(inputData, type + '-chart', 'line');
+            });
+
+            startYearInput.on('input', function () {
+                const startYear = startYearInput.val();
+                const endYear = endYearInput.val();
+                if (startYear < 1900 || startYear > new Date().getFullYear()) {
+                    return;
+                }
+                if (startYear > endYear) {
+                    $('#' + type + '-end-year').val(startYear);
+                }
+                const inputData = {
+                    mediaId: type === 'anime' ? animeSelectedId : mangaSelectedId,
+                    action: 'getAverageRatingByYear',
+                    type: type,
+                    startYear: startYear,
+                    endYear: endYear
+                }
+                fetchData(inputData, type + '-chart', 'line');
+            });
+
+            endYearInput.on('input', function () {
+                const startYear = startYearInput.val();
+                const endYear = endYearInput.val();
+                if (endYear < 1900 || endYear > new Date().getFullYear()) {
+                    return;
+                }
+                if (endYear < startYear) {
+                    $('#' + type + '-start-year').val(endYear);
+                }
+
+                const inputData = {
+                    mediaId: type === 'anime' ? animeSelectedId : mangaSelectedId,
+                    action: 'getAverageRatingByYear',
+                    type: type,
+                    startYear: startYear,
+                    endYear: endYear
+                }
+                fetchData(inputData, type + '-chart', 'line');
+            });
+
+            $('#' + type + '-period-selection').change(function () {
+                const period = $('#' + type + '-period-selection').val();
+                $("#single-" + type + "-analytics").find(".select").toggleClass("active");
+                const inputData = {
+                    mediaId: type === 'anime' ? animeSelectedId : mangaSelectedId,
+                    action: 'getAverageRatingBy' + period.charAt(0).toUpperCase() + period.slice(1),
+                    type: type,
+                }
+                if (period === 'year') {
+                    inputData.startYear = startYearInput.val();
+                    inputData.endYear = endYearInput.val();
+                } else {
+                    inputData.year = year.val();
+                }
+                fetchData(inputData, type + '-chart', 'line');
+            });
         });
     });
 </script>

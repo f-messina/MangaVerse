@@ -44,6 +44,7 @@
     background: none;
     border: none;
 }
+
 /* Main content */
 
 .page {
@@ -87,10 +88,13 @@
     gap: 25px;
 }
 
-.select{
-    display: flex;
+.select {
+    display: none;
     flex-direction: column;
     gap: 20px;
+}
+.select.active {
+    display: flex;
 }
 
 .select button{
@@ -119,10 +123,6 @@
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     background-color: white;
     align-items: center;
-}
-
-.media-item:hover {
-    display: none;
 }
 
 .media-item img {

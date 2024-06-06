@@ -30,6 +30,8 @@ import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.format.TextStyle;
 import java.util.*;
 
 import static com.mongodb.client.model.Accumulators.avg;
@@ -663,10 +665,13 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
             );
 
             List<Document> result = reviewCollection.aggregate(pipeline).into(new ArrayList<>());
-            if (result.isEmpty()) {
-                throw new MongoException("ReviewDAOMongoImpl: getMediaContentRatingByYear: No reviews found");
-            }
+
             Map<String, Double> resultMap = new LinkedHashMap<>();
+
+            for (int year = startYear; year <= endYear; year++) {
+                resultMap.put(String.valueOf(year), null);
+            }
+            
             for (Document document : result) {
                 Double averageRating = document.getDouble("average_rating");
                 Integer year = document.getInteger("year");
@@ -710,13 +715,13 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
             );
 
             List<Document> result = reviewCollection.aggregate(pipeline).into(new ArrayList<>());
-            Logger logger = LoggerFactory.getLogger(ReviewDAOMongoImpl.class);
-            logger.info("Result: " + result.toString());
-            if (result.isEmpty()) {
-                throw new MongoException("ReviewDAOMongoImpl: getMediaContentRatingByMonth: No reviews found");
-            }
 
             Map<String, Double> resultMap = new LinkedHashMap<>();
+
+            for (Month month : Month.values()) {
+                resultMap.put(month.getDisplayName(TextStyle.FULL, Locale.ENGLISH), null);
+            }
+
             for (Document document : result) {
 
                 Double averageRating;
@@ -727,7 +732,7 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
                     averageRating = (Double) ratingObj;
                 }
                 Integer month = document.getInteger("month");
-                resultMap.put(String.format("%02d", month), averageRating); // Format month as two digits
+                resultMap.put(Month.of(month).getDisplayName(TextStyle.FULL, Locale.ENGLISH), averageRating);
             }
 
             return resultMap;

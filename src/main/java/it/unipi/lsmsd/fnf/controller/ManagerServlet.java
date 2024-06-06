@@ -305,11 +305,7 @@ public class ManagerServlet extends HttpServlet {
                 }
 
             } catch (BusinessException e) {
-                if (e.getType().equals(BusinessExceptionType.NOT_FOUND)) {
-                    jsonResponse.put("noData", "No data available");
-                } else {
-                    jsonResponse.put("error", "An error occurred while processing the request");
-                }
+                jsonResponse.put("error", "An error occurred while processing the request");
             }
 
 

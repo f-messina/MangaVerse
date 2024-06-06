@@ -186,9 +186,6 @@ public class ReviewServiceImpl implements ReviewService {
             return reviewDAO.getMediaContentRatingByMonth(type, mediaContentId, year);
 
         } catch (DAOException e){
-            if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {
-                throw new BusinessException(BusinessExceptionType.NOT_FOUND, e.getMessage());
-            }
             throw new BusinessException(BusinessExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
