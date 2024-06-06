@@ -67,13 +67,16 @@ public class MainPageServlet extends HttpServlet {
             request.setAttribute("scroll", false);
         }
 
+        logger.info("Loading main page for " + request.getAttribute("mediaType"));
         if (request.getAttribute("mediaType").equals("manga")) {
             request.setAttribute("mangaGenres", Constants.MANGA_GENRES);
             request.setAttribute("mangaTypes", MangaType.values());
             request.setAttribute("mangaDemographics", MangaDemographics.values());
             request.setAttribute("mangaStatus", MangaStatus.values());
             try {
+                logger.info("Loading manga main page");
                 request.setAttribute("trending", mediaContentService.getMediaContentTrendByLikes(6, MediaContentType.MANGA));
+                logger.info("Trending manga loaded");
                 if (SecurityUtils.getAuthenticatedUser(request) != null) {
                     request.setAttribute("suggestionsByLikes", mediaContentService.getSuggestedMediaContentByLikes(SecurityUtils.getAuthenticatedUser(request).getId(), MediaContentType.MANGA, 6));
                     request.setAttribute("suggestionsByFollowings", mediaContentService.getSuggestedMediaContentByFollowings(SecurityUtils.getAuthenticatedUser(request).getId(), MediaContentType.MANGA, 6));

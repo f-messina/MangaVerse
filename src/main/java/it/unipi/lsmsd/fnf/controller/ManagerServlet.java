@@ -1,5 +1,6 @@
 package it.unipi.lsmsd.fnf.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -34,6 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.time.Year;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -72,6 +74,16 @@ public class ManagerServlet extends HttpServlet {
     //Process request method to execute task based on the type
     private void processRequest(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException, ExecutionException, InterruptedException {
         String action = request.getParameter("action");
+        LoggedUserDTO loggedUser = SecurityUtils.getAuthenticatedUser(request);
+
+//        if (loggedUser == null) {
+//            response.sendRedirect("auth");
+//            return;
+//
+//        } else if (!loggedUser.getType().equals(UserType.MANAGER)) {
+//            response.sendRedirect("profile");
+//            return;
+//        }
 
         switch (action) {
             case "getAnimeDefaultAnalytics" -> handleGetAnimeDefaultAnalytics(request, response);
@@ -87,17 +99,6 @@ public class ManagerServlet extends HttpServlet {
     }
 
     public void handleLoadPage(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        LoggedUserDTO loggedUser = SecurityUtils.getAuthenticatedUser(request);
-
-        if (loggedUser == null) {
-            response.sendRedirect("auth");
-            return;
-
-        } else if (!loggedUser.getType().equals(UserType.MANAGER)) {
-            response.sendRedirect("profile");
-            return;
-        }
-
         try {
             Map<String, Integer> distribution = userService.getDistribution("gender");
             request.setAttribute("distribution", distribution);
@@ -388,11 +389,14 @@ public class ManagerServlet extends HttpServlet {
         ObjectNode jsonResponse = objectMapper.createObjectNode();
 
         int year = Integer.parseInt(request.getParameter("year"));
-        String section = request.getParameter("section");
+        String mediaType = request.getParameter("type");
+        Logger logger = LoggerFactory.getLogger(ManagerServlet.class);
+        logger.info("Year: " + year);
+        logger.info("Media Type: " + mediaType);
         int currentYear = Year.now().getValue();
         MediaContentService mediaContentService = ServiceLocator.getMediaContentService();
 
-        if (section == null) {
+        if (mediaType == null) {
             jsonResponse.put("error", "Section not specified");
         }
         else if (year < 0 || year > currentYear) {
@@ -400,14 +404,24 @@ public class ManagerServlet extends HttpServlet {
         }
         else {
             try {
-                Map<MediaContentDTO, Integer> trendMediaContentByYear = mediaContentService.getMediaContentTrendByYear(year, Constants.PAGE_SIZE, section.equals("manga") ? MediaContentType.MANGA : MediaContentType.ANIME);
+                Map<MediaContentDTO, Integer> trendMediaContentByYear = mediaContentService.getMediaContentTrendByYear(year, Constants.PAGE_SIZE, mediaType.equals("manga") ? MediaContentType.MANGA : MediaContentType.ANIME);
                 if(trendMediaContentByYear.isEmpty()){
                     jsonResponse.put("error", "No data available");
                 }
                 jsonResponse.put("success", true);
 
-                JsonNode trendMediaContentByYearJson = objectMapper.valueToTree(trendMediaContentByYear);
-                jsonResponse.set("trendMediaContentByYear", trendMediaContentByYearJson);
+                Map<String, Integer> trendMediaContentByYearMapSerialized = new HashMap<>();
+                trendMediaContentByYear.forEach((key, value) -> {
+                    try {
+                        trendMediaContentByYearMapSerialized.put(objectMapper.writeValueAsString(key), value);
+                        logger.info("Key: " + key + " Value: " + value);
+                    } catch (JsonProcessingException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+
+                JsonNode trendMediaContentByYearJson = objectMapper.valueToTree(trendMediaContentByYearMapSerialized);
+                jsonResponse.set("results", trendMediaContentByYearJson);
             } catch (BusinessException e) {
                 throw new RuntimeException(e);
             }

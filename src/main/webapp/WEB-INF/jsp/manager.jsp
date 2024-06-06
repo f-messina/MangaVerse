@@ -38,7 +38,7 @@
                     <option value="joined_on">Joined On</option>
                 </select>
             </div>
-            <canvas id="user-distribution-chart" height="700" width="1400"></canvas>
+            <canvas id="user-distribution-chart"></canvas>
         </div>
 
         <div class="analytic-box" id="user-criteria-rating">
@@ -50,13 +50,22 @@
                     <option value="age">Age</option>
                 </select>
             </div>
-            <canvas id="app-rating-chart" height="700" width="1400"></canvas>
+            <canvas id="app-rating-chart"></canvas>
         </div>
     </div>
 
     <!-- manga statistics -->
     <div id="manga-page" class="page">
         <h1>Manga Analytics</h1>
+
+        <div id="manga-trend" class="analytic-box">
+            <div class="analytic-title">
+                <label for="manga-trend-year">Anime Trend on: </label>
+                <input type="number" id="manga-trend-year" name="year" min="1900" max="${currentYear}">
+            </div>
+            <div id="manga-trend-list" class="media-list"></div>
+        </div>
+
         <div class="analytic-box" id="manga-average-rating">
             <div class="analytic-title">
                 <label for="manga-analytics-type">Average Rating by:</label>
@@ -68,7 +77,7 @@
                     <option value="serializations">Serializations</option>
                 </select>
             </div>
-            <canvas id="manga-criteria-rating-chart" height="700" width="1400"></canvas>
+            <canvas id="manga-criteria-rating-chart"></canvas>
         </div>
 
         <div id="manga-search-section" class="analytic-box">
@@ -107,13 +116,23 @@
                     <input type="number" id="manga-end-year" name="endYear" min="1900" max="${currentYear}">
                 </div>
             </div>
-            <canvas id="manga-chart" height="700" width="1400"></canvas>
+            <canvas id="manga-chart-month" class="avg-rating-media active"></canvas>
+            <canvas id="manga-chart-year" class="avg-rating-media"></canvas>
         </div>
     </div>
 
     <!-- anime statistics -->
     <div id="anime-page" class="page">
         <h1>Anime Analytics</h1>
+
+        <div id="anime-trend" class="analytic-box">
+            <div class="analytic-title">
+                <label for="anime-trend-year">Anime Trend on: </label>
+                <input type="number" id="anime-trend-year" name="year" min="1900" max="${currentYear}">
+            </div>
+            <div id="anime-trend-list" class="media-list"></div>
+        </div>
+
         <div id="anime-average-rating" class="analytic-box">
             <div class="analytic-title">
                 <label for="anime-analytics-type">Select Analytics Type:</label>
@@ -123,7 +142,7 @@
                     <option value="studios">Studios</option>
                 </select>
             </div>
-            <canvas id="anime-criteria-rating-chart" height="700" width="1400"></canvas>
+            <canvas id="anime-criteria-rating-chart"></canvas>
         </div>
 
         <div id="anime-search-section" class="analytic-box">
@@ -162,7 +181,9 @@
                     <input type="number" id="anime-end-year" name="endYear" min="1900" max="${currentYear}">
                 </div>
             </div>
-            <canvas id="anime-chart" height="700" width="1400"></canvas>
+            <canvas id="anime-chart-month" class="avg-rating-media active"></canvas>
+            <canvas id="anime-chart-year" class="avg-rating-media"></canvas>
+
         </div>
     </div>
 </div>
@@ -178,7 +199,6 @@
 
     function fetchData(inputData, chartId, chartType) {
         $.post(contextPath + "/manager", inputData, function(data) {
-            console.log(data);
             if (data.success) {
                 let max;
                 const labels = Object.keys(data.results);
@@ -205,6 +225,7 @@
 
     function createChart(chartId, labels, values, chartType, max) {
         const ctx = $('#' + chartId)[0].getContext('2d');
+
         new Chart(ctx, {
             type: chartType,
             data: {
@@ -222,13 +243,13 @@
                     from: chartType === 'bar' ? 0 : 10, // Start from 0 for bar chart, or from the maximum value for other types
                     loop: false
                 },
-                responsive: false,
+                responsive: true,
                 plugins: {
                     legend: {
-                        position: chartType === 'pie' ? 'right' : "top"
+                        position: "top"
                     },
                 },
-                scales: chartType === 'bar' ? {
+                scales: chartType !== 'pie' ? {
                     y: {
                         beginAtZero: true,
                         max: max
@@ -238,7 +259,7 @@
         });
     }
 
-    function search(searchTerm, type) {
+    function search(type, searchTerm = '') {
         const inputData = {
             title: searchTerm,
             action: 'searchByTitle'
@@ -260,17 +281,13 @@
                             type: type,
                             year: new Date().getFullYear()
                         }
-                        fetchData(inputData, type + '-chart', 'line');
+                        fetchData(inputData, type + '-chart-month', 'line');
                         $('#single-' + type + '-analytics').show();
                     });
                     const link = $('<a>').attr('href', contextPath + '/' + type + '?mediaId=' + entry.id).text('View Details');
                     mediaItem.append(image, title, link);
                     mediaList.append(mediaItem);
                 });
-                if (type === 'anime')
-                    animeTotalPages = data.results.totalPages;
-                else
-                    mangaTotalPages = data.results.totalPages;
             } else if (data.noResults) {
                 const mediaList = type === 'anime' ? $('#anime-list') : $('#manga-list');
                 mediaList.empty(); // Clear previous search results
@@ -308,14 +325,55 @@
                 const chartId = type === 'anime' ? 'anime-criteria-rating-chart' : 'manga-criteria-rating-chart';
                 const labels = Object.keys(data.bestCriteria);
                 const values = Object.values(data.bestCriteria);
-                createChart(chartId, labels, values, 'bar');
+                createChart(chartId, labels, values, 'bar', 10);
                 if (type === 'anime')
                     animeSectionAccessed = true;
                 else
                     mangaSectionAccessed = true;
             }
         });
+    }
 
+    function getTrendMediaContent(type) {
+        const inputData = {
+            year: $("#" + type + "-trend-year").val(),
+            action: 'getTrendMediaContentByYear',
+            type: type
+        }
+        $.post(contextPath + "/manager", inputData, function(data) {
+            console.log(data);
+            if (data.success) {
+                const mediaList = $("#" + type + "-trend-list");
+                mediaList.empty(); // Clear previous search results
+
+                Object.entries(data.results).forEach(function([key, value]) {
+                    console.log(key);
+                    // Parse the key (which is a JSON string representing MediaContentDTO) and value (which is the integer)
+                    const entry = JSON.parse(key)
+
+                    const mediaItem = $('<div>').addClass('media-item');
+                    const imgLink = $('<a>').attr('href', contextPath + '/' + type + '?mediaId=' + entry.id);
+                    const image = $('<img src="' + entry.imageUrl + '" alt="' + entry.title + '" class="media-image">')
+                        .on("error", () => setDefaultCover(image, type));
+                    imgLink.append(image);
+                    const title = $('<a>').attr('href', contextPath + '/' + type + '?mediaId=' + entry.id).addClass("media-title").text(entry.title);
+                    const link = $('<p>').text(value); // Set the integer value in the paragraph
+                    mediaItem.append(imgLink, title, link);
+                    mediaList.append(mediaItem);
+                });
+            } else {
+                console.log('Failed to get trend');
+            }
+        }).fail(function() {
+            console.log('Failed to get trend');
+        });
+    }
+
+    function showPage(pageId, button) {
+        $('.page').removeClass('selected');
+        $(pageId).addClass('selected');
+        $('.options').removeClass('active');
+        $(button).addClass('active');
     }
 
     $(document).ready(function() {
@@ -336,17 +394,17 @@
         averageAppRatingLabels.push('<c:out value="${entry.key}"/>');
         averageAppRatingData.push(<c:out value="${entry.value}"/>);
         </c:forEach>
-        createChart('app-rating-chart', averageAppRatingLabels, averageAppRatingData, 'bar');
+        createChart('app-rating-chart', averageAppRatingLabels, averageAppRatingData, 'bar', 5);
 
         $('#user-distribution-type').change(function () {
             const criteria = $('#user-distribution-type').val();
-            let chartType = 'pie';
+            let chartType = 'bar';
             const inputData = {
                 criteria: criteria,
                 action: 'getDistribution'
             }
-            if (criteria === 'birthday' || criteria === 'joined_on') {
-                chartType = 'bar';
+            if (criteria === 'gender') {
+                chartType = 'pie';
             }
             fetchData(inputData, 'user-distribution-chart', chartType);
         });
@@ -356,7 +414,7 @@
                 criteria: $('#user-rating-criteria').val(),
                 action: 'getAverageAppRatingByCriteria'
             }
-            fetchData(inputData, 'app-rating-chart', 'bar',);
+            fetchData(inputData, 'app-rating-chart', 'bar');
         });
 
         $('#manga-analytics-type').change(function () {
@@ -379,13 +437,6 @@
             fetchData(inputData, 'anime-criteria-rating-chart', 'bar');
         });
 
-        function showPage(pageId, button) {
-            $('.page').removeClass('selected');
-            $(pageId).addClass('selected');
-            $('.options').removeClass('active');
-            $(button).addClass('active');
-        }
-
         // page triggers
 
         $('#user-button').click(function () {
@@ -393,14 +444,19 @@
         });
 
         $('#manga-button').click(function () {
-            if (!mangaSectionAccessed)
+            if (!mangaSectionAccessed) {
                 getDefaultAnalytics('manga');
+                getTrendMediaContent('manga');
+                search('manga');
+            }
             showPage('#manga-page', $(this));
         });
 
         $('#anime-button').click(function () {
             if (!animeSectionAccessed) {
                 getDefaultAnalytics('anime');
+                getTrendMediaContent('anime');
+                search('anime');
             }
             showPage('#anime-page', $(this));
         });
@@ -409,36 +465,38 @@
         // search triggers
         mediaTypes = ['manga', 'anime'];
         mediaTypes.forEach(function(type) {
-            const year = $('#' + type + '-year');
+            const yearInput = $('#' + type + '-year');
             const startYearInput = $('#' + type + '-start-year');
             const endYearInput = $('#' + type + '-end-year');
+            const trendYearInput = $("#" + type + "-trend-year");
 
             $('#' + type + '-search').on('input', function () {
                 const searchTerm = $('#' + type + '-search').val();
-                search(searchTerm, type);
+                search(type, searchTerm);
             });
 
-            year.on('input', function () {
-                if (year.val() < 1900 || year.val() > new Date().getFullYear()) {
+            yearInput.on('input', function () {
+                if (yearInput.val() < 1900 || yearInput.val() > new Date().getFullYear()) {
                     return;
                 }
                 const inputData = {
                     mediaId: type === 'anime' ? animeSelectedId : mangaSelectedId,
                     action: 'getAverageRatingByMonth',
                     type: type,
-                    year: year.val()
+                    year: yearInput.val()
                 }
-                fetchData(inputData, type + '-chart', 'line');
+                fetchData(inputData, type + '-chart-month', 'line');
             });
 
             startYearInput.on('input', function () {
                 const startYear = startYearInput.val();
-                const endYear = endYearInput.val();
+                let endYear = endYearInput.val();
                 if (startYear < 1900 || startYear > new Date().getFullYear()) {
                     return;
                 }
                 if (startYear > endYear) {
                     $('#' + type + '-end-year').val(startYear);
+                    endYear = startYear;
                 }
                 const inputData = {
                     mediaId: type === 'anime' ? animeSelectedId : mangaSelectedId,
@@ -447,17 +505,18 @@
                     startYear: startYear,
                     endYear: endYear
                 }
-                fetchData(inputData, type + '-chart', 'line');
+                fetchData(inputData, type + '-chart-year', 'line');
             });
 
             endYearInput.on('input', function () {
-                const startYear = startYearInput.val();
+                let startYear = startYearInput.val();
                 const endYear = endYearInput.val();
                 if (endYear < 1900 || endYear > new Date().getFullYear()) {
                     return;
                 }
                 if (endYear < startYear) {
                     $('#' + type + '-start-year').val(endYear);
+                    startYear = endYear;
                 }
 
                 const inputData = {
@@ -467,11 +526,20 @@
                     startYear: startYear,
                     endYear: endYear
                 }
-                fetchData(inputData, type + '-chart', 'line');
+                fetchData(inputData, type + '-chart-year', 'line');
             });
+
+            function isCanvasPopulated(canvasId) {
+                const canvas = $('#' + canvasId)[0];
+                const offscreen = new OffscreenCanvas($(canvas).prop('width'), $(canvas).prop('height'));
+                const ctx = offscreen.getContext('2d');
+                ctx.drawImage(canvas, 0, 0);
+                return ctx.getImageData(0, 0, canvas.width, canvas.height).data.some(alpha => alpha !== 0);
+            }
 
             $('#' + type + '-period-selection').change(function () {
                 const period = $('#' + type + '-period-selection').val();
+
                 $("#single-" + type + "-analytics").find(".select").toggleClass("active");
                 const inputData = {
                     mediaId: type === 'anime' ? animeSelectedId : mangaSelectedId,
@@ -482,9 +550,21 @@
                     inputData.startYear = startYearInput.val();
                     inputData.endYear = endYearInput.val();
                 } else {
-                    inputData.year = year.val();
+                    inputData.year = yearInput.val();
                 }
-                fetchData(inputData, type + '-chart', 'line');
+                $('#' + type + '-chart-year').toggleClass("active");
+                $('#' + type + '-chart-month').toggleClass("active");
+
+                if (!isCanvasPopulated(type + '-chart-' + period)) {
+                    fetchData(inputData, type + '-chart-' + period, 'line');
+                }
+            });
+
+            trendYearInput.on('input', function() {
+                if (trendYearInput.val() < 1900 || trendYearInput.val() > new Date().getFullYear()) {
+                    return;
+                }
+                getTrendMediaContent(type);
             });
         });
     });
