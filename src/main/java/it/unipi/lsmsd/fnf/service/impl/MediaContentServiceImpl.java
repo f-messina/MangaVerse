@@ -92,16 +92,16 @@ public class MediaContentServiceImpl implements MediaContentService {
      * @throws BusinessException If an error occurs during the operation.
      */
     @Override
-    public void updateMediaContent(MediaContent mediaContent) throws BusinessException {
+    public void updateMediaContent(MediaContent mediaContent, List<String> reviewIds) throws BusinessException {
         try {
             if (mediaContent instanceof Anime anime) {
                 animeDAOMongoDB.updateMediaContent(anime);
                 if (mediaContent.getTitle() != null)
-                    aperiodicExecutorTaskService.executeTask(new UpdateReviewRedundancyTask(new AnimeDTO(anime.getId(), anime.getTitle()), null));
+                    aperiodicExecutorTaskService.executeTask(new UpdateReviewRedundancyTask(new AnimeDTO(anime.getId(), anime.getTitle()), null, reviewIds));
             } else if (mediaContent instanceof Manga manga) {
                 mangaDAOMongoDB.updateMediaContent(manga);
                 if (mediaContent.getTitle() != null)
-                    aperiodicExecutorTaskService.executeTask(new UpdateReviewRedundancyTask(new MangaDTO(manga.getId(), manga.getTitle()), null));
+                    aperiodicExecutorTaskService.executeTask(new UpdateReviewRedundancyTask(new MangaDTO(manga.getId(), manga.getTitle()), null, reviewIds));
             }
 
             // Create a task which update the node Anime/Manga in Neo4j

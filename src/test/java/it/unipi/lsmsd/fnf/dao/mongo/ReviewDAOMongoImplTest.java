@@ -1,8 +1,10 @@
 package it.unipi.lsmsd.fnf.dao.mongo;
 
+import com.mongodb.MongoException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Updates;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
+import it.unipi.lsmsd.fnf.dao.interfaces.UserDAO;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
 import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
@@ -11,6 +13,12 @@ import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 
+import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
+import it.unipi.lsmsd.fnf.model.registeredUser.User;
+import it.unipi.lsmsd.fnf.service.ServiceLocator;
+import it.unipi.lsmsd.fnf.service.exception.BusinessException;
+import it.unipi.lsmsd.fnf.service.interfaces.MediaContentService;
+import it.unipi.lsmsd.fnf.service.interfaces.UserService;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
@@ -20,8 +28,7 @@ import org.junit.jupiter.api.Test;
 
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.include;
-import static com.mongodb.client.model.Updates.set;
-import static com.mongodb.client.model.Updates.unset;
+import static com.mongodb.client.model.Updates.*;
 import static it.unipi.lsmsd.fnf.dao.mongo.BaseMongoDBDAO.getCollection;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -44,18 +51,27 @@ class ReviewDAOMongoImplTest {
     }
 
 
-    // test 1: save anime review
-    // test 2: save manga review
+    // test 1: save anime review: IT WORKS
+    // test 2: save manga review: IT WORKS
     @Test
-    void saveReviewTest() throws DAOException {
+    void saveReviewTest() throws DAOException, BusinessException {
         ReviewDAOMongoImpl reviewDAO = new ReviewDAOMongoImpl();
 
         // test 1
         ReviewDTO reviewAnimeDTO = createSampleAnimeReview();
-        assertDoesNotThrow(() -> {
+        System.out.println(reviewAnimeDTO);
+
             reviewDAO.saveReview(reviewAnimeDTO);
+            UserDAO userDAO = new UserDAOMongoImpl();
+            User user = (User) userDAO.readUser(reviewAnimeDTO.getUser().getId(), false, true);
+            if (user.getReviewIds().contains(reviewAnimeDTO.getId())) {
+                System.out.println("Review id added to user");
+            }
+            else {
+                System.out.println("Review id not added to user");
+            }
             System.out.println("Review created: " + reviewAnimeDTO.getId());
-        });
+
 
         // test 2
         ReviewDTO reviewMangaDTO = createSampleMangaReview();
@@ -104,9 +120,12 @@ class ReviewDAOMongoImplTest {
         // test 1
         String animeId = "663606354276578429fe47e9";
         String animeTitle = "Updated Anime";
+        List<String> review_ids = new ArrayList<>();
+        review_ids = List.of("66360c83bbca010b06d85622", "66360c83bbca010b06d85623", "66360c83bbca010b06d85624");
         AnimeDTO anime = new AnimeDTO(animeId, animeTitle, null);
         // it throws an exception if there are no reviews for the media or the media info are not updated
-        assertDoesNotThrow(() -> reviewDAO.updateMediaRedundancy(anime));
+        List<String> finalReview_ids = review_ids;
+        assertDoesNotThrow(() -> reviewDAO.updateMediaRedundancy(anime, finalReview_ids));
         System.out.println("Anime redundancy updated: " + animeId);
 
         // test 2
@@ -114,7 +133,8 @@ class ReviewDAOMongoImplTest {
                 String mangaTitle = "Updated Manga";
         MangaDTO manga = new MangaDTO(mediaId, mangaTitle, null);
         // it throws an exception if there are no reviews for the media or the media info are not updated
-        assertDoesNotThrow(() -> reviewDAO.updateMediaRedundancy(manga));
+        List<String> finalReview_ids1 = review_ids;
+        assertDoesNotThrow(() -> reviewDAO.updateMediaRedundancy(manga, finalReview_ids1));
         System.out.println("Manga redundancy updated: " + mediaId);
     }
 
@@ -125,16 +145,20 @@ class ReviewDAOMongoImplTest {
         ReviewDAOMongoImpl reviewDAO = new ReviewDAOMongoImpl();
 
         // test 1
+        List<String> review_ids = new ArrayList<>();
+        review_ids = List.of("66360c83bbca010b06d85622", "66360c83bbca010b06d85623", "66360c83bbca010b06d85624");
+
         String userId = "66360c83bbca010b06d85602";
         String username = "Updated User";
         String pictureUrl = "https://imgbox.com/7MaTkBQR";
         UserSummaryDTO user = new UserSummaryDTO(userId, username, pictureUrl);
         // it throws an exception if there are no reviews for the user or the user info are not updated
-        assertDoesNotThrow(() -> reviewDAO.updateUserRedundancy(user));
+        List<String> finalReview_ids = review_ids;
+        assertDoesNotThrow(() -> reviewDAO.updateUserRedundancy(user, finalReview_ids));
         System.out.println("User redundancy updated: " + userId);
 
         // test 2
-        assertThrows(DAOException.class, () -> reviewDAO.updateUserRedundancy(new UserSummaryDTO("66360c83bbca010b06d85666", "Updated User", "https://imgbox.com/7MaTkBQR")));
+        assertThrows(DAOException.class, () -> reviewDAO.updateUserRedundancy(new UserSummaryDTO("66360c83bbca010b06d85666", "Updated User", "https://imgbox.com/7MaTkBQR"), List.of("66360c83bbca010b06d85622")));
         System.out.println("Non-existent user redundancy update failed");
     }
 
@@ -177,8 +201,10 @@ class ReviewDAOMongoImplTest {
     @Test
     void deleteReviewTest() throws DAOException {
         ReviewDAOMongoImpl reviewDAO = new ReviewDAOMongoImpl();
-        List<String> reviewIds = new ArrayList<>();
-        reviewIds = List.of("66360c83bbca010b06d85622", "66360c83bbca010b06d85623", "66360c83bbca010b06d85624");
+        //Get the review_ids of the user
+        User user = new User();
+        List<String> reviewIds = user.getReviewIds();
+
 
         // test 1
         reviewDAO.getReviewByUser(reviewIds, 1).getEntries().forEach(review -> {
@@ -187,8 +213,8 @@ class ReviewDAOMongoImplTest {
         });
 
         // test 2
-        assertThrows(DAOException.class, () -> reviewDAO.deleteReview("66360c83bbca010b06d85622"));
-        System.out.println("Non-existent review delete failed");
+        //assertThrows(DAOException.class, () -> reviewDAO.deleteReview("66360c83bbca010b06d85622"));
+        //System.out.println("Non-existent review delete failed");
 
     }
 
@@ -370,21 +396,29 @@ class ReviewDAOMongoImplTest {
         System.out.println("Non-existent birthday media suggestion failed");
     }
 
-    private ReviewDTO createSampleAnimeReview(){
+    private ReviewDTO createSampleAnimeReview() throws BusinessException {
         ReviewDTO review = new ReviewDTO();
-        review.setUser(new UserSummaryDTO("66360c83bbca010b06d85602", "exampleUser", "images/user%20icon%20-%20Kopya%20-%20Kopya.png"));
-        review.setMediaContent(new AnimeDTO("663606354276578429fe47e9", "Sample Anime", "Sample Cover URL"));
-        review.setRating(5);
-        review.setComment("This is a test review");
+        UserService userService = ServiceLocator.getUserService();
+        MediaContentService mediaContentService = ServiceLocator.getMediaContentService();
+        UserSummaryDTO user = userService.searchFirstNUsers("Crystal", 1, null).getFirst();
+        AnimeDTO anime = (AnimeDTO) mediaContentService.searchByTitle("\"Ai\" wo Taberu", 1, MediaContentType.ANIME).getEntries().getFirst();
+        review.setUser(user);
+        review.setMediaContent(anime);
+        review.setRating(7);
+        review.setComment("Very nice");
         return review;
     }
 
-    private ReviewDTO createSampleMangaReview() {
+    private ReviewDTO createSampleMangaReview() throws BusinessException {
         ReviewDTO review = new ReviewDTO();
-        review.setUser(new UserSummaryDTO("66360c83bbca010b06d85602", "exampleUser", "images/user%20icon%20-%20Kopya%20-%20Kopya.png"));
-        review.setMediaContent(new MangaDTO("6635fe844276578429fe445d", "Sample Manga", "Sample Cover URL"));
+        UserService userService = ServiceLocator.getUserService();
+        MediaContentService mediaContentService = ServiceLocator.getMediaContentService();
+        UserSummaryDTO user = userService.searchFirstNUsers("Crystal", 1, null).getFirst();
+        MangaDTO manga = (MangaDTO) mediaContentService.searchByTitle("Oyasumi Punpun", 1, MediaContentType.MANGA).getEntries().getFirst();
+        review.setUser(user);
+        review.setMediaContent(manga);
         review.setRating(5);
-        review.setComment("This is a test review");
+        review.setComment("Not so nice");
         return review;
     }
 

@@ -20,6 +20,7 @@ import it.unipi.lsmsd.fnf.service.exception.enums.BusinessExceptionType;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -54,12 +55,16 @@ public class ReviewServiceImpl implements ReviewService {
         }
         try{
             reviewDAO.saveReview(review);
+            System.out.println("Review added");
 
             // add the redundant data to the media content
-            if (review.getMediaContent() instanceof MangaDTO)
+            if (review.getMediaContent() instanceof MangaDTO){
                 mangaDAO.upsertReview(review);
-            else if (review.getMediaContent() instanceof AnimeDTO)
+            }
+
+            else if (review.getMediaContent() instanceof AnimeDTO) {
                 animeDAO.upsertReview(review);
+            }
 
         } catch (DAOException e) {
             switch (e.getType()) {
@@ -110,16 +115,19 @@ public class ReviewServiceImpl implements ReviewService {
         try {
             reviewDAO.deleteReview(reviewId);
 
-            // delete the redundant data in the media content if is in latest reviews
+            System.out.println("Review deleted with ID: " + reviewId);
+
+            // delete the redundant data in the media content if it is in latest reviews
             if (mediaContentType.equals(MediaContentType.MANGA) && mangaDAO.isInLatestReviews(mediaId, reviewId))
-                mangaDAO.refreshLatestReviews(mediaId);
+                mangaDAO.refreshLatestReviews(mediaId, Collections.singletonList(reviewId));
             else if (animeDAO.isInLatestReviews(mediaId, reviewId))
-                animeDAO.refreshLatestReviews(mediaId);
+                animeDAO.refreshLatestReviews(mediaId, Collections.singletonList(reviewId));
 
         } catch (DAOException e){
             if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {
                 throw new BusinessException(BusinessExceptionType.NOT_FOUND, e.getMessage());
             }
+            System.out.println(e.getMessage());
             throw new BusinessException(BusinessExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }

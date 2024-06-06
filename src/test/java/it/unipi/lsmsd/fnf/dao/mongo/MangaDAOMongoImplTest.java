@@ -194,12 +194,16 @@ class MangaDAOMongoImplTest {
     void refreshLatestReviewsTest() throws DAOException {
         MangaDAOMongoImpl mangaDAO = new MangaDAOMongoImpl();
         List<MediaContentDTO> mangaList = mangaDAO.search(List.of(Map.of("title", "Sample Manga")), Map.of("title", 1), 1, false).getEntries();
+        List<String> review_ids = new ArrayList<>();
+        review_ids = List.of("6635632b4276578429f29888", "6635632b4276578429f29889", "6635632b4276578429f29890");
+
         if (!mangaList.isEmpty()) {
             String mangaId = mangaList.getFirst().getId();
 
             // test 1
+            List<String> finalReview_ids = review_ids;
             assertDoesNotThrow(() -> {
-                mangaDAO.refreshLatestReviews(mangaId);
+                mangaDAO.refreshLatestReviews(mangaId, finalReview_ids);
                 System.out.println("Latest reviews refreshed");
             });
         }
@@ -311,4 +315,5 @@ class MangaDAOMongoImplTest {
         review.setDate(LocalDateTime.now());
         return review;
     }
+
 }

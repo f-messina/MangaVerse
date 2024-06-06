@@ -13,8 +13,8 @@ import java.util.Map;
 public interface ReviewDAO {
     void saveReview(ReviewDTO reviewDTO) throws DAOException;
     void updateReview(String reviewId, String reviewComment, Integer reviewRating) throws DAOException;
-    void updateMediaRedundancy(MediaContentDTO mediaContentDTO) throws DAOException;
-    void updateUserRedundancy(UserSummaryDTO userSummaryDTO) throws DAOException;
+    void updateMediaRedundancy(MediaContentDTO mediaContentDTO, List<String> review_ids) throws DAOException;
+    void updateUserRedundancy(UserSummaryDTO userSummaryDTO, List<String> reviewIds) throws DAOException;
     void updateAverageRatingMedia() throws DAOException;
     void deleteReview(String reviewId) throws DAOException;
     void refreshLatestReviewsOnUserDeletion(String userId) throws DAOException;

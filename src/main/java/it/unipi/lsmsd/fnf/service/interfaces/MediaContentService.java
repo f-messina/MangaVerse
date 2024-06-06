@@ -11,7 +11,7 @@ import java.util.Map;
 
 public interface MediaContentService {
     void saveMediaContent(MediaContent mediaContent) throws BusinessException;
-    void updateMediaContent(MediaContent mediaContent) throws BusinessException;
+    void updateMediaContent(MediaContent mediaContent, List<String> reviewIds) throws BusinessException;
     void deleteMediaContent(String id, MediaContentType type) throws BusinessException;
     MediaContent getMediaContentById(String id, MediaContentType type) throws BusinessException;
     PageDTO<MediaContentDTO> searchByFilter(List<Map<String, Object>> filters, Map<String, Integer> orderBy, int page, MediaContentType type) throws BusinessException;

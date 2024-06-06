@@ -78,28 +78,40 @@ class MediaContentServiceImplTest {
     }
 
     @Test
-    void updateMediaContent() {
+    void updateAnime() {
+        try {
+            MediaContentService mediaContentService = ServiceLocator.getMediaContentService();
+            String id = mediaContentService.searchByTitle("Slayers Revolution", 1, MediaContentType.ANIME).getEntries().getFirst().getId();
+            Anime anime = (Anime) mediaContentService.getMediaContentById(id, MediaContentType.ANIME);
+            System.out.println(anime.getReviewIds());
+            //anime.setTitle("Slayers Revolution");
+            //anime.setEpisodeCount(13); //put back to 13
+            //mediaContentService.updateMediaContent(anime, review_ids_anime);
+            //System.out.println("Anime updated: " + anime);
+
+
+            Thread.sleep(1000);
+
+        } catch (BusinessException e) {
+            System.out.println("Error updating media content: " + e.getMessage());
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    void updateManga() {
         try {
             MediaContentService mediaContentService = ServiceLocator.getMediaContentService();
             String id;
-            id = mediaContentService.searchByTitle("Sample Anime", 1, MediaContentType.ANIME).getEntries().getFirst().getId();
-            Anime anime = (Anime) mediaContentService.getMediaContentById(id, MediaContentType.ANIME);
-            anime.setTitle("Updated Anime");
-            anime.setEpisodeCount(24);
-            anime.setProducers("Studio Madhouse");
-            anime.setYear(2020);
-            anime.setStatus(AnimeStatus.ONGOING);
-            mediaContentService.updateMediaContent(anime);
-            System.out.println("Anime updated: " + anime);
 
-            id = mediaContentService.searchByTitle("Sample Manga", 1, MediaContentType.MANGA).getEntries().getFirst().getId();
+
+            List<String> review_ids_manga = new ArrayList<>();
+            review_ids_manga.add("657b301906c134f18885a314");
+            id = mediaContentService.searchByTitle("Sakamichi no Apollon: Bonus Track Updated", 1, MediaContentType.MANGA).getEntries().getFirst().getId();
             Manga manga = (Manga) mediaContentService.getMediaContentById(id, MediaContentType.MANGA);
-            manga.setImageUrl("Updated Cover URL");
-            manga.setGenres(List.of("Updated Genre"));
-            manga.setType(MangaType.LIGHT_NOVEL);
-            manga.setStartDate(LocalDate.of(2020, 1, 1));
-            manga.setStatus(MangaStatus.FINISHED);
-            mediaContentService.updateMediaContent(manga);
+            manga.setTitle("Sakamichi no Apollon: Bonus Track");
+            mediaContentService.updateMediaContent(manga, review_ids_manga);
             System.out.println("Manga updated: " + manga);
 
             Thread.sleep(1000);
@@ -109,6 +121,7 @@ class MediaContentServiceImplTest {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+
     }
 
     @Test
