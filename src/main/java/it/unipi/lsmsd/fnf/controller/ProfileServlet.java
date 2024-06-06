@@ -18,6 +18,7 @@ import it.unipi.lsmsd.fnf.model.enums.UserType;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import it.unipi.lsmsd.fnf.service.ServiceLocator;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
+import it.unipi.lsmsd.fnf.service.exception.enums.BusinessExceptionType;
 import it.unipi.lsmsd.fnf.service.interfaces.MediaContentService;
 import it.unipi.lsmsd.fnf.service.interfaces.ReviewService;
 import it.unipi.lsmsd.fnf.service.interfaces.UserService;
@@ -70,6 +71,7 @@ public class ProfileServlet extends HttpServlet {
             case "getMangaLikes" -> handleGetMangaLikes(request, response);
             case "getReviews" -> handleGetReviews(request, response);
             case "rateApp" -> handleRateApp(request, response);
+            case "suggestedMediaContent" -> handleSuggestedMediaContent(request, response);
             case null, default -> {
                 String targetJSP = "WEB-INF/jsp/profile.jsp";
                 LoggedUserDTO authUser = SecurityUtils.getAuthenticatedUser(request);
@@ -334,6 +336,42 @@ public class ProfileServlet extends HttpServlet {
             jsonResponse.put("error", e.getMessage());
         }
 
+        // Write the JSON response
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(jsonResponse.toString());
+    }
+    private void handleSuggestedMediaContent(HttpServletRequest request, HttpServletResponse response) throws IOException{
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode jsonResponse = objectMapper.createObjectNode();
+
+        String criteria = request.getParameter("criteria");
+        String type = request.getParameter("type");
+        String mediaContentType = request.getParameter("mediaContentType");
+
+        if (mediaContentType == null){
+            jsonResponse.put("error", "Media content type not specified");
+        }else {
+            try {
+                // Get the page of suggested media content
+                PageDTO<MediaContentDTO> suggestedMediaContent = reviewService.suggestMediaContent(mediaContentType.equals("manga")?MediaContentType.MANGA:MediaContentType.ANIME, criteria, type);
+                if (suggestedMediaContent == null) {
+                    jsonResponse.put("notFoundError", true);
+                } else {
+                    JsonNode suggestedMediaContentJsonObject = objectMapper.valueToTree(suggestedMediaContent);
+                    // Add the JSON array to the response
+                    jsonResponse.set("suggestedMediaContent", suggestedMediaContentJsonObject);
+                    jsonResponse.put("success", true);
+                }
+            } catch (BusinessException e) {
+                if (e.getType().equals(BusinessExceptionType.DATABASE_ERROR))
+                    jsonResponse.put("notFoundError", true);
+                else
+                    jsonResponse.put("error", e.getMessage());
+                jsonResponse.put("error", e.getMessage());
+            }
+        }
         // Write the JSON response
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");

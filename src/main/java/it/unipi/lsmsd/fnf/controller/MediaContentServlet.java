@@ -88,8 +88,9 @@ public class MediaContentServlet extends HttpServlet {
                 targetJSP = "error.jsp";
                 request.getRequestDispatcher(targetJSP).forward(request, response);
             }
-            request.setAttribute("media", mediaContentService.getMediaContentById(mediaId, mediaType));
-            request.setAttribute("reviews", reviewService.findByMedia(mediaId, mediaType, 1));
+            MediaContent mediaContent1 = mediaContentService.getMediaContentById(mediaId, mediaType);
+            request.setAttribute("media", mediaContent1);
+            request.setAttribute("reviews", reviewService.findByMedia(mediaContent1.getReviewIds(), mediaType, 1));
             if (SecurityUtils.getAuthenticatedUser(request) != null) {
                 request.setAttribute("isLiked", mediaContentService.isLiked(SecurityUtils.getAuthenticatedUser(request).getId(), mediaId, mediaType));
             }

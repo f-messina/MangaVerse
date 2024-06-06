@@ -343,6 +343,9 @@ function changeSection(button) {
     $(".selection-buttons button").removeClass("active");
     button.classList.add("active");
 
+
+
+
     const sections = { anime: "#anime-like", manga: "#manga-like", reviews: "#reviews" };
     $.each(sections, (key, value) => $(value).toggle(key === section));
 
@@ -350,8 +353,12 @@ function changeSection(button) {
         fetchData("getReviews");
     } else if (section === "anime" && $("#anime-list").children().first().length === 0) {
         fetchData("getAnimeLikes");
+        fetchSuggestions("anime", "location", "#anime-suggested-by-location");
+        fetchSuggestions("anime", "birthday", "#anime-suggested-by-birthday");
     } else if (section === "manga" && $("#manga-list").children().first().length === 0) {
         fetchData("getMangaLikes");
+        fetchSuggestions("manga", "location", "#manga-suggested-by-location");
+        fetchSuggestions("manga", "birthday", "#manga-suggested-by-birthday");
     }
 }
 
@@ -508,3 +515,48 @@ function updatePagination(section) {
 $(document).ready(() => {
     changeSection(document.getElementById("manga-button"));
 });
+
+
+///////////////
+//SUGGESTIONS//
+///////////////
+
+function fetchSuggestions(mediaContentType,criteria,targetDiv){
+    $.post(`${contextPath}/profile`,{
+        action: "suggestedMediaContent",
+        mediaContentType:mediaContentType,
+        criteria:criteria
+    },function (data){
+        console.log(data);
+        if (data.success) {
+            displaySuggestions(data.suggestedMediaContent.entries, targetDiv);
+        } else if (data.notFoundError) {
+            $(targetDiv).append($("<p>").addClass("no-results-error").text("No suggestions found"));
+        } else {
+            $(targetDiv).append($("<p>").addClass("error").text(data.error));
+        }
+    }).fail(function () {
+        $(targetDiv).append($("<p>").addClass("error").text("An error occurred while fetching suggestions."));
+    });
+}
+function displaySuggestions(suggestions,targetDiv){
+    const container =$(targetDiv);
+    container.empty();
+    if (!suggestions || suggestions.length === 0) {
+        container.append($("<p>").addClass("no-results-error").text("No suggestions found"));
+        return;
+    }
+
+   suggestions.forEach(item => {
+        const itemDiv = $("<div>").addClass("suggestion-item");
+        const img = $("<img>").attr("src", item.imageUrl).addClass("suggestion-image")
+            .on("error", () => img.attr("src", item.imageUrl === null ? mangaDefaultImage : item.imageUrl));
+        const title = $("<a>").attr("href", `${contextPath}/media?mediaId=${item.id}`).text(item.title);
+
+        itemDiv.append(img, title);
+        container.append(itemDiv);
+    });
+}
+
+
+

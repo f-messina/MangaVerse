@@ -291,6 +291,22 @@
         </div>
 
         <div id="manga-like">
+            <div>
+                <p class="container">Suggested Manga By Location</p>
+                <div id="manga-suggested-by-location" class="project-boxes jsGridView">
+
+                </div>
+
+                <p class="container">Suggested Manga By Birthday</p>
+                <div id="manga-suggested-by-birthday" class="project-boxes jsGridView">
+
+                </div>
+                <!--display the suggestions by location and by birthday
+                inside the review service
+                check if the page is the registered user(suggestions only if your are in your profile) check will be done in the js
+                take the css of manga-list
+                add to profile servlet first -->
+            </div>
             <div class="container">
                 <ul class="page manga-pagination">
                 </ul>
@@ -303,10 +319,22 @@
         </div>
 
         <div id="anime-like">
+            <div>
+                <p class="container">Suggested Anime By Location</p>
+                <div id="anime-suggested-by-location" class="project-boxes jsGridView"></div>
+
+                <p class="container">Suggested Anime By Birthday</p>
+                <div id="anime-suggested-by-birthday" class="project-boxes jsGridView"></div>
+                <!--display the suggestions by location and by birthday
+                inside the review service
+                check if the page is the registered user(suggestions only if your are in your profile) check will be done in the js
+                take the css of manga-list
+                add to profile servlet first -->
+            </div>
             <div class="container">
                 <ul class="page anime-pagination">
                 </ul>
-            </div>
+            </div>an
             <div id="anime-list" class="project-boxes jsGridView"></div>
             <div class="container">
                 <ul class="page anime-pagination">
