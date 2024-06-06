@@ -97,7 +97,6 @@ class MangaDAOMongoImplTest {
     void updateMediaContentTest() throws DAOException {
         MangaDAOMongoImpl mangaDAO = new MangaDAOMongoImpl();
         List<MediaContentDTO> mangaList = mangaDAO.search(List.of(Map.of("title", "Sample Manga")), Map.of("title", 1), 1, false).getEntries();
-
         // test 1
         if (!mangaList.isEmpty()) {
             MediaContentDTO mangaToUpdate = mangaList.getFirst();
@@ -108,7 +107,6 @@ class MangaDAOMongoImplTest {
             assertDoesNotThrow(() -> mangaDAO.updateMediaContent(manga));
             System.out.println("Manga updated");
         }
-
         // test 2
         Manga manga = createSampleManga();
         manga.setId("6635632b4276578429f29384");
@@ -116,14 +114,12 @@ class MangaDAOMongoImplTest {
         assertThrows(DAOException.class, () -> mangaDAO.updateMediaContent(manga));
         System.out.println("Non-existing Manga not found");
     }
-
     // test 1 : delete an existing manga (before that, I try to find the manga by title)
     // test 2 : delete a non-existing manga
     @Test
     void deleteMediaContentTest() throws DAOException {
         MangaDAOMongoImpl mangaDAO = new MangaDAOMongoImpl();
         List<MediaContentDTO> mangaList = mangaDAO.search(List.of(Map.of("title", "Sample Manga")), Map.of("title", 1), 1, false).getEntries();
-
         // test 1
         if (!mangaList.isEmpty()) {
             MediaContentDTO mangaToDelete = mangaList.getFirst();
@@ -131,7 +127,6 @@ class MangaDAOMongoImplTest {
             assertDoesNotThrow(() -> mangaDAO.deleteMediaContent(mangaToDelete.getId()));
             System.out.println("Manga deleted");
         }
-
         // test 2
         assertThrows(DAOException.class, () -> mangaDAO.deleteMediaContent("6635632b4276578429f29384"));
         System.out.println("Non-existent manga not deleted");
