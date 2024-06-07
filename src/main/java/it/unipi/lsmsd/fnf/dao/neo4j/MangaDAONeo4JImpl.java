@@ -161,7 +161,7 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
         try (Session session = getSession()) {
             String query = "MATCH (u:User {id: $userId}), (m:Manga {id: $mangaId}) " +
                     "WHERE NOT (u)-[:LIKE]->(m) " +
-                    "CREATE (u)-[r:LIKE {date: $date} ]->(m)" +
+                    "CREATE (u)-[r:LIKE {date: date($date)} ]->(m)" +
                     "RETURN r";
 
             session.executeWrite(tx -> {
@@ -327,19 +327,19 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
     public List<MediaContentDTO> getSuggestedByFollowings(String userId, Integer limit) throws DAOException {
         int n = limit == null ? 5 : limit;
         List<MediaContentDTO> suggested;
-        LocalDate today = LocalDate.now();
+        LocalDate now = LocalDate.now();
 
         try (Session session = getSession()) {
             String query1 = """
                 MATCH (u:User {id: $userId})-[:FOLLOWS]->(f:User)-[r:LIKE]->(m:Manga)
-                WHERE NOT (u)-[:LIKE]->(m) AND r.date >= $startDate
+                WHERE NOT (u)-[:LIKE]->(m) AND r.date >= date($startDate)
                 WITH m, COUNT(DISTINCT f) AS num_likes
                 RETURN m AS manga
                 ORDER BY num_likes DESC
                 LIMIT $n""";
 
             // try to get suggestions based on likes in the last 6 months
-            Value params1 = parameters("userId", userId, "n", n, "startDate", today.minusMonths(6).toString());
+            Value params1 = parameters("userId", userId, "n", n, "startDate", now.minusMonths(6));
             List<Record> records = session.executeRead(
                     tx -> tx.run(query1, params1).list()
             );
@@ -352,12 +352,12 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
             if (n > 0) {
                 String query2 = """
                 MATCH (u:User {id: $userId})-[:FOLLOWS]->(f:User)-[r:LIKE]->(m:Manga)
-                WHERE NOT (u)-[:LIKE]->(m) AND r.date >= $startDate AND r.date <= $endDate
+                WHERE NOT (u)-[:LIKE]->(m) AND r.date >= date($startDate) AND r.date <= date($endDate)
                 WITH m, COUNT(DISTINCT f) AS num_likes
                 RETURN m AS manga
                 ORDER BY num_likes DESC
                 LIMIT $n""";
-                Value params2 = parameters("userId", userId, "n", n, "startDate", today.minusYears(2).toString(), "endDate", today.minusMonths(6).toString());
+                Value params2 = parameters("userId", userId, "n", n, "startDate", now.minusYears(2), "endDate", now.minusMonths(6));
                 records = session.executeRead(
                         tx -> tx.run(query2, params2).list()
                 );
@@ -372,12 +372,12 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
             if (n > 0) {
                 String query3 = """
                     MATCH (u:User {id: $userId})-[:FOLLOWS]->(f:User)-[r:LIKE]->(m:Manga)
-                    WHERE NOT (u)-[:LIKE]->(m) AND r.date <= $endDate
+                    WHERE NOT (u)-[:LIKE]->(m) AND r.date <= date($endDate)
                     WITH m, COUNT(DISTINCT f) AS num_likes
                     RETURN m AS manga
                     ORDER BY num_likes DESC
                     LIMIT $n""";
-                Value params3 = parameters("userId", userId, "n", n, "endDate", today.minusYears(2).toString());
+                Value params3 = parameters("userId", userId, "n", n, "endDate", now.minusYears(2));
                 records = session.executeRead(
                         tx -> tx.run(query3, params3).list()
                 );
@@ -407,7 +407,7 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
         try (Session session = getSession()) {
             String query1 = """
                     MATCH (u:User {id: $userId})-[r1:LIKE]->(m:Manga)<-[:LIKE]-(f:User)
-                    WHERE r1.date >= $startDate
+                    WHERE r1.date >= date($startDate)
                     WITH u, f, COUNT(m) AS common_likes
                     ORDER BY common_likes DESC
                     LIMIT 50
@@ -419,7 +419,7 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
                     LIMIT $n""";
 
             // Try to get suggestions based on likes in the last 6 months
-            Value params1 = parameters("userId", userId, "n", n, "startDate", today.minusMonths(6).toString());
+            Value params1 = parameters("userId", userId, "n", n, "startDate", today.minusMonths(6));
             List<Record> records = session.executeRead(
                     tx -> tx.run(query1, params1).list()
             );
@@ -432,7 +432,7 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
             if (n > 0) {
                 String query2 = """
                     MATCH (u:User {id: $userId})-[r1:LIKE]->(m:Manga)<-[:LIKE]-(f:User)
-                    WHERE r1.date >= $startDate AND r1.date <= $endDate
+                    WHERE r1.date >= date($startDate) AND r1.date <= date($endDate)
                     WITH u, f, COUNT(m) AS common_likes
                     ORDER BY common_likes DESC
                     LIMIT 50
@@ -442,7 +442,7 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
                     RETURN m2 AS manga
                     ORDER BY num_likes DESC
                     LIMIT $n""";
-                Value params2 = parameters("userId", userId, "n", n, "startDate", today.minusYears(2).toString(), "endDate", today.minusMonths(6).toString());
+                Value params2 = parameters("userId", userId, "n", n, "startDate", today.minusYears(2), "endDate", today.minusMonths(6));
                 records = session.executeRead(
                         tx -> tx.run(query2, params2).list()
                 );
@@ -457,7 +457,7 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
             if (n > 0) {
                 String query3 = """
                         MATCH (u:User {id: $userId})-[r1:LIKE]->(m:Manga)<-[:LIKE]-(f:User)
-                        WHERE r1.date <= $endDate
+                        WHERE r1.date <= date($endDate)
                         WITH u, f, COUNT(m) AS common_likes
                         ORDER BY common_likes DESC
                         MATCH (f)-[:LIKE]->(m2:Manga)
@@ -466,7 +466,7 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
                         RETURN m2 AS manga
                         ORDER BY num_likes DESC
                         LIMIT $n""";
-                Value params3 = parameters("userId", userId, "n", n, "endDate", today.minusYears(2).toString());
+                Value params3 = parameters("userId", userId, "n", n, "endDate", today.minusYears(2));
                 records = session.executeRead(
                         tx -> tx.run(query3, params3).list()
                 );
@@ -498,12 +498,12 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
     public Map<MediaContentDTO, Integer> getTrendMediaContentByYear(int year, Integer limit) throws DAOException {
         int n = limit == null ? 5 : limit;
         try (Session session = getSession()) {
-            String startDate = LocalDate.of(year, 1, 1).toString();
-            String endDate = LocalDate.of(year + 1, 1, 1).toString();
+            LocalDate startDate = LocalDate.of(year, 1, 1);
+            LocalDate endDate = LocalDate.of(year + 1, 1, 1);
 
             String query = """
             MATCH (m:Manga)<-[r:LIKE]-(u:User)
-            WHERE r.date >= $startDate AND r.date < $endDate
+            WHERE r.date >= date($startDate) AND r.date < date($endDate)
             WITH m, count(r) AS numLikes
             ORDER BY numLikes DESC
             RETURN m AS manga, numLikes
@@ -542,12 +542,12 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
         int n = limit == null ? 5 : limit;
 
         List<MediaContentDTO> trendingContent;
-        LocalDate today = LocalDate.now();
+        LocalDate now = LocalDate.now();
 
         try (Session session = getSession()) {
             String query1 = """
                 MATCH (u:User)-[r:LIKE]->(m:Manga)
-                WHERE r.date >= $startDate
+                WHERE r.date >= date($startDate)
                 WITH m, COUNT(r) AS numLikes
                 ORDER BY numLikes DESC
                 RETURN m AS manga, numLikes
@@ -555,7 +555,7 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
                 """;
 
             // First attempt: last 6 months
-            Value params1 = parameters("startDate", today.minusMonths(6).toString(), "n", n);
+            Value params1 = parameters("startDate", now.minusMonths(6), "n", n);
             List<Record> records = session.executeRead(
                     tx -> tx.run(query1, params1).list()
             );
@@ -567,14 +567,14 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
             // If not enough results, add more results from the last year
             String query2 = """
                 MATCH (u:User)-[r:LIKE]->(m:Manga)
-                WHERE r.date >= $startDate AND r.date <= $endDate
+                WHERE r.date >= date($startDate) AND r.date <= date($endDate)
                 WITH m, COUNT(r) AS numLikes
                 ORDER BY numLikes DESC
                 RETURN m AS manga, numLikes
                 LIMIT $n
                 """;
             if (n > 0) {
-                Value params2 = parameters("startDate", today.minusYears(1).toString(), "endDate", today.minusMonths(6).toString(), "n", n);
+                Value params2 = parameters("startDate", now.minusYears(1), "endDate", now.minusMonths(6), "n", n);
                 records = session.executeRead(
                         tx -> tx.run(query2, params2).list()
                 );
@@ -587,7 +587,7 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
 
             // If still not enough results, add more results from the last 5 years
             if (n > 0) {
-                Value params3 = parameters("startDate", today.minusYears(5).toString(), "endDate", today.minusYears(1).toString(), "n", n);
+                Value params3 = parameters("startDate", now.minusYears(5), "endDate", now.minusYears(1), "n", n);
                 records = session.executeRead(
                         tx -> tx.run(query2, params3).list()
                 );

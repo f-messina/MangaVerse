@@ -215,6 +215,7 @@ class UserServiceImplTest {
     }
 
     @Test
+    //Test works but returns an empty list
     void suggestUsersTest() {
         try {
             UserServiceImpl userService = new UserServiceImpl();
