@@ -85,6 +85,9 @@ public class DocumentUtils {
         return doc;
     }
 
+
+
+
     /**
      * Converts a Manga object to a MongoDB Document.
      *
@@ -220,6 +223,7 @@ public class DocumentUtils {
      * @return An Anime object representing the Document.
      */
     public static Anime documentToAnime(Document doc) {
+        //Add anime doc.getlist(review_ids)
         Anime anime = new Anime();
         anime.setId(doc.getObjectId("_id").toString());
         anime.setTitle(doc.getString("title"));
@@ -252,6 +256,8 @@ public class DocumentUtils {
         anime.setReviews(reviewList);
 
         anime.setLikes(doc.getInteger("likes"));
+
+        anime.setReviewIds(doc.getList("review_ids", String.class));
         return anime;
     }
 
@@ -376,6 +382,8 @@ public class DocumentUtils {
 
         manga.setLikes(document.getInteger("likes"));
 
+        manga.setReviewIds(document.getList("review_ids", String.class));
+
         return manga;
     }
 
@@ -429,6 +437,7 @@ public class DocumentUtils {
             normalUser.setLocation(doc.getString("location"));
             normalUser.setFollowers(doc.getInteger("followers"));
             normalUser.setFollowed(doc.getInteger("followed"));
+            normalUser.setReviewIds(doc.getList("review_ids", String.class));
             normalUser.setAppRating(doc.getInteger("app_rating"));
             user = normalUser;
         }

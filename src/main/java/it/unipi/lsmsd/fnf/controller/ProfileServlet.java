@@ -18,6 +18,7 @@ import it.unipi.lsmsd.fnf.model.enums.UserType;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import it.unipi.lsmsd.fnf.service.ServiceLocator;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
+import it.unipi.lsmsd.fnf.service.exception.enums.BusinessExceptionType;
 import it.unipi.lsmsd.fnf.service.interfaces.MediaContentService;
 import it.unipi.lsmsd.fnf.service.interfaces.ReviewService;
 import it.unipi.lsmsd.fnf.service.interfaces.UserService;
@@ -38,6 +39,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 @WebServlet("/profile")
@@ -68,6 +71,7 @@ public class ProfileServlet extends HttpServlet {
             case "getMangaLikes" -> handleGetMangaLikes(request, response);
             case "getReviews" -> handleGetReviews(request, response);
             case "rateApp" -> handleRateApp(request, response);
+            case "suggestedMediaContent" -> handleSuggestedMediaContent(request, response);
             case null, default -> {
                 String targetJSP = "WEB-INF/jsp/profile.jsp";
                 LoggedUserDTO authUser = SecurityUtils.getAuthenticatedUser(request);
@@ -278,7 +282,7 @@ public class ProfileServlet extends HttpServlet {
         // Register the module with the ObjectMapper
         objectMapper.registerModule(javaTimeModule);
 
-        String userId = request.getParameter("userId");
+        List<String> reviewIds = Collections.singletonList(request.getParameter("review_ids"));
         String pageString = request.getParameter("page");
         int page = 0;
         if (pageString != null) {
@@ -288,11 +292,11 @@ public class ProfileServlet extends HttpServlet {
         try {
             LoggedUserDTO authUser = SecurityUtils.getAuthenticatedUser(request);
 
-            if (authUser == null || !userId.equals(authUser.getId())) {
+            if (authUser == null || !reviewIds.equals(authUser.getId())) {
                 throw new NotAuthorizedException("Trying to update profile without being logged in.");
             }
             // Get the page of reviews
-            PageDTO<ReviewDTO> reviews = reviewService.findByUser(userId, page);
+            PageDTO<ReviewDTO> reviews = reviewService.findByUser(reviewIds, page);
 
             // Convert the page to a JSON Object
             if (reviews == null) {
@@ -332,6 +336,42 @@ public class ProfileServlet extends HttpServlet {
             jsonResponse.put("error", e.getMessage());
         }
 
+        // Write the JSON response
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(jsonResponse.toString());
+    }
+    private void handleSuggestedMediaContent(HttpServletRequest request, HttpServletResponse response) throws IOException{
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode jsonResponse = objectMapper.createObjectNode();
+
+        String criteria = request.getParameter("criteria");
+        String type = request.getParameter("type");
+        String value = request.getParameter("value");
+
+        if (type == null){
+            jsonResponse.put("error", "Media content type not specified");
+        }else {
+            try {
+                // Get the page of suggested media content
+                PageDTO<MediaContentDTO> suggestedMediaContent = reviewService.suggestMediaContent(type.equals("manga")?MediaContentType.MANGA:MediaContentType.ANIME, criteria, value);
+                if (suggestedMediaContent == null) {
+                    jsonResponse.put("notFoundError", true);
+                } else {
+                    JsonNode suggestedMediaContentJsonObject = objectMapper.valueToTree(suggestedMediaContent);
+                    // Add the JSON array to the response
+                    jsonResponse.set("suggestedMediaContent", suggestedMediaContentJsonObject);
+                    jsonResponse.put("success", true);
+                }
+            } catch (BusinessException e) {
+                if (e.getType().equals(BusinessExceptionType.DATABASE_ERROR))
+                    jsonResponse.put("notFoundError", true);
+                else
+                    jsonResponse.put("error", e.getMessage());
+                jsonResponse.put("error", e.getMessage());
+            }
+        }
         // Write the JSON response
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");

@@ -1,9 +1,328 @@
 \chapter{Implementation}
 
-\section{Implementation 1}
+\section{Development Environment}
 % Inserisci qui il contenuto del primo design.
+To ensure efficient and successful Implementation of MangaVerse web application,
+choosing the appropriate development environment is one of the most important points of the project.
 
-\section{Implementation 2}
-% Inserisci qui il contenuto del secondo design.
+\subsection*{Programming Languages}
+\begin{itemize}
+    \item \textbf{Backend:} Java is the main programming language used in the project’s backend development.
+    \item \textbf{Frontend:} HTML, CSS, JavaScript are utilized for building user interface in the project.
+    \item \textbf{Data Preprocessing:} Python is used in the project to conduct data preprocessing task with the help of its powerful libraries and ease of use features.
+\end{itemize}
 
-% Aggiungi altri paragrafi e sezioni se necessario
+\subsection*{Database}
+\begin{itemize}
+    \item \textbf{Document Database:} MongoDB is used in the project to store and manage document-based data with the help of its flexibility and scalability features.
+    \item \textbf{Graph Database:} Neo4j is used in the project to manage and query graph data and handle complex relationships and connections in the data efficiently.
+\end{itemize}
+
+\subsection*{Integrated Development Environment} Intellij IDEA is used as an primary IDE. It is powerful Java 
+integrated development environment for developing software in an efficient way.
+
+
+\subsection*{Version Control} Github is used to provide a collaborative development with its version control system.
+
+\subsection*{Web Server} Apache Tomcat is used as a web server to provide reliable environment for deploying and running the java based web application.
+
+\subsection*{Build Automation} Maven is used as a build automation tool. It is used to manage the project's build, reporting, and documentation from a central piece of information.
+
+\subsection*{Testing}JUnit is used as a testing framework for Java code. It is used to write and run repeatable automated tests. This ensures the reliability and efficiency of the codebase throughout the development process.
+
+
+
+
+
+\section{Main Modules}
+\begin{itemize}
+    \item Configuration
+    \item Controller
+    \item DAO (Data Access Objects)
+    \item DTO (Data Transfer Objects)
+    \item Model 
+    \item Service
+    \item Utils
+    \item User Interface
+\end{itemize}
+\subsection*{Configuration}
+Configuration module contains a class named \textit{AppServletContextListener} which is responsible for 
+initializing and managing database connections for the web application. The configuration class 
+implements ServletContextListener interface. \textit{@WebListener} annotation is used to provide listening for 
+application lifecycle events. This annotation contains two methods, which are \textit{contextInitialized(ServletContextEvent sce)} and
+\textit{contextDestroyed(ServletContextEvent sce)}. The first method is called when the web application is started and the second method is called when the web application is shut down.\\ \\
+\textbf{Database Connection Management:} Database connection is provided with \textit{openConnection()} and \textit{closeConnection()} methods. They are both initialized for managing connection
+for MongoDB and Neo4j databases. Connections are managed with corresponding DAO classes which are BaseMongoDBDAO and BaseNeo4jDAO.\\ \\
+With using the configuration module for database connection, web application ensures robustness and reliability in its data access layer.
+
+\subsection*{Controller}
+The controller modules plays a role as intermediary between the user requests and backend of the MangaVerse wab application as servlet classes.
+they receives the user requests, process them and returns with the corresponding response.
+Each controller class utilized a switch-case structure to determine the action requested and invokes the appropriate handler method accordingly.\\
+\newline
+\textbf{Example code snippet from MediaContentServlet:}
+\begin{mdframed}[backgroundcolor=yellow!20, innerleftmargin=10pt, innerrightmargin=10pt]
+    \begin{lstlisting}[language=java]
+{
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String action = request.getParameter("action");
+
+        switch (action) {
+            case "toggleLike" -> handleToggleLike(request, response);
+            case "addReview" -> handleAddReview(request, response);
+            case "deleteReview" -> handleDeleteReview(request, response);
+            case "editReview" -> handleEditReview(request, response);
+            case "getMediaContent" -> handleGetMediaContentById(request,response);
+            case "getMediaContentByTitle" -> handleSearchMediaContentByTitle(request,response);
+            case null, default -> handleLoadPage(request,response);
+        }
+    }
+}
+    \end{lstlisting}
+\end{mdframed}
+The controller module contains the following classes:
+\begin{itemize}
+    \item Exception \\
+    NotAuthorizedException: This exception is thrown when the user is not authorized to access the requested resource.
+    \item AuthServlet \\
+    The AuthServlet class handles the user authentication and authorization processes. It includes login, logout and sign up functions
+    \item MainPageServlet \\
+    The MainPageServlet class is responsible for handling the main page of the web application. It includes the main page of the web application and the search functionality.
+    It provides request related to displaying main page and searching media contents.
+    \item ManagerServlet \\
+    The ManagerServlet class manages administrative requests in manager page. These request are primarily about manga, anime and user analytics such \textit{averageRatingByMonth(), trendMediaContentByYear(), getBestCriteria()...}
+    \item MediaContentServlet \\
+    The MediaContentServlet class is responsible for managing request related with media contents. These requests include like, adding,deleting or editing reviews and retrieving media content details. 
+    \item ProfileServlet \\
+    The ProfileServlet class is responsible for managing user profile related requests. These requests include updating user profile, following/unfollowing other users, getting user profile details such as liked anime and manga and user reviews.
+    \item UserServlet \\
+    The UserServlet class is responsible for managing user related requests and interactions. These requests include retrieving followers list, following list and user information. 
+\end{itemize}
+
+\subsection*{DAO (Data Access Objects)}
+The DAO module includes the logic for accessing and managing data in the database and provides data retrieval, 
+storage and manipulation. This module includes classes with CRUD (create, read, update, delete) operations and query executions. 
+It provides a layer of abstraction between the database and the rest of the application and ensures the separation of concerns. The DAO module contains the following classes:
+\begin{itemize}
+    \item Enums \\
+    - DataRepositoryEnum
+    \item Exceptions 
+    \item Interfaces \\
+    - MedıaContentDAO \\
+    - ReviewDAO \\
+    - UserDAO 
+    \item Mongo \\
+    - AnimeDAOMongoImpl \\
+    - BaseMongoDBDAO \\
+    - MangaDAOMongoImpl \\
+    - ReviewDAOMongoImpl \\
+    - UserDAOMongoImpl 
+    \item Neo4j \\
+    - AnimeDAONeo4jImpl \\
+    - BaseNeo4jDAO \\
+    - MangaDAONeo4jImpl \\
+    - UserDAONeo4jImpl 
+    \item DAOLocator 
+\end{itemize}
+\newpage
+\textbf{Example code snippet from MangaDAOMongoImpl:}
+\begin{mdframed}[backgroundcolor=yellow!20, innerleftmargin=10pt, innerrightmargin=10pt]
+    \begin{lstlisting}[language=java]
+{
+    //MongoDB queries
+    //Best genres/themes/demographics/authors based on the average rating
+    @Override
+    public Map<String, Double> getBestCriteria (String criteria, boolean isArray, int page) throws DAOException {
+        try  {
+            MongoCollection<Document> mangaCollection = getCollection(COLLECTION_NAME);
+            int pageOffset = (page-1)*Constants.PAGE_SIZE;
+
+            List<Bson> pipeline;
+            if (isArray) {
+                pipeline = List.of(
+                        match(and(exists(criteria), ne("average_rating", null))),
+                        unwind("$" + criteria),
+                        group("$" + criteria, avg("criteria_average_rating", "$average_rating")),
+                        sort(descending("criteria_average_rating")),
+                        skip(pageOffset),
+                        limit(25)
+                );
+            } else {
+                pipeline = List.of(
+                        match(Filters.exists(criteria)),
+                        group("$" + criteria, avg("criteria_average_rating", "$average_rating")),
+                        sort(new Document("criteria_average_rating", -1)),
+                        skip(pageOffset),
+                        limit(25)
+                );
+            }
+
+            List <Document> document = mangaCollection.aggregate(pipeline).into(new ArrayList<>());
+            Map<String, Double> bestCriteria = new LinkedHashMap<>();
+            for (Document doc : document) {
+                Double avgRating = doc.get("criteria_average_rating") instanceof Integer?
+                        doc.getInteger("criteria_average_rating").doubleValue() :
+                        doc.getDouble("criteria_average_rating");
+                if (criteria.equals("authors")) {
+                    bestCriteria.put(doc.get("_id", Document.class).getString("name"), avgRating);
+                } else {
+                    bestCriteria.put(doc.get("_id").toString(), avgRating);
+                }
+            }
+
+            return bestCriteria;
+
+        } catch (Exception e) {
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+        }
+    }
+}
+    \end{lstlisting}
+\end{mdframed}
+
+
+\newpage
+\textbf{Example code snippet from UserDAONeo4jImpl:}
+\begin{mdframed}[backgroundcolor=yellow!20, innerleftmargin=10pt, innerrightmargin=10pt]
+    \begin{lstlisting}[language=java]
+{
+    /**
+    * Retrieves a list of users following a specific user from the Neo4j database.
+    *
+    * @param userId The ID of the user whose followers are to be retrieved.
+    * @param loggedUserId The ID of the user requesting the list of followers.
+    * @return A list of RegisteredUserDTO objects representing the followers of the specified user.
+    * @throws DAOException If an error occurs while retrieving the followers list.
+    */
+   @Override
+   public List<UserSummaryDTO> getFirstNFollowers(String userId, String loggedUserId) throws DAOException {
+       try (Session session = getSession()) {
+           StringBuilder queryBuilder = new StringBuilder("MATCH (follower:User)-[:FOLLOWS]->(:User {id: $userId}) ");
+           if (loggedUserId != null) {
+               queryBuilder.append("WHERE follower.id <> $loggedUserId ");
+           }
+           queryBuilder.append("RETURN follower AS user ");
+           queryBuilder.append("ORDER BY follower.username ");
+           queryBuilder.append("LIMIT 10");
+           String query = queryBuilder.toString();
+
+           Map<String, Object> params = new HashMap<>();
+           params.put("userId", userId);
+           if (loggedUserId != null) {
+               params.put("loggedUserId", loggedUserId);
+           }
+
+           List<Record> records = session.executeRead(
+                   tx -> tx.run(query, params).list()
+           );
+
+           return records.isEmpty() ? null : records.stream()
+                   .map(this::recordToUserSummaryDTO)
+                   .toList();
+
+       } catch (Neo4jException e) {
+           throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
+       } catch (Exception e) {
+           throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+       }
+   }
+}
+    \end{lstlisting}
+\end{mdframed}
+\newpage
+
+
+\subsection*{DTO (Data Transfer Objects)}
+The DTO modules are the intermediary class between presentation layer and the DAO module in the web application.
+They transfer data structures between different layers and components of the application in a more standardized way.
+
+
+\subsection*{Model}
+\begin{itemize}
+    \item Enums
+    \item Media Content \\
+    - Anime\\
+    - Manga \\
+    - Manga Author \\
+    - Media Content
+    \item Registered User\\
+    - Mangager\\
+    - Registered User\\
+    - User
+    \item Review 
+\end{itemize}
+
+\subsection*{Service}
+Service module has also important role in the web application. The classes in the service module are responsible for containing
+the business logic and maintaining interaction between the DAO classes and the presentation layer. 
+It handles complex operations with guarantying that the application's core functionalities are executed correctly. Some of the services
+that are provided in the service module are: \textit{UserService, MediaContentService, ReviewService, TaskManager, ExecuterTaskService}. The 
+package structure of Service module is as follows:
+
+
+
+
+
+\begin{itemize}
+    \item enums \\
+    - ExecuterTaskService
+    \item exceptions \\
+    - enums \\
+    ----- BusinessExceptionType \\
+    - BusinessException
+    \item impl \\
+    - asinc media tasks\\
+    ----- CreateMediaTask\\
+    ----- DeleteMediaTask\\
+    ----- UpdateAverageRatingTask\\
+    ----- UpdateMediaRedundancyTask\\
+    ----- UpdateMediaTask\\
+    ----- UpdateNumberofLikesTask\\
+    - asinc review tasks\\
+    ----- RemoveDeletedMediaReviewsTask\\
+    ----- RemoveDeletedUserReviewsTask\\
+    ----- UpdateReviewRedundancyTask\\
+    - asinc user tasks\\
+    ----- CreateUserTask\\
+    ----- DeleteUserTask\\
+    ----- UpdateNumberOfFollowedTask\\
+    ----- UpdateNumberOfFollowersTask\\
+    ---- UpdateUserTask\\
+    - AperiodicExecutorTaskServiceImpl\\
+    - ErrorTaskManager\\
+    - MediaContentServiceImpl\\
+    - PeriodicExecutorTaskServiceImpl\\
+    - ReviewServiceImpl\\
+    - UserServiceImpl\\
+    - interfaces \\
+    ----- ExecuterTaskService\\
+    ----- MediaContentService\\
+    ----- ReviewService\\
+    ----- Task\\
+    ----- TaskManager\\
+    ----- UserService
+    \item ServiceLocator
+\end{itemize}
+
+
+\section{Adopted Patterns and Techniques}
+\subsection*{Patterns}
+
+
+\subsection*{Techniques}
+
+\textbf{Task Manager:}\\
+Task Manager class which is located in the service module of the system provides asynchronous task execution with using 
+\textit{PriorityBlockingQueue}. It helps to order the tasks according to their prioritizes. 
+After that prioritization, it ensures that higher priority tasks will be executed first and if two tasks have the 
+same priority the one which is created before will be executed first. While Task Manager class is able to start and stop the tasks within the functions inside,
+it can also take tasks to the queue in a thread-safe way. By using taskComparator for ordering the tasks,
+the system provides also effective scheduling and execution. \\ \\
+\textbf{Aperiodic Executor Task Service:}\\
+Executor Task Service class which is located inside the service module of the system is an important part for providing the eventual consistency. Executing tasks in asynchronous way with threads guarantees
+eventual consistency across different collections, mongoDB and neo4j and different replicas. 
+With the help of the Executor Task Service, tasks that are needed to be executed in an asynchronous way are handled by ensuring that changes propagate correctly across different part of the system.
+While using multiple databases and data replicas for this web application, it is important for maintain data integrity and eventual consistency.
+Executing the tasks in an asynchronous way using threads allows to perform operations without blocking the main execution flow.
+Aperiodic executer task service class is implemented by using the interface of executor service. 

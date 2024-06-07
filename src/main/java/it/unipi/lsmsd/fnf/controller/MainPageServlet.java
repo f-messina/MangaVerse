@@ -62,9 +62,10 @@ public class MainPageServlet extends HttpServlet {
     private void handleLoadPage(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String path = request.getServletPath();
         String targetJSP;
-
+        logger.info("Before DAOs");
         if (path.equals("/mainPage") || Objects.equals(request.getParameter("scroll"), "false")) {
             request.setAttribute("scroll", false);
+            logger.info("main page");
         }
 
         logger.info("Loading main page for " + request.getAttribute("mediaType"));
@@ -73,6 +74,9 @@ public class MainPageServlet extends HttpServlet {
             request.setAttribute("mangaTypes", MangaType.values());
             request.setAttribute("mangaDemographics", MangaDemographics.values());
             request.setAttribute("mangaStatus", MangaStatus.values());
+            targetJSP = "/WEB-INF/jsp/manga_main_page.jsp";
+            logger.info("manga page");
+
             try {
                 logger.info("Loading manga main page");
                 request.setAttribute("trending", mediaContentService.getMediaContentTrendByLikes(6, MediaContentType.MANGA));
@@ -89,6 +93,8 @@ public class MainPageServlet extends HttpServlet {
             request.setAttribute("animeTags", Constants.ANIME_TAGS);
             request.setAttribute("animeTypes", AnimeType.values());
             request.setAttribute("animeStatus", AnimeStatus.values());
+            targetJSP = "/WEB-INF/jsp/anime_main_page.jsp";
+            logger.info("anime page");
             try {
                 request.setAttribute("trending", mediaContentService.getMediaContentTrendByLikes(6, MediaContentType.ANIME));
                 if (SecurityUtils.getAuthenticatedUser(request) != null) {
@@ -109,16 +115,21 @@ public class MainPageServlet extends HttpServlet {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode jsonResponse = objectMapper.createObjectNode();
 
+        logger.info("Search operation");
+
         // Create a module to handle the serialization and deserialization of LocalDate and LocalDateTime objects
         JavaTimeModule javaTimeModule = new JavaTimeModule();
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy");
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM);
+        logger.info("serialization of LocalDate and LocalDateTime objects");
         // Register the formatters for serialization
         javaTimeModule.addSerializer(LocalDate.class, new LocalDateSerializer(dateFormatter));
         javaTimeModule.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer(dateTimeFormatter));
+        logger.info("serialization");
         // Register the formatters for deserialization
         javaTimeModule.addDeserializer(LocalDate.class, new LocalDateDeserializer(dateFormatter));
         javaTimeModule.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(dateTimeFormatter));
+        logger.info("deserialization");
 
         // Register the module with the ObjectMapper
         objectMapper.registerModule(javaTimeModule);
@@ -132,17 +143,20 @@ public class MainPageServlet extends HttpServlet {
 
             if (request.getAttribute("mediaType").equals("manga")) {
                 filters = ConverterUtils.fromRequestToMangaFilters(request);
+                logger.info("manga filters");
             } else {
                 filters = ConverterUtils.fromRequestToAnimeFilters(request);
+                logger.info("anime filters");
             }
 
             // Take order parameter and direction
             String order = request.getParameter("sortParam");
             int direction = Integer.parseInt(request.getParameter("sortDirection"));
             Map<String, Integer> orderBy = Map.of(order, direction);
+            logger.info("sorting");
 
             mediaList = mediaContentService.searchByFilter(filters, orderBy, page, mediaContentType);
-
+            logger.info("list: " + mediaList.getTotalCount() + " elements");
             // Add the search results to the JSON response
             if (mediaList.getTotalCount() == 0) {
                 jsonResponse.put("noResults", "No results found");
@@ -150,6 +164,7 @@ public class MainPageServlet extends HttpServlet {
                 JsonNode mediaListNode = objectMapper.valueToTree(mediaList);
                 jsonResponse.set("mediaPage", mediaListNode);
                 jsonResponse.put("success", true);
+                logger.info("search result");
             }
         } catch (BusinessException e) {
             jsonResponse.put("error", "Error occurred during search operation");
@@ -161,6 +176,7 @@ public class MainPageServlet extends HttpServlet {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         response.getWriter().write(jsonResponse.toString());
+        logger.info("JSON response");
     }
 
     private void handleViewAll(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

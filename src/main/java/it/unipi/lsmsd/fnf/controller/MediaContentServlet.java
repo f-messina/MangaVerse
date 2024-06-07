@@ -88,7 +88,9 @@ public class MediaContentServlet extends HttpServlet {
                 targetJSP = "error.jsp";
                 request.getRequestDispatcher(targetJSP).forward(request, response);
             }
-            request.setAttribute("media", mediaContentService.getMediaContentById(mediaId, mediaType));
+            MediaContent mediaContent1 = mediaContentService.getMediaContentById(mediaId, mediaType);
+            request.setAttribute("media", mediaContent1);
+            request.setAttribute("reviews", reviewService.findByMedia(mediaContent1.getReviewIds(), mediaType, 1));
             if (SecurityUtils.getAuthenticatedUser(request) != null) {
                 request.setAttribute("isLiked", mediaContentService.isLiked(SecurityUtils.getAuthenticatedUser(request).getId(), mediaId, mediaType));
             }
@@ -98,6 +100,7 @@ public class MediaContentServlet extends HttpServlet {
         }
         request.getRequestDispatcher(targetJSP).forward(request, response);
     }
+
     private void handleToggleLike(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         MediaContentType mediaType = MediaContentType.valueOf(request.getServletPath().substring(1).toUpperCase());
         boolean isManga = mediaType.equals(MediaContentType.MANGA);

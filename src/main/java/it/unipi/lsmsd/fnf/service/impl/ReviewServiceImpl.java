@@ -20,6 +20,7 @@ import it.unipi.lsmsd.fnf.service.exception.enums.BusinessExceptionType;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -125,14 +126,14 @@ public class ReviewServiceImpl implements ReviewService {
 
     /**
      * Finds all reviews submitted by a particular user.
-     * @param userId The ID of the user.
+     * @param reviewIds The IDs of the reviews submitted by the user.
      * @return A list of reviews submitted by the user.
      * @throws BusinessException If an error occurs during the operation.
      */
     @Override
-    public PageDTO<ReviewDTO> findByUser(String userId, int page) throws BusinessException {
+    public PageDTO<ReviewDTO> findByUser(List<String> reviewIds, Integer page) throws BusinessException {
         try {
-         return reviewDAO.getReviewByUser(userId, page);
+         return reviewDAO.getReviewByUser(reviewIds, page);
 
         } catch (DAOException e){
             if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {
@@ -144,14 +145,14 @@ public class ReviewServiceImpl implements ReviewService {
 
     /**
      * Finds all reviews associated with a particular media content.
-     * @param mediaId The ID of the media content.
+     * @param reviewIds The IDs of the reviews associated with the media content.
      * @return A list of reviews associated with the media content.
      * @throws BusinessException If an error occurs during the operation.
      */
     @Override
-    public PageDTO<ReviewDTO> findByMedia(String mediaId, MediaContentType mediaType, int page) throws BusinessException {
+    public PageDTO<ReviewDTO> findByMedia(List<String> reviewIds, MediaContentType type, Integer page) throws BusinessException {
         try{
-            return reviewDAO.getReviewByMedia(mediaId, mediaType, page);
+            return reviewDAO.getReviewByMedia(reviewIds, type, page);
 
         } catch (DAOException e){
             if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {

@@ -16,6 +16,7 @@
 <body>
     <c:set var="isLogged" value="${not empty sessionScope[Constants.AUTHENTICATED_USER_KEY]}" />
     <c:set var="userInfo" value="${requestScope['userInfo']}" />
+    <c:set var="isLoggedPageOwner" value="${isLogged and sessionScope[Constants.AUTHENTICATED_USER_KEY].getId() eq userInfo.id}" />
     <c:set var="isFollowed" value="${requestScope['isFollowed']}" />
 
     <!-- navbar -->
@@ -67,7 +68,7 @@
                     <h1 id="username-displayed" class="profile-user-name-px">${userInfo.getUsername()}</h1>
                     <c:if test="${isLogged}">
                         <c:choose>
-                            <c:when test="${sessionScope[Constants.AUTHENTICATED_USER_KEY].getId() eq userInfo.id}">
+                            <c:when test="${isLoggedPageOwner}">
                                 <button class="btn-px profile-edit-btn-px" onclick="showEditForm()">Edit Profile</button>
                             </c:when>
                             <c:otherwise>
@@ -119,7 +120,7 @@
             </div>
         </div>
 
-        <c:if test="${isLogged and sessionScope[Constants.AUTHENTICATED_USER_KEY].getId() eq userInfo.id}">
+        <c:if test="${isLogged and isLoggedPageOwner}">
         <div id="editPopup" class="edit-container myAlert">
             <div class="row myAlertBody">
                 <div class="col-xl-4">
@@ -250,7 +251,7 @@
         </div>
     </section>
 
-    <c:if test="${isLogged and sessionScope[Constants.AUTHENTICATED_USER_KEY].getId() eq userInfo.id}">
+    <c:if test="${isLogged and isLoggedPageOwner}">
         <section class="app-rating-container">
             <div class="app-rating-form">
                 <br />
@@ -291,6 +292,18 @@
         </div>
 
         <div id="manga-like">
+            <c:if test="${isLogged and isLoggedPageOwner}">
+                <div class="suggestions-lists">
+                    <p class="suggestion-title">Suggested Manga By Location</p>
+                    <div id="manga-suggested-by-location" class="project-boxes jsGridView"></div>
+
+                    <p class="suggestion-title">Suggested Manga By Birthday</p>
+                    <div id="manga-suggested-by-birthday" class="project-boxes jsGridView"></div>
+                </div>
+            </c:if>
+
+                <!--check if the page is the registered user(suggestions only if your are in your profile) check will be done in the js
+                take the css of manga-list -->
             <div class="container">
                 <ul class="page manga-pagination">
                 </ul>
@@ -303,6 +316,18 @@
         </div>
 
         <div id="anime-like">
+            <c:if test="${isLogged and isLoggedPageOwner}">
+                <div class="suggestions-lists">
+                    <p class="suggestion-title">Suggested Anime By Location</p>
+                    <div id="anime-suggested-by-location" class="project-boxes jsGridView"></div>
+
+                    <p class="suggestion-title">Suggested Anime By Birthday</p>
+                    <div id="anime-suggested-by-birthday" class="project-boxes jsGridView"></div>
+                </div>
+            </c:if>
+
+                <!--check if the page is the registered user(suggestions only if your are in your profile) check will be done in the js
+                take the css of manga-list -->
             <div class="container">
                 <ul class="page anime-pagination">
                 </ul>

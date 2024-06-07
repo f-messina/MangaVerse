@@ -343,6 +343,9 @@ function changeSection(button) {
     $(".selection-buttons button").removeClass("active");
     button.classList.add("active");
 
+
+
+
     const sections = { anime: "#anime-like", manga: "#manga-like", reviews: "#reviews" };
     $.each(sections, (key, value) => $(value).toggle(key === section));
 
@@ -350,8 +353,12 @@ function changeSection(button) {
         fetchData("getReviews");
     } else if (section === "anime" && $("#anime-list").children().first().length === 0) {
         fetchData("getAnimeLikes");
+        fetchSuggestions("anime", "location", profile.country, "#anime-suggested-by-location");
+        fetchSuggestions("anime", "birthday", profile.birthdate,"#anime-suggested-by-birthday");
     } else if (section === "manga" && $("#manga-list").children().first().length === 0) {
         fetchData("getMangaLikes");
+        fetchSuggestions("manga", "location",profile.country, "#manga-suggested-by-location");
+        fetchSuggestions("manga", "birthday", profile.birthdate,"#manga-suggested-by-birthday");
     }
 }
 
@@ -508,3 +515,58 @@ function updatePagination(section) {
 $(document).ready(() => {
     changeSection(document.getElementById("manga-button"));
 });
+
+
+///////////////
+//SUGGESTIONS//
+///////////////
+
+function fetchSuggestions(mediaContentType,criteria, value, targetDiv){
+    if (criteria === "birthday"){
+        value = new Date(value).getFullYear();
+    }
+
+    $.post(`${contextPath}/profile`,{
+        action: "suggestedMediaContent",
+        type: mediaContentType,
+        criteria: criteria,
+        value: value
+    },function (data){
+        console.log(data);
+        if (data.success) {
+            displaySuggestions(data.suggestedMediaContent.entries, targetDiv, mediaContentType === "anime" ? true : false);
+        } else if (data.notFoundError) {
+            $(targetDiv).append($("<p>").addClass("no-results-error").text("No suggestions found"));
+        } else {
+            $(targetDiv).append($("<p>").addClass("error").text(data.error));
+        }
+    }).fail(function () {
+        $(targetDiv).append($("<p>").addClass("error").text("An error occurred while fetching suggestions."));
+    });
+}
+function displaySuggestions(suggestions, targetDiv, isAnime){
+    const pagination = isAnime ? $(".anime-pagination") : $(".manga-pagination");
+    const container = $(targetDiv);
+    container.empty();
+    const defaultImage = isAnime ? animeDefaultImage : mangaDefaultImage;
+
+    pagination.empty();
+
+    if (!suggestions || suggestions.length === 0) {
+        container.append($("<p>").addClass("no-results-error").text("No suggestions found"));
+        return;
+    }
+
+    suggestions.forEach(item => {
+        const suggestionWrapper = $("<div>").addClass("project-box-wrapper");
+        const itemDiv = $("<div>").addClass("project-box");
+        const title = $("<a>").attr("href", `${contextPath}/${isAnime ? "anime" : "manga"}?mediaId=${item.id}`)
+            .addClass("box-title").text(item.title);
+
+
+        itemDiv.append(title);
+        suggestionWrapper.append(itemDiv);
+        container.append(suggestionWrapper);
+    });
+}
+
