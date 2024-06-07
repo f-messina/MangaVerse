@@ -374,7 +374,8 @@
             birthdate: "${empty userInfo.getBirthday() ? "" : userInfo.getBirthday()}",
             picture: "${userInfo.getProfilePicUrl()}",
             gender: "${userInfo.getGender().name()}",
-            appRating: parseInt("${empty userInfo.appRating ? "" : userInfo.appRating}")
+            appRating: parseInt("${empty userInfo.appRating ? "" : userInfo.appRating}"),
+            reviewIds: "${empty userInfo.reviewIds ? "" : userInfo.reviewIds}".split(',').filter(Boolean)
         }
     </script>
 </body>

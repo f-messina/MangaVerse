@@ -363,7 +363,14 @@ function changeSection(button) {
 }
 
 function fetchData(action, page = 1) {
-    $.post(`${contextPath}/profile`, { action, userId, page }, (data) => {
+    const input = { action: action, page: page };
+    if (action === "getReviews") {
+        input.reviewIds = profile.reviewIds;
+    } else {
+        input.userId = userId;
+    }
+
+    $.post(`${contextPath}/profile`, input, (data) => {
         if (action === "getReviews") {
             reviewsPage = page;
             showReviews(data);

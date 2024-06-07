@@ -423,6 +423,7 @@ public class ManagerServlet extends HttpServlet {
                 JsonNode trendMediaContentByYearJson = objectMapper.valueToTree(trendMediaContentByYearMapSerialized);
                 jsonResponse.set("results", trendMediaContentByYearJson);
             } catch (BusinessException e) {
+                logger.error("Error: " + e.getMessage());
                 throw new RuntimeException(e);
             }
         }

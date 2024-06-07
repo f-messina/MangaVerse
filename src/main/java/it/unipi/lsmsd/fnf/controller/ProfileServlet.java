@@ -282,7 +282,9 @@ public class ProfileServlet extends HttpServlet {
         // Register the module with the ObjectMapper
         objectMapper.registerModule(javaTimeModule);
 
-        List<String> reviewIds = Collections.singletonList(request.getParameter("review_ids"));
+        logger.info("Getting reviews");
+        logger.info(request.getParameter("reviewIds"));
+        List<String> reviewIds = objectMapper.readValue(request.getParameter("reviewIds"), List.class);
         String pageString = request.getParameter("page");
         int page = 0;
         if (pageString != null) {
@@ -292,9 +294,9 @@ public class ProfileServlet extends HttpServlet {
         try {
             LoggedUserDTO authUser = SecurityUtils.getAuthenticatedUser(request);
 
-            if (authUser == null || !reviewIds.equals(authUser.getId())) {
-                throw new NotAuthorizedException("Trying to update profile without being logged in.");
-            }
+//            if (authUser == null || !reviewIds.equals(authUser.getId())) {
+//                throw new NotAuthorizedException("Trying to update profile without being logged in.");
+//            }
             // Get the page of reviews
             PageDTO<ReviewDTO> reviews = reviewService.findByUser(reviewIds, page);
 
@@ -311,9 +313,10 @@ public class ProfileServlet extends HttpServlet {
 
         } catch (BusinessException e) {
             jsonResponse.put("error", e.getMessage());
-        } catch (NotAuthorizedException e) {
-            jsonResponse.put("generalError", "You are not authorized to view these reviews.");
         }
+//         catch (NotAuthorizedException e) {
+//            jsonResponse.put("generalError", "You are not authorized to view these reviews.");
+//        }
 
         // Write the JSON response
         response.setContentType("application/json");
