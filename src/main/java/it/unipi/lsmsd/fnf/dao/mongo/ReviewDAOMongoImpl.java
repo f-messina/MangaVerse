@@ -757,17 +757,21 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
             List<Bson> pipeline = new ArrayList<>();
 
             if (criteriaType.equals("location")) {
-                pipeline.add(match(eq("user." + criteriaType, criteriaValue)));
+                pipeline.add(match(and(List.of(
+                        eq("user.location", criteriaValue),
+                        exists("rating", true),
+                        exists(nodeType, true)
+                ))));
 
             } else if (criteriaType.equals("birthday")) {
                 // Transform the criteriaValue into an integer1
-                Logger logger = LoggerFactory.getLogger(ReviewDAOMongoImpl.class);
-                logger.info("Criteria value: " + criteriaValue);
                 Date startDate = ConverterUtils.localDateToDate(LocalDate.of(Integer.parseInt(criteriaValue), 1, 1));
                 Date endDate = ConverterUtils.localDateToDate(LocalDate.of(Integer.parseInt(criteriaValue) + 1, 1, 1));
                 pipeline.add(match(and(
                         gte("user." + criteriaType, startDate),
-                        lt("user." + criteriaType, endDate)
+                        lt("user." + criteriaType, endDate),
+                        exists("rating", true),
+                        exists(nodeType, true)
                 )));
 
             } else {
@@ -788,7 +792,9 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
             }
 
             List<MediaContentDTO> entries = new ArrayList<>();
+            Logger logger = LoggerFactory.getLogger(ReviewDAOMongoImpl.class);
             for (Document document : result) {
+                logger.info("Document: " + document);
                 String contentId = String.valueOf(document.getObjectId("_id"));
                 String title = document.getString("title");
 

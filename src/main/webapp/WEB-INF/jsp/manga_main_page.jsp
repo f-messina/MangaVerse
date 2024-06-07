@@ -497,7 +497,7 @@
                         setDefaultCover($(this));
                     }
                 });
-            }, 50); // Adjust the delay time (in milliseconds) as needed
+            }, 200); // Adjust the delay time (in milliseconds) as needed
         });
     </script>
 </body>
