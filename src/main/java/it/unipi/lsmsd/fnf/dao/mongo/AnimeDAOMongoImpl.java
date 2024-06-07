@@ -320,12 +320,13 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
      * @throws DAOException If an error occurs during update.
      */
     @Override
-    public void refreshLatestReviews(String animeId) throws DAOException {
+    //Put in input the animeId and refresh the latest reviews
+    public void refreshLatestReviews(String animeId, List<String> reviewIds) throws DAOException {
         try {
             // Get the latest reviews for the anime
             MongoCollection<Document> reviewCollection = getCollection("reviews");
 
-            Bson reviewFilter = eq("anime.id", new ObjectId(animeId));
+            Bson reviewFilter = in("_id", reviewIds);
             Bson reviewProjection = exclude("anime");
 
             List<ReviewDTO> latestReviews = reviewCollection.find(reviewFilter).projection(reviewProjection)
@@ -341,7 +342,7 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
             }
 
             // Update the latest reviews in the anime document
-            MongoCollection<Document> mangaCollection = getCollection(COLLECTION_NAME);
+            MongoCollection<Document> animeCollection = getCollection(COLLECTION_NAME);
 
             // Update the latest reviews in the database
             Bson filter = eq("_id", new ObjectId(animeId));
@@ -352,7 +353,7 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
                 update = set("latest_reviews", reviewDocuments);
             }
 
-            UpdateResult result = mangaCollection.updateOne(filter, update);
+            UpdateResult result = animeCollection.updateOne(filter, update);
             if (result.getMatchedCount() == 0) {
                 throw new MongoException("AnimeDAOMongoDBImpl : refreshLatestReviews: Anime not found");
             } else if (result.getModifiedCount() == 0) {
@@ -368,11 +369,12 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
     void refreshAllLatestReviews() throws DAOException {
         try {
             MongoCollection<Document> animeCollection = getCollection(COLLECTION_NAME);
+            Anime anime = new Anime();
 
             List<ObjectId> animeIds = animeCollection.find().map(doc -> doc.getObjectId("_id")).into(new ArrayList<>());
-
+            List<String> reviewIds = anime.getReviewIds();
             for (ObjectId animeId : animeIds) {
-                refreshLatestReviews(animeId.toHexString());
+                refreshLatestReviews(animeId.toHexString(), reviewIds);
             }
 
         } catch (MongoException e) {

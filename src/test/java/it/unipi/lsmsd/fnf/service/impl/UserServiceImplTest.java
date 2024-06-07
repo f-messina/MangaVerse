@@ -85,12 +85,9 @@ class UserServiceImplTest {
     void updateUserInfoTest() {
         try {
             UserService userService = new UserServiceImpl();
-            UserSummaryDTO userSummaryDTO = userService.searchFirstNUsers("exampleUser1", 1, null).getFirst();
-            User user = new User();
-            user.setId(userSummaryDTO.getId());
-            user.setUsername("exampleUser");
-            user.setLocation("Italy");
-            user.setGender(Gender.MALE);
+            User user = userService.getUserById("6577877be68376234760596d", false);
+            user.setUsername("Dragon_Empress");
+            user.setLocation("Columbus, Georgia"); //put back to Columbus, Georgia
             userService.updateUserInfo(user);
             Thread.sleep(2*1000);
         } catch (BusinessException e) {
@@ -218,6 +215,7 @@ class UserServiceImplTest {
     }
 
     @Test
+    //Test works but returns an empty list
     void suggestUsersTest() {
         try {
             UserServiceImpl userService = new UserServiceImpl();

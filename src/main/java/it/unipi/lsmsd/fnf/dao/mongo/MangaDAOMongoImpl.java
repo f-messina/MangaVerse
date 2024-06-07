@@ -15,6 +15,7 @@ import it.unipi.lsmsd.fnf.dto.ReviewDTO;
 import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
+import it.unipi.lsmsd.fnf.model.Review;
 import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
 import it.unipi.lsmsd.fnf.model.mediaContent.MangaAuthor;
 import it.unipi.lsmsd.fnf.utils.Constants;
@@ -320,12 +321,12 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
      * @throws DAOException If an error occurs during update.
      */
     @Override
-    public void refreshLatestReviews(String mangaId) throws DAOException {
+    public void refreshLatestReviews(String mangaId, List<String> reviewIds) throws DAOException {
         try {
             // Get the latest reviews for the anime
             MongoCollection<Document> reviewCollection = getCollection("reviews");
 
-            Bson reviewFilter = eq("manga.id", new ObjectId(mangaId));
+            Bson reviewFilter = in("_id", reviewIds);
             Bson reviewProjection = exclude("manga");
 
             List<ReviewDTO> latestReviews = reviewCollection.find(reviewFilter).projection(reviewProjection)
@@ -340,7 +341,7 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
                         .toList();
             }
 
-            // Update the latest reviews in the manga document
+            // Update the latest reviews in the anime document
             MongoCollection<Document> mangaCollection = getCollection(COLLECTION_NAME);
 
             // Update the latest reviews in the database
@@ -369,10 +370,13 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
         try {
             MongoCollection<Document> mangaCollection = getCollection(COLLECTION_NAME);
 
-            List<ObjectId> animeIds = mangaCollection.find().map(doc -> doc.getObjectId("_id")).into(new ArrayList<>());
+            Manga manga = new Manga();
 
-            for (ObjectId animeId : animeIds) {
-                refreshLatestReviews(animeId.toHexString());
+            List<ObjectId> mangaIds = mangaCollection.find().map(doc -> doc.getObjectId("_id")).into(new ArrayList<>());
+            List<String> reviewIds = manga.getReviewIds();
+
+            for (ObjectId mangaId : mangaIds) {
+                refreshLatestReviews(mangaId.toHexString(), reviewIds);
             }
 
         } catch (MongoException e) {

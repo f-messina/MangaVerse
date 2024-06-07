@@ -6,6 +6,8 @@ import it.unipi.lsmsd.fnf.dao.exception.enums.DAOExceptionType;
 import it.unipi.lsmsd.fnf.dto.LoggedUserDTO;
 import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
+import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
+import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
@@ -19,10 +21,12 @@ import org.neo4j.driver.types.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.neo4j.driver.Values.parameters;
 /**
@@ -430,23 +434,70 @@ public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
      */
     @Override
     public List<UserSummaryDTO> suggestUsersByCommonFollowings(String userId, Integer limit) throws DAOException {
+        int n = limit == null ? 5 : limit;
+        List<UserSummaryDTO> suggested;
+
         try (Session session = getSession()) {
 
             String query = "MATCH (u:User {id: $userId})-[:FOLLOWS]->(following:User)<-[:FOLLOWS]-(suggested:User) " +
                     "WHERE NOT (u)-[:FOLLOWS]->(suggested) AND u <> suggested " +
                     "WITH suggested, COUNT(DISTINCT following) AS commonFollowers " +
                     "WHERE commonFollowers > 5 " +
-                    "RETURN suggested as user, commonFollowers " +
+                    "RETURN suggested as user " +
                     "ORDER BY commonFollowers DESC " +
                     "LIMIT $n";
 
+            int finalN = n;
             List<Record> records = session.executeRead(
-                    tx -> tx.run(query, parameters("userId", userId, "n", limit == null ? 5 : limit)).list()
+                    tx -> tx.run(query, parameters("userId", userId, "n", finalN)).list()
             );
-
-            return records.isEmpty() ? null : records.stream()
+            suggested = records.stream()
                     .map(this::recordToUserSummaryDTO)
-                    .toList();
+                    .collect(Collectors.toList());
+
+
+
+
+            n -= records.isEmpty() ? 0 : records.size();
+            if (n > 0) {
+                //suggest users followed by user I follow
+                String query2 = "MATCH (u:User {id: $userId})-[:FOLLOWS]->(following:User)-[:FOLLOWS]->(suggested:User) " +
+                        "WHERE NOT (u)-[:FOLLOWS]->(suggested) AND u <> suggested " +
+                        "WITH suggested, COUNT(DISTINCT following) AS commonFollowers " +
+                        "WHERE commonFollowers > 5 " +
+                        "RETURN suggested as user " +
+                        "ORDER BY commonFollowers DESC " +
+                        "LIMIT $n";
+                Value params = parameters("userId", userId, "n", n);
+                List<Record> records2 = session.executeRead(
+                        tx -> tx.run(query2, params).list()
+                );
+                records2.stream()
+                        .map(this::recordToUserSummaryDTO)
+                        .forEach(suggested::add);
+            }
+
+            n -= records.isEmpty() ? 0 : records.size();
+            if (n > 0) {
+                String query3 = "MATCH (u:User {id: $userId})-[:FOLLOWS]->(following:User)<-[:FOLLOWS]-(suggested:User) " +
+                        "WHERE NOT (u)-[:FOLLOWS]->(suggested) AND u <> suggested " +
+                        "WITH suggested, COUNT(DISTINCT following) AS commonFollowers " +
+                        "RETURN suggested as user " +
+                        "ORDER BY commonFollowers DESC " +
+                        "LIMIT $n";
+
+                Value params = parameters("userId", userId, "n", n);
+                List<Record> records3 = session.executeRead(
+                        tx -> tx.run(query3, params).list()
+                );
+                records3.stream()
+                        .map(this::recordToUserSummaryDTO)
+                        .forEach(suggested::add);
+
+            }
+
+            return suggested.isEmpty() ? null : suggested;
+
 
         } catch (Neo4jException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
@@ -457,6 +508,7 @@ public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
     }
 
     @Override
+    //NB:: the test returns no suggestions
     public List<UserSummaryDTO> suggestUsersByCommonLikes(String userId, Integer limit, MediaContentType type) throws DAOException {
         try (Session session = getSession()) {
             if (type == null) {
@@ -467,7 +519,7 @@ public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
                 queryBuilder.append("MATCH (u:User {id: $userId})-[r:LIKE]->(media:Anime)<-[:LIKE]-(suggested:User) ");
             else
                 queryBuilder.append("MATCH (u:User {id: $userId})-[r:LIKE]->(media:Manga)<-[:LIKE]-(suggested:User) ");
-            queryBuilder.append(" WHERE u <> suggested AND r.date >= $date " +
+            queryBuilder.append(" WHERE u <> suggested AND r.date >= date($date) " +
                     "WITH suggested, COUNT(DISTINCT media) AS commonLikes " +
                     "WHERE commonLikes > $min " +
                     "RETURN suggested AS user, commonLikes " +
@@ -476,7 +528,7 @@ public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
             String query = queryBuilder.toString();
 
             List<Record> records = session.executeRead(
-                    tx -> tx.run(query, parameters("userId", userId, "n", limit == null ? 5 : limit, "date", LocalDateTime.now().minusMonths(1), "min", 2)).list()
+                    tx -> tx.run(query, parameters("userId", userId, "n", limit == null ? 5 : limit, "date", LocalDate.now().minusMonths(1), "min", 2)).list()
             );
             records.forEach(System.out::println);
             return records.isEmpty() ? null : records.stream()

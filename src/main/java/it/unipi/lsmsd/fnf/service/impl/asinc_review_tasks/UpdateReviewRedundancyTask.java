@@ -11,26 +11,30 @@ import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 import it.unipi.lsmsd.fnf.service.exception.enums.BusinessExceptionType;
 import it.unipi.lsmsd.fnf.service.interfaces.Task;
 
+import java.util.List;
+
 public class UpdateReviewRedundancyTask extends Task {
 
     private final ReviewDAO reviewDAO;
     private final MediaContentDTO mediaContentDTO;
     private final UserSummaryDTO userSummaryDTO;
+    private final List<String> reviewIds;
 
-    public UpdateReviewRedundancyTask(MediaContentDTO mediaContentDTO, UserSummaryDTO userSummaryDTO) {
+    public UpdateReviewRedundancyTask(MediaContentDTO mediaContentDTO, UserSummaryDTO userSummaryDTO, List<String> reviewIds) {
         super(5);
         this.reviewDAO = DAOLocator.getReviewDAO(DataRepositoryEnum.MONGODB);
         this.mediaContentDTO = mediaContentDTO;
         this.userSummaryDTO = userSummaryDTO;
+        this.reviewIds = reviewIds;
     }
 
     @Override
     public void executeJob() throws BusinessException {
         try{
             if (userSummaryDTO != null)
-                reviewDAO.updateUserRedundancy(userSummaryDTO);
+                reviewDAO.updateUserRedundancy(userSummaryDTO, reviewIds);
             if (mediaContentDTO != null)
-                reviewDAO.updateMediaRedundancy(mediaContentDTO);
+                reviewDAO.updateMediaRedundancy(mediaContentDTO, reviewIds);
 
         } catch (DAOException e) {
            if(e.getType().equals(DAOExceptionType.DATABASE_ERROR)){

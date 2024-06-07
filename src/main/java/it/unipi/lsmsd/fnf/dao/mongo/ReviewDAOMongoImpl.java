@@ -22,6 +22,7 @@ import it.unipi.lsmsd.fnf.utils.Constants;
 import it.unipi.lsmsd.fnf.utils.ConverterUtils;
 
 import it.unipi.lsmsd.fnf.utils.DocumentUtils;
+import org.bson.BsonValue;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
@@ -42,9 +43,8 @@ import static com.mongodb.client.model.Projections.*;
 import static com.mongodb.client.model.Sorts.ascending;
 import static com.mongodb.client.model.Sorts.descending;
 import static com.mongodb.client.model.Updates.*;
-import static it.unipi.lsmsd.fnf.utils.DocumentUtils.appendIfNotNull;
-import static it.unipi.lsmsd.fnf.utils.DocumentUtils.reviewDTOToDocument;
 import static com.mongodb.client.model.Filters.in;
+import static it.unipi.lsmsd.fnf.utils.DocumentUtils.*;
 
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Projections;
@@ -72,7 +72,6 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
         try {
             MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
             MongoCollection<Document> mediaCollection;
-            Bson filter;
 
             if (reviewDTO.getMediaContent() instanceof AnimeDTO) {
                 mediaCollection = getCollection("anime");
@@ -80,13 +79,6 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
                 if (mediaCollection.countDocuments(eq("_id", new ObjectId(reviewDTO.getMediaContent().getId()))) == 0) {
                     throw new MongoException("ReviewDAOMongoImpl: saveReview: Anime not found");
                 }
-                // Create a filter based on anime.id/manga.id and user.id
-                filter = and(
-                        eq("anime.id", new ObjectId(reviewDTO.getMediaContent().getId())),
-                        eq("user.id", new ObjectId(reviewDTO.getUser().getId()))
-                );
-                //Add the review id to the anime
-                mediaCollection.updateOne(eq("_id", new ObjectId(reviewDTO.getMediaContent().getId())), addToSet("review_ids", new ObjectId(reviewDTO.getId())));
 
             } else if (reviewDTO.getMediaContent() instanceof MangaDTO) {
                 mediaCollection = getCollection("manga");
@@ -94,35 +86,25 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
                 if (mediaCollection.countDocuments(eq("_id", new ObjectId(reviewDTO.getMediaContent().getId()))) == 0) {
                     throw new MongoException("ReviewDAOMongoImpl: saveReview: Manga not found");
                 }
-                // Create a filter based on anime.id/manga.id and user.id
-                filter = and(
-                        eq("manga.id", new ObjectId(reviewDTO.getMediaContent().getId())),
-                        eq("user.id", new ObjectId(reviewDTO.getUser().getId()))
-                );
-                //Add the review id to the manga
-                mediaCollection.updateOne(eq("_id", new ObjectId(reviewDTO.getMediaContent().getId())), addToSet("review_ids", new ObjectId(reviewDTO.getId())));
             } else {
                 throw new DAOException("Invalid media content type");
             }
 
             reviewDTO.setDate(LocalDateTime.now());
-            Bson update = setOnInsert(reviewDTOToDocument(reviewDTO));
-            //Add the review id to the user
-            getCollection("users").updateOne(eq("_id", new ObjectId(reviewDTO.getUser().getId())), addToSet("review_ids", new ObjectId(reviewDTO.getId())));
 
-            // Insert the reviewDTO if it does not exist
-            UpdateResult result = reviewCollection.updateOne(filter, update, new UpdateOptions().upsert(true));
+            Document reviewDocument = reviewDTOToDocument(reviewDTO);
 
-            // Check if the document was inserted
-            if (result.getUpsertedId() != null) {
-                reviewDTO.setId(result.getUpsertedId().asObjectId().getValue().toHexString());
-            } else {
-                // Document was not inserted or updated, indicating that a similar review already exists
-                throw new DuplicatedException(DuplicatedExceptionType.GENERIC, "ReviewDAOMongoImpl: saveReview: The user have already reviewed this media content.");
-            }
+            //Insert the review
+            Optional.ofNullable(reviewCollection.insertOne(reviewDocument).getInsertedId())
+                    .map(result -> result.asObjectId().getValue().toHexString())
+                    .map(id -> { reviewDTO.setId(id); return id; })
+                    .orElseThrow(() -> new MongoException("UserDAOMongoImpl: saveUser: Error saving review"));
 
-        } catch (DuplicatedException e) {
-            throw new DAOException(DAOExceptionType.DUPLICATED_KEY, e.getMessage());
+            //Append the new review_id to the review_ids fields of the corresponding anime or manga
+            mediaCollection.updateOne(eq("_id", new ObjectId(reviewDTO.getMediaContent().getId())), push("review_ids", reviewDTO.getId()));
+
+            //Append the new review_id to the review_ids field of the corresponding user
+            getCollection("users").updateOne(eq("_id", new ObjectId(reviewDTO.getUser().getId())), push("review_ids", reviewDTO.getId()));
 
         } catch (MongoException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
@@ -177,17 +159,25 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
     }
 
     @Override
-    public void updateMediaRedundancy(MediaContentDTO mediaContentDTO) throws DAOException {
+    //Take review ids in input to update the media content
+    public void updateMediaRedundancy(MediaContentDTO mediaContentDTO, List<String> review_ids) throws DAOException {
         //create media embedded Document
         boolean isAnime = mediaContentDTO instanceof AnimeDTO;
         Document mediaDoc = new Document(isAnime ? "anime" : "manga", new Document()
                 .append("id", new ObjectId(mediaContentDTO.getId()))
                 .append("title", mediaContentDTO.getTitle()));
 
+
+        //Convert review ids to ObjectId list
+        List<ObjectId> reviewObjectIds = new ArrayList<>();
+        for (String id : review_ids) {
+            reviewObjectIds.add(new ObjectId(id));
+        }
+
         //update the recipe data in all the reviews
         try {
             MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
-            Bson filter = eq(isAnime ? "anime.id" : "manga.id", new ObjectId(mediaContentDTO.getId()));
+            Bson filter = Filters.in("_id", reviewObjectIds);
 
             UpdateResult result = reviewCollection.updateMany(filter, new Document("$set", mediaDoc));
             if (result.getMatchedCount() != 0 && result.getModifiedCount() == 0) {
@@ -203,7 +193,8 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
     }
 
     @Override
-    public void updateUserRedundancy(UserSummaryDTO userSummaryDTO) throws DAOException {
+    //Take review ids in input to update the user
+    public void updateUserRedundancy(UserSummaryDTO userSummaryDTO, List<String> reviewIds) throws DAOException {
 
         //create user embedded Document
         Document userDoc = new Document();
@@ -216,7 +207,13 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
         try {
             MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
 
-            Bson filter = eq("user.id", new ObjectId(userSummaryDTO.getId()));
+            //Convert review ids to ObjectId list
+            List<ObjectId> reviewObjectIds = new ArrayList<>();
+            for (String id : reviewIds) {
+                reviewObjectIds.add(new ObjectId(id));
+            }
+
+            Bson filter = Filters.in("_id", reviewObjectIds);
 
             Bson update = new Document("$set", userDoc);
             if (Objects.equals(userSummaryDTO.getProfilePicUrl(),Constants.NULL_STRING)) {
@@ -246,51 +243,59 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
         try {
             // get the list of anime and manga IDs whose average rating has not been updated
             Bson filter = or(eq("avg_rating_last_update", false), exists("avg_rating_last_update", false));
-            List<ObjectId> animeIds = getCollection("anime").find(filter)
-                    .projection(new Document("_id", 1)).into(new ArrayList<>()).stream()
-                    .map(document -> document.getObjectId("_id"))
-                    .toList();
-            List<ObjectId> mangaIds = getCollection("manga").find(filter)
-                    .projection(new Document("_id", 1)).into(new ArrayList<>()).stream()
-                    .map(document -> document.getObjectId("_id"))
-                    .toList();
+            //The media contents that have the flag false: we need to take their review ids
+
+            //Get the anime and manga ids and review_ids
+            List<Document> animeList = getCollection("anime").find(filter).projection(fields(include("_id", "review_ids"))).into(new ArrayList<>());
+            List<Document> mangaList = getCollection("manga").find(filter).projection(fields(include("_id", "review_ids"))).into(new ArrayList<>());
+
+
+            //map of anime id and review ids
+            Map<String, List<String>> animeReviewIds = new HashMap<>();
+            Map<String, List<String>> mangaReviewIds = new HashMap<>();
+
+
+            for (Document anime : animeList) {
+                animeReviewIds.put(String.valueOf(anime.getObjectId("_id")), anime.getList("review_ids", String.class));
+            }
+            for (Document manga : mangaList) {
+                mangaReviewIds.put(String.valueOf(manga.getObjectId("_id")), manga.getList("review_ids", String.class));
+            }
+
 
             // get the average rating for each media content
             MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
 
-            List<Bson> pipeline = List.of(
-                    facet(
-                            // anime facet
-                            new Facet("anime", List.of(
-                                    match(and(
-                                            in("anime.id", animeIds),
-                                            exists("rating", true)
-                                    )),
-                                    group("$anime.id", avg("average_rating", "$rating")),
-                                    project(computed("average_rating", new Document("$round", List.of("$average_rating", 2))))
-                            )),
-                            // manga facet
-                            new Facet("manga", List.of(
-                                    match(and(
-                                            in("manga.id", mangaIds),
-                                            exists("rating", true)
-                                    )),
-                                    group("$manga.id", avg("average_rating", "$rating")),
-                                    project(computed("average_rating", new Document("$round", List.of("$average_rating", 2))))
-                            ))
-                    )
-            );
-            Document result = reviewCollection.aggregate(pipeline).first();
+            //TODO: do a for cicle for each media id and inside it take the average of the review inside the
+            // review_ids array of the media content and then update the average rating of that media
 
-            // update the average rating for each media content and set the last update flag to true
-            Optional.ofNullable(result).orElse(new Document()).getList("anime", Document.class).forEach(document -> {
-                Bson update = combine(set("average_rating", document.get("average_rating")), set("avg_rating_last_update", true));
-                getCollection("anime").updateOne(eq("_id", document.getObjectId("_id")), update);
-            });
-            Optional.ofNullable(result).orElse(new Document()).getList("manga", Document.class).forEach(document -> {
-                Bson update = combine(set("average_rating", document.get("average_rating")), set("avg_rating_last_update", true));
-                getCollection("manga").updateOne(eq("_id", document.getObjectId("_id")), update);
-            });
+            for (Map.Entry<String, List<String>> entry : animeReviewIds.entrySet()) {
+                String animeId = entry.getKey();
+                List<String> reviewIds = entry.getValue();
+                if (reviewIds.isEmpty()) {
+                    continue;
+                }
+                Bson filterReviews = in("_id", reviewIds);
+                Bson group = group("$anime.id", avg("avg_rating", "$rating"));
+                Document avgRating = reviewCollection.aggregate(List.of(match(filterReviews), group)).first();
+                if (avgRating != null) {
+                    getCollection("anime").updateOne(eq("_id", animeId), combine(set("avg_rating", avgRating.getDouble("avg_rating")), set("avg_rating_last_update", true)));
+                }
+            }
+
+            for (Map.Entry<String, List<String>> entry : mangaReviewIds.entrySet()) {
+                String mangaId = entry.getKey();
+                List<String> reviewIds = entry.getValue();
+                if(reviewIds.isEmpty()){
+                    continue;
+                }
+                Bson filterReviews = in("_id", reviewIds);
+                Bson group = group("$manga.id", avg("avg_rating", "$rating"));
+                Document avgRating = reviewCollection.aggregate(List.of(match(filterReviews), group)).first();
+                if (avgRating != null) {
+                    getCollection("manga").updateOne(eq("_id", mangaId), combine(set("avg_rating", avgRating.getDouble("avg_rating")), set("avg_rating_last_update", true)));
+                }
+            }
 
         } catch (MongoException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
@@ -314,17 +319,41 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
 
             Bson filter = eq("_id", new ObjectId(reviewId));
 
-            if (reviewCollection.deleteOne(filter).getDeletedCount() == 0) {
+            //Retrieve the review document to get associated media and user IDs
+            Document reviewDocument = reviewCollection.find(filter).first();
+            if (reviewDocument == null) {
                 throw new MongoException("ReviewDAOMongoImpl: deleteReview: Review not found");
             }
 
-            // Remove the review id from the anime and manga
-            Bson pullReviewId = pull("review_ids", new ObjectId(reviewId));
+            String userId = reviewDocument.get("user", Document.class).getObjectId("id").toHexString();
+            String mediaContentId = null;
+            String mediaContentType = null;
 
-            getCollection("anime").updateMany(eq("review_ids", new ObjectId(reviewId)), pullReviewId);
-            getCollection("manga").updateMany(eq("review_ids", new ObjectId(reviewId)), pullReviewId);
-            //Remove the review id from the user
-            getCollection("users").updateMany(eq("review_ids", new ObjectId(reviewId)), pull("review_ids", new ObjectId(reviewId)));
+            if(reviewDocument.containsKey("anime")) {
+                mediaContentId = reviewDocument.get("anime", Document.class).getObjectId("id").toHexString();
+                mediaContentType = "anime";
+
+            } else if (reviewDocument.containsKey("manga")) {
+                mediaContentId = reviewDocument.get("manga", Document.class).getObjectId("id").toHexString();
+                mediaContentType = "manga";
+            } else {
+                throw new DAOException("Invalid media content type");
+
+            }
+
+            //Delete the review
+            if (reviewCollection.deleteOne(filter).getDeletedCount()==0) {
+                throw new MongoException("ReviewDAOMongoImpl: deleteReview: Review not found");
+
+            }
+
+            //Remove the review ID from the anime and manga collections
+            Bson pullReviewId = pull("review_ids", reviewId);
+            getCollection(mediaContentType).updateMany(eq("review_ids", reviewId), pullReviewId);
+
+
+            //Remove the review ID from the user collection
+            getCollection("users").updateMany(eq("review_ids", reviewId), pullReviewId);
 
 
         } catch (MongoException e) {

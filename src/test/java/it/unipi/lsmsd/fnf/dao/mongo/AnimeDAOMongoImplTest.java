@@ -190,6 +190,8 @@ class AnimeDAOMongoImplTest {
     // test 1 : refresh latest reviews with the last n reviews
     @Test
     void refreshLatestReviewsTest() throws DAOException {
+        List<String> review_ids = new ArrayList<>();
+        review_ids.add("6635632b4276578429f29388");
         AnimeDAOMongoImpl animeDAO = new AnimeDAOMongoImpl();
         List<MediaContentDTO> animeList = animeDAO.search(List.of(Map.of("title", "Sample Anime")), Map.of("title", 1), 1, false).getEntries();
         if (!animeList.isEmpty()) {
@@ -197,7 +199,7 @@ class AnimeDAOMongoImplTest {
 
             // test 1
             assertDoesNotThrow(() -> {
-                animeDAO.refreshLatestReviews(animeId);
+                animeDAO.refreshLatestReviews(animeId, review_ids);
                 System.out.println("Latest reviews refreshed");
             });
         }

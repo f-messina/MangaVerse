@@ -109,6 +109,7 @@ public class UserServiceImpl implements UserService {
     public void updateUserInfo(User user) throws BusinessException {
         try {
             userDAO.updateUser(user);
+            List<String> reviewIds = user.getReviewIds();
 
             // Create a task which update the node User in Neo4j and the user redundancy inside anime and manga
             if (user.getUsername() != null || user.getProfilePicUrl() != null) {
@@ -118,7 +119,7 @@ public class UserServiceImpl implements UserService {
 
             // Create a task which updates the user redundancy inside reviews
             if (user.getUsername() != null || user.getProfilePicUrl() != null || user.getBirthday() != null || user.getLocation() != null) {
-                aperiodicExecutorTaskService.executeTask(new UpdateReviewRedundancyTask(null, user.toSummaryDTO()));
+                aperiodicExecutorTaskService.executeTask(new UpdateReviewRedundancyTask(null, user.toSummaryDTO(), reviewIds));
             }
 
         } catch (DAOException e) {
