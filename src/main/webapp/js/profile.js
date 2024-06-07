@@ -577,3 +577,51 @@ function displaySuggestions(suggestions, targetDiv, isAnime){
     });
 }
 
+////////////////////
+//USER SUGGESTIONS//
+////////////////////
+
+const suggestedUsers = $("#suggested-users");
+const suggestedUsersListByLikes = $("#suggested-by-likes-list");
+const suggestedUsersListByFollowings = $("#suggested-by-followings-list");
+const showSuggestedUsersButton = $("#show-suggested-users");
+
+showSuggestedUsersButton.click(() => showSuggestedUsers());
+
+function showSuggestedUsers() {
+    overlay.show();
+    $("body").css("overflow-y", "hidden");
+    getSuggestedUsers();
+    suggestedUsers.show();
+    overlay.click(() => {
+        overlay.hide();
+        $("body").css("overflow-y", "auto");
+        suggestedUsers.hide();
+    });
+}
+
+function getSuggestedUsers(userId, suggestionType, targetDiv){
+    $.post(`${contextPath}/profile`, {
+        action: "suggestedUsers",
+        userId: userId,
+        suggestionType:suggestionType},
+        function (data) {
+        suggestedUsersList.empty();
+        if (data.success) {
+            data.suggestedUsers.forEach(item => {
+                const itemDiv = $(`<a href="${contextPath}/profile?userId=${item.id}">`).addClass("user");
+                const img = $(`<img src="${item.profilePicUrl}">`).addClass("user-pic")
+                    .on("error", () => setDefaultProfilePicture(img));
+                const p = $("<p>").addClass("user-username").text(item.username);
+                itemDiv.append(img, p);
+                listElement.append(itemDiv);
+            });
+        } else if (data.notFoundError) {
+            suggestedUsersList.append($("<p>").addClass("user").text("No users found."));
+        } else {
+            suggestedUsersList.append($("<p>").addClass("user").text("An error occurred. Please try again later."));
+        }
+    }).fail(() => {
+        suggestedUsersList.empty().append($("<p>").addClass("user").text("An error occurred. Please try again later."));
+    });
+}

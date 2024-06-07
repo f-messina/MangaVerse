@@ -97,6 +97,9 @@
                                 ${empty userInfo.getFollowed() ? 0 : userInfo.getFollowed()}
                             </span> following
                         </li>
+                        <li id="show-suggested-users">
+                            User Suggestions
+                        </li>
                     </ul>
                 </div>
 
@@ -249,6 +252,15 @@
                 <div id="followings-list"></div>
             </div>
         </div>
+
+        <!-- suggested users -->
+        <div id="suggested-users" class="myAlert user-list-section">
+            <div id="suggestedUsersBody" class="myAlertBody">
+                <p class="user-list-name">Suggested Users</p>
+                <div id="suggested-by-likes-list"></div>
+                <div id="suggested-by-followings-list"></div>
+
+            </div>
     </section>
 
     <c:if test="${isLogged and isLoggedPageOwner}">
@@ -352,6 +364,9 @@
                 </div>
             </div>
         </c:if>
+
+
+
     </section>
 
     <div class="footer"></div>
@@ -376,6 +391,7 @@
             gender: "${userInfo.getGender().name()}",
             appRating: parseInt("${empty userInfo.appRating ? "" : userInfo.appRating}"),
             reviewIds: "${empty userInfo.reviewIds ? "" : userInfo.reviewIds}".split(',').filter(Boolean)
+
         }
     </script>
 </body>
