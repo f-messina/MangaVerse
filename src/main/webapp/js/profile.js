@@ -353,12 +353,12 @@ function changeSection(button) {
         fetchData("getReviews");
     } else if (section === "anime" && $("#anime-list").children().first().length === 0) {
         fetchData("getAnimeLikes");
-        fetchSuggestions("anime", "location", "#anime-suggested-by-location");
-        fetchSuggestions("anime", "birthday", "#anime-suggested-by-birthday");
+        fetchSuggestions("anime", "location", profile.country, "#anime-suggested-by-location");
+        fetchSuggestions("anime", "birthday", profile.birthdate,"#anime-suggested-by-birthday");
     } else if (section === "manga" && $("#manga-list").children().first().length === 0) {
         fetchData("getMangaLikes");
-        fetchSuggestions("manga", "location", "#manga-suggested-by-location");
-        fetchSuggestions("manga", "birthday", "#manga-suggested-by-birthday");
+        fetchSuggestions("manga", "location",profile.country, "#manga-suggested-by-location");
+        fetchSuggestions("manga", "birthday", profile.birthdate,"#manga-suggested-by-birthday");
     }
 }
 
@@ -521,11 +521,16 @@ $(document).ready(() => {
 //SUGGESTIONS//
 ///////////////
 
-function fetchSuggestions(mediaContentType,criteria,targetDiv){
+function fetchSuggestions(mediaContentType,criteria, value, targetDiv){
+    if (criteria === "birthday"){
+        value = new Date(value).getFullYear();
+    }
+
     $.post(`${contextPath}/profile`,{
         action: "suggestedMediaContent",
-        mediaContentType:mediaContentType,
-        criteria:criteria
+        type: mediaContentType,
+        criteria: criteria,
+        value: value
     },function (data){
         console.log(data);
         if (data.success) {
@@ -555,17 +560,13 @@ function displaySuggestions(suggestions, targetDiv, isAnime){
     suggestions.forEach(item => {
         const suggestionWrapper = $("<div>").addClass("project-box-wrapper");
         const itemDiv = $("<div>").addClass("project-box");
-        const picture = $("<img>").attr("src", item.imageUrl === null ? defaultImage : item.imageUrl)
-            .attr("alt", item.title)
-            .addClass("box-image")
-            .on("error", () => setDefaultCover(picture, isAnime ? "anime" : "manga"));
         const title = $("<a>").attr("href", `${contextPath}/${isAnime ? "anime" : "manga"}?mediaId=${item.id}`)
             .addClass("box-title").text(item.title);
 
 
-        itemDiv.append(picture, title);
+        itemDiv.append(title);
         suggestionWrapper.append(itemDiv);
-        container.append(itemDiv);
+        container.append(suggestionWrapper);
     });
 }
 

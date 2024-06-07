@@ -671,7 +671,7 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
             for (int year = startYear; year <= endYear; year++) {
                 resultMap.put(String.valueOf(year), null);
             }
-            
+
             for (Document document : result) {
                 Double averageRating = document.getDouble("average_rating");
                 Integer year = document.getInteger("year");
@@ -760,7 +760,9 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
                 pipeline.add(match(eq("user." + criteriaType, criteriaValue)));
 
             } else if (criteriaType.equals("birthday")) {
-                // Transform the criteriaValue into an integer
+                // Transform the criteriaValue into an integer1
+                Logger logger = LoggerFactory.getLogger(ReviewDAOMongoImpl.class);
+                logger.info("Criteria value: " + criteriaValue);
                 Date startDate = ConverterUtils.localDateToDate(LocalDate.of(Integer.parseInt(criteriaValue), 1, 1));
                 Date endDate = ConverterUtils.localDateToDate(LocalDate.of(Integer.parseInt(criteriaValue) + 1, 1, 1));
                 pipeline.add(match(and(

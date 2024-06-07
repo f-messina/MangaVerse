@@ -348,14 +348,14 @@ public class ProfileServlet extends HttpServlet {
 
         String criteria = request.getParameter("criteria");
         String type = request.getParameter("type");
-        String mediaContentType = request.getParameter("mediaContentType");
+        String value = request.getParameter("value");
 
-        if (mediaContentType == null){
+        if (type == null){
             jsonResponse.put("error", "Media content type not specified");
         }else {
             try {
                 // Get the page of suggested media content
-                PageDTO<MediaContentDTO> suggestedMediaContent = reviewService.suggestMediaContent(mediaContentType.equals("manga")?MediaContentType.MANGA:MediaContentType.ANIME, criteria, type);
+                PageDTO<MediaContentDTO> suggestedMediaContent = reviewService.suggestMediaContent(type.equals("manga")?MediaContentType.MANGA:MediaContentType.ANIME, criteria, value);
                 if (suggestedMediaContent == null) {
                     jsonResponse.put("notFoundError", true);
                 } else {

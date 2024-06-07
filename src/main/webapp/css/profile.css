@@ -621,9 +621,32 @@ select.form-control {
 
 /* anime/manga grid css */
 
+.suggestions-lists{
+    .project-boxes{
+        &.jsGridView{
+            .project-box-wrapper{
+                width: 25%;
+                padding: 10px;
+                .project-box{
+                    padding: 1rem;
+                }
+            }
+        }
+    }
+}
+.suggestion-title{
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+    font-size: 20px;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding-top: 1rem;
+}
+
 .project-boxes {
     overflow-y: auto;
     margin: 3rem 5% 0 5%;
+
 
 
     &.jsGridView {
@@ -636,6 +659,9 @@ select.form-control {
             min-width: 200px;
             max-width: 400px;
         }
+    }
+    .suggestion-box{
+        display:flex;
     }
 
     .project-box {
