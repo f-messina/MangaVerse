@@ -529,7 +529,7 @@ function fetchSuggestions(mediaContentType,criteria,targetDiv){
     },function (data){
         console.log(data);
         if (data.success) {
-            displaySuggestions(data.suggestedMediaContent.entries, targetDiv);
+            displaySuggestions(data.suggestedMediaContent.entries, targetDiv, mediaContentType === "anime" ? true : false);
         } else if (data.notFoundError) {
             $(targetDiv).append($("<p>").addClass("no-results-error").text("No suggestions found"));
         } else {
@@ -539,24 +539,33 @@ function fetchSuggestions(mediaContentType,criteria,targetDiv){
         $(targetDiv).append($("<p>").addClass("error").text("An error occurred while fetching suggestions."));
     });
 }
-function displaySuggestions(suggestions,targetDiv){
-    const container =$(targetDiv);
+function displaySuggestions(suggestions, targetDiv, isAnime){
+    const pagination = isAnime ? $(".anime-pagination") : $(".manga-pagination");
+    const container = $(targetDiv);
     container.empty();
+    const defaultImage = isAnime ? animeDefaultImage : mangaDefaultImage;
+
+    pagination.empty();
+
     if (!suggestions || suggestions.length === 0) {
         container.append($("<p>").addClass("no-results-error").text("No suggestions found"));
         return;
     }
 
-   suggestions.forEach(item => {
-        const itemDiv = $("<div>").addClass("suggestion-item");
-        const img = $("<img>").attr("src", item.imageUrl).addClass("suggestion-image")
-            .on("error", () => img.attr("src", item.imageUrl === null ? mangaDefaultImage : item.imageUrl));
-        const title = $("<a>").attr("href", `${contextPath}/media?mediaId=${item.id}`).text(item.title);
+    suggestions.forEach(item => {
+        const suggestionWrapper = $("<div>").addClass("project-box-wrapper");
+        const itemDiv = $("<div>").addClass("project-box");
+        const picture = $("<img>").attr("src", item.imageUrl === null ? defaultImage : item.imageUrl)
+            .attr("alt", item.title)
+            .addClass("box-image")
+            .on("error", () => setDefaultCover(picture, isAnime ? "anime" : "manga"));
+        const title = $("<a>").attr("href", `${contextPath}/${isAnime ? "anime" : "manga"}?mediaId=${item.id}`)
+            .addClass("box-title").text(item.title);
 
-        itemDiv.append(img, title);
+
+        itemDiv.append(picture, title);
+        suggestionWrapper.append(itemDiv);
         container.append(itemDiv);
     });
 }
-
-
 
