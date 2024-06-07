@@ -821,9 +821,7 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
             }
 
             List<MediaContentDTO> entries = new ArrayList<>();
-            Logger logger = LoggerFactory.getLogger(ReviewDAOMongoImpl.class);
             for (Document document : result) {
-                logger.info("Document: " + document);
                 String contentId = String.valueOf(document.getObjectId("_id"));
                 String title = document.getString("title");
 

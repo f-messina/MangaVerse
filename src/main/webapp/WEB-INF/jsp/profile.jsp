@@ -375,7 +375,7 @@
             picture: "${userInfo.getProfilePicUrl()}",
             gender: "${userInfo.getGender().name()}",
             appRating: parseInt("${empty userInfo.appRating ? "" : userInfo.appRating}"),
-            reviewIds: "${empty userInfo.reviewIds ? "" : userInfo.reviewIds}".split(',').filter(Boolean)
+            reviewIds: "${empty userInfo.reviewIds ? "" : userInfo.reviewIds}".slice(1, -1).split(", ")
         }
     </script>
 </body>
