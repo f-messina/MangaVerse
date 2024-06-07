@@ -508,8 +508,9 @@ public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
     }
 
     @Override
-    //NB:: the test returns no suggestions
     public List<UserSummaryDTO> suggestUsersByCommonLikes(String userId, Integer limit, MediaContentType type) throws DAOException {
+        int n = limit == null ? 5 : limit;
+        List<UserSummaryDTO> suggested;
         try (Session session = getSession()) {
             if (type == null) {
                 throw new IllegalArgumentException("Media content type must be specified");
@@ -526,14 +527,71 @@ public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
                     "ORDER BY commonLikes DESC " +
                     "LIMIT $n");
             String query = queryBuilder.toString();
+            System.out.println("query1");
 
+            int finalN = n;
             List<Record> records = session.executeRead(
-                    tx -> tx.run(query, parameters("userId", userId, "n", limit == null ? 5 : limit, "date", LocalDate.now().minusMonths(1), "min", 2)).list()
+                    tx -> tx.run(query, parameters("userId", userId, "n", finalN, "date", LocalDate.now().minusMonths(1), "min", 2)).list()
             );
-            records.forEach(System.out::println);
-            return records.isEmpty() ? null : records.stream()
+            System.out.println("records 1 " + records);
+            suggested = records.stream()
                     .map(this::recordToUserSummaryDTO)
-                    .toList();
+                    .collect(Collectors.toList());
+            System.out.println("suggested 1" + suggested);
+
+            n -= records.isEmpty() ? 0 : records.size();
+
+            if(n>0) {
+                StringBuilder queryBuilder2 = new StringBuilder();
+                if (type == MediaContentType.ANIME)
+                    queryBuilder2.append("MATCH (u:User {id: $userId})-[r:LIKE]->(media:Anime)<-[:LIKE]-(suggested:User) ");
+                else
+                    queryBuilder2.append("MATCH (u:User {id: $userId})-[r:LIKE]->(media:Manga)<-[:LIKE]-(suggested:User) ");
+                queryBuilder2.append(" WHERE u <> suggested AND r.date >= date($date) " +
+                        "WITH suggested, COUNT(DISTINCT media) AS commonLikes " +
+                        "WHERE commonLikes > $min " +
+                        "RETURN suggested AS user, commonLikes " +
+                        "ORDER BY commonLikes DESC " +
+                        "LIMIT $n");
+                String query2 = queryBuilder2.toString();
+                System.out.println("query2");
+                int finalN1 = n;
+                List<Record> records2 = session.executeRead(
+                        tx -> tx.run(query2, parameters("userId", userId, "n", finalN1, "date", LocalDate.now().minusMonths(6), "min", 2)).list()
+                );
+                System.out.println("records 2 " + records2);
+                suggested = records2.stream()
+                        .map(this::recordToUserSummaryDTO)
+                        .collect(Collectors.toList());
+                System.out.println("suggested 2" + suggested);
+            }
+            n -= records.isEmpty() ? 0 : records.size();
+            if(n>0) {
+                StringBuilder queryBuilder3 = new StringBuilder();
+                if (type == MediaContentType.ANIME)
+                    queryBuilder3.append("MATCH (u:User {id: $userId})-[r:LIKE]->(media:Anime)<-[:LIKE]-(suggested:User) ");
+                else
+                    queryBuilder3.append("MATCH (u:User {id: $userId})-[r:LIKE]->(media:Manga)<-[:LIKE]-(suggested:User) ");
+                queryBuilder3.append(" WHERE u <> suggested  " +
+                        "WITH suggested, COUNT(DISTINCT media) AS commonLikes " +
+                        "RETURN suggested AS user, commonLikes " +
+                        "ORDER BY commonLikes DESC " +
+                        "LIMIT $n");
+                String query3 = queryBuilder3.toString();
+                System.out.println("query3");
+                int finalN2 = n;
+                List<Record> records3 = session.executeRead(
+                        tx -> tx.run(query3, parameters("userId", userId, "n", finalN2)).list()
+                );
+                System.out.println("records 3 " + records3);
+                suggested = records3.stream()
+                        .map(this::recordToUserSummaryDTO)
+                        .collect(Collectors.toList());
+                System.out.println("suggested 3" + suggested);
+            }
+
+
+            return suggested.isEmpty() ? null : suggested;
 
         } catch (Neo4jException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
