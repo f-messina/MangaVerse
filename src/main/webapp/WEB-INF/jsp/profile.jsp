@@ -97,7 +97,7 @@
                                 ${empty userInfo.getFollowed() ? 0 : userInfo.getFollowed()}
                             </span> following
                         </li>
-                        <li id="show-suggested-users">
+                        <li id="show-suggested-users" class="user-suggestions">
                             user suggestions
                         </li>
                     </ul>
@@ -256,14 +256,15 @@
         <!-- suggested users -->
         <div id="suggested-users" class="myAlert user-list-section">
             <div id="suggestedUsersBody" class="myAlertBody">
-                <p class="user-list-name">Suggested Users</p>
+                <p class="user-list-name">Suggested Users By Likes</p>
                 <div id="suggested-by-likes-list"></div>
+                <p class="user-list-name">Suggested Users By Followings</p>
                 <div id="suggested-by-followings-list"></div>
             </div>
         </div>
     </section>
 
-    
+
     <c:if test="${isLogged and isLoggedPageOwner}">
         <section class="app-rating-container">
             <div class="app-rating-form">

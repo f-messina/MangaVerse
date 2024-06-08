@@ -580,7 +580,7 @@ function displaySuggestions(suggestions, targetDiv, isAnime){
 const suggestedUsers = $("#suggested-users");
 const showSuggestedUsersButton = $("#show-suggested-users");
 
-showSuggestedUsersButton.click(() => getSuggestedUsers(profile.userId, "following", "#suggested-by-followings-list"));
+showSuggestedUsersButton.click(() =>   getSuggestedUsers(profile.userId))
 
 function showSuggestedUsers(suggestions, targetDiv) {
     overlay.show();
@@ -603,45 +603,48 @@ function showSuggestedUsers(suggestions, targetDiv) {
         }
     console.log(suggestions);
     suggestions.forEach(item => {
-        const suggestionWrapper = $("<div>").addClass("project-box-wrapper");
+            //const suggestionWrapper = $("<div>").addClass("project-box-wrapper");
             const itemDiv = $(`<a href="${contextPath}/profile?userId=${item.id}">`).addClass("user");
             const img = $(`<img src="${item.profilePicUrl}">`).addClass("user-pic")
                 .on("error", () => setDefaultProfilePicture(img));
             const p = $("<p>").addClass("user-username").text(item.username);
             itemDiv.append(img, p);
-            suggestionWrapper.append(itemDiv)
-            container.append(suggestionWrapper);
+            //suggestionWrapper.append(itemDiv)
+            container.append(itemDiv);
         }
     );
     }
 
-function getSuggestedUsers(userId, suggestionType, targetDiv){
-    $.post(`${contextPath}/profile`, {
-        action: "suggestedUsers",
-        userId: userId,
-        suggestionType:suggestionType
-        },
-        function (data) {
-        console.log(data);
-        if (data.success) {
-          showSuggestedUsers(
-              data.suggestedUsers,
-              targetDiv,
-          );
-        } else if (data.notFoundError) {
-            $(targetDiv).append(
-                $("<p>").addClass("no-results-error").text("No suggestions found")
+function getSuggestedUsers(userId) {
+    const suggestions = [
+        { type: "likes", targetDiv: "#suggested-by-likes-list" },
+        { type: "following", targetDiv: "#suggested-by-followings-list" }
+    ];
+
+    suggestions.forEach(suggestion => {
+        $.post(`${contextPath}/profile`, {
+            action: "suggestedUsers",
+            userId: userId,
+            suggestionType: suggestion.type
+        }, function (data) {
+            console.log(data);
+            if (data.success) {
+                showSuggestedUsers(data.suggestedUsers, suggestion.targetDiv);
+            } else if (data.notFoundError) {
+                $(suggestion.targetDiv).append(
+                    $("<p>").addClass("no-results-error").text("No suggestions found")
+                );
+            } else {
+                $(suggestion.targetDiv).append($("<p>").addClass("error").text(data.error));
+            }
+        }).fail(function () {
+            console.log("Failed request");
+            $(suggestion.targetDiv).append(
+                $("<p>")
+                    .addClass("error")
+                    .text("An error occurred while fetching suggestions.")
             );
-        } else {
-            $(targetDiv).append($("<p>").addClass("error").text(data.error));
-        }
-    }).fail(function () {
-        console.log("failed request")
-        $(targetDiv).append(
-            $("<p>")
-                .addClass("error")
-                .text("An error occurred while fetching suggestions.")
-        );
+        });
     });
 }
 
