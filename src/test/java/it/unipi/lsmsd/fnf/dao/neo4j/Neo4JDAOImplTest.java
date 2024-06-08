@@ -163,7 +163,7 @@ public class Neo4JDAOImplTest{
     //Test works correctly
     public void testSuggestUsersByCommonFollows() throws DAOException {
         UserDAONeo4JImpl  neo4JDAO = new UserDAONeo4JImpl ();
-        List<UserSummaryDTO> followerUsers = neo4JDAO.suggestUsersByCommonFollowings("6577877be683762347605859", 10);
+        List<UserSummaryDTO> followerUsers = neo4JDAO.suggestUsersByCommonFollowings("6577877be68376234760585d", 10);
         for(UserSummaryDTO user : followerUsers)
             System.out.println(user);
 
@@ -173,7 +173,7 @@ public class Neo4JDAOImplTest{
     //Test works but doesn't return any user
     public void testSuggestUsersByCommonLikes() throws DAOException {
         UserDAONeo4JImpl neo4JDAO = new UserDAONeo4JImpl();
-        List<UserSummaryDTO> followerUsers = neo4JDAO.suggestUsersByCommonLikes("6577877be683762347605874", 10, MediaContentType.ANIME);
+        List<UserSummaryDTO> followerUsers = neo4JDAO.suggestUsersByCommonLikes("6577877be68376234760585d", 10, MediaContentType.MANGA);
         if (followerUsers != null && !followerUsers.isEmpty()) {
             for (UserSummaryDTO user : followerUsers) {
                 System.out.println(user);

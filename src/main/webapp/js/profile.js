@@ -344,8 +344,6 @@ function changeSection(button) {
     button.classList.add("active");
 
 
-
-
     const sections = { anime: "#anime-like", manga: "#manga-like", reviews: "#reviews" };
     $.each(sections, (key, value) => $(value).toggle(key === section));
 
@@ -580,46 +578,71 @@ function displaySuggestions(suggestions, targetDiv, isAnime){
 ////////////////////
 
 const suggestedUsers = $("#suggested-users");
-const suggestedUsersListByLikes = $("#suggested-by-likes-list");
-const suggestedUsersListByFollowings = $("#suggested-by-followings-list");
 const showSuggestedUsersButton = $("#show-suggested-users");
 
-showSuggestedUsersButton.click(() => showSuggestedUsers());
+showSuggestedUsersButton.click(() => getSuggestedUsers(profile.userId, "following", "#suggested-by-followings-list"));
 
-function showSuggestedUsers() {
+function showSuggestedUsers(suggestions, targetDiv) {
     overlay.show();
     $("body").css("overflow-y", "hidden");
-    getSuggestedUsers();
     suggestedUsers.show();
     overlay.click(() => {
         overlay.hide();
         $("body").css("overflow-y", "auto");
         suggestedUsers.hide();
     });
-}
+    const container = $(targetDiv);
+    console.log(targetDiv);
+    container.empty();
+
+    if (!suggestions || suggestions.length === 0) {
+        container.append(
+            $("<p>").addClass("no-results-error").text("No suggestions found")
+        );
+        return;
+        }
+    console.log(suggestions);
+    suggestions.forEach(item => {
+        const suggestionWrapper = $("<div>").addClass("project-box-wrapper");
+            const itemDiv = $(`<a href="${contextPath}/profile?userId=${item.id}">`).addClass("user");
+            const img = $(`<img src="${item.profilePicUrl}">`).addClass("user-pic")
+                .on("error", () => setDefaultProfilePicture(img));
+            const p = $("<p>").addClass("user-username").text(item.username);
+            itemDiv.append(img, p);
+            suggestionWrapper.append(itemDiv)
+            container.append(suggestionWrapper);
+        }
+    );
+    }
 
 function getSuggestedUsers(userId, suggestionType, targetDiv){
     $.post(`${contextPath}/profile`, {
         action: "suggestedUsers",
         userId: userId,
-        suggestionType:suggestionType},
+        suggestionType:suggestionType
+        },
         function (data) {
-        suggestedUsersList.empty();
+        console.log(data);
         if (data.success) {
-            data.suggestedUsers.forEach(item => {
-                const itemDiv = $(`<a href="${contextPath}/profile?userId=${item.id}">`).addClass("user");
-                const img = $(`<img src="${item.profilePicUrl}">`).addClass("user-pic")
-                    .on("error", () => setDefaultProfilePicture(img));
-                const p = $("<p>").addClass("user-username").text(item.username);
-                itemDiv.append(img, p);
-                listElement.append(itemDiv);
-            });
+          showSuggestedUsers(
+              data.suggestedUsers,
+              targetDiv,
+          );
         } else if (data.notFoundError) {
-            suggestedUsersList.append($("<p>").addClass("user").text("No users found."));
+            $(targetDiv).append(
+                $("<p>").addClass("no-results-error").text("No suggestions found")
+            );
         } else {
-            suggestedUsersList.append($("<p>").addClass("user").text("An error occurred. Please try again later."));
+            $(targetDiv).append($("<p>").addClass("error").text(data.error));
         }
-    }).fail(() => {
-        suggestedUsersList.empty().append($("<p>").addClass("user").text("An error occurred. Please try again later."));
+    }).fail(function () {
+        console.log("failed request")
+        $(targetDiv).append(
+            $("<p>")
+                .addClass("error")
+                .text("An error occurred while fetching suggestions.")
+        );
     });
 }
+
+

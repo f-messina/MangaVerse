@@ -98,7 +98,7 @@
                             </span> following
                         </li>
                         <li id="show-suggested-users">
-                            User Suggestions
+                            user suggestions
                         </li>
                     </ul>
                 </div>
@@ -259,10 +259,11 @@
                 <p class="user-list-name">Suggested Users</p>
                 <div id="suggested-by-likes-list"></div>
                 <div id="suggested-by-followings-list"></div>
-
             </div>
+        </div>
     </section>
 
+    
     <c:if test="${isLogged and isLoggedPageOwner}">
         <section class="app-rating-container">
             <div class="app-rating-form">
@@ -382,6 +383,7 @@
         const animeDefaultImage = "${pageContext.request.contextPath}/${Constants.DEFAULT_COVER_ANIME}";
         const userDefaultImage = "${pageContext.request.contextPath}/${Constants.DEFAULT_PROFILE_PICTURE}";
         let profile = {
+            userId: "${userInfo.getId()}",
             username: "${userInfo.getUsername()}",
             fullname: "${empty userInfo.getFullname() ? "" : userInfo.getFullname()}",
             description: "${empty userInfo.getDescription() ? "" : userInfo.getDescription()}",

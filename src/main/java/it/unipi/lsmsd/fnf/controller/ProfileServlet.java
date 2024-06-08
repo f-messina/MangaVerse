@@ -389,6 +389,7 @@ public class ProfileServlet extends HttpServlet {
 
         String userId = request.getParameter("userId");
         String suggestionType = request.getParameter("suggestionType");
+        logger.info("Suggestion type: " + suggestionType + " User Id: " + userId);
         if (userId == null){
             jsonResponse.put("error", "User Id not specified");
         }else{
@@ -396,12 +397,13 @@ public class ProfileServlet extends HttpServlet {
                 List<UserSummaryDTO> suggestedUsers = Collections.emptyList();
                 if (suggestionType == null){
                     jsonResponse.put("error", "Suggestion type not specified");
-                } else if (suggestionType == "following") {
+                } else if (suggestionType.equals("following")) {
                     suggestedUsers = userService.suggestUsersByCommonFollowings(userId);
-                } else if (suggestionType == "likes"){
+                } else if (suggestionType.equals("likes")){
                     suggestedUsers = userService.suggestUsersByCommonLikes(userId);
                 }
-                if (suggestedUsers == null) {
+                logger.info("Suggested users: " + suggestedUsers);
+                if (suggestedUsers == null || suggestedUsers.isEmpty()) {
                     jsonResponse.put("notFoundError", true);
                 } else {
                     JsonNode suggestedUsersJsonObject = objectMapper.valueToTree(suggestedUsers);
@@ -414,10 +416,11 @@ public class ProfileServlet extends HttpServlet {
                     jsonResponse.put("notFoundError", true);
                 else
                     jsonResponse.put("error", e.getMessage());
-                jsonResponse.put("error", e.getMessage());
+                    jsonResponse.put("error", e.getMessage());
             }
         }
-
-
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(jsonResponse.toString());
     }
 }
