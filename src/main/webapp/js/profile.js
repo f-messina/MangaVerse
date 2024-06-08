@@ -363,11 +363,9 @@ function changeSection(button) {
 }
 
 function fetchData(action, page = 1) {
-    const input = { action: action, page: page };
+    const input = { "action": action, "page": page, "userId": userId };
     if (action === "getReviews") {
-        input.reviewIds = profile.reviewIds;
-    } else {
-        input.userId = userId;
+        input["reviewIds"] = JSON.stringify(profile.reviewIds);
     }
 
     $.post(`${contextPath}/profile`, input, (data) => {
