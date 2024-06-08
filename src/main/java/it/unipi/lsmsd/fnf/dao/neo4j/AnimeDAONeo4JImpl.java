@@ -501,7 +501,6 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
      * @throws DAOException If an error occurs while retrieving trending Anime.
      */
     @Override
-    //Test fails despite changing date format
     public Map<MediaContentDTO, Integer> getTrendMediaContentByYear(int year, Integer limit) throws DAOException {
         int n = limit == null ? 5 : limit;
         try (Session session = getSession()) {
@@ -546,7 +545,6 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
      */
     @Override
 
-    //Test passed: look from here
     public List<MediaContentDTO> getMediaContentTrendByLikes(Integer limit) throws DAOException {
         int n = limit == null ? 5 : limit;
 
