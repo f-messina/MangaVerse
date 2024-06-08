@@ -97,9 +97,11 @@
                                 ${empty userInfo.getFollowed() ? 0 : userInfo.getFollowed()}
                             </span> following
                         </li>
+                        <c:if test="${isLogged and isLoggedPageOwner}">
                         <li id="show-suggested-users" class="user-suggestions">
                             user suggestions
                         </li>
+                        </c:if>
                     </ul>
                 </div>
 
