@@ -97,6 +97,11 @@
                                 ${empty userInfo.getFollowed() ? 0 : userInfo.getFollowed()}
                             </span> following
                         </li>
+                        <c:if test="${isLogged and isLoggedPageOwner}">
+                        <li id="show-suggested-users" class="user-suggestions">
+                            user suggestions
+                        </li>
+                        </c:if>
                     </ul>
                 </div>
 
@@ -249,7 +254,18 @@
                 <div id="followings-list"></div>
             </div>
         </div>
+
+        <!-- suggested users -->
+        <div id="suggested-users" class="myAlert user-list-section">
+            <div id="suggestedUsersBody" class="myAlertBody">
+                <p class="user-list-name">Suggested Users By Likes</p>
+                <div id="suggested-by-likes-list"></div>
+                <p class="user-list-name">Suggested Users By Followings</p>
+                <div id="suggested-by-followings-list"></div>
+            </div>
+        </div>
     </section>
+
 
     <c:if test="${isLogged and isLoggedPageOwner}">
         <section class="app-rating-container">
@@ -352,6 +368,9 @@
                 </div>
             </div>
         </c:if>
+
+
+
     </section>
 
     <div class="footer"></div>
@@ -367,6 +386,7 @@
         const animeDefaultImage = "${pageContext.request.contextPath}/${Constants.DEFAULT_COVER_ANIME}";
         const userDefaultImage = "${pageContext.request.contextPath}/${Constants.DEFAULT_PROFILE_PICTURE}";
         let profile = {
+            userId: "${userInfo.getId()}",
             username: "${userInfo.getUsername()}",
             fullname: "${empty userInfo.getFullname() ? "" : userInfo.getFullname()}",
             description: "${empty userInfo.getDescription() ? "" : userInfo.getDescription()}",

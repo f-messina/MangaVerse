@@ -12,6 +12,7 @@ import it.unipi.lsmsd.fnf.controller.exception.NotAuthorizedException;
 import it.unipi.lsmsd.fnf.dto.LoggedUserDTO;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
+import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.model.enums.UserType;
@@ -73,6 +74,7 @@ public class ProfileServlet extends HttpServlet {
             case "getReviews" -> handleGetReviews(request, response);
             case "rateApp" -> handleRateApp(request, response);
             case "suggestedMediaContent" -> handleSuggestedMediaContent(request, response);
+            case "suggestedUsers" -> handleSuggestedUsers(request, response);
             case null, default -> {
                 String targetJSP = "WEB-INF/jsp/profile.jsp";
                 LoggedUserDTO authUser = SecurityUtils.getAuthenticatedUser(request);
@@ -376,6 +378,47 @@ public class ProfileServlet extends HttpServlet {
             }
         }
         // Write the JSON response
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(jsonResponse.toString());
+    }
+    private void handleSuggestedUsers(HttpServletRequest request, HttpServletResponse response) throws IOException{
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode jsonResponse = objectMapper.createObjectNode();
+
+
+        String userId = request.getParameter("userId");
+        String suggestionType = request.getParameter("suggestionType");
+        logger.info("Suggestion type: " + suggestionType + " User Id: " + userId);
+        if (userId == null){
+            jsonResponse.put("error", "User Id not specified");
+        }else{
+            try {
+                List<UserSummaryDTO> suggestedUsers = Collections.emptyList();
+                if (suggestionType == null){
+                    jsonResponse.put("error", "Suggestion type not specified");
+                } else if (suggestionType.equals("following")) {
+                    suggestedUsers = userService.suggestUsersByCommonFollowings(userId);
+                } else if (suggestionType.equals("likes")){
+                    suggestedUsers = userService.suggestUsersByCommonLikes(userId);
+                }
+                logger.info("Suggested users: " + suggestedUsers);
+                if (suggestedUsers == null || suggestedUsers.isEmpty()) {
+                    jsonResponse.put("notFoundError", true);
+                } else {
+                    JsonNode suggestedUsersJsonObject = objectMapper.valueToTree(suggestedUsers);
+                    // Add the JSON array to the response
+                    jsonResponse.set("suggestedUsers", suggestedUsersJsonObject);
+                    jsonResponse.put("success", true);
+                }
+            } catch (BusinessException e) {
+                if (e.getType().equals(BusinessExceptionType.DATABASE_ERROR))
+                    jsonResponse.put("notFoundError", true);
+                else
+                    jsonResponse.put("error", e.getMessage());
+                    jsonResponse.put("error", e.getMessage());
+            }
+        }
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         response.getWriter().write(jsonResponse.toString());
