@@ -81,7 +81,7 @@ public class MainPageServlet extends HttpServlet {
                 logger.info("Loading manga main page");
                 request.setAttribute("trending", mediaContentService.getMediaContentTrendByLikes(6, MediaContentType.MANGA));
                 logger.info("Trending manga loaded");
-                if (SecurityUtils.getAuthenticatedUser(request) != null) {
+                if (SecurityUtils.getAuthenticatedUser(request) != null && SecurityUtils.getAuthenticatedUser(request).getType().equals(UserType.USER)) {
                     request.setAttribute("suggestionsByLikes", mediaContentService.getSuggestedMediaContentByLikes(SecurityUtils.getAuthenticatedUser(request).getId(), MediaContentType.MANGA, 6));
                     request.setAttribute("suggestionsByFollowings", mediaContentService.getSuggestedMediaContentByFollowings(SecurityUtils.getAuthenticatedUser(request).getId(), MediaContentType.MANGA, 6));
                 }

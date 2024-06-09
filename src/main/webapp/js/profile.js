@@ -409,11 +409,6 @@ function showLikes(data, action) {
     });
 }
 
-function setDefaultCover(image, type) {
-    image.off("error");
-    image.attr("src", type === "anime" ? animeDefaultImage : mangaDefaultImage);
-}
-
 function showReviews(data) {
     const reviews = $("#reviews-list");
     const pagination = $(".review-pagination");
@@ -601,7 +596,7 @@ function showSuggestedUsers(suggestions, targetDiv) {
         );
         return;
         }
-    console.log(suggestions);
+
     suggestions.forEach(item => {
             //const suggestionWrapper = $("<div>").addClass("project-box-wrapper");
             const itemDiv = $(`<a href="${contextPath}/profile?userId=${item.id}">`).addClass("user");
@@ -627,7 +622,6 @@ function getSuggestedUsers(userId) {
             userId: userId,
             suggestionType: suggestion.type
         }, function (data) {
-            console.log(data);
             if (data.success) {
                 showSuggestedUsers(data.suggestedUsers, suggestion.targetDiv);
             } else if (data.notFoundError) {
@@ -638,7 +632,6 @@ function getSuggestedUsers(userId) {
                 $(suggestion.targetDiv).append($("<p>").addClass("error").text(data.error));
             }
         }).fail(function () {
-            console.log("Failed request");
             $(suggestion.targetDiv).append(
                 $("<p>")
                     .addClass("error")

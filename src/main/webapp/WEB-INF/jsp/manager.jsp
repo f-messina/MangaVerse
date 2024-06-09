@@ -1,7 +1,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ page contentType="text/html;charset=UTF-8"%>
+<%@ page import="it.unipi.lsmsd.fnf.utils.Constants" %>
 <%@ page import="static java.time.LocalDate.now" %>
-
+<%@ page contentType="text/html;charset=UTF-8"%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -14,6 +14,31 @@
 
 <body>
 <c:set var="currentYear" value="<%= now().getYear() %>" />
+
+<!-- navbar -->
+<nav>
+    <a href="${pageContext.request.contextPath}/mainPage"><img src="${pageContext.request.contextPath}/images/logo-with-initial.png" alt="logo" /></a>
+    <h1 id="welcome-message">Welcome ${sessionScope[Constants.AUTHENTICATED_USER_KEY].getUsername()}</h1>
+    <div class="nav-items">
+        <div class="search-box">
+            <button id="user-search-button" class="btn-search"><i class="fa fa-search"></i></button>
+            <label for="user-search"></label>
+            <input id="user-search" type="text" class="input-search" placeholder="Search user...">
+            <div id="user-search-section" class="user-list-section users-results">
+                <div id="user-search-results"></div>
+            </div>
+        </div>
+        <a href="${pageContext.request.contextPath}/mainPage/manga" class="manga">Manga</a>
+        <a href="${pageContext.request.contextPath}/mainPage/anime" class="anime">Anime</a>
+        <div class="logout" onclick="logout('auth')">
+            <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="sign-out-alt" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="logout-icon"><path data-v-04b245e6="" fill="currentColor" d="M497 273L329 441c-15 15-41 4.5-41-17v-96H152c-13.3 0-24-10.7-24-24v-96c0-13.3 10.7-24 24-24h136V88c0-21.4 25.9-32 41-17l168 168c9.3 9.4 9.3 24.6 0 34zM192 436v-40c0-6.6-5.4-12-12-12H96c-17.7 0-32-14.3-32-32V160c0-17.7 14.3-32 32-32h84c6.6 0 12-5.4 12-12V76c0-6.6-5.4-12-12-12H96c-53 0-96 43-96 96v192c0 53 43 96 96 96h84c6.6 0 12-5.4 12-12z" class=""></path></svg>
+            <div class="logout-text">Log Out</div>
+        </div>
+        <a href="${pageContext.request.contextPath}/profile" class="small-pic">
+            <img id="navbar-profile-picture" alt="profile bar" src="${sessionScope[Constants.AUTHENTICATED_USER_KEY].getProfilePicUrl()}">
+        </a>
+    </div>
+</nav>
 
 <div class="all-page">
     <!-- navbar -->
@@ -399,6 +424,7 @@
         $('#user-distribution-type').change(function () {
             const criteria = $('#user-distribution-type').val();
             let chartType = 'bar';
+
             const inputData = {
                 criteria: criteria,
                 action: 'getDistribution'

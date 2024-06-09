@@ -34,8 +34,8 @@
                     <div id="user-search-results"></div>
                 </div>
             </div>
-            <a href="${pageContext.request.contextPath}/mainPage/anime" class="anime">Anime</a>
             <a href="${pageContext.request.contextPath}/mainPage/manga" class="manga">Manga</a>
+            <a href="${pageContext.request.contextPath}/mainPage/anime" class="anime">Anime</a>
             <c:choose>
                 <c:when test="${isLogged}">
                     <div class="logout" onclick="logout('auth')">
@@ -379,6 +379,7 @@
     <script src="${pageContext.request.contextPath}/js/profile.js" defer></script>
     <script src="${pageContext.request.contextPath}/js/country_dropdown.js" defer></script>
     <script src="${pageContext.request.contextPath}/js/navbar.js" defer></script>
+    <script src="${pageContext.request.contextPath}/js/load_default_picture.js" defer></script>
     <script>
         const contextPath = "${pageContext.request.contextPath}";
         const userId = "${userInfo.getId()}";

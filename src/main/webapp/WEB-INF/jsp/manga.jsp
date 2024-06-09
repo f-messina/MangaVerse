@@ -12,48 +12,48 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <html>
 <head>
-    <title>MANGA</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com%22%3E/" crossorigin />
-    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
-    <link
-            href="https://fonts.googleapis.com/css2?family=Fira+Sans+Condensed:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:wght@300;400&display=swap"
-            rel="stylesheet"
-    />
-    <link
-            rel="stylesheet"
-            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-            integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
-            crossorigin="anonymous"
-            referrerpolicy="no-referrer"
-    />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/media_content_test.css">
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <script src="${pageContext.request.contextPath}/js/media_content_test.js" defer></script>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/navbar.css"/>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/website.css"/>
+    <title>MANGA</title>
 </head>
 <body>
-    <div class="nav-bar">
-            <nav>
-                <a href="${pageContext.request.contextPath}/mainPage"><img src="${pageContext.request.contextPath}/images/logo-with-initial.png" alt="logo" /></a>
-                <div class="nav-items">
-                    <a href="${pageContext.request.contextPath}/mainPage/anime" class="anime">Anime</a>
-                    <a href="${pageContext.request.contextPath}/mainPage/manga" class="manga">Manga</a>
-                    <c:choose>
-                        <c:when test="${empty sessionScope[Constants.AUTHENTICATED_USER_KEY]}">
-                            <a href="${pageContext.request.contextPath}/auth">Log In</a>
-                            <a href="${pageContext.request.contextPath}/auth">Sign Up</a>
-                        </c:when>
-                        <c:otherwise>
-                            <form action="${pageContext.request.contextPath}/auth" method="post">
-                                <input type="hidden" name="action" value="logout">
-                                <input type="hidden" name="targetServlet" value="manga?mediaId=${requestScope.manga.id}">
-                                <button type="submit" class="logout">Log Out</button>
-                            </form>
-                            <a href="${pageContext.request.contextPath}/profile" class="small-pic"><img alt="profile bar" src="${pageContext.request.contextPath}/${sessionScope[Constants.AUTHENTICATED_USER_KEY].getProfilePicUrl()}"></a>
-                        </c:otherwise>
-                    </c:choose>
+<c:set var="isLogged" value="${not empty sessionScope[Constants.AUTHENTICATED_USER_KEY]}" /> <!-- check if the user is logged in -->
+<c:set var="isManager" value="${isLogged and sessionScope[Constants.AUTHENTICATED_USER_KEY].getType().equals(UserType.USER)}" />
+
+    <!-- navbar -->
+    <nav class="nav-bar" id="navbar">
+        <div id="logo" class="clickable"><img src="${pageContext.request.contextPath}/images/logo-with-initial.png" alt="logo" /></div>
+        <c:if test="${isLogged}">
+            <h1 id="welcome-message">Welcome ${sessionScope[Constants.AUTHENTICATED_USER_KEY].getUsername()}</h1>
+        </c:if>
+        <div class="nav-items">
+            <div class="search-box">
+                <button id="user-search-button" class="btn-search"><i class="fa fa-search"></i></button>
+                <label for="user-search"></label>
+                <input id="user-search" type="text" class="input-search" placeholder="Search user...">
+                <div id="user-search-section" class="user-list-section users-results">
+                    <div id="user-search-results"></div>
                 </div>
-            </nav>
-    </div>
+            </div>
+            <a href="${pageContext.request.contextPath}/mainPage/manga" class="manga">Manga</a>
+            <a href="${pageContext.request.contextPath}/mainPage/anime" class="anime">Anime</a>
+            <c:choose>
+                <c:when test="${isLogged}">
+                    <div class="logout" onclick="logout('mainPage')">
+                        <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="sign-out-alt" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="logout-icon"><path data-v-04b245e6="" fill="currentColor" d="M497 273L329 441c-15 15-41 4.5-41-17v-96H152c-13.3 0-24-10.7-24-24v-96c0-13.3 10.7-24 24-24h136V88c0-21.4 25.9-32 41-17l168 168c9.3 9.4 9.3 24.6 0 34zM192 436v-40c0-6.6-5.4-12-12-12H96c-17.7 0-32-14.3-32-32V160c0-17.7 14.3-32 32-32h84c6.6 0 12-5.4 12-12V76c0-6.6-5.4-12-12-12H96c-53 0-96 43-96 96v192c0 53 43 96 96 96h84c6.6 0 12-5.4 12-12z" class=""></path></svg>
+                        <div class="logout-text">Log Out</div>
+                    </div>
+                    <a href="${pageContext.request.contextPath}/profile" class="small-pic">
+                        <img id="navbar-profile-picture" alt="profile bar" src="${sessionScope[Constants.AUTHENTICATED_USER_KEY].getProfilePicUrl()}">
+                    </a>
+                </c:when>
+                <c:otherwise>
+                    <a href="${pageContext.request.contextPath}/auth">Log In</a>
+                </c:otherwise>
+            </c:choose>
+        </div>
+    </nav>
 
     <section class="info">
         <div class="mediaContent-info">
@@ -165,13 +165,13 @@
                 </div>
             </form>
         </div>
-<c:if test="${not empty sessionScope[Constants.AUTHENTICATED_USER_KEY]}">
+        <c:if test="${not empty sessionScope[Constants.AUTHENTICATED_USER_KEY]}">
         <button id="like-button" class="like-button <c:if test="${requestScope.isLiked}"> liked </c:if>">
             <svg class="heart" width="24" height="24" viewBox="0 0 24 24">
                 <path d="M12,21.35L10.55,20.03C5.4,15.36 2,12.27 2,8.5C2,5.41 4.42,3 7.5,3C9.24,3 10.91,3.81 12,5.08C13.09,3.81 14.76,3 16.5,3C19.58,3 22,5.41 22,8.5C22,12.27 18.6,15.36 13.45,20.03L12,21.35Z"></path>
             </svg>
         </button>
-</c:if>
+        </c:if>
     </section>
 
     <section id="reviews">
@@ -253,6 +253,8 @@
         </div>
     </section>
 
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" defer></script>
+    <script src="${pageContext.request.contextPath}/js/media_content_test.js" defer></script>
     <script>
         <c:set var="mediaId" value="${requestScope.media.id}"/>
         <c:set var="mediaTitle" value="${requestScope.media.title}"/>

@@ -17,8 +17,8 @@
         <nav>
             <a href="${pageContext.request.contextPath}/mainPage"><img src="${pageContext.request.contextPath}/images/logo-with-initial.png" alt="logo" /></a>
             <div class="nav-items">
-                <a href="${pageContext.request.contextPath}/mainPage/anime" class="anime">Anime</a>
                 <a href="${pageContext.request.contextPath}/mainPage/manga" class="manga">Manga</a>
+                <a href="${pageContext.request.contextPath}/mainPage/anime" class="anime">Anime</a>
             </div>
         </nav>
     </div>
