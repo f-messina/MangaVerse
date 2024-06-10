@@ -314,7 +314,7 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
     }
 
     /**
-     * Refresh the latest review for a Manga object.
+     * Refresh the latest review for a Anime object.
      *
      * @param animeId       The ObjectId of the Anime object to update.
      * @throws DAOException If an error occurs during update.
@@ -384,6 +384,14 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
         }
     }
 
+    /**
+     * Checks if a review is in the latest reviews of an Anime object.
+     *
+     * @param animeId  The ObjectId of the Anime object.
+     * @param reviewId The ObjectId of the Review object.
+     * @return True if the review is in the latest reviews, false otherwise.
+     * @throws DAOException If an error occurs during the search process.
+     */
     @Override
     public boolean isInLatestReviews(String animeId, String reviewId) throws DAOException {
         try {
@@ -398,6 +406,15 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
         }
     }
 
+
+    /**
+     * Updates user-related information (username and profile picture URL) in the "latest_reviews" array
+     * of all anime documents where the user has posted reviews. Ensures consistency of user information
+     * across multiple reviews.
+     *
+     * @param userSummaryDTO An object containing the user's ID, username, and profile picture URL.
+     * @throws DAOException If a database error or any other generic error occurs during the update process.
+     */
     @Override
     public void updateUserRedundancy(UserSummaryDTO userSummaryDTO) throws DAOException {
         try {
@@ -488,6 +505,13 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
         }
     }
 
+    /**
+     * Updates the number of likes for an Anime object in the MongoDB database.
+     *
+     * @param animeId The ObjectId of the Anime object.
+     * @param likes   The new number of likes.
+     * @throws DAOException If an error occurs during the update process.
+     */
     @Override
     public void updateNumOfLikes(String animeId, Integer likes) throws DAOException {
         try{

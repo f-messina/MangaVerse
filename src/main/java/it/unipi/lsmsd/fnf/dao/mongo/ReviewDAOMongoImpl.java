@@ -158,6 +158,13 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
         }
     }
 
+    /**
+     * Updates the media content information in the specified reviews.
+     *
+     * @param mediaContentDTO The MediaContentDTO object containing the updated media information.
+     * @param review_ids The list of review IDs to be updated.
+     * @throws DAOException If an error occurs during the update process.
+     */
     @Override
     //Take review ids in input to update the media content
     public void updateMediaRedundancy(MediaContentDTO mediaContentDTO, List<String> review_ids) throws DAOException {
@@ -192,6 +199,13 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
         }
     }
 
+    /**
+     * Updates the user information in the specified reviews.
+     *
+     * @param userSummaryDTO The UserSummaryDTO object containing the updated user information.
+     * @param reviewIds The list of review IDs to be updated.
+     * @throws DAOException If an error occurs during the update process.
+     */
     @Override
     //Take review ids in input to update the user
     public void updateUserRedundancy(UserSummaryDTO userSummaryDTO, List<String> reviewIds) throws DAOException {

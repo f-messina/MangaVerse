@@ -386,6 +386,14 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
         }
     }
 
+    /**
+     * Checks if a review is in the latest reviews of a Manga object.
+     *
+     * @param mangaId  The ObjectId of the Manga object.
+     * @param reviewId The ObjectId of the Review object.
+     * @return True if the review is in the latest reviews, false otherwise.
+     * @throws DAOException If an error occurs during the search process.
+     */
     @Override
     public boolean isInLatestReviews(String mangaId, String reviewId) throws DAOException {
         try {
@@ -400,6 +408,14 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
         }
     }
 
+    /**
+     * Updates user-related information (username and profile picture URL) in the "latest_reviews" array
+     * of all manga documents where the user has posted reviews. Ensures consistency of user information
+     * across multiple reviews.
+     *
+     * @param userSummaryDTO An object containing the user's ID, username, and profile picture URL.
+     * @throws DAOException If a database error or any other generic error occurs during the update process.
+     */
     @Override
     public void updateUserRedundancy(UserSummaryDTO userSummaryDTO) throws DAOException {
         try {
@@ -439,6 +455,15 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
         }
     }
 
+    /**
+     * Retrieves the best criteria based on the average rating of the Manga objects in the MongoDB database.
+     *
+     * @param criteria The criteria to search for.
+     * @param isArray  A boolean indicating whether the criteria are an array.
+     * @param page     The page number for pagination.
+     * @return A map containing the best criteria and their average rating.
+     * @throws DAOException If an error occurs during the search process.
+     */
     //MongoDB queries
     //Best genres/themes/demographics/authors based on the average rating
     @Override
@@ -487,6 +512,13 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
         }
     }
 
+    /**
+     * Updates the number of likes for a Manga object in the MongoDB database.
+     *
+     * @param mangaId The ObjectId of the Manga object.
+     * @param likes   The new number of likes.
+     * @throws DAOException If an error occurs during the update process.
+     */
     @Override
     public void updateNumOfLikes(String mangaId, Integer likes) throws DAOException {
         try{
