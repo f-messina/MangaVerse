@@ -310,11 +310,14 @@
         <div id="manga-like">
             <c:if test="${isLogged and isLoggedPageOwner}">
                 <div class="suggestions-lists">
-                    <p class="suggestion-title">Suggested Manga By Location</p>
+                    <c:if test="${not empty userInfo.getLocation()}">
+                    <p class="suggestion-title">Other users in your country also like: </p>
                     <div id="manga-suggested-by-location" class="project-boxes jsGridView"></div>
-
-                    <p class="suggestion-title">Suggested Manga By Birthday</p>
+                    </c:if>
+                    <c:if test="${not empty userInfo.getBirthday()}">
+                    <p class="suggestion-title">Other users with the same age also like: </p>
                     <div id="manga-suggested-by-birthday" class="project-boxes jsGridView"></div>
+                    </c:if>
                 </div>
             </c:if>
 
@@ -332,15 +335,18 @@
         </div>
 
         <div id="anime-like">
-            <c:if test="${isLogged and isLoggedPageOwner}">
-                <div class="suggestions-lists">
-                    <p class="suggestion-title">Suggested Anime By Location</p>
-                    <div id="anime-suggested-by-location" class="project-boxes jsGridView"></div>
-
-                    <p class="suggestion-title">Suggested Anime By Birthday</p>
-                    <div id="anime-suggested-by-birthday" class="project-boxes jsGridView"></div>
-                </div>
-            </c:if>
+            <div class="suggestions-lists">
+                <c:if test="${isLogged and isLoggedPageOwner}">
+                    <c:if test="${not empty userInfo.getLocation()}">
+                        <p class="suggestion-title">Other users in your country also like: </p>
+                        <div id="anime-suggested-by-location" class="project-boxes jsGridView"></div>
+                    </c:if>
+                    <c:if test="${not empty userInfo.getBirthday()}">
+                        <p class="suggestion-title">Other users with the same age also like: </p>
+                        <div id="anime-suggested-by-birthday" class="project-boxes jsGridView"></div>
+                    </c:if>
+                </c:if>
+            </div>
 
                 <!--check if the page is the registered user(suggestions only if your are in your profile) check will be done in the js
                 take the css of manga-list -->

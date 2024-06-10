@@ -5,7 +5,6 @@ import it.unipi.lsmsd.fnf.model.Review;
 import it.unipi.lsmsd.fnf.model.enums.AnimeStatus;
 import it.unipi.lsmsd.fnf.model.enums.AnimeType;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -15,9 +14,8 @@ public class Anime extends MediaContent {
     private Integer year;
     private String season;
     private Integer episodeCount;
-    private List<String> tags = new ArrayList<>();
-    private List<String> relatedAnime = new ArrayList<>();
-    private List<Review> reviews = new ArrayList<>();
+    private List<String> tags;
+    private List<String> relatedAnime;
     private String producers;
     private String studios;
     private AnimeType type;
@@ -42,11 +40,6 @@ public class Anime extends MediaContent {
     public List<String> getRelatedAnime() {
         return relatedAnime;
     }
-
-    public List<Review> getReviews() {
-        return reviews;
-    }
-
     public String getProducers() {
         return producers;
     }
@@ -82,11 +75,6 @@ public class Anime extends MediaContent {
     public void setRelatedAnime(List<String> relatedAnime) {
         this.relatedAnime = relatedAnime;
     }
-
-    public void setReviews(List<Review> reviews) {
-        this.reviews = reviews;
-    }
-
     public void setProducers(String producers) {
         this.producers = producers;
     }
@@ -103,27 +91,6 @@ public class Anime extends MediaContent {
         this.status = status;
     }
 
-
-    /**
-     * Adds a review to the list of reviews for this this.
-     * @param review The review to add.
-     */
-    public void addReview(Review review) {
-        this.reviews.add(review);
-    }
-
-    /**
-     * Removes a review from the list of reviews for this this.
-     * @param review The review to remove.
-     */
-    public void removeReview(Review review) {
-        this.reviews.remove(review);
-    }
-
-    /**
-     * Returns a string representation of the Anime object.
-     * @return A string representation of the Anime object.
-     */
     @Override
     public String toString() {
         return "Anime{" +
@@ -133,7 +100,6 @@ public class Anime extends MediaContent {
                 ", episodeCount='" + episodeCount + '\'' +
                 ", tags=" + tags +
                 ", relatedAnime=" + relatedAnime +
-                ", reviews=" + reviews +
                 ", producers='" + producers + '\'' +
                 ", studios='" + studios + '\'' +
                 '}';

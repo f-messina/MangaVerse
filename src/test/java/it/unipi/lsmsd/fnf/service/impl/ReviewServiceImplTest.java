@@ -88,7 +88,7 @@ class ReviewServiceImplTest {
         //reviewService.deleteReview("6660f39aa6c85e0d7c211a87", "65789bb52f5d29465d0abd00", MediaContentType.ANIME);
 
         System.out.println("Anime review deleted");
-        assertDoesNotThrow(() -> reviewService.deleteReview("6661812cfe743958f861d08b", "657ac61bb34f5514b91ea233", MediaContentType.MANGA));
+        assertDoesNotThrow(() -> reviewService.deleteReview("6661812cfe743958f861d08b", "657ac61bb34f5514b91ea233", MediaContentType.MANGA, null));
         System.out.println("Manga review deleted");
         //System.out.println("Review deleted");
     }

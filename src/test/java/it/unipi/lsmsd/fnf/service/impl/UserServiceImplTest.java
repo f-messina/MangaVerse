@@ -19,6 +19,7 @@ import it.unipi.lsmsd.fnf.service.interfaces.TaskManager;
 import it.unipi.lsmsd.fnf.service.interfaces.UserService;
 import it.unipi.lsmsd.fnf.utils.Constants;
 import org.bson.Document;
+import org.bson.conversions.Bson;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -306,7 +307,7 @@ class UserServiceImplTest {
         MongoCollection<Document> usersCollection = BaseMongoDBDAO.getCollection("users");
 
         // Update filter: target documents with "picture" field equal to the old URL
-        Document updateFilter = new Document("picture", "https://imgbox.com/7MaTkBQR");
+        Bson updateFilter = new Document("picture", "https://imgbox.com/7MaTkBQR");
 
         // Find all matching documents
         FindIterable<Document> matchingUsers = usersCollection.find(updateFilter);
@@ -323,5 +324,7 @@ class UserServiceImplTest {
         System.out.println("Profile picture(s) updated successfully for all matching users.");
         Thread.sleep(2*60*1000);
     }
+    // default images: https://imgbox.com/7MaTkBQR, images/account-icon.png
+    // image test: https://thypix.com/wp-content/uploads/2021/10/manga-profile-picture-82.jpg
 
 }

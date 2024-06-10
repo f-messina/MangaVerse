@@ -416,7 +416,6 @@ public class ProfileServlet extends HttpServlet {
                     jsonResponse.put("notFoundError", true);
                 else
                     jsonResponse.put("error", e.getMessage());
-                    jsonResponse.put("error", e.getMessage());
             }
         }
         response.setContentType("application/json");

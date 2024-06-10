@@ -12,7 +12,7 @@ import java.util.Map;
 public interface ReviewService {
     void addReview (ReviewDTO review) throws BusinessException;
     void updateReview(ReviewDTO reviewDTO) throws BusinessException;
-    void deleteReview(String reviewId, String mediaId, MediaContentType mediaContentType) throws BusinessException;
+    void deleteReview(String reviewId, String mediaId, MediaContentType mediaContentType, List<String> reviewIds) throws BusinessException;
     PageDTO<ReviewDTO> findByUser(List<String> reviewIds, Integer page) throws BusinessException;
     PageDTO<ReviewDTO> findByMedia(List<String> reviewIds, MediaContentType type, Integer page) throws BusinessException;
     Map<String, Double> getMediaContentRatingByYear(MediaContentType type, String mediaContentId, int startYear, int endYear) throws BusinessException;

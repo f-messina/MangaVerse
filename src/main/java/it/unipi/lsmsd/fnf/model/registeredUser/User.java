@@ -161,6 +161,6 @@ public class User extends RegisteredUser {
     }
 
     public LoggedUserDTO toLoggedUserDTO() {
-        return new LoggedUserDTO(this.getId(), this.getUsername(), this.getProfilePicUrl(), UserType.USER);
+        return new LoggedUserDTO(this.getId(), this.getUsername(), this.getProfilePicUrl(), this.getLocation(), this.getBirthday(), UserType.USER);
     }
 }

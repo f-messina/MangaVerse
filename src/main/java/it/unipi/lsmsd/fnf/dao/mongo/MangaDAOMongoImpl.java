@@ -426,7 +426,7 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
                 Bson update = combine(updateOperations);
                 UpdateResult result = mangaCollection.updateMany(filter, update, options);
                 if (result.getMatchedCount() != 0 && result.getModifiedCount() == 0) {
-                    throw new MongoException("MangaDAOMongoDBImpl : updateUserRedundancy: Error updating user redundancy");
+                    throw new MongoException("MangaDAOMongoDBImpl : updateUserRedundancy: No user redundancy was updated");
                 }
             } else {
                 throw new Exception("MangaDAOMongoDBImpl : updateUserRedundancy: No updated values were provided");

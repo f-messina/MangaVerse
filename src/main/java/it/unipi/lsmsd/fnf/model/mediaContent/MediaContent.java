@@ -1,6 +1,7 @@
 package it.unipi.lsmsd.fnf.model.mediaContent;
 
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
+import it.unipi.lsmsd.fnf.model.Review;
 
 import java.util.List;
 
@@ -11,8 +12,8 @@ public abstract class MediaContent {
     protected Double averageRating;
     protected String synopsis;
     protected Integer likes;
-    //review_ids
     protected List<String> reviewIds;
+    private List<Review> latestReviews;
 
     public String getId() {
         return id;
@@ -42,6 +43,10 @@ public abstract class MediaContent {
         return reviewIds;
     }
 
+    public List<Review> getLatestReviews() {
+        return latestReviews;
+    }
+
     public void setId(String id) {
         this.id = id;
     }
@@ -68,6 +73,15 @@ public abstract class MediaContent {
     public void setReviewIds(List<String> reviewIds) {
         this.reviewIds = reviewIds;
     }
+    public void setLatestReviews(List<Review> latestReviews) {
+        this.latestReviews = latestReviews;
+    }
+    public void addReview(Review review) {
+        this.latestReviews.add(review);
+    }
+    public void removeReview(Review review) {
+        this.latestReviews.remove(review);
+    }
 
     /**
      * Overrides the default toString method to provide a custom string representation of the MediaContent object.
@@ -82,6 +96,8 @@ public abstract class MediaContent {
                 ", averageRating='" + averageRating + '\'' +
                 ", synopsis='" + synopsis + '\'' +
                 ", likes='" + likes + '\'' +
+                ", reviewIds=" + reviewIds +
+                ", latestReviews=" + latestReviews +
                 '}';
     }
 

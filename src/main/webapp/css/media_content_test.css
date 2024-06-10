@@ -84,6 +84,7 @@
     box-shadow: 0 0 29px rgba(49,54,68,.25);
     margin-top: 15px;
     width: 100%;
+    min-height: 17rem
 }
 
 img {
@@ -269,43 +270,72 @@ h1 {
 
 .review-box {
     display: flex;
-    flex-wrap: wrap;
-    margin: 2rem auto;
-    border-radius: 10px;
-    border: 2px solid #7c69c9;
-    background-color: #f9f9f9;
 
-    > * {
-        padding: 1rem 2rem;
-        margin: 0;
-        width: 100%;
+    .review-picture {
+        margin-right: 2rem;
+
+        img {
+            width: 10rem;
+            height: 10rem;
+            border-radius: 50%;
+        }
     }
 
-    .review-row {
+    .review-info {
         display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background-color: rgb(144, 123, 228);
-        border-radius: 5px 5px 0 0;
+        flex-wrap: wrap;
+        margin: 2rem auto;
+        border-radius: 8px;
+        border: 2px solid rgb(var(--color-blue-600));
+        background-color: rgb(var(--color-foreground));
+        width: 100%;
 
-        .review-media-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            text-decoration: none;
-            overflow: hidden;
-            white-space: nowrap;
-            text-overflow: ellipsis;
-            color: #fff;
-        }
-
-        .review-rating {
+        > * {
+            padding: 1rem 2rem 0 2rem;
             margin: 0;
-            color: #fff;
+            width: 100%;
         }
-    }
 
-    .review-date {
-        text-align: right;
+        .review-row::before {
+            border-color: transparent rgb(var(--color-blue-600)) transparent transparent;
+            border-style: solid;
+            border-width: 6px 9px 6px 0;
+            content: "";
+            display: block;
+            height: 10px;
+            left: 672px;
+            position: absolute;
+            width: 10px;
+        }
+
+        .review-row {
+            display: flex;
+            padding-bottom: 0.5rem;
+            justify-content: space-between;
+            align-items: center;
+            background-color: rgb(var(--color-blue-600));
+            border-radius: 6px 6px 0 0;
+
+            .review-media-title {
+                font-size: 1.5rem;
+                font-weight: 600;
+                text-decoration: none;
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                color: #fff;
+            }
+
+            .review-rating {
+                margin: 0;
+                color: #fff;
+            }
+        }
+
+        .review-date {
+            text-align: right;
+            padding-bottom: 0.5rem;
+        }
     }
 }
 

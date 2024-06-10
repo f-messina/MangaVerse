@@ -197,6 +197,10 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
     //Take review ids in input to update the user
     public void updateUserRedundancy(UserSummaryDTO userSummaryDTO, List<String> reviewIds) throws DAOException {
 
+        if (reviewIds == null || reviewIds.isEmpty()) {
+            return;
+        }
+
         //create user embedded Document
         Document userDoc = new Document();
         appendIfNotNull(userDoc, "user.id", new ObjectId(userSummaryDTO.getId()));
@@ -266,9 +270,6 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
 
             // get the average rating for each media content
             MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
-
-            //TODO: do a for cicle for each media id and inside it take the average of the review inside the
-            // review_ids array of the media content and then update the average rating of that media
 
             for (Map.Entry<String, List<String>> entry : animeReviewIds.entrySet()) {
                 String animeId = entry.getKey();
@@ -815,7 +816,7 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
                     avg("average_rating", "$rating")),
                     sort(descending("average_rating")),
                     project(include("title")),
-                    limit(Constants.PAGE_SIZE)));
+                    limit(20)));
 
             List<Document> result = reviewCollection.aggregate(pipeline).into(new ArrayList<>());
             if (result.isEmpty()) {

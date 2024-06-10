@@ -111,17 +111,15 @@ public class ReviewServiceImpl implements ReviewService {
      * @throws BusinessException If an error occurs during the operation.
      */
     @Override
-    public void deleteReview(String reviewId, String mediaId, MediaContentType mediaContentType) throws BusinessException {
+    public void deleteReview(String reviewId, String mediaId, MediaContentType mediaContentType, List<String> reviewIds) throws BusinessException {
         try {
             reviewDAO.deleteReview(reviewId);
 
-            System.out.println("Review deleted with ID: " + reviewId);
-
             // delete the redundant data in the media content if it is in latest reviews
             if (mediaContentType.equals(MediaContentType.MANGA) && mangaDAO.isInLatestReviews(mediaId, reviewId))
-                mangaDAO.refreshLatestReviews(mediaId, Collections.singletonList(reviewId));
+                mangaDAO.refreshLatestReviews(mediaId, reviewIds);
             else if (animeDAO.isInLatestReviews(mediaId, reviewId))
-                animeDAO.refreshLatestReviews(mediaId, Collections.singletonList(reviewId));
+                animeDAO.refreshLatestReviews(mediaId, reviewIds);
 
         } catch (DAOException e){
             if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {

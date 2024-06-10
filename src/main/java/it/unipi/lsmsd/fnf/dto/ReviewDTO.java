@@ -17,6 +17,12 @@ public class ReviewDTO {
     public ReviewDTO() {
     }
 
+    public ReviewDTO(String reviewId, String comment, Integer rating) {
+        this.id = reviewId;
+        this.comment = comment;
+        this.rating = rating;
+    }
+
     public ReviewDTO(MediaContentDTO mediaContent, UserSummaryDTO user, String comment, Integer rating) {
         this.mediaContent = mediaContent;
         this.user = user;

@@ -74,7 +74,7 @@ public class DocumentUtils {
             doc.append("anime_season", seasonDocument);
         }
 
-        List<Document> reviewsDocuments = Optional.ofNullable(anime.getReviews())
+        List<Document> reviewsDocuments = Optional.ofNullable(anime.getLatestReviews())
                 .orElse(Collections.emptyList())
                 .stream()
                 .map(review -> reviewDTOToNestedDocument(review.toDTO()))
@@ -124,7 +124,7 @@ public class DocumentUtils {
                 .toList();
         appendIfNotNull(doc, "authors", authorsDocument);
 
-        List<Document> reviewsDocuments = Optional.ofNullable(manga.getReviews())
+        List<Document> reviewsDocuments = Optional.ofNullable(manga.getLatestReviews())
                 .orElse(Collections.emptyList())
                 .stream()
                 .map(review -> reviewDTOToNestedDocument(review.toDTO()))
@@ -253,7 +253,7 @@ public class DocumentUtils {
                 .stream()
                 .map(DocumentUtils::nestedDocumentToReview)
                 .toList();
-        anime.setReviews(reviewList);
+        anime.setLatestReviews(reviewList);
 
         anime.setLikes(doc.getInteger("likes"));
 
@@ -270,6 +270,7 @@ public class DocumentUtils {
         reviewer.setProfilePicUrl(userDocument.getString("picture"));
         review.setUser(reviewer);
         review.setId(doc.getObjectId("id").toString());
+        review.setRating(doc.getInteger("rating"));
         review.setComment(doc.getString("comment"));
         review.setDate(ConverterUtils.dateToLocalDateTime(doc.getDate("date")));
         return review;
@@ -378,7 +379,7 @@ public class DocumentUtils {
                 .stream()
                 .map(DocumentUtils::nestedDocumentToReview)
                 .toList();
-        manga.setReviews(reviewList);
+        manga.setLatestReviews(reviewList);
 
         manga.setLikes(document.getInteger("likes"));
 

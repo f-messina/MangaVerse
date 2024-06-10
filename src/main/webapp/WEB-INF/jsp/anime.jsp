@@ -90,15 +90,15 @@
             <div class="main-div container">
                 <div class="sidebar">
                     <div class="data">
-                        <div class="data-set"><div class="type">Format</div> <div  class="value">TV<!----></div></div>
-                        <div class="data-set"><div  class="type">Status</div> <div  class="value">Releasing</div></div>
-                        <div class="data-set"><div  class="type">Season</div> <div class="value">Spring 2024</div></div>
-                        <div class="data-set"><div  class="type">Episodes</div> <div  class="value">54</div></div>
-                        <div class="el-tooltip data-set" aria-describedby="el-tooltip-4537" tabindex="0"><div  class="type">Average Score</div> <div  class="value">80%</div></div>
-                        <div class="data-set"><div  class="type">Likes</div> <div  class="value">2752</div></div>
-                        <div class="data-set"><div  class="type">Studios</div> <div  class="value">ufotable</div></div>
-                        <div class="data-set"><div  class="type">Producers</div> <div  class="value">Aniplex</div></div>
-                        <div class="data-set data-list"><div  class="type">Tags</div> <div  class="value"><span ><a  href="/search/anime/Action" class="">Action</a><br ></span><span ><a  href="/search/anime/Adventure" class="">Adventure</a><br ></span><span ><a  href="/search/anime/Drama" class="">Drama</a><br ></span><span ><a  href="/search/anime/Fantasy" class="">Fantasy</a><br ></span><span ><a  href="/search/anime/Supernatural" class="">Supernatural</a><!----></span></div></div>
+                        <c:if test="${not empty requestScope.media.type}"><div class="data-set"><div class="type">Format</div> <div class="value"><c:out value="${requestScope.media.type}"/></div></div></c:if>
+                        <c:if test="${not empty requestScope.media.status}"><div class="data-set"><div  class="type">Status</div> <div class="value"><c:out value="${requestScope.media.status}"/></div></div></c:if>
+                        <c:if test="${not empty requestScope.media.year}"><div class="data-set"><div class="type">Season</div><div class="value"><c:choose><c:when test="${empty requestScope.media.season}"><c:out value="${requestScope.media.year}" /></c:when><c:otherwise><c:out value="${requestScope.media.season} ${requestScope.media.year}" /></c:otherwise></c:choose></div></div></c:if>
+                        <c:if test="${not empty requestScope.media.episodeCount}"><div class="data-set"><div  class="type">Episodes</div> <div class="value"><c:out value="${requestScope.media.episodeCount}"/></div></div></c:if>
+                        <c:if test="${not empty requestScope.media.averageRating}"><div class="data-set"><div class="type">Average Score</div> <div class="value"><c:out value="${requestScope.media.averageRating}"/></div></div></c:if>
+                        <c:if test="${not empty requestScope.media.likes}"><div class="data-set"><div  class="type">Likes</div> <div class="value"><c:out value="${requestScope.media.likes}"/></div></div></c:if>
+                        <c:if test="${not empty requestScope.media.studios}"><div class="data-set"><div  class="type">Studios</div> <div class="value">Madhouse</div></div></c:if>
+                        <c:if test="${not empty requestScope.media.producers}"><div class="data-set"><div  class="type">Producers</div> <div class="value">Madhouse</div></div></c:if>
+                        <c:if test="${not empty requestScope.media.tags}"><div class="data-set data-list"><div  class="type">Tags</div> <div class="value"><c:forEach var="tag" items="${requestScope.media.tags}"><div class="tag"><c:out value="${tag}"/></div><br ></c:forEach></div></div></c:if>
                     </div>
                     <div class="review-button">
                         <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="edit" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" class="icon svg-inline--fa fa-edit fa-w-18">
@@ -118,15 +118,27 @@
                 </div>
                 <div class="review-boxes">
                 <c:choose>
-                    <c:when test="${not empty requestScope.reviews}">
-                        <c:forEach var="review" items="${requestScope.reviews.getEntries()}">
+                    <c:when test="${not empty requestScope.media.latestReviews}">
+                        <c:forEach var="review" items="${requestScope.media.latestReviews}">
                         <div class="review-box">
-                            <div class="review-row">
-                                <a href="/MangaVerse/profile?userId=${review.user.id}" class="review-media-title">${review.user.username}</a>
-                                <p class="review-rating">${empty review.rating ? 'N/A' : review.rating}</p>
+                            <div class="review-picture">
+                                <c:choose>
+                                    <c:when test="${empty review.user.profilePicUrl}">
+                                        <img src="${pageContext.request.contextPath}/images/account-icon.png" alt="profile image" />
+                                    </c:when>
+                                    <c:otherwise>
+                                        <img src="${review.user.profilePicUrl}" alt="profile image" />
+                                    </c:otherwise>
+                                </c:choose>
                             </div>
-                            <p class="review-comment">${empty review.comment ? 'N/A' : review.comment}</p>
-                            <p class="review-date">${review.date}</p>
+                            <div class="review-info">
+                                <div class="review-row">
+                                    <a href="/MangaVerse/profile?userId=${review.user.id}" class="review-media-title">${review.user.username}</a>
+                                    <p class="review-rating">${empty review.rating ? 'N/A' : review.rating}</p>
+                                </div>
+                                <p class="review-comment">${empty review.comment ? 'N/A' : review.comment}</p>
+                                <p class="review-date">${review.date}</p>
+                            </div>
                         </div>
                     </c:forEach>
                     </c:when>
@@ -137,124 +149,9 @@
                     </c:otherwise>
                 </c:choose>
                 </div>
-                <div id="reviews">
-                    <div class="review-list">
-                        <c:choose>
-                            <c:when test="${not empty requestScope.reviews}">
-                                <c:forEach var="review" items="${requestScope.media.getEntries()}">
-                                    <div class="review">
-                                        <p class="username-review">${review.user.username}</p>
-                                        <div class="inside-review">
-                                            <div>
-                                                <img src="${review.user.profilePicUrl}" alt="profile image" />
-                                            </div>
-                                            <div class="review-text">
-                                                <p>${review.date}</p>
-                                                <p>${review.comment}</p>
-                                                <p>${review.rating}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </c:forEach>
-                            </c:when>
-                            <c:otherwise>
-                                <div class="review">
-                                    <p>No reviews yet</p>
-                                </div>
-                            </c:otherwise>
-                        </c:choose>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
-
-
-    <section class="info">
-        <div class="mediaContent-info">
-            <div class="mediaContent-img">
-                <img alt="profile image" src=${empty requestScope.media.imageUrl ? '${pageContext.request.contextPath}/images/logo-with-name.png' : requestScope.media.imageUrl}>
-            </div>
-            <form id="mediaContent-form" method="post" action="${pageContext.request.contextPath}/anime" autocomplete="off" class="forms">
-                <div id="mediaContent-info" class="two-div">
-                    <div class="texts">
-                        <div class="form-group">
-                            <p class="info-name">Title:</p>
-                            <div class="info-box"><p id="title"><c:out value="${empty requestScope.media.title ? 'N/A' : requestScope.media.title}"/></p></div>
-                        </div>
-                        <div class="form-group">
-                            <p class="info-name">Type:</p>
-                            <div class="info-box"><p id="type"><c:out value="${empty requestScope.media.type ? 'N/A' : requestScope.media.type}"/></p></div>
-                        </div>
-                        <div class="form-group">
-                            <p class="info-name">Episode Count:</p>
-                            <div class="info-box"><p id="episode-count"><c:out value="${empty requestScope.media.episodeCount ? 'N/A' : requestScope.media.episodeCount}"/></p></div>
-                        </div>
-                        <div class="form-group">
-                            <p class="info-name">Publishing Status:</p>
-                            <div class="info-box"><p  id="publishing-status"><c:out value="${empty requestScope.media.status ? 'N/A' : requestScope.media.status}"/></p></div>
-                        </div>
-                        <div class="form-group">
-                            <p class="info-name">Tags:</p>
-                            <c:choose>
-                                <c:when test="${empty requestScope.media.tags}">
-                                    <div class="info-box"><p>N/A</p></div>
-                                </c:when>
-                                <c:otherwise>
-                                    <div class="info-box"><p id="tags">
-                                        <c:forEach var="tag" items="${requestScope.media.tags}">
-                                            <c:out value="${tag}"/>
-                                        </c:forEach>
-                                    </p></div>
-                                </c:otherwise>
-                            </c:choose>
-                        </div>
-                        <div class="form-group">
-                            <p class="info-name">Studios:</p>
-                            <div class="info-box"><p id="studio"><c:out value="${empty requestScope.media.studios ? 'N/A' : requestScope.media.studios}"/></p></div>
-                        </div>
-                        <div class="form-group">
-                            <p class="info-name">Season:</p>
-                            <div class="info-box"><p id="season"><c:out value="${empty requestScope.media.season ? 'N/A' : requestScope.media.season}"/></p></div>
-                        </div>
-                        <div class="form-group">
-                            <p class="info-name">Average Rating:</p>
-                            <div class="info-box"><p id="average-rating"><c:out value="${empty requestScope.media.averageRating ? 'N/A' : requestScope.media.averageRating}"/></p></div>
-                        </div>
-                        <div class="form-group">
-                            <p class="info-name">Year:</p>
-                            <div class="info-box"><p id="year"><c:out value="${empty requestScope.media.year ? 'N/A' : requestScope.media.year}"/></p></div>
-                        </div>
-                    </div>
-                    <div class="texts">
-                        <div class="form-group">
-                            <p class="info-name">Synopsis:</p>
-                            <div class="info-box"><p id="synopsis"><c:out value="${empty requestScope.media.synopsis ? 'N/A' : requestScope.media.synopsis}"/></p></div>
-                        </div>
-                        <div class="form-group">
-                            <p class="info-name">Producers:</p>
-                            <div class="info-box"><p  id="producers"><c:out value="${empty requestScope.media.producers ? 'N/A' : requestScope.media.producers}"/></p></div>
-                        </div>
-                        <div class="form-group">
-                            <p class="info-name">Related Anime:</p>
-                            <c:choose>
-                                <c:when test="${empty requestScope.media.relatedAnime}">
-                                    <div class="info-box"><p>N/A</p></div>
-                                </c:when>
-                                <c:otherwise>
-                                    <div class="info-box"><p id="related-anime">
-                                        <c:forEach var="relatedAnime" items="${requestScope.media.relatedAnime}">
-                                            <c:out value="${relatedAnime}"/>
-                                        </c:forEach>
-                                    </p></div>
-                                </c:otherwise>
-                            </c:choose>
-                        </div>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </section>
 
     <section id="edit-reviews">
         <c:if test="${not empty sessionScope[Constants.AUTHENTICATED_USER_KEY]}">
@@ -313,6 +210,8 @@
         const mediaId = "${requestScope.media.id}";
         const contextPath = "${pageContext.request.contextPath}";
         const mediaType = "anime";
+        const userDefaultImage = "${pageContext.request.contextPath}/${Constants.DEFAULT_PROFILE_PICTURE}";
+
     </script>
 </body>
 </html>
