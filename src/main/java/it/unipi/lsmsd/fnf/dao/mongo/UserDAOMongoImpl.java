@@ -275,6 +275,15 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
         }
     }
 
+    /**
+     * Calculates the distribution of users based on a given search criterion.
+     *
+     * @param criteriaOfSearch The criterion on which to base the distribution.
+     *                         Can be "gender", "location", "birthday", or "joined_on".
+     * @return A map where each key represents a unique value of the specified criterion,
+     *         and the corresponding value is the count of users having that value.
+     * @throws DAOException If there's an issue with the database or a generic error occurs.
+     */
     @Override
     public Map<String, Integer> getDistribution (String criteriaOfSearch) throws DAOException {
         try {
@@ -320,6 +329,15 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
         }
     }
 
+    /**
+     * Calculates the average application rating based on the specified search criteria.
+     *
+     * @param criteriaOfSearch The criteria on which to base the calculation.
+     *                         Typically, this can be fields like "gender", "location", "birthday", "joined_on", etc.
+     * @return A map where each key represents a unique value of the specified criterion,
+     *         and the corresponding value is the average application rating associated with that criterion.
+     * @throws DAOException If there's an issue with the database or a generic error occurs.
+     */
     @Override
     public Map<String, Double> averageAppRating(String criteriaOfSearch) throws DAOException {
         try {
@@ -350,6 +368,15 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
         }
     }
 
+    /**
+     * Calculates the average app rating for users grouped by age ranges.
+     * The method filters users based on the existence of "birthday" and "app_rating" fields,
+     * calculates the age of each user, groups users into age ranges, and calculates
+     * the average app rating within each age range.
+     *
+     * @return A map containing the average app rating for each age range.
+     * @throws DAOException If an error occurs during database operations.
+     */
     @Override
     public Map<String, Double> averageAppRatingByAgeRange() throws DAOException {
         try {
@@ -398,6 +425,17 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
         }
     }
 
+    /**
+     * Updates the number of followers for a user with the specified user ID.
+     * If the user is not found or the number of followers is not updated,
+     * appropriate exceptions are thrown.
+     *
+     * @param userId    The ID of the user whose number of followers to update.
+     * @param followers The new number of followers to set for the user.
+     * @throws DAOException If an error occurs during database operations,
+     *                      such as if the user is not found or the number
+     *                      of followers is not updated.
+     */
     @Override
     public void updateNumOfFollowers(String userId, Integer followers) throws DAOException {
         try {
@@ -422,6 +460,17 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
         }
     }
 
+    /**
+     * Updates the number of users followed by a user with the specified user ID.
+     * If the user is not found or the number of followed users is not updated,
+     * appropriate exceptions are thrown.
+     *
+     * @param userId   The ID of the user whose number of followed users to update.
+     * @param followed The new number of followed users to set for the user.
+     * @throws DAOException If an error occurs during database operations,
+     *                      such as if the user is not found or the number
+     *                      of followed users is not updated.
+     */
     @Override
     public void updateNumOfFollowed(String userId, Integer followed) throws DAOException {
         try {
@@ -446,6 +495,14 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
         }
     }
 
+
+    /**
+     * Updates the app rating for a user identified by their user ID.
+     *
+     * @param userId The ID of the user whose app rating is to be updated.
+     * @param rating The new app rating to be set for the user.
+     * @throws DAOException If an error occurs while updating the app rating.
+     */
     @Override
     public void rateApp(String userId, Integer rating) throws DAOException {
         try {
@@ -469,6 +526,12 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
         }
     }
 
+    /**
+     * Converts an age represented as a Long value to an age range string.
+     *
+     * @param age The age value to be converted to an age range.
+     * @return The corresponding age range string.
+     */
     private String convertIntegerToAgeRange(Long age) {
         if (age == null || age < 0) {
             return "Unknown";

@@ -379,6 +379,23 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
         }
     }
 
+    /**
+     * Refreshes the latest reviews for anime and manga collections when a user is deleted.
+     * This method performs the following steps:
+     * 1. Removes the entire `latest_reviews` array from anime and manga documents where
+     *    the array contains exactly one review and that review belongs to the deleted user.
+     * 2. Removes the deleted user's reviews from `latest_reviews` arrays that contain fewer
+     *    than 5 reviews.
+     * 3. Identifies the IDs of anime and manga documents that still have reviews from the
+     *    deleted user after the previous steps.
+     * 4. Aggregates the latest reviews for these identified anime and manga, ensuring that
+     *    only the top 5 latest reviews are retained.
+     * 5. Updates the `latest_reviews` field in the anime and manga collections with the
+     *    aggregated latest reviews.
+     *
+     * @param userId The ID of the user being deleted.
+     * @throws DAOException if a database error or any other error occurs during the operation.
+     */
     @Override
     public void refreshLatestReviewsOnUserDeletion(String userId) throws DAOException {
         try {
@@ -501,6 +518,15 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
         }
     }
 
+    /**
+     * Deletes all reviews associated with a specific anime or manga media.
+     * This method performs the following steps:
+     * 1. Constructs a filter to match reviews where the `anime.id` or `manga.id` matches the provided `mediaId`.
+     * 2. Deletes all reviews that match the filter criteria from the reviews collection.
+     *
+     * @param mediaId The ID of the anime or manga media whose reviews are to be deleted.
+     * @throws DAOException if a database error or any other error occurs during the operation.
+     */
     @Override
     public void deleteReviewsByMedia(String mediaId) throws DAOException {
         try {
@@ -547,6 +573,15 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
         }
     }
 
+    /**
+     * Deletes all reviews authored by a specific user.
+     * This method performs the following steps:
+     * 1. Constructs a filter to match reviews where the `user.id` matches the provided `userId`.
+     * 2. Deletes all reviews that match the filter criteria from the reviews collection.
+     *
+     * @param userId The ID of the user whose reviews are to be deleted.
+     * @throws DAOException if a database error or any other error occurs during the operation.
+     */
     @Override
     public void deleteReviewsByAuthor(String userId) throws DAOException {
         try {
@@ -568,6 +603,29 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
 
     //When we get review by user or by media, put in input not the user id or media content id, but the list of id(review_ids)
 
+    /**
+     * Retrieves reviews based on their IDs and paginates the results.
+     * This method performs the following steps:
+     * 1. Converts the given list of review IDs to a list of ObjectId.
+     * 2. Retrieves the Reviews collection.
+     * 3. Constructs a filter to match reviews by their ObjectId.
+     * 4. Optionally excludes the "user" field from the retrieved documents.
+     * 5. If pagination is not requested (page is null):
+     *    - Retrieves all matching reviews.
+     *    - Sorts them by date in descending order.
+     *    - Maps each document to a ReviewDTO.
+     *    - Returns the result as a PageDTO with total count equal to the result size.
+     * 6. If pagination is requested:
+     *    - Calculates the offset based on the page number and page size.
+     *    - Retrieves a page of reviews based on the offset and page size.
+     *    - Retrieves the total count of matching reviews.
+     *    - Returns the page of results as a PageDTO with total count.
+     *
+     * @param reviewIds The list of review IDs to retrieve.
+     * @param page      The page number for pagination (optional).
+     * @return A PageDTO containing the retrieved ReviewDTOs and total count.
+     * @throws DAOException if a database error or any other error occurs during the operation.
+     */
     @Override
     //id reviews in input
     public PageDTO<ReviewDTO> getReviewByUser(List<String> reviewIds, Integer page) throws DAOException {
@@ -681,6 +739,28 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
         }
     }
 
+
+    /**
+     * Retrieves the average ratings for a specific media content (anime or manga) by year within a specified range.
+     * The method performs the following steps:
+     * 1. Converts the `startYear` and `endYear` to `Date` objects.
+     * 2. Constructs an aggregation pipeline to:
+     *    - Filter reviews for the specified media content ID and date range, ensuring the reviews have a rating.
+     *    - Group the reviews by year and calculate the average rating for each year.
+     *    - Project the results to include the year and the calculated average rating.
+     *    - Sort the results by year in ascending order.
+     * 3. Executes the aggregation pipeline and collects the results.
+     * 4. Initializes a result map with years from `startYear` to `endYear` and default values of `null`.
+     * 5. Populates the result map with the average ratings from the aggregation results.
+     * 6. Returns the result map.
+     *
+     * @param type The type of media content, either `ANIME` or `MANGA`.
+     * @param mediaContentId The ID of the specific media content.
+     * @param startYear The starting year of the range.
+     * @param endYear The ending year of the range.
+     * @return A map with years as keys and the corresponding average ratings as values.
+     * @throws DAOException if a database error or any other error occurs during the operation.
+     */
     //Find the trend of an anime or manga by year, giving in input the media content id
     //It returns the average rating of the anime or manga for each year
     @Override
@@ -730,6 +810,27 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
         }
     }
 
+
+    /**
+     * Retrieves the average ratings for a specific media content (anime or manga) by month for a specified year.
+     * The method performs the following steps:
+     * 1. Converts the `year` to a start date (`January 1st`) and an end date (`January 1st` of the following year).
+     * 2. Constructs an aggregation pipeline to:
+     *    - Filter reviews for the specified media content ID and date range, ensuring the reviews have a rating.
+     *    - Group the reviews by month and calculate the average rating for each month.
+     *    - Project the results to include the month and the calculated average rating.
+     *    - Sort the results by month in ascending order.
+     * 3. Executes the aggregation pipeline and collects the results.
+     * 4. Initializes a result map with months (full names) as keys and default values of `null`.
+     * 5. Populates the result map with the average ratings from the aggregation results, converting integer ratings to double if necessary.
+     * 6. Returns the result map.
+     *
+     * @param type The type of media content, either `ANIME` or `MANGA`.
+     * @param mediaContentId The ID of the specific media content.
+     * @param year The year for which the ratings are to be retrieved.
+     * @return A map with month names as keys and the corresponding average ratings as values.
+     * @throws DAOException if a database error or any other error occurs during the operation.
+     */
     //This function returns the average rating of media content by month when giving in input a certain year and the media content id
     @Override
     public Map<String, Double> getMediaContentRatingByMonth(MediaContentType type, String mediaContentId, int year) throws DAOException {
@@ -788,6 +889,18 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
     }
 
 
+    /**
+     * Suggests media content (anime or manga) based on user criteria (location or birthday year).
+     * This method fetches reviews from the database, filters them according to the criteria,
+     * groups by media content ID, calculates the average rating, sorts by rating,
+     * and returns a paginated list of suggestions.
+     *
+     * @param mediaContentType The type of media content (ANIME or MANGA).
+     * @param criteriaType The type of criteria to filter by ("location" or "birthday").
+     * @param criteriaValue The value of the criteria (location as a string or birth year as a string).
+     * @return A PageDTO containing a list of suggested media content and the total count.
+     * @throws DAOException If there is an error accessing the database or if the criteria type is invalid.
+     */
     //For users: suggestions based on birthday year and location. For example: show the 25 anime or manga with the highest average ratings in Italy.
     //criteriaType is either birthday (more specifically it's the birthday year) or location
     //criteriaValue is the value of the criteriaType
