@@ -146,7 +146,7 @@ public class DocumentUtils {
         Document reviewDocument = new Document();
         appendIfNotNull(reviewDocument, "id", new ObjectId(reviewDTO.getId()));
         appendIfNotNull(reviewDocument, "comment", reviewDTO.getComment());
-        appendIfNotNull(reviewDocument, "date", ConverterUtils.localDateTimeToDate(reviewDTO.getDate()));
+        appendIfNotNull(reviewDocument, "date", ConverterUtils.localDateTimeToDate(reviewDTO.getDate() != null ? reviewDTO.getDate() : LocalDateTime.now()));
         appendIfNotNull(reviewDocument, "rating", reviewDTO.getRating());
         Document userDocument = new Document();
         appendIfNotNull(userDocument, "id", new ObjectId(reviewDTO.getUser().getId()));
@@ -171,7 +171,7 @@ public class DocumentUtils {
         appendIfNotNull(userDocument, "location", reviewDTO.getUser().getLocation());
         appendIfNotNull(userDocument, "birthday", ConverterUtils.localDateToDate(reviewDTO.getUser().getBirthDate()));
         appendIfNotNull(reviewDocument, "user", userDocument);
-        appendIfNotNull(reviewDocument, "date", ConverterUtils.localDateTimeToDate(reviewDTO.getDate()));
+        appendIfNotNull(reviewDocument, "date", ConverterUtils.localDateTimeToDate(LocalDateTime.now()));
         appendIfNotNull(reviewDocument, "comment", reviewDTO.getComment());
         appendIfNotNull(reviewDocument, "rating", reviewDTO.getRating());
         boolean isAnime = reviewDTO.getMediaContent() instanceof AnimeDTO;

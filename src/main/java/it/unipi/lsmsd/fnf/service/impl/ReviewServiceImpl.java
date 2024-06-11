@@ -5,6 +5,7 @@ import it.unipi.lsmsd.fnf.dao.exception.enums.DAOExceptionType;
 import it.unipi.lsmsd.fnf.dao.interfaces.MediaContentDAO;
 import it.unipi.lsmsd.fnf.dao.interfaces.ReviewDAO;
 import it.unipi.lsmsd.fnf.dao.enums.DataRepositoryEnum;
+import it.unipi.lsmsd.fnf.dto.LoggedUserDTO;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
@@ -18,9 +19,10 @@ import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 
 import it.unipi.lsmsd.fnf.service.exception.enums.BusinessExceptionType;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
 
 import java.time.LocalDate;
-import java.util.Collections;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -55,7 +57,6 @@ public class ReviewServiceImpl implements ReviewService {
         }
         try{
             reviewDAO.saveReview(review);
-            System.out.println("Review added");
 
             // add the redundant data to the media content
             if (review.getMediaContent() instanceof MangaDTO){
@@ -90,6 +91,7 @@ public class ReviewServiceImpl implements ReviewService {
         }
         try {
             reviewDAO.updateReview(reviewDTO.getId(), reviewDTO.getComment(), reviewDTO.getRating());
+            reviewDTO.setDate(LocalDateTime.now());
 
             // update the redundant data in the media content
             if (reviewDTO.getMediaContent() instanceof MangaDTO)
@@ -107,18 +109,23 @@ public class ReviewServiceImpl implements ReviewService {
 
     /**
      * Deletes a review from the data repository.
+     *
      * @param reviewId The ID of the review to be deleted.
+     * @param mediaId The ID of the media content the review is associated with.
+     * @param mediaContentType The type of the media content the review is associated with.
+     * @param reviewIds The IDs of the reviews associated with the media content.
+     * @param isInLatestReviews A flag indicating whether the review is in the latest reviews.
      * @throws BusinessException If an error occurs during the operation.
      */
     @Override
-    public void deleteReview(String reviewId, String mediaId, MediaContentType mediaContentType, List<String> reviewIds) throws BusinessException {
+    public void deleteReview(String reviewId, String mediaId, MediaContentType mediaContentType, List<String> reviewIds, boolean isInLatestReviews) throws BusinessException {
         try {
             reviewDAO.deleteReview(reviewId);
 
             // delete the redundant data in the media content if it is in latest reviews
-            if (mediaContentType.equals(MediaContentType.MANGA) && mangaDAO.isInLatestReviews(mediaId, reviewId))
+            if (mediaContentType.equals(MediaContentType.MANGA) && isInLatestReviews)
                 mangaDAO.refreshLatestReviews(mediaId, reviewIds);
-            else if (animeDAO.isInLatestReviews(mediaId, reviewId))
+            else if (isInLatestReviews)
                 animeDAO.refreshLatestReviews(mediaId, reviewIds);
 
         } catch (DAOException e){
@@ -137,9 +144,9 @@ public class ReviewServiceImpl implements ReviewService {
      * @throws BusinessException If an error occurs during the operation.
      */
     @Override
-    public PageDTO<ReviewDTO> findByUser(List<String> reviewIds, Integer page) throws BusinessException {
+    public PageDTO<ReviewDTO> getReviewsByIdsList(List<String> reviewIds, Integer page, String docExcluded) throws BusinessException {
         try {
-         return reviewDAO.getReviewByUser(reviewIds, page);
+         return reviewDAO.getReviewByIdsList(reviewIds, page, docExcluded);
 
         } catch (DAOException e){
             if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {
@@ -149,21 +156,14 @@ public class ReviewServiceImpl implements ReviewService {
         }
     }
 
-    /**
-     * Finds all reviews associated with a particular media content.
-     * @param reviewIds The IDs of the reviews associated with the media content.
-     * @return A list of reviews associated with the media content.
-     * @throws BusinessException If an error occurs during the operation.
-     */
     @Override
-    public PageDTO<ReviewDTO> findByMedia(List<String> reviewIds, MediaContentType type, Integer page) throws BusinessException {
-        try{
-            return reviewDAO.getReviewByMedia(reviewIds, type, page);
-
-        } catch (DAOException e){
-            if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {
-                throw new BusinessException(BusinessExceptionType.NOT_FOUND, e.getMessage());
-            }
+    public ReviewDTO isReviewedByLoggedUser(String userId, List<String> reviewIds) throws BusinessException {
+        try {
+            Logger logger = org.slf4j.LoggerFactory.getLogger(LoggedUserDTO.class);
+            logger.info("Checking if the user has already reviewed the media content in service layer");
+            logger.info("User ID: " + userId + " Review IDs: " + reviewIds);
+            return reviewDAO.isReviewedByUser(userId, reviewIds);
+        } catch (DAOException e) {
             throw new BusinessException(BusinessExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
@@ -197,7 +197,7 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public PageDTO<MediaContentDTO> suggestMediaContent(MediaContentType mediaContentType, String criteria, String type) throws BusinessException {
+    public List<MediaContentDTO> suggestMediaContent(MediaContentType mediaContentType, String criteria, String type) throws BusinessException {
         try {
             return reviewDAO.suggestMediaContent(mediaContentType, criteria, type);
 

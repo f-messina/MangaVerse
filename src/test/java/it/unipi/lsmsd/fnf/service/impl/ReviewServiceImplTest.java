@@ -1,6 +1,5 @@
 package it.unipi.lsmsd.fnf.service.impl;
 
-import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dao.mongo.BaseMongoDBDAO;
 import it.unipi.lsmsd.fnf.dao.neo4j.BaseNeo4JDAO;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
@@ -88,7 +87,7 @@ class ReviewServiceImplTest {
         //reviewService.deleteReview("6660f39aa6c85e0d7c211a87", "65789bb52f5d29465d0abd00", MediaContentType.ANIME);
 
         System.out.println("Anime review deleted");
-        assertDoesNotThrow(() -> reviewService.deleteReview("6661812cfe743958f861d08b", "657ac61bb34f5514b91ea233", MediaContentType.MANGA, null));
+        assertDoesNotThrow(() -> reviewService.deleteReview("6661812cfe743958f861d08b", "657ac61bb34f5514b91ea233", MediaContentType.MANGA, null, false));
         System.out.println("Manga review deleted");
         //System.out.println("Review deleted");
     }
@@ -143,7 +142,7 @@ class ReviewServiceImplTest {
                 "657f8623bf2fc2829aa72986",
                 "657f8625bf2fc2829aa73dc7",
                 "657f862cbf2fc2829aa7bd33");
-        reviewService.findByUser(review_ids, 1);
+        reviewService.getReviewsByIdsList(review_ids, 1, "user");
 
     }
 
@@ -160,7 +159,7 @@ class ReviewServiceImplTest {
                 "6661838400d2e33cdcb3a76d",
                 "666188df2dd2d41031129197",
                 "66618e521c38e86b6dc78d88");
-        reviewService.findByMedia(review_ids, MediaContentType.ANIME, 1);
+        reviewService.getReviewsByIdsList(review_ids, 1, "media");
     }
 
     @Test

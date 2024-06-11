@@ -8,6 +8,7 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import it.unipi.lsmsd.fnf.controller.exception.NotAuthorizedException;
 import it.unipi.lsmsd.fnf.dto.LoggedUserDTO;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
@@ -15,6 +16,7 @@ import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
+import it.unipi.lsmsd.fnf.model.Review;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.model.enums.UserType;
 import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
@@ -26,7 +28,6 @@ import it.unipi.lsmsd.fnf.service.exception.enums.BusinessExceptionType;
 import it.unipi.lsmsd.fnf.service.interfaces.MediaContentService;
 import it.unipi.lsmsd.fnf.service.interfaces.ReviewService;
 import it.unipi.lsmsd.fnf.service.interfaces.UserService;
-import it.unipi.lsmsd.fnf.utils.ConverterUtils;
 import it.unipi.lsmsd.fnf.utils.SecurityUtils;
 
 import jakarta.servlet.ServletException;
@@ -36,7 +37,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
-import org.eclipse.tags.shaded.org.apache.xpath.operations.Bool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,10 +44,9 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 @WebServlet(urlPatterns = {"/manga", "/anime"})
 public class MediaContentServlet extends HttpServlet {
@@ -72,6 +71,7 @@ public class MediaContentServlet extends HttpServlet {
         switch (action) {
             case "toggleLike" -> handleToggleLike(request, response);
             case "getMediaContent" -> handleGetMediaContentById(request,response);
+            case "getReviews" -> handleGetReviews(request, response);
             case "searchByTitle" -> handleSearchByTitle(request,response);
             case "addReview" -> handleAddReview(request, response);
             case "updateReview" -> handleUpdateReview(request, response);
@@ -94,12 +94,29 @@ public class MediaContentServlet extends HttpServlet {
             if (mediaContent == null) {
                 request.setAttribute("error", "Media not found");
                 targetJSP = "error.jsp";
-                request.getRequestDispatcher(targetJSP).forward(request, response);
-            }
+            } else {
+                request.setAttribute("mediaType", mediaType);
+                request.setAttribute("media", mediaContent);
+                if (SecurityUtils.getAuthenticatedUser(request) != null && SecurityUtils.getAuthenticatedUser(request).getType().equals(UserType.USER)) {
+                    String userId = SecurityUtils.getAuthenticatedUser(request).getId();
+                    request.setAttribute("isLiked", mediaContentService.isLiked(userId, mediaId, mediaType));
+                    if (mediaContent.getReviewIds() != null && !mediaContent.getReviewIds().isEmpty()) {
+                        List<Review> latestReviews = mediaContent.getLatestReviews();
+                        boolean found = false;
+                        for (Review review : latestReviews) {
+                            if (review.getUser().getId().equals(userId)) {
+                                request.setAttribute("userReview", review);
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) {
+                            logger.info("finding user review");
+                            request.setAttribute("userReview", reviewService.isReviewedByLoggedUser(userId, mediaContent.getReviewIds()));
+                        }
+                    }
 
-            request.setAttribute("media", mediaContent);
-            if (SecurityUtils.getAuthenticatedUser(request) != null) {
-                request.setAttribute("isLiked", mediaContentService.isLiked(SecurityUtils.getAuthenticatedUser(request).getId(), mediaId, mediaType));
+                }
             }
         } catch (Exception e) {
             logger.error("Error while processing request", e);
@@ -141,8 +158,8 @@ public class MediaContentServlet extends HttpServlet {
 
         JavaTimeModule javaTimeModule = new JavaTimeModule();
 
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT);
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM);
 
         // Register the formatters for serialization
         javaTimeModule.addSerializer(LocalDate.class, new LocalDateSerializer(dateFormatter));
@@ -193,8 +210,8 @@ public class MediaContentServlet extends HttpServlet {
     private void handleSearchByTitle(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         JavaTimeModule javaTimeModule = new JavaTimeModule();
 
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT);
+        DateTimeFormatter dateTimeFormatter =  DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM);
 
         // Register the formatters for serialization
         javaTimeModule.addSerializer(LocalDate.class, new LocalDateSerializer(dateFormatter));
@@ -235,11 +252,60 @@ public class MediaContentServlet extends HttpServlet {
         response.getWriter().write(jsonResponse.toString());
     }
 
+    private void handleGetReviews(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        JavaTimeModule javaTimeModule = new JavaTimeModule();
+
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT);
+        DateTimeFormatter dateTimeFormatter =  DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM);
+
+        // Register the formatters for serialization
+        javaTimeModule.addSerializer(LocalDate.class, new LocalDateSerializer(dateFormatter));
+        javaTimeModule.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer(dateTimeFormatter));
+        // Register the formatters for deserialization
+        javaTimeModule.addDeserializer(LocalDate.class, new LocalDateDeserializer(dateFormatter));
+        javaTimeModule.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(dateTimeFormatter));
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode jsonResponse = objectMapper.createObjectNode();
+
+        objectMapper.registerModule(javaTimeModule);
+
+        try {
+            List<String> reviewIds = Arrays.stream(objectMapper.readValue(request.getParameter("reviewIds"), String[].class)).toList();
+            String pageString = request.getParameter("page");
+            int page = 0;
+            if (pageString != null) {
+                page = Integer.parseInt(pageString);
+            }
+
+            PageDTO<ReviewDTO> reviews = reviewService.getReviewsByIdsList(reviewIds, page, "media");
+
+            // Convert the page to a JSON Object
+            if (reviews == null || reviews.getTotalCount() == 0) {
+                jsonResponse.put("notFoundError", true);
+            } else {
+                JsonNode reviewsJsonObject  = objectMapper.valueToTree(reviews);
+
+                // Add the JSON array to the response
+                jsonResponse.set("reviews", reviewsJsonObject);
+                jsonResponse.put("success", true);
+            }
+
+        } catch (BusinessException e) {
+            jsonResponse.put("error", e.getMessage());
+        }
+
+        // Write the JSON response
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(jsonResponse.toString());
+    }
+
     private void handleAddReview(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         JavaTimeModule javaTimeModule = new JavaTimeModule();
 
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT);
+        DateTimeFormatter dateTimeFormatter =  DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM);
 
         // Register the formatters for serialization
         javaTimeModule.addSerializer(LocalDate.class, new LocalDateSerializer(dateFormatter));
@@ -283,7 +349,7 @@ public class MediaContentServlet extends HttpServlet {
         response.getWriter().write(jsonResponse.toString());
     }
 
-    private void handleUpdateReview(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    private void handleUpdateReview(HttpServletRequest request, HttpServletResponse response) throws IOException {
         JavaTimeModule javaTimeModule = new JavaTimeModule();
 
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -302,14 +368,20 @@ public class MediaContentServlet extends HttpServlet {
         objectMapper.registerModule(javaTimeModule);
 
         String reviewId = request.getParameter("reviewId");
+        String mediaType = request.getParameter("mediaType");
+        String mediaId = request.getParameter("mediaId");
+        String mediaTitle = request.getParameter("mediaTitle");
         String comment = request.getParameter("comment");
         Integer rating = request.getParameter("rating") != null ? Integer.parseInt(request.getParameter("rating")) : null;
+        LoggedUserDTO loggedUser = SecurityUtils.getAuthenticatedUser(request);
 
         if (StringUtils.isBlank(reviewId) || (StringUtils.isBlank(comment) && (rating == null || rating < 1 || rating > 10))) {
             jsonResponse.put("error", "Invalid request parameters");
         } else {
             try {
-                reviewService.updateReview(new ReviewDTO(reviewId, comment, rating));
+                MediaContentDTO mediaContentDTO = mediaType.equals("anime") ? new AnimeDTO(mediaId, mediaTitle) : new MangaDTO(mediaId, mediaTitle);
+                ReviewDTO reviewDTO = new ReviewDTO(reviewId, null, comment, rating, mediaContentDTO, loggedUser.toUserModel().toSummaryDTO());
+                reviewService.updateReview(reviewDTO);
                 jsonResponse.put("success", true);
                 jsonResponse.put("date", LocalDateTime.now().format(dateTimeFormatter));
             } catch (BusinessException e) {
@@ -333,11 +405,12 @@ public class MediaContentServlet extends HttpServlet {
 
         String reviewId = request.getParameter("reviewId");
         String mediaId = request.getParameter("mediaId");
-        MediaContentType mediaType = MediaContentType.valueOf(request.getParameter("mediaType"));
-        List<String> reviewIds = Arrays.stream(objectMapper.readValue(request.getParameter("reviewIds"), String[].class)).toList();
+        MediaContentType mediaType = request.getParameter("mediaType").equals("anime") ? MediaContentType.ANIME : MediaContentType.MANGA;
+        List<String> reviewsIds = Arrays.stream(objectMapper.readValue(request.getParameter("reviewsIds"), String[].class)).toList();
+        List<String> latestReviewIds = Arrays.stream(objectMapper.readValue(request.getParameter("latestReviewsIds"), String[].class)).toList();
 
         try {
-            reviewService.deleteReview(reviewId, mediaId, mediaType, reviewIds);
+            reviewService.deleteReview(reviewId, mediaId, mediaType, reviewsIds, latestReviewIds.contains(reviewId));
             jsonResponse.put("success", true);
         } catch (BusinessException e) {
             jsonResponse.put("error", "Error occurred during review deletion");

@@ -22,9 +22,10 @@ public interface ReviewDAO {
     void deleteReviewsByMedia(String mediaId) throws DAOException;
     void deleteReviewsWithNoAuthor() throws DAOException;
     void deleteReviewsByAuthor(String userId) throws DAOException;
-    PageDTO<ReviewDTO> getReviewByUser(List<String> reviewIds, Integer page) throws DAOException;
-    PageDTO<ReviewDTO> getReviewByMedia(List<String> reviewIds, MediaContentType type, Integer page) throws DAOException;
+    PageDTO<ReviewDTO> getReviewByIdsList(List<String> reviewIds, Integer page, String docExcluded) throws DAOException;
+    ReviewDTO isReviewedByUser(String userId, List<String> reviewIds) throws DAOException;
     Map<String, Double> getMediaContentRatingByYear(MediaContentType type, String mediaContentId, int startYear, int endYear) throws  DAOException; // MANAGER (CHART)
     Map<String, Double> getMediaContentRatingByMonth (MediaContentType type, String mediaContentId, int year) throws DAOException; // MANAGER (CHART)
-    PageDTO<MediaContentDTO> suggestMediaContent(MediaContentType mediaContentType, String criteria, String type) throws DAOException;
+    List<MediaContentDTO> suggestMediaContent(MediaContentType mediaContentType, String criteria, String type) throws DAOException;
+
 }

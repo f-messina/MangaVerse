@@ -27,7 +27,7 @@
 <body>
     <!-- JSP variables -->
     <c:set var="isLogged" value="${not empty sessionScope[Constants.AUTHENTICATED_USER_KEY]}" /> <!-- check if the user is logged in -->
-    <c:set var="isManager" value="${isLogged and sessionScope[Constants.AUTHENTICATED_USER_KEY].getType().equals(UserType.USER)}" />
+    <c:set var="isManager" value="${isLogged and not sessionScope[Constants.AUTHENTICATED_USER_KEY].getType().equals(UserType.USER)}" />
     <c:set var="currentYear" value="<%= now().getYear() %>" />
 
 
@@ -112,7 +112,7 @@
                     <div class="results extended" style="display: none"></div>
                 </div>
 
-                <c:if test="${isLogged and isManager}">
+                <c:if test="${isLogged and !isManager}">
                 <!-- suggestions by likes -->
                 <div class="landing-section">
                     <div class="title link">
@@ -471,8 +471,7 @@
             <div id="results" class="results"></div>
 
             <div class="container-pagination">
-                <ul class="page pagination">
-                </ul>
+                <ul class="page pagination"></ul>
             </div>
         </div>
     </section>

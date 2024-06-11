@@ -305,7 +305,7 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
                     .map(record -> (MangaDTO) recordToMediaContentDTO(record))
                     .collect(Collectors.toList());
 
-            return new PageDTO<>(likedMangas, totalLikes);
+            return new PageDTO<>(likedMangas, totalLikes, null);
 
         } catch (Neo4jException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());

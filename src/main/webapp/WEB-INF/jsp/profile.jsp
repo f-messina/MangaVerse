@@ -98,7 +98,7 @@
                             </span> following
                         </li>
                         <c:if test="${isLogged and isLoggedPageOwner}">
-                        <li id="show-suggested-users" class="user-suggestions">
+                        <li id="show-suggested-users" class="user-suggestions-button">
                             user suggestions
                         </li>
                         </c:if>
@@ -257,11 +257,15 @@
 
         <!-- suggested users -->
         <div id="suggested-users" class="myAlert user-list-section">
-            <div id="suggestedUsersBody" class="myAlertBody">
-                <p class="user-list-name">Suggested Users By Likes</p>
-                <div id="suggested-by-likes-list"></div>
-                <p class="user-list-name">Suggested Users By Followings</p>
-                <div id="suggested-by-followings-list"></div>
+            <div id="suggestedUsersBody" class="myAlertBody double-list">
+                <div class="user-suggestions">
+                    <p class="user-list-name">Users with similar tastes</p>
+                    <div id="suggested-by-likes-list"></div>
+                </div>
+                <div class="user-suggestions">
+                    <p class="user-list-name">Users that you may know</p>
+                    <div id="suggested-by-followings-list"></div>
+                </div>
             </div>
         </div>
     </section>
@@ -309,20 +313,9 @@
 
         <div id="manga-like">
             <c:if test="${isLogged and isLoggedPageOwner}">
-                <div class="suggestions-lists">
-                    <c:if test="${not empty userInfo.getLocation()}">
-                    <p class="suggestion-title">Other users in your country also like: </p>
-                    <div id="manga-suggested-by-location" class="project-boxes jsGridView"></div>
-                    </c:if>
-                    <c:if test="${not empty userInfo.getBirthday()}">
-                    <p class="suggestion-title">Other users with the same age also like: </p>
-                    <div id="manga-suggested-by-birthday" class="project-boxes jsGridView"></div>
-                    </c:if>
-                </div>
+                <div id="manga-suggestions-lists" class="suggestions-lists"></div>
             </c:if>
 
-                <!--check if the page is the registered user(suggestions only if your are in your profile) check will be done in the js
-                take the css of manga-list -->
             <div class="container">
                 <ul class="page manga-pagination">
                 </ul>
@@ -335,21 +328,10 @@
         </div>
 
         <div id="anime-like">
-            <div class="suggestions-lists">
-                <c:if test="${isLogged and isLoggedPageOwner}">
-                    <c:if test="${not empty userInfo.getLocation()}">
-                        <p class="suggestion-title">Other users in your country also like: </p>
-                        <div id="anime-suggested-by-location" class="project-boxes jsGridView"></div>
-                    </c:if>
-                    <c:if test="${not empty userInfo.getBirthday()}">
-                        <p class="suggestion-title">Other users with the same age also like: </p>
-                        <div id="anime-suggested-by-birthday" class="project-boxes jsGridView"></div>
-                    </c:if>
-                </c:if>
-            </div>
+            <c:if test="${isLogged and isLoggedPageOwner}">
+                <div id="anime-suggestions-lists" class="suggestions-lists"></div>
+            </c:if>
 
-                <!--check if the page is the registered user(suggestions only if your are in your profile) check will be done in the js
-                take the css of manga-list -->
             <div class="container">
                 <ul class="page anime-pagination">
                 </ul>
@@ -361,7 +343,7 @@
             </div>
         </div>
 
-        <c:if test="${isLogged and sessionScope[Constants.AUTHENTICATED_USER_KEY].getId() eq userInfo.id}">
+        <c:if test="${isLogged and isLoggedPageOwner}">
             <div id="reviews">
                 <div class="container">
                     <ul class="page review-pagination">
@@ -374,9 +356,6 @@
                 </div>
             </div>
         </c:if>
-
-
-
     </section>
 
     <div class="footer"></div>

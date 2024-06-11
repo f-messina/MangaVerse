@@ -1,8 +1,6 @@
 package it.unipi.lsmsd.fnf.dao.mongo;
 
-import com.mongodb.MongoException;
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.model.Updates;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dao.interfaces.UserDAO;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
@@ -13,7 +11,6 @@ import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 
-import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import it.unipi.lsmsd.fnf.service.ServiceLocator;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
@@ -89,9 +86,9 @@ class ReviewDAOMongoImplTest {
         ReviewDAOMongoImpl reviewDAO = new ReviewDAOMongoImpl();
 
         // test 1
-        List<String> reviewIds = new ArrayList<>();
+        List<String> reviewIds;
         reviewIds = List.of("66360c83bbca010b06d85622", "66360c83bbca010b06d85623", "66360c83bbca010b06d85624");
-        List<ReviewDTO> reviewList = reviewDAO.getReviewByMedia(reviewIds, MediaContentType.ANIME, 1).getEntries();
+        List<ReviewDTO> reviewList = reviewDAO.getReviewByIdsList(reviewIds, 1, "user").getEntries();
         if (!reviewList.isEmpty()) {
             ReviewDTO review = reviewList.getFirst();
             assertDoesNotThrow(() -> reviewDAO.updateReview(review.getId(), "This is a new comment", 4));
@@ -99,7 +96,7 @@ class ReviewDAOMongoImplTest {
         }
 
         // test 2
-        reviewList = reviewDAO.getReviewByMedia(reviewIds, MediaContentType.MANGA, 1).getEntries();
+        reviewList = reviewDAO.getReviewByIdsList(reviewIds, 1, "user").getEntries();
         if (!reviewList.isEmpty()) {
             ReviewDTO review = reviewList.getFirst();
             assertDoesNotThrow(() -> reviewDAO.updateReview(review.getId(), "This is a new comment", 4));
@@ -207,7 +204,7 @@ class ReviewDAOMongoImplTest {
 
 
         // test 1
-        reviewDAO.getReviewByUser(reviewIds, 1).getEntries().forEach(review -> {
+        reviewDAO.getReviewByIdsList(reviewIds, 1, "user").getEntries().forEach(review -> {
             assertDoesNotThrow(() -> reviewDAO.deleteReview(review.getId()));
             System.out.println("Review deleted: " + review.getId());
         });
@@ -269,7 +266,7 @@ class ReviewDAOMongoImplTest {
 
         List<String> finalReviewIds = reviewIds;
         assertDoesNotThrow(() -> {
-            PageDTO<ReviewDTO> reviews =  reviewDAO.getReviewByUser(finalReviewIds, 1);
+            PageDTO<ReviewDTO> reviews =  reviewDAO.getReviewByIdsList(finalReviewIds, 1, "user");
             for (ReviewDTO review : reviews.getEntries()) {
                 System.out.println(review);
             }
@@ -297,11 +294,11 @@ class ReviewDAOMongoImplTest {
         "66617bb5c1785e44801a3b46",
         "66617fb10e359869b8355537",
         "6661838400d2e33cdcb3a76d"
-);
+        );
 
         List<String> finalReviewIds = reviewIds;
         assertDoesNotThrow(() -> {
-            PageDTO<ReviewDTO> reviews = reviewDAO.getReviewByMedia(finalReviewIds, MediaContentType.ANIME, 1);
+            PageDTO<ReviewDTO> reviews = reviewDAO.getReviewByIdsList(finalReviewIds, 1, "user");
             for (ReviewDTO review : reviews.getEntries()) {
                 System.out.println(review);
             }
@@ -384,25 +381,25 @@ class ReviewDAOMongoImplTest {
 
         // test 1
         assertDoesNotThrow(() -> {
-            PageDTO<MediaContentDTO> pageDTO = reviewDAO.suggestMediaContent(MediaContentType.ANIME, "location", "Brazil");
+            List<MediaContentDTO> pageDTO = reviewDAO.suggestMediaContent(MediaContentType.ANIME, "location", "Brazil");
             System.out.println(pageDTO);
         });
 
         // test 2
         assertDoesNotThrow(() -> {
-            PageDTO<MediaContentDTO> pageDTO = reviewDAO.suggestMediaContent(MediaContentType.MANGA, "location", "Hungary");
+            List<MediaContentDTO> pageDTO = reviewDAO.suggestMediaContent(MediaContentType.MANGA, "location", "Hungary");
             System.out.println(pageDTO);
         });
 
         // test 3
         assertDoesNotThrow(() -> {
-            PageDTO<MediaContentDTO> pageDTO = reviewDAO.suggestMediaContent(MediaContentType.ANIME, "birthday", "1990");
+            List<MediaContentDTO> pageDTO = reviewDAO.suggestMediaContent(MediaContentType.ANIME, "birthday", "1990");
             System.out.println(pageDTO);
         });
 
         // test 4
         assertDoesNotThrow(() -> {
-            PageDTO<MediaContentDTO> pageDTO = reviewDAO.suggestMediaContent(MediaContentType.MANGA, "birthday", "1990");
+            List<MediaContentDTO> pageDTO = reviewDAO.suggestMediaContent(MediaContentType.MANGA, "birthday", "1990");
             System.out.println(pageDTO);
         });
 

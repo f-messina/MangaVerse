@@ -1,6 +1,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ page import="it.unipi.lsmsd.fnf.utils.Constants" %>
+<%@ page import="it.unipi.lsmsd.fnf.model.enums.UserType" %>
 <%@ page import="static java.time.LocalDate.now" %>
 <%@ page contentType="text/html;charset=UTF-8" %>
 
@@ -26,7 +27,7 @@
 <body>
 <!-- JSP variables -->
 <c:set var="isLogged" value="${not empty sessionScope[Constants.AUTHENTICATED_USER_KEY]}" /> <!-- check if the user is logged in -->
-<c:set var="isManager" value="${isLogged and sessionScope[Constants.AUTHENTICATED_USER_KEY].getType().equals(UserType.USER)}" />
+<c:set var="isManager" value="${isLogged and not sessionScope[Constants.AUTHENTICATED_USER_KEY].getType().equals(UserType.USER)}" />
 <c:set var="currentYear" value="<%= now().getYear() %>" />
 
 <!-- Welcome section -->
@@ -110,7 +111,7 @@
                 <div class="results extended" style="display: none"></div>
             </div>
 
-            <c:if test="${isLogged and isManager}">
+            <c:if test="${isLogged and !isManager}">
                 <!-- suggestions by likes -->
                 <div class="landing-section">
                     <div class="title link">
@@ -120,10 +121,10 @@
                     <div class="results">
                         <c:forEach items="${requestScope.suggestionsByLikes}" var="anime">
                             <div class="media-card" >
-                                <a href="${pageContext.request.contextPath}/anime?mediaId=${anime.getId()}" class="cover">
+                                <a href="${pageContext.request.contextPath}/manga?mediaId=${anime.getId()}" class="cover">
                                     <img src="${anime.getImageUrl()}" class="image loaded">
                                 </a>
-                                <a href="${pageContext.request.contextPath}/anime?mediaId=${anime.getId()}" class="title">${anime.getTitle()}</a>
+                                <a href="${pageContext.request.contextPath}/manga?mediaId=${anime.getId()}" class="title">${anime.getTitle()}</a>
                             </div>
                         </c:forEach>
                     </div>
