@@ -29,6 +29,6 @@ public class Manager extends RegisteredUser {
     }
 
     public LoggedUserDTO toLoggedUserDTO() {
-        return new LoggedUserDTO(this.getId(), this.getFullname(), this.getProfilePicUrl(), UserType.MANAGER);
+        return new LoggedUserDTO(this.getId(), this.getFullname(), this.getProfilePicUrl(), null, null, UserType.MANAGER);
     }
 }

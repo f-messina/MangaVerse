@@ -94,7 +94,7 @@ public class UserDAOMongoImplTest {
     public void testRead() {
         try {
             UserDAO userDAO = new UserDAOMongoImpl();
-            System.out.println(userDAO.readUser("6577877be683762347605859", false, true));
+            System.out.println(userDAO.readUser("6577877be68376234760585b", false, true));
         } catch (DAOException e) {
             System.err.println(e.getMessage() + " " + e.getType());
         }

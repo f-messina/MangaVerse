@@ -22,7 +22,6 @@ public class Manga extends MediaContent {
     private LocalDate endDate;
     private Integer volumes;
     private Integer chapters;
-    private List<Review> reviews;
     private MangaType type;
     private MangaStatus status;
 
@@ -58,9 +57,6 @@ public class Manga extends MediaContent {
     }
     public Integer getVolumes() { return volumes; }
     public Integer getChapters() { return chapters; }
-    public List<Review> getReviews() {
-        return reviews;
-    }
     public MangaType getType() {
         return type;
     }
@@ -99,15 +95,6 @@ public class Manga extends MediaContent {
     }
     public void setVolumes(Integer volumes) { this.volumes = volumes;  }
     public void setChapters(Integer chapters) { this.chapters = chapters; }
-    public void setReviews(List<Review> reviews) {
-        this.reviews = reviews;
-    }
-    public void addReview(Review review) {
-        this.reviews.add(review);
-    }
-    public void removeReview(Review review) {
-        this.reviews.remove(review);
-    }
     public void setType(MangaType type) {
         this.type = type;
     }
@@ -136,7 +123,6 @@ public class Manga extends MediaContent {
                 ", endDate=" + endDate +
                 ", volumes=" + volumes +
                 ", chapters=" + chapters +
-                ", reviews=" + reviews +
                 '}';
     }
 

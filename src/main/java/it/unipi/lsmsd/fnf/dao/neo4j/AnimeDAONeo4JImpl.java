@@ -296,7 +296,7 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
 
             // If the user has no likes, return an empty list
             if (totalLikes == 0)
-                return new PageDTO<>(new ArrayList<>(), 0);
+                return new PageDTO<>(new ArrayList<>(), 0, 0);
 
             // Retrieve the liked Anime
             List<Record> records = session.executeRead(
@@ -307,7 +307,7 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
                     .map(record -> (AnimeDTO) recordToMediaContentDTO(record))
                     .collect(Collectors.toList());
 
-            return new PageDTO<>(likedAnimes, totalLikes);
+            return new PageDTO<>(likedAnimes, totalLikes, null);
 
         } catch (Neo4jException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());

@@ -292,7 +292,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserSummaryDTO> suggestUsersByCommonFollowings(String userId) throws BusinessException {
         try {
-            return userDAONeo4J.suggestUsersByCommonFollowings(userId, 10);
+            return userDAONeo4J.suggestUsersByCommonFollowings(userId, 5);
 
         } catch (DAOException e) {
             if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {

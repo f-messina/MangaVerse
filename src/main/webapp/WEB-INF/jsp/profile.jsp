@@ -34,8 +34,8 @@
                     <div id="user-search-results"></div>
                 </div>
             </div>
-            <a href="${pageContext.request.contextPath}/mainPage/anime" class="anime">Anime</a>
             <a href="${pageContext.request.contextPath}/mainPage/manga" class="manga">Manga</a>
+            <a href="${pageContext.request.contextPath}/mainPage/anime" class="anime">Anime</a>
             <c:choose>
                 <c:when test="${isLogged}">
                     <div class="logout" onclick="logout('auth')">
@@ -98,7 +98,7 @@
                             </span> following
                         </li>
                         <c:if test="${isLogged and isLoggedPageOwner}">
-                        <li id="show-suggested-users" class="user-suggestions">
+                        <li id="show-suggested-users" class="user-suggestions-button">
                             user suggestions
                         </li>
                         </c:if>
@@ -257,11 +257,15 @@
 
         <!-- suggested users -->
         <div id="suggested-users" class="myAlert user-list-section">
-            <div id="suggestedUsersBody" class="myAlertBody">
-                <p class="user-list-name">Suggested Users By Likes</p>
-                <div id="suggested-by-likes-list"></div>
-                <p class="user-list-name">Suggested Users By Followings</p>
-                <div id="suggested-by-followings-list"></div>
+            <div id="suggestedUsersBody" class="myAlertBody double-list">
+                <div class="user-suggestions">
+                    <p class="user-list-name">Users with similar tastes</p>
+                    <div id="suggested-by-likes-list"></div>
+                </div>
+                <div class="user-suggestions">
+                    <p class="user-list-name">Users that you may know</p>
+                    <div id="suggested-by-followings-list"></div>
+                </div>
             </div>
         </div>
     </section>
@@ -309,17 +313,9 @@
 
         <div id="manga-like">
             <c:if test="${isLogged and isLoggedPageOwner}">
-                <div class="suggestions-lists">
-                    <p class="suggestion-title">Suggested Manga By Location</p>
-                    <div id="manga-suggested-by-location" class="project-boxes jsGridView"></div>
-
-                    <p class="suggestion-title">Suggested Manga By Birthday</p>
-                    <div id="manga-suggested-by-birthday" class="project-boxes jsGridView"></div>
-                </div>
+                <div id="manga-suggestions-lists" class="suggestions-lists"></div>
             </c:if>
 
-                <!--check if the page is the registered user(suggestions only if your are in your profile) check will be done in the js
-                take the css of manga-list -->
             <div class="container">
                 <ul class="page manga-pagination">
                 </ul>
@@ -333,17 +329,9 @@
 
         <div id="anime-like">
             <c:if test="${isLogged and isLoggedPageOwner}">
-                <div class="suggestions-lists">
-                    <p class="suggestion-title">Suggested Anime By Location</p>
-                    <div id="anime-suggested-by-location" class="project-boxes jsGridView"></div>
-
-                    <p class="suggestion-title">Suggested Anime By Birthday</p>
-                    <div id="anime-suggested-by-birthday" class="project-boxes jsGridView"></div>
-                </div>
+                <div id="anime-suggestions-lists" class="suggestions-lists"></div>
             </c:if>
 
-                <!--check if the page is the registered user(suggestions only if your are in your profile) check will be done in the js
-                take the css of manga-list -->
             <div class="container">
                 <ul class="page anime-pagination">
                 </ul>
@@ -355,7 +343,7 @@
             </div>
         </div>
 
-        <c:if test="${isLogged and sessionScope[Constants.AUTHENTICATED_USER_KEY].getId() eq userInfo.id}">
+        <c:if test="${isLogged and isLoggedPageOwner}">
             <div id="reviews">
                 <div class="container">
                     <ul class="page review-pagination">
@@ -368,9 +356,6 @@
                 </div>
             </div>
         </c:if>
-
-
-
     </section>
 
     <div class="footer"></div>
@@ -379,6 +364,7 @@
     <script src="${pageContext.request.contextPath}/js/profile.js" defer></script>
     <script src="${pageContext.request.contextPath}/js/country_dropdown.js" defer></script>
     <script src="${pageContext.request.contextPath}/js/navbar.js" defer></script>
+    <script src="${pageContext.request.contextPath}/js/load_default_picture.js" defer></script>
     <script>
         const contextPath = "${pageContext.request.contextPath}";
         const userId = "${userInfo.getId()}";

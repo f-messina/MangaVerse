@@ -1,8 +1,3 @@
-function setDefaultCover(image) {
-    image.off("error");
-    image.attr("src", mediaType === "manga" ? mangaDefaultImage : animeDefaultImage);
-}
-
 $(document).ready(function () {
     const navBar = $("#navbar");
     const sectionHome = $('#welcome-section');
@@ -48,7 +43,7 @@ function viewAll(nameList, button) {
                     const mediaCard = $("<div>").addClass("media-card");
                     const mediaImgLink = $("<a>").addClass("cover").attr("href", contextPath + "/" + mediaType + "?mediaId=" + media.id);
                     const mediaImg = $("<img>").attr("src", media.imageUrl === null ? animeDefaultImage : media.imageUrl).attr("alt", media.title).addClass("image loaded")
-                        .on("error", () => setDefaultCover(mediaImg, mediaType));
+                        .on("error", () => setDefaultCover(mediaImg));
                     mediaImgLink.append(mediaImg);
                     const title = $("<a>").attr("href", contextPath + "/" + mediaType + "?mediaId=" + media.id).addClass("title").text(media.title);
                     mediaCard.append(mediaImgLink, title);
@@ -83,7 +78,7 @@ function getMediaContent(page = 1) {
                 const mediaCard = $("<div>").addClass("media-card");
                 const mediaImgLink = $("<a>").addClass("cover").attr("href", contextPath + "/" + mediaType + "?mediaId=" + media.id);
                 const mediaImg = $("<img>").attr("src", media.imageUrl === null ? animeDefaultImage: media.imageUrl).attr("alt", media.title).addClass("image loaded")
-                    .on("error", () => setDefaultCover(mediaImg, mediaType));
+                    .on("error", () => setDefaultCover(mediaImg));
                 mediaImgLink.append(mediaImg);
                 const title = $("<a>").attr("href", contextPath + "/" + mediaType + "?mediaId=" + media.id).addClass("title").text(media.title);
                 const hoverBox = $("<div>").addClass("hover-data right");

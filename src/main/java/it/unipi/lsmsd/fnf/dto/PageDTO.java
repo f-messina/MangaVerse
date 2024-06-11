@@ -14,10 +14,10 @@ public class PageDTO<T> {
         entries = new ArrayList<>();
     }
 
-    public PageDTO(List<T> entries, int totalCount) {
+    public PageDTO(List<T> entries, int totalCount, Integer totalPages) {
         this.entries = entries;
         this.totalCount = totalCount;
-        this.totalPages = (int) Math.ceil((double) totalCount / Constants.PAGE_SIZE);
+        this.totalPages = totalPages != null ? totalPages : (int) Math.ceil((double) totalCount / Constants.PAGE_SIZE);
     }
 
     public List<T> getEntries() {

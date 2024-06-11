@@ -297,13 +297,14 @@ public class ProfileServlet extends HttpServlet {
             LoggedUserDTO authUser = SecurityUtils.getAuthenticatedUser(request);
 
             if (authUser == null || !userId.equals(authUser.getId())) {
-                throw new NotAuthorizedException("Trying to update profile without being logged in.");
+                throw new NotAuthorizedException("Trying to view reviews of another user.");
             }
+
             // Get the page of reviews
-            PageDTO<ReviewDTO> reviews = reviewService.findByUser(reviewIds, page);
+            PageDTO<ReviewDTO> reviews = reviewService.getReviewsByIdsList(reviewIds, page, "user");
 
             // Convert the page to a JSON Object
-            if (reviews == null) {
+            if (reviews == null || reviews.getTotalCount() == 0) {
                 jsonResponse.put("notFoundError", true);
             } else {
                 JsonNode reviewsJsonObject  = objectMapper.valueToTree(reviews);
@@ -359,8 +360,8 @@ public class ProfileServlet extends HttpServlet {
             jsonResponse.put("error", "Media content type not specified");
         }else {
             try {
-                // Get the page of suggested media content
-                PageDTO<MediaContentDTO> suggestedMediaContent = reviewService.suggestMediaContent(type.equals("manga")?MediaContentType.MANGA:MediaContentType.ANIME, criteria, value);
+                // Get the suggested media content
+                List<MediaContentDTO> suggestedMediaContent = reviewService.suggestMediaContent(type.equals("manga")?MediaContentType.MANGA:MediaContentType.ANIME, criteria, value);
                 if (suggestedMediaContent == null) {
                     jsonResponse.put("notFoundError", true);
                 } else {
@@ -415,7 +416,6 @@ public class ProfileServlet extends HttpServlet {
                 if (e.getType().equals(BusinessExceptionType.DATABASE_ERROR))
                     jsonResponse.put("notFoundError", true);
                 else
-                    jsonResponse.put("error", e.getMessage());
                     jsonResponse.put("error", e.getMessage());
             }
         }
