@@ -12,12 +12,22 @@ import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 import it.unipi.lsmsd.fnf.service.exception.enums.BusinessExceptionType;
 import it.unipi.lsmsd.fnf.service.interfaces.Task;
 
+/**
+ * Task for refreshing the latest reviews of a media content.
+ */
 public class RefreshLatestReviewsTask extends Task {
     private final MediaContentDAO<Anime> animeDAO;
     private final MediaContentDAO<Manga> mangaDAO;
     private final String mediaId;
     private final String mediaType;
 
+    /**
+     * Constructs a RefreshLatestReviewsTask with the specified parameters.
+     *
+     * @param userSummaryDTO The user summary DTO.
+     * @param mediaId        The ID of the media content to refresh the reviews.
+     * @param mediaType      The type of the media content (anime or manga).
+     */
     public RefreshLatestReviewsTask(UserSummaryDTO userSummaryDTO, String mediaId, String mediaType) {
         super(4);
         this.animeDAO = DAOLocator.getAnimeDAO(DataRepositoryEnum.MONGODB);
@@ -26,6 +36,11 @@ public class RefreshLatestReviewsTask extends Task {
         this.mediaType = mediaType;
     }
 
+    /**
+     * Executes the task to refresh the latest reviews of the specified media content.
+     *
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public void executeJob() throws BusinessException {
         try{

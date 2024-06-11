@@ -16,12 +16,21 @@ import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 import it.unipi.lsmsd.fnf.service.exception.enums.BusinessExceptionType;
 import it.unipi.lsmsd.fnf.service.interfaces.Task;
 
+/**
+ * Task for updating redundancy information related to media content.
+ */
 public class UpdateMediaRedundancyTask extends Task {
 
     private final MediaContentDAO<Anime> animeDAO;
     private final MediaContentDAO<Manga> mangaDAO;
     private final UserSummaryDTO userSummaryDTO;
 
+
+    /**
+     * Constructs an UpdateMediaRedundancyTask.
+     *
+     * @param userSummaryDTO The summary DTO of the user.
+     */
     public UpdateMediaRedundancyTask(UserSummaryDTO userSummaryDTO) {
         super(5);
         this.animeDAO = DAOLocator.getAnimeDAO(DataRepositoryEnum.MONGODB);
@@ -29,6 +38,11 @@ public class UpdateMediaRedundancyTask extends Task {
         this.userSummaryDTO = userSummaryDTO;
     }
 
+    /**
+     * Executes the task to update redundancy information related to media content.
+     *
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public void executeJob() throws BusinessException {
         try{

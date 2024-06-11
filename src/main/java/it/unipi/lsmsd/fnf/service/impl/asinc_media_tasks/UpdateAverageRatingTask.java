@@ -12,14 +12,25 @@ import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 import it.unipi.lsmsd.fnf.service.exception.enums.BusinessExceptionType;
 import it.unipi.lsmsd.fnf.service.interfaces.Task;
 
+/**
+ * Task for updating the average rating of media content based on reviews.
+ */
 public class UpdateAverageRatingTask extends Task {
     private final ReviewDAO reviewDAO;
 
+    /**
+     * Constructs an UpdateAverageRatingTask.
+     */
     public UpdateAverageRatingTask() {
         super(5);
         this.reviewDAO = DAOLocator.getReviewDAO(DataRepositoryEnum.MONGODB);
     }
 
+    /**
+     * Executes the task to update the average rating of media content.
+     *
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public void executeJob() throws BusinessException {
         try {

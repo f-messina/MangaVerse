@@ -13,6 +13,9 @@ import it.unipi.lsmsd.fnf.service.interfaces.Task;
 
 import java.util.List;
 
+/**
+ * Task for updating review redundancy.
+ */
 public class UpdateReviewRedundancyTask extends Task {
 
     private final ReviewDAO reviewDAO;
@@ -20,6 +23,13 @@ public class UpdateReviewRedundancyTask extends Task {
     private final UserSummaryDTO userSummaryDTO;
     private final List<String> reviewIds;
 
+    /**
+     * Constructs an UpdateReviewRedundancyTask.
+     *
+     * @param mediaContentDTO The DTO representing the media content.
+     * @param userSummaryDTO  The DTO representing the user summary.
+     * @param reviewIds       The list of review IDs.
+     */
     public UpdateReviewRedundancyTask(MediaContentDTO mediaContentDTO, UserSummaryDTO userSummaryDTO, List<String> reviewIds) {
         super(5);
         this.reviewDAO = DAOLocator.getReviewDAO(DataRepositoryEnum.MONGODB);
@@ -28,6 +38,11 @@ public class UpdateReviewRedundancyTask extends Task {
         this.reviewIds = reviewIds;
     }
 
+    /**
+     * Executes the task to update review redundancy.
+     *
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public void executeJob() throws BusinessException {
         try{

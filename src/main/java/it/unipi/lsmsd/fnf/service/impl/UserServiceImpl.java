@@ -131,6 +131,13 @@ public class UserServiceImpl implements UserService {
             }
         }
     }
+
+    /**
+     * Deletes a user from the system.
+     *
+     * @param userId The ID of the user to delete.
+     * @throws BusinessException If an error occurs during the deletion process.
+     */
     @Override
     public void deleteUser(String userId) throws BusinessException {
         try {
@@ -150,6 +157,14 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    /**
+     * Retrieves a user by their ID.
+     *
+     * @param userId           The ID of the user to retrieve.
+     * @param isUserLoggedInfo Indicates whether to include user's logged information.
+     * @return The user object corresponding to the provided ID.
+     * @throws BusinessException If an error occurs during the retrieval process.
+     */
     @Override
     public User getUserById(String userId, boolean isUserLoggedInfo) throws BusinessException {
         try {
@@ -209,6 +224,14 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    /**
+     * Checks if a user is following another user.
+     *
+     * @param followerUserId  The ID of the user who is following.
+     * @param followingUserId The ID of the user being followed.
+     * @return True if the follower user is following the specified user, false otherwise.
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public boolean isFollowing(String followerUserId, String followingUserId) throws BusinessException {
         try {
@@ -237,6 +260,15 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    /**
+     * Searches for users followed by a specified user based on the provided search criteria.
+     *
+     * @param userId       The ID of the user whose followings are being searched.
+     * @param username     The username of the user being searched for.
+     * @param loggedUserId The ID of the logged-in user performing the search.
+     * @return A list of UserSummaryDTO objects representing the followings found based on the search criteria.
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public List<UserSummaryDTO> searchFollowings(String userId, String username, String loggedUserId) throws BusinessException {
         try {
@@ -265,6 +297,15 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    /**
+     * Searches for users who are following a specified user based on the provided search criteria.
+     *
+     * @param userId       The ID of the user whose followers are being searched.
+     * @param username     The username of the user being searched for.
+     * @param loggedUserId The ID of the logged-in user performing the search.
+     * @return A list of UserSummaryDTO objects representing the followers found based on the search criteria.
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public List<UserSummaryDTO> searchFollowers(String userId, String username, String loggedUserId) throws BusinessException {
         try {
@@ -276,6 +317,15 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    /**
+     * Searches for the first N users based on the provided username.
+     *
+     * @param username    The username to search for.
+     * @param n           The maximum number of users to retrieve.
+     * @param loggedUser  The ID of the logged-in user performing the search.
+     * @return A list of UserSummaryDTO objects representing the first N users found based on the search criteria.
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public List<UserSummaryDTO> searchFirstNUsers(String username, Integer n, String loggedUser) throws BusinessException {
         try {
@@ -289,6 +339,13 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    /**
+     * Suggests users based on common followings with a specified user.
+     *
+     * @param userId The ID of the user for whom suggestions are made.
+     * @return A list of UserSummaryDTO objects representing suggested users.
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public List<UserSummaryDTO> suggestUsersByCommonFollowings(String userId) throws BusinessException {
         try {
@@ -302,6 +359,13 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    /**
+     * Suggests users based on common likes with a specified user.
+     *
+     * @param userId The ID of the user for whom suggestions are made.
+     * @return A list of UserSummaryDTO objects representing suggested users.
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public List<UserSummaryDTO> suggestUsersByCommonLikes(String userId) throws BusinessException {
         try {
@@ -318,6 +382,13 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    /**
+     * Rates the application by a user.
+     *
+     * @param userId  The ID of the user who is rating the application.
+     * @param rating  The rating provided by the user.
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public void rateApp(String userId, Integer rating) throws BusinessException {
         try {
@@ -331,6 +402,13 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    /**
+     * Retrieves the distribution of users based on the specified criteria.
+     *
+     * @param criteria The criteria for which the distribution is requested.
+     * @return A map containing the distribution data.
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public Map<String, Integer> getDistribution(String criteria) throws BusinessException {
         try {
@@ -347,6 +425,13 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    /**
+     * Retrieves the average app rating based on the specified criteria.
+     *
+     * @param criteria The criteria for which the average app rating is requested.
+     * @return A map containing the average app rating data.
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public Map<String, Double> averageAppRating(String criteria) throws BusinessException {
         try {

@@ -87,8 +87,12 @@ public class MediaContentServiceImpl implements MediaContentService {
     }
 
     /**
-     * Updates an existing media content in the data repository.
+     * Updates an existing media content in the data repository and triggers associated tasks.
+     * If the media content is an instance of Anime or Manga, it updates the corresponding DAO in MongoDB.
+     * Additionally, it triggers tasks to update review redundancy and media information in the background.
+     *
      * @param mediaContent The media content to be updated.
+     * @param reviewIds The list of review IDs associated with the media content.
      * @throws BusinessException If an error occurs during the operation.
      */
     @Override
@@ -369,6 +373,15 @@ public class MediaContentServiceImpl implements MediaContentService {
         }
     }
 
+
+    /**
+     * Retrieves trending media content based on likes.
+     *
+     * @param limit The maximum number of media content items to retrieve.
+     * @param type The type of media content (Anime or Manga).
+     * @return A list of MediaContentDTO objects representing the trending media content.
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public List<MediaContentDTO> getMediaContentTrendByLikes(Integer limit, MediaContentType type) throws BusinessException {
         try {
@@ -383,6 +396,15 @@ public class MediaContentServiceImpl implements MediaContentService {
         }
     }
 
+    /**
+     * Retrieves the best criteria for filtering media content.
+     *
+     * @param criteria The criteria for filtering (e.g., tags, genres, producers).
+     * @param page The page number for pagination.
+     * @param type The type of media content (Anime or Manga).
+     * @return A map containing the best criteria and their corresponding scores.
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public Map<String, Double> getBestCriteria (String criteria, int page, MediaContentType type) throws BusinessException {
         try {

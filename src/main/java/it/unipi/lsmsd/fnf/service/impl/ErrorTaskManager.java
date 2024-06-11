@@ -17,6 +17,13 @@ public class ErrorTaskManager extends TaskManager {
         super();
         isRunning = true;
     }
+
+    /**
+     * Returns the singleton instance of ErrorTaskManager.
+     * If the instance is null, it is created in a thread-safe manner using double-checked locking.
+     *
+     * @return the singleton instance of ErrorTaskManager
+     */
     public static ErrorTaskManager getInstance() {
         if (instance == null) {
             synchronized (ErrorTaskManager.class) {
@@ -37,6 +44,22 @@ public class ErrorTaskManager extends TaskManager {
      */
 
 
+    /**
+     * Starts the task manager by executing a task that continuously processes tasks from the task queue.
+     * The task manager runs in a separate thread, checking if the manager is still running.
+     *
+     * For each task:
+     * 1. The task is retrieved from the queue.
+     * 2. The retry count is incremented.
+     * 3. If the retry count exceeds the maximum allowed retries, the task is skipped.
+     * 4. The task's job is executed.
+     *
+     * If a BusinessException occurs:
+     * - If the exception is of type RETRYABLE_ERROR, the task is re-added to the queue.
+     * - Otherwise, an error message is printed.
+     *
+     * Any other exceptions will cause a RuntimeException to be thrown.
+     */
     @Override
     public void start() {
         executorService.execute(() -> {
@@ -65,6 +88,15 @@ public class ErrorTaskManager extends TaskManager {
         });
     }
 
+    /**
+     * Stops the task manager by shutting down the executor service and setting the running flag to false.
+     * The executor service is first instructed to shut down.
+     *
+     * It then waits for a maximum of 800 milliseconds for the existing tasks to complete.
+     * If the tasks do not complete within this time frame, the executor service is forcefully shut down.
+     *
+     * If the thread is interrupted while waiting, a RuntimeException is thrown.
+     */
     @Override
     public void stop() {
         isRunning = false;

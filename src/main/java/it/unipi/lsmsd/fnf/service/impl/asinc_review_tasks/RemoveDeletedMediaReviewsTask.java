@@ -10,16 +10,29 @@ import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 import it.unipi.lsmsd.fnf.service.exception.enums.BusinessExceptionType;
 import it.unipi.lsmsd.fnf.service.interfaces.Task;
 
+/**
+ * Task for removing reviews associated with deleted media content.
+ */
 public class RemoveDeletedMediaReviewsTask extends Task {
     private final ReviewDAO reviewDAO;
     private final String mediaId;
 
+    /**
+     * Constructs a RemoveDeletedMediaReviewsTask.
+     *
+     * @param mediaId The ID of the deleted media content.
+     */
     public RemoveDeletedMediaReviewsTask(String mediaId) {
         super(4);
         this.reviewDAO = DAOLocator.getReviewDAO(DataRepositoryEnum.MONGODB);
         this.mediaId = mediaId;
     }
 
+    /**
+     * Executes the task to remove reviews associated with the deleted media content.
+     *
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public void executeJob() throws BusinessException {
         try {

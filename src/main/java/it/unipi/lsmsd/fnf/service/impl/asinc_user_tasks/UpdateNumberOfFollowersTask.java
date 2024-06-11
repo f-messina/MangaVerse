@@ -11,17 +11,31 @@ import it.unipi.lsmsd.fnf.service.interfaces.Task;
 
 import java.util.Objects;
 
+/**
+ * Task for updating the number of followers for a specific user.
+ */
 public class UpdateNumberOfFollowersTask extends Task {
     private final UserDAO mongoDbUserDAO;
     private final UserDAO neo4jUserDAO;
     private final String userId;
 
+    /**
+     * Constructs an UpdateNumberOfFollowersTask.
+     *
+     * @param userId The ID of the user whose number of followers needs to be updated.
+     */
     public UpdateNumberOfFollowersTask(String userId) {
         super(5);
         this.userId = userId;
         this.mongoDbUserDAO = DAOLocator.getUserDAO(DataRepositoryEnum.MONGODB);
         this.neo4jUserDAO = DAOLocator.getUserDAO(DataRepositoryEnum.NEO4J);
     }
+
+    /**
+     * Executes the task to update the number of followers for the specified user.
+     *
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public void executeJob() throws BusinessException {
         try{

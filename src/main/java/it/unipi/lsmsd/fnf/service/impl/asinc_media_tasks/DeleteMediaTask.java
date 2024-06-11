@@ -13,12 +13,21 @@ import it.unipi.lsmsd.fnf.service.interfaces.Task;
 
 import static it.unipi.lsmsd.fnf.service.exception.BusinessException.handleDAOException;
 
+/**
+ * Task for deleting media content from the data repository.
+ */
 public class DeleteMediaTask extends Task {
     private final MediaContentDAO<Anime> animeDAONeo4j;
     private final MediaContentDAO<Manga> mangaDAONeo4j;
     private final String id;
     private final MediaContentType type;
 
+    /**
+     * Constructs a DeleteMediaTask with the specified media content ID and type.
+     *
+     * @param id   The ID of the media content to be deleted.
+     * @param type The type of the media content (Anime or Manga).
+     */
     public DeleteMediaTask(String id, MediaContentType type) {
         super(7);
         this.animeDAONeo4j = DAOLocator.getAnimeDAO(DataRepositoryEnum.NEO4J);
@@ -27,6 +36,11 @@ public class DeleteMediaTask extends Task {
         this.type = type;
     }
 
+    /**
+     * Executes the task to delete the media content from the data repository.
+     *
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public void executeJob() throws BusinessException {
         try {

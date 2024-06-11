@@ -10,16 +10,29 @@ import it.unipi.lsmsd.fnf.service.interfaces.Task;
 
 import static it.unipi.lsmsd.fnf.service.exception.BusinessException.handleDAOException;
 
+/**
+ * Task for deleting a user.
+ */
 public class DeleteUserTask extends Task {
     private final UserDAO neo4jUserDAO;
     private final String id;
 
+    /**
+     * Constructs a DeleteUserTask.
+     *
+     * @param id The ID of the user to delete.
+     */
     public DeleteUserTask(String id) {
         super(7);
         this.neo4jUserDAO = DAOLocator.getUserDAO(DataRepositoryEnum.NEO4J);
         this.id = id;
     }
 
+    /**
+     * Executes the task to delete a user.
+     *
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public void executeJob() throws BusinessException {
         try {
