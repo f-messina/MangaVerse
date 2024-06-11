@@ -191,11 +191,6 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
     @Override
     //Take review ids in input to update the user
     public void updateUserRedundancy(UserSummaryDTO userSummaryDTO, List<String> reviewIds) throws DAOException {
-
-        if (reviewIds == null || reviewIds.isEmpty()) {
-            return;
-        }
-
         //create user embedded Document
         Document userDoc = new Document();
         appendIfNotNull(userDoc, "user.id", new ObjectId(userSummaryDTO.getId()));
@@ -203,7 +198,8 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
         appendIfNotNull(userDoc, "user.picture", userSummaryDTO.getProfilePicUrl());
         appendIfNotNull(userDoc, "user.location", userSummaryDTO.getLocation());
         appendIfNotNull(userDoc, "user.birthday", ConverterUtils.localDateToDate(userSummaryDTO.getBirthDate()));
-
+        Logger logger = LoggerFactory.getLogger(ReviewDAOMongoImpl.class);
+        logger.info("userDoc: " + userDoc);
         try {
             MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
 
@@ -225,6 +221,8 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
             if (Objects.equals(userSummaryDTO.getBirthDate(), Constants.NULL_DATE)) {
                 update = combine(update, unset("user.birthday"));
             }
+            logger.info("update: " + update);
+            logger.info("filter: " + filter);
             UpdateResult result = reviewCollection.updateMany(filter, update);
             if (result.getMatchedCount() != 0 && result.getModifiedCount() == 0) {
                 throw new MongoException("ReviewDAOMongoImpl: updateUserRedundancy: No reviews modified");

@@ -94,6 +94,14 @@ public class ConverterUtils {
         String gender = request.getParameter("gender");
         String profilePicUrl = request.getParameter("picture");
 
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            List<String> reviewsIds = Arrays.stream(objectMapper.readValue(request.getParameter("reviewsIds"), String[].class)).toList();
+            user.setReviewIds(reviewsIds);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+
         if (username != null)
             user.setUsername(username);
         if (fullname != null && !fullname.isEmpty())

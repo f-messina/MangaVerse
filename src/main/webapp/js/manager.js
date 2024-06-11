@@ -336,7 +336,7 @@ $(document).ready(function() {
         $('#' + type + '-period-selection').change(function () {
             const period = $('#' + type + '-period-selection').val();
 
-            $("#single-" + type + "-analytics").find(".select").toggleClass("active");
+            $("#single-" + type + "-analytics").find(".diagram-parameter").toggleClass("active");
             const inputData = {
                 mediaId: type === 'anime' ? animeSelectedId : mangaSelectedId,
                 action: 'getAverageRatingBy' + period.charAt(0).toUpperCase() + period.slice(1),

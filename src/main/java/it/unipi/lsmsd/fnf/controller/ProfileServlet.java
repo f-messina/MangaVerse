@@ -286,7 +286,7 @@ public class ProfileServlet extends HttpServlet {
         objectMapper.registerModule(javaTimeModule);
 
         String userId = request.getParameter("userId");
-        List<String> reviewIds = Arrays.stream(objectMapper.readValue(request.getParameter("reviewIds"), String[].class)).toList();
+        List<String> reviewIds = Arrays.stream(objectMapper.readValue(request.getParameter("reviewsIds"), String[].class)).toList();
         String pageString = request.getParameter("page");
         int page = 0;
         if (pageString != null) {
@@ -347,6 +347,7 @@ public class ProfileServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         response.getWriter().write(jsonResponse.toString());
     }
+
     private void handleSuggestedMediaContent(HttpServletRequest request, HttpServletResponse response) throws IOException{
 
         ObjectMapper objectMapper = new ObjectMapper();
@@ -383,6 +384,7 @@ public class ProfileServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         response.getWriter().write(jsonResponse.toString());
     }
+
     private void handleSuggestedUsers(HttpServletRequest request, HttpServletResponse response) throws IOException{
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode jsonResponse = objectMapper.createObjectNode();

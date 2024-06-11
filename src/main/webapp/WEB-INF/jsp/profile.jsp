@@ -3,6 +3,12 @@
 <%@ page import="it.unipi.lsmsd.fnf.model.enums.Gender" %>
 <%@ page import="it.unipi.lsmsd.fnf.utils.Constants" %>
 <%@ page contentType="text/html;charset=UTF-8" %>
+
+<c:set var="isLogged" value="${not empty sessionScope[Constants.AUTHENTICATED_USER_KEY]}" />
+<c:set var="isManager" value="${isLogged and not sessionScope[Constants.AUTHENTICATED_USER_KEY].getType().equals(UserType.USER)}" />
+<c:set var="isLoggedPageOwner" value="${isLogged and sessionScope[Constants.AUTHENTICATED_USER_KEY].getId() eq userInfo.id}" />
+<c:set var="isFollowed" value="${requestScope['isFollowed']}" />
+<c:set var="userInfo" value="${requestScope['userInfo']}" />
 <!DOCTYPE html>
 <html>
 <head>
@@ -10,15 +16,9 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/profile.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/navbar.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/user_list.css">
-
-    <title>PROFILE</title>
+    <title>${userInfo.getUsername()} Profile</title>
 </head>
 <body>
-    <c:set var="isLogged" value="${not empty sessionScope[Constants.AUTHENTICATED_USER_KEY]}" />
-    <c:set var="userInfo" value="${requestScope['userInfo']}" />
-    <c:set var="isLoggedPageOwner" value="${isLogged and sessionScope[Constants.AUTHENTICATED_USER_KEY].getId() eq userInfo.id}" />
-    <c:set var="isFollowed" value="${requestScope['isFollowed']}" />
-
     <!-- navbar -->
     <nav>
         <a href="${pageContext.request.contextPath}/mainPage"><img src="${pageContext.request.contextPath}/images/logo-with-initial.png" alt="logo" /></a>
@@ -38,7 +38,14 @@
             <a href="${pageContext.request.contextPath}/mainPage/anime" class="anime">Anime</a>
             <c:choose>
                 <c:when test="${isLogged}">
-                    <div class="logout" onclick="logout('auth')">
+                    <c:choose>
+                    <c:when test="${isLoggedPageOwner}">
+                        <div class="logout" onclick="logout('auth')">
+                    </c:when>
+                    <c:otherwise>
+                        <div class="logout" onclick="logout('profile?userId=${userInfo.getId()}')">
+                    </c:otherwise>
+                    </c:choose>
                         <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="sign-out-alt" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="logout-icon"><path data-v-04b245e6="" fill="currentColor" d="M497 273L329 441c-15 15-41 4.5-41-17v-96H152c-13.3 0-24-10.7-24-24v-96c0-13.3 10.7-24 24-24h136V88c0-21.4 25.9-32 41-17l168 168c9.3 9.4 9.3 24.6 0 34zM192 436v-40c0-6.6-5.4-12-12-12H96c-17.7 0-32-14.3-32-32V160c0-17.7 14.3-32 32-32h84c6.6 0 12-5.4 12-12V76c0-6.6-5.4-12-12-12H96c-53 0-96 43-96 96v192c0 53 43 96 96 96h84c6.6 0 12-5.4 12-12z" class=""></path></svg>
                         <div class="logout-text">Log Out</div>
                     </div>
@@ -66,7 +73,7 @@
 
                 <div class="profile-user-settings-px">
                     <h1 id="username-displayed" class="profile-user-name-px">${userInfo.getUsername()}</h1>
-                    <c:if test="${isLogged}">
+                    <c:if test="${isLogged and not isManager}">
                         <c:choose>
                             <c:when test="${isLoggedPageOwner}">
                                 <button class="btn-px profile-edit-btn-px" onclick="showEditForm()">Edit Profile</button>
@@ -381,7 +388,7 @@
             picture: "${userInfo.getProfilePicUrl()}",
             gender: "${userInfo.getGender().name()}",
             appRating: parseInt("${empty userInfo.appRating ? "" : userInfo.appRating}"),
-            reviewIds: "${empty userInfo.reviewIds ? "" : userInfo.reviewIds}".slice(1, -1).split(", ")
+            reviewsIds: "${empty userInfo.reviewIds ? "" : userInfo.reviewIds}".slice(1, -1).split(", ")
         }
     </script>
 </body>

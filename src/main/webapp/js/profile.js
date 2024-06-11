@@ -106,15 +106,13 @@ function hideEditForm() {
 }
 
 function storeInitialValues() {
-    profile = {
-        username: $("#username").val(),
-        fullname: $("#fullname").val(),
-        description: $("#description").val(),
-        country: $("#country").val(),
-        birthdate: $("#birthdate").val(),
-        picture: $("#picture").val(),
-        gender: $("#gender").val()
-    }
+    profile.username = $("#username").val();
+    profile.fullname = $("#fullname").val();
+    profile.description = $("#description").val();
+    profile.country = $("#country").val();
+    profile.birthdate = $("#birthdate").val();
+    profile.picture = $("#picture").val();
+    profile.gender = $("#gender").val();
 }
 
 function resetForm() {
@@ -166,7 +164,7 @@ function setNewValues() {
     storeInitialValues();
 }
 
-function getModifiedInfo(profile) {
+function getModifiedInfo() {
     // Initialize an empty object for inputData
     const inputData = {};
 
@@ -192,12 +190,13 @@ function getModifiedInfo(profile) {
     }
 
     inputData.action = "editProfile";
+    inputData.reviewsIds = JSON.stringify(profile.reviewsIds)
     return inputData;
 }
 
 editButton.click(function() {
 
-    const inputData = getModifiedInfo(profile);
+    const inputData = getModifiedInfo();
     if (Object.keys(inputData).length === 0) {
         $("#general-error").text("No changes made.");
         return;
@@ -206,6 +205,7 @@ editButton.click(function() {
     $.post(contextPath + "/profile", inputData, function(data) {
         if (data.success) {
             editProfileDiv.hide();
+            $("body").css("overflow-y", "auto");
             overlay.hide();
             setNewValues();
         }
@@ -363,7 +363,7 @@ function changeSection(button) {
 function fetchData(action, page = 1) {
     const input = { "action": action, "page": page, "userId": profile.userId };
     if (action === "getReviews") {
-        input["reviewIds"] = JSON.stringify(profile.reviewIds);
+        input["reviewsIds"] = JSON.stringify(profile.reviewsIds);
     }
 
     $.post(`${contextPath}/profile`, input, (data) => {

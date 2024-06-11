@@ -76,14 +76,14 @@ public class ManagerServlet extends HttpServlet {
         String action = request.getParameter("action");
         LoggedUserDTO loggedUser = SecurityUtils.getAuthenticatedUser(request);
 
-//        if (loggedUser == null) {
-//            response.sendRedirect("auth");
-//            return;
-//
-//        } else if (!loggedUser.getType().equals(UserType.MANAGER)) {
-//            response.sendRedirect("profile");
-//            return;
-//        }
+        if (loggedUser == null) {
+            response.sendRedirect("auth");
+            return;
+
+        } else if (!loggedUser.getType().equals(UserType.MANAGER)) {
+            response.sendRedirect("profile");
+            return;
+        }
 
         switch (action) {
             case "getAnimeDefaultAnalytics" -> handleGetAnimeDefaultAnalytics(request, response);
