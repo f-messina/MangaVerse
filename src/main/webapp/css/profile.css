@@ -440,6 +440,10 @@
     margin-top: 1.5rem;
 }
 
+#delete-button {
+    float: right !important;
+}
+
 #edit-button:disabled {
     background-color: #c5ccd6;
     color: #000000;

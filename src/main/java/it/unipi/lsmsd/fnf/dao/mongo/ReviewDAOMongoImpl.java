@@ -42,6 +42,7 @@ import static com.mongodb.client.model.Sorts.descending;
 import static com.mongodb.client.model.Updates.*;
 import static com.mongodb.client.model.Filters.in;
 import static it.unipi.lsmsd.fnf.utils.DocumentUtils.*;
+import static java.util.stream.Collectors.toMap;
 
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Projections;
@@ -320,36 +321,19 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
                 throw new MongoException("ReviewDAOMongoImpl: deleteReview: Review not found");
             }
 
-            String userId = reviewDocument.get("user", Document.class).getObjectId("id").toHexString();
-            String mediaContentId = null;
-            String mediaContentType = null;
-
-            if(reviewDocument.containsKey("anime")) {
-                mediaContentId = reviewDocument.get("anime", Document.class).getObjectId("id").toHexString();
-                mediaContentType = "anime";
-
-            } else if (reviewDocument.containsKey("manga")) {
-                mediaContentId = reviewDocument.get("manga", Document.class).getObjectId("id").toHexString();
-                mediaContentType = "manga";
-            } else {
-                throw new DAOException("Invalid media content type");
-
-            }
-
             //Delete the review
             if (reviewCollection.deleteOne(filter).getDeletedCount()==0) {
-                throw new MongoException("ReviewDAOMongoImpl: deleteReview: Review not found");
-
+                throw new MongoException("ReviewDAOMongoImpl: deleteReview: Review not deleted");
             }
 
             //Remove the review ID from the anime and manga collections
+            String mediaContentType = reviewDocument.containsKey("anime") ? "anime" : "manga";
+            filter = eq("review_ids", reviewId);
             Bson pullReviewId = pull("review_ids", reviewId);
-            getCollection(mediaContentType).updateMany(eq("review_ids", reviewId), pullReviewId);
-
+            getCollection(mediaContentType).updateMany(filter, pullReviewId);
 
             //Remove the review ID from the user collection
-            getCollection("users").updateMany(eq("review_ids", reviewId), pullReviewId);
-
+            getCollection("users").updateMany(filter, pullReviewId);
 
         } catch (MongoException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR,"The review is not found.");
@@ -361,32 +345,24 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
     }
 
     @Override
-    public void refreshLatestReviewsOnUserDeletion(String userId) throws DAOException {
+    public void refreshLatestReviewsOnUserDeletion(List<String> reviewsIds) throws DAOException {
         try {
+            MongoCollection<Document> animeCollection = getCollection("anime");
+            MongoCollection<Document> mangaCollection = getCollection("manga");
 
-            // Remove the latest reviews array from the anime and manga that have only the user's reviews
-            Bson filterRemoveLatestReviewsArray = and(
-                    eq("latest_reviews.user.id", new ObjectId(userId)),
-                    eq("latest_reviews", new Document("$size", 1))
-            );
-            Bson removeLatestReviewsArray = unset("latest_reviews");
-            getCollection("anime").updateMany(filterRemoveLatestReviewsArray, removeLatestReviewsArray);
-            getCollection("manga").updateMany(filterRemoveLatestReviewsArray, removeLatestReviewsArray);
-
-            // Remove the user's reviews from the latest reviews array of the anime and manga that have less than 5 reviews
-            Bson filterRemoveUserReviews = and(
-                    eq("latest_reviews.user.id", new ObjectId(userId)),
-                    not(size("latest_reviews", 5))
-            );
-            Bson removeUserReview = pull("latest_reviews", eq("user.id", new ObjectId(userId)));
-            getCollection("anime").updateMany(filterRemoveUserReviews, removeUserReview);
-            getCollection("manga").updateMany(filterRemoveUserReviews, removeUserReview);
-
-            // Get the IDs of the remaining anime and manga that the user has reviewed recently
-            List<ObjectId> animeIds = getCollection("anime").find(Filters.elemMatch("latest_reviews", eq("user.id", new ObjectId(userId))))
-                    .map(doc -> doc.getObjectId("_id")).into(new ArrayList<>());
-            List<ObjectId> mangaIds = getCollection("manga").find(Filters.elemMatch("latest_reviews", eq("user.id", new ObjectId(userId))))
-                    .map(doc -> doc.getObjectId("_id")).into(new ArrayList<>());
+            // Get the reviewsIds for each manga and anime
+            Bson filter = in("latest_reviews.id", reviewsIds.stream().map(ObjectId::new).toList());
+            Bson projection = fields(include("review_ids"), excludeId());
+            List<String> animeReviewIds = Optional.of(animeCollection.find(filter).projection(projection).into(new ArrayList<>()))
+                    .map(list -> list.stream()
+                            .flatMap(document -> document.getList("review_ids", String.class).stream())
+                            .toList())
+                    .orElse(new ArrayList<>());
+            List<String> mangaReviewIds = Optional.of(mangaCollection.find(filter).projection(projection).into(new ArrayList<>()))
+                    .map(list -> list.stream()
+                            .flatMap(document -> document.getList("review_ids", String.class).stream())
+                            .toList())
+                    .orElse(new ArrayList<>());
 
             // Get the latest reviews for the anime and manga that the user has reviewed recently
             MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
@@ -395,12 +371,13 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
                     facet(
                             // anime facet
                             new Facet("anime", List.of(
-                                    match(in("anime.id", animeIds)),
+                                    match(in("_id", animeReviewIds.stream().map(ObjectId::new).toList())),
                                     sort(descending("date")),
                                     group("$anime.id", Accumulators.push("latest_reviews", "$$ROOT")),
                                     project(computed("latest_reviews", new Document("$map",
                                             new Document("input", new Document("$slice", Arrays.asList("$latest_reviews", 5)))
                                                     .append("in", new Document()
+                                                                    .append("id", "$$this._id")
                                                                     .append("user", "$$this.user")
                                                                     .append("comment", "$$this.comment")
                                                                     .append("date", "$$this.date")
@@ -409,12 +386,13 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
                                     )))
                             )),
                             new Facet("manga", List.of(
-                                    match(in("manga.id", mangaIds)),
+                                    match(in("_id", mangaReviewIds.stream().map(ObjectId::new).toList())),
                                     sort(descending("date")),
                                     group("$manga.id", Accumulators.push("latest_reviews", "$$ROOT")),
                                     project(computed("latest_reviews", new Document("$map",
                                             new Document("input", new Document("$slice", Arrays.asList("$latest_reviews", 5)))
                                                     .append("in", new Document()
+                                                            .append("id", "$$this._id")
                                                             .append("user", "$$this.user")
                                                             .append("comment", "$$this.comment")
                                                             .append("date", "$$this.date")
@@ -430,16 +408,15 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
             if (latestReviews == null) {
                 return;
             }
-
             latestReviews.getList("anime", Document.class).forEach(document -> {
-                Bson filter = eq("_id", document.getObjectId("_id"));
-                Bson update = set("latest_reviews", document.getList("latest_reviews", Document.class));
-                getCollection("anime").updateOne(filter, update);
+                Bson filter2 = eq("_id", document.getObjectId("_id"));
+                Bson update2 = set("latest_reviews", document.getList("latest_reviews", Document.class));
+                getCollection("anime").updateOne(filter2, update2);
             });
             latestReviews.getList("manga", Document.class).forEach(document -> {
-                Bson filter = eq("_id", document.getObjectId("_id"));
-                Bson update = set("latest_reviews", document.getList("latest_reviews", Document.class));
-                getCollection("manga").updateOne(filter, update);
+                Bson filter2 = eq("_id", document.getObjectId("_id"));
+                Bson update2 = set("latest_reviews", document.getList("latest_reviews", Document.class));
+                getCollection("manga").updateOne(filter2, update2);
             });
 
         } catch (MongoException e) {
@@ -482,24 +459,6 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
         }
     }
 
-    @Override
-    public void deleteReviewsByMedia(String mediaId) throws DAOException {
-        try {
-            MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
-
-            Bson filter = or(eq("anime.id", new ObjectId(mediaId)), eq("manga.id", new ObjectId(mediaId)));
-
-            reviewCollection.deleteMany(filter);
-
-        } catch (MongoException e) {
-            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
-
-        } catch (Exception e) {
-            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
-
-        }
-    }
-
     /**
      * Deletes all reviews associated with users not present in the database.
      * This method is used to clean up the database when users are deleted.
@@ -529,13 +488,29 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
     }
 
     @Override
-    public void deleteReviewsByAuthor(String userId) throws DAOException {
+    public void deleteReviews(List<String> reviewsIds, String elementDeleted) throws DAOException {
         try {
             MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
 
-            Bson filter = eq("user.id", new ObjectId(userId));
+            Bson filter = in("_id", reviewsIds.stream().map(ObjectId::new).toList());
 
             reviewCollection.deleteMany(filter);
+
+            filter = in("review_ids", reviewsIds);
+            Bson pullReviewId = pullAll("review_ids", reviewsIds);
+            if (elementDeleted.equals("user")) {
+                // Remove the review IDs from the anime and manga collections
+                getCollection("manga").updateMany(filter, pullReviewId);
+                getCollection("anime").updateMany(filter, pullReviewId);
+            } else if (elementDeleted.equals("media")) {
+                // Remove the review IDs from the user collection
+                getCollection("users").updateMany(filter, pullReviewId);
+            } else {
+                // Remove the review IDs from all collections
+                getCollection("manga").updateMany(filter, pullReviewId);
+                getCollection("anime").updateMany(filter, pullReviewId);
+                getCollection("users").updateMany(filter, pullReviewId);
+            }
 
         } catch (MongoException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());

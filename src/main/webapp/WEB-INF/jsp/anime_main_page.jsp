@@ -500,7 +500,7 @@
     </div>
 </section>
 
-<script src="${pageContext.request.contextPath}/js/main_page_test.js" defer></script>
+<script src="${pageContext.request.contextPath}/js/main_page.js" defer></script>
 <script src="${pageContext.request.contextPath}/js/navbar.js" defer></script>
 <script src="${pageContext.request.contextPath}/js/filters.js" defer></script>
 <script src="${pageContext.request.contextPath}/js/load_default_picture.js" defer></script>

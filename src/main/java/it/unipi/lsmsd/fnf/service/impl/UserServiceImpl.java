@@ -134,7 +134,7 @@ public class UserServiceImpl implements UserService {
         }
     }
     @Override
-    public void deleteUser(String userId) throws BusinessException {
+    public void deleteUser(String userId, List<String> reviewIds) throws BusinessException {
         try {
             userDAO.deleteUser(userId);
 
@@ -142,7 +142,7 @@ public class UserServiceImpl implements UserService {
             aperiodicExecutorTaskService.executeTask(new DeleteUserTask(userId));
 
             // Create a task which removes the user redundancy inside reviews
-            aperiodicExecutorTaskService.executeTask(new RemoveDeletedUserReviewsTask(userId));
+            aperiodicExecutorTaskService.executeTask(new RemoveDeletedUserReviewsTask(userId, reviewIds));
 
         } catch (DAOException e) {
             if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {

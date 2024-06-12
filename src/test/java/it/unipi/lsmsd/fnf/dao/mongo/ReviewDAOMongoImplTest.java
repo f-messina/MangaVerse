@@ -240,7 +240,7 @@ class ReviewDAOMongoImplTest {
     void refreshLatestReviewsOnUserDeletionTest() throws DAOException {
         ReviewDAOMongoImpl reviewDAO = new ReviewDAOMongoImpl();
         assertDoesNotThrow(() -> {
-            reviewDAO.refreshLatestReviewsOnUserDeletion("6647f6fd47d52d299e9ebf23");
+            reviewDAO.refreshLatestReviewsOnUserDeletion(List.of("66360c83bbca010b06d85622", "66360c83bbca010b06d85623", "66360c83bbca010b06d85624"));
             System.out.println("Latest reviews refreshed on user deletion");
         });
     }

@@ -89,8 +89,19 @@ function search(type, searchTerm = '') {
                     }
                     fetchData(inputData, type + '-chart-month', 'line');
                     $('#single-' + type + '-analytics').show();
+
+                    // Destroy the existing chart for the hidden period and show the chart for the selected period
+                    const existingChart = Chart.getChart(type + '-chart-year');
+                    if (existingChart) {
+                        existingChart.destroy();
+                    }
+                    $('#' + type + '-chart-year').removeClass("active");
+                    $('#' + type + '-chart-month').addClass("active");
+                    $('#' + type + '-year-form').addClass("active");
+                    $('#' + type + '-year-range-form').removeClass("active");
+                    $('#' + type + '-period-selection').val("month");
                 });
-                const link = $('<a>').attr('href', contextPath + '/' + type + '?mediaId=' + entry.id).text('View Details');
+                const link = $('<a>').addClass("right").attr('href', contextPath + '/' + type + '?mediaId=' + entry.id).text('View Details');
                 mediaItem.append(image, title, link);
                 mediaList.append(mediaItem);
             });
@@ -153,7 +164,6 @@ function getTrendMediaContent(type) {
             mediaList.empty(); // Clear previous search results
 
             Object.entries(data.results).forEach(function([key, value]) {
-                console.log(key);
                 // Parse the key (which is a JSON string representing MediaContentDTO) and value (which is the integer)
                 const entry = JSON.parse(key)
 
@@ -163,7 +173,7 @@ function getTrendMediaContent(type) {
                     .on("error", () => setDefaultCover(image, type));
                 imgLink.append(image);
                 const title = $('<a>').attr('href', contextPath + '/' + type + '?mediaId=' + entry.id).addClass("media-title").text(entry.title);
-                const link = $('<p>').text(value); // Set the integer value in the paragraph
+                const link = $('<p>').addClass("right").text("Likes: " + value); // Set the integer value in the paragraph
                 mediaItem.append(imgLink, title, link);
                 mediaList.append(mediaItem);
             });
@@ -259,7 +269,7 @@ $(document).ready(function() {
 
 
     // search triggers
-    mediaTypes = ['manga', 'anime'];
+    const mediaTypes = ['manga', 'anime'];
     mediaTypes.forEach(function(type) {
         const yearInput = $('#' + type + '-year');
         const startYearInput = $('#' + type + '-start-year');

@@ -6,6 +6,7 @@ const overlay = $("#overlay");
 
 const editProfileDiv = $("#editPopup");
 const editButton = $("#edit-button");
+const deleteButton = $("#delete-button");
 
 // Validation functions for the edit form //
 
@@ -216,6 +217,22 @@ editButton.click(function() {
     });
 });
 
+deleteButton.click(function() {
+    const inputData = {
+        action: "deleteProfile",
+        reviewsIds: JSON.stringify(profile.reviewsIds)
+    };
+    $.post(contextPath + "/profile", inputData, function(data) {
+        if (data.success) {
+            $.post(contextPath+"/auth", {action: "logout"}, function() {
+                window.location.href = contextPath + "/auth";
+            });
+        }
+    }).fail(function() {
+        $("#general-error").text("An error occurred. Please try again later.");
+    });
+});
+
 //////////////////////////////
 /// FOLLOWERS & FOLLOWINGS ///
 //////////////////////////////
@@ -351,12 +368,16 @@ function changeSection(button) {
         fetchData("getReviews");
     } else if (section === "anime" && $("#anime-list").children().first().length === 0) {
         fetchData("getAnimeLikes");
-        fetchSuggestions("anime", "location", profile.country);
-        fetchSuggestions("anime", "birthday", profile.birthdate);
+        if (profile.country !== "")
+            fetchSuggestions("anime", "location", profile.country);
+        if (profile.birthdate !== "")
+            fetchSuggestions("anime", "birthday", profile.birthdate);
     } else if (section === "manga" && $("#manga-list").children().first().length === 0) {
         fetchData("getMangaLikes");
-        fetchSuggestions("manga", "location",profile.country);
-        fetchSuggestions("manga", "birthday", profile.birthdate);
+        if (profile.country !== "")
+            fetchSuggestions("manga", "location",profile.country);
+        if (profile.birthdate !== "")
+            fetchSuggestions("manga", "birthday", profile.birthdate);
     }
 }
 

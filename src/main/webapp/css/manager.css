@@ -138,7 +138,21 @@ a {
     height: 12rem;
 }
 
-/* media content details */
+.media-title {
+    cursor: pointer;
+    max-width: 50%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.right {
+    margin-left: auto;
+    padding-right: 5rem;
+}
+
+/* media content analytics */
+
 .media-popup {
     display: none;
     position: fixed;

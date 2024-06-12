@@ -129,11 +129,11 @@ class MediaContentServiceImplTest {
         try {
             MediaContentService mediaContentService = ServiceLocator.getMediaContentService();
             String id = mediaContentService.searchByTitle("Updated Anime", 1, MediaContentType.ANIME).getEntries().getFirst().getId();
-            mediaContentService.deleteMediaContent(id, MediaContentType.ANIME);
+            mediaContentService.deleteMediaContent(id, List.of("657b301906c134f18885a314"), MediaContentType.ANIME);
             System.out.println("Anime deleted");
 
             id = mediaContentService.searchByTitle("Sample Manga", 1, MediaContentType.MANGA).getEntries().getFirst().getId();
-            mediaContentService.deleteMediaContent(id, MediaContentType.MANGA);
+            mediaContentService.deleteMediaContent(id, List.of("657b301906c134f18885a314"), MediaContentType.MANGA);
             System.out.println("Manga deleted");
             Thread.sleep(1000);
 

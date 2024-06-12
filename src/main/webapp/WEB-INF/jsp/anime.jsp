@@ -244,7 +244,7 @@
     </div>
 
     <script src="https://code.jquery.com/jquery-3.6.4.min.js" defer></script>
-    <script src="${pageContext.request.contextPath}/js/media_content_test.js" defer></script>
+    <script src="${pageContext.request.contextPath}/js/media_content.js" defer></script>
     <script src="${pageContext.request.contextPath}/js/navbar.js" defer></script>
     <script src="${pageContext.request.contextPath}/js/load_default_picture.js" defer></script>
     <script>

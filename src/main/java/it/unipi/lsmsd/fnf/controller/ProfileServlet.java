@@ -67,6 +67,7 @@ public class ProfileServlet extends HttpServlet {
 
         switch (action) {
             case "editProfile" -> handleUpdate(request, response);
+            case "deleteProfile" -> handleDelete(request, response);
             case "follow" -> handleFollow(request, response);
             case "unfollow" -> handleUnfollow(request, response);
             case "getAnimeLikes" -> handleGetAnimeLikes(request, response);
@@ -151,6 +152,24 @@ public class ProfileServlet extends HttpServlet {
                 case NO_CHANGE -> jsonResponse.put("generalError", "No changes were made to the profile.");
                 default -> jsonResponse.put("generalError", "An error occurred while updating the profile. Please try again later.");
             }
+        }
+
+        // Write the JSON response
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(jsonResponse.toString());
+    }
+
+    private void handleDelete(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode jsonResponse = objectMapper.createObjectNode();
+        try {
+            LoggedUserDTO authUser = SecurityUtils.getAuthenticatedUser(request);
+            List<String> reviewsIds = Arrays.stream(objectMapper.readValue(request.getParameter("reviewsIds"), String[].class)).toList();
+            userService.deleteUser(authUser.getId(), reviewsIds);
+            jsonResponse.put("success", true);
+        } catch (BusinessException e) {
+            jsonResponse.put("error", e.getMessage());
         }
 
         // Write the JSON response

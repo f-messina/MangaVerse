@@ -2,13 +2,14 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ page import="it.unipi.lsmsd.fnf.model.enums.Gender" %>
 <%@ page import="it.unipi.lsmsd.fnf.utils.Constants" %>
+<%@ page import="it.unipi.lsmsd.fnf.model.enums.UserType" %>
 <%@ page contentType="text/html;charset=UTF-8" %>
 
+<c:set var="userInfo" value="${requestScope['userInfo']}" />
 <c:set var="isLogged" value="${not empty sessionScope[Constants.AUTHENTICATED_USER_KEY]}" />
 <c:set var="isManager" value="${isLogged and not sessionScope[Constants.AUTHENTICATED_USER_KEY].getType().equals(UserType.USER)}" />
 <c:set var="isLoggedPageOwner" value="${isLogged and sessionScope[Constants.AUTHENTICATED_USER_KEY].getId() eq userInfo.id}" />
 <c:set var="isFollowed" value="${requestScope['isFollowed']}" />
-<c:set var="userInfo" value="${requestScope['userInfo']}" />
 <!DOCTYPE html>
 <html>
 <head>
@@ -220,6 +221,7 @@
                                 <!-- cancel and save changes buttons-->
                                 <button class="btn btn-secondary" onclick="hideEditForm()" type="button">Cancel</button>
                                 <button class="btn btn-primary" type="button" id="edit-button">Save changes</button>
+                                <button class="btn btn-secondary" type="button" id="delete-button">Delete account</button>
                                 <span id="general-error" style="color: red;"></span>
                             </div>
                         </div>

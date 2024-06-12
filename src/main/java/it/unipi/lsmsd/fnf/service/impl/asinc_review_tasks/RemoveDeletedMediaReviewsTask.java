@@ -10,20 +10,22 @@ import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 import it.unipi.lsmsd.fnf.service.exception.enums.BusinessExceptionType;
 import it.unipi.lsmsd.fnf.service.interfaces.Task;
 
+import java.util.List;
+
 public class RemoveDeletedMediaReviewsTask extends Task {
     private final ReviewDAO reviewDAO;
-    private final String mediaId;
+    private final List<String> reviewsIds;
 
-    public RemoveDeletedMediaReviewsTask(String mediaId) {
+    public RemoveDeletedMediaReviewsTask(List<String> reviewsIds) {
         super(4);
         this.reviewDAO = DAOLocator.getReviewDAO(DataRepositoryEnum.MONGODB);
-        this.mediaId = mediaId;
+        this.reviewsIds = reviewsIds;
     }
 
     @Override
     public void executeJob() throws BusinessException {
         try {
-            reviewDAO.deleteReviewsByMedia(mediaId);
+            reviewDAO.deleteReviews(reviewsIds, "media");
 
         } catch (DAOException e) {
             if(e.getType().equals(DAOExceptionType.DATABASE_ERROR)){
