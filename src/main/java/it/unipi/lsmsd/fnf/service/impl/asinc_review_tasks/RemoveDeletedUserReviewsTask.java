@@ -23,8 +23,8 @@ public class RemoveDeletedUserReviewsTask extends Task {
      * Constructs a RemoveDeletedUserReviewsTask.
      *
      * @param userId The ID of the deleted user.
+     * @param reviewsIds The reviewIds of the deleted user.
      */
-    public RemoveDeletedUserReviewsTask(String userId) {
     public RemoveDeletedUserReviewsTask(String userId, List<String> reviewsIds) {
         super(5);
         this.reviewDAO = DAOLocator.getReviewDAO(DataRepositoryEnum.MONGODB);

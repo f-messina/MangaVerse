@@ -361,18 +361,14 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
     /**
      * Refreshes the latest reviews for anime and manga collections when a user is deleted.
      * This method performs the following steps:
-     * 1. Removes the entire `latest_reviews` array from anime and manga documents where
-     *    the array contains exactly one review and that review belongs to the deleted user.
-     * 2. Removes the deleted user's reviews from `latest_reviews` arrays that contain fewer
-     *    than 5 reviews.
-     * 3. Identifies the IDs of anime and manga documents that still have reviews from the
-     *    deleted user after the previous steps.
-     * 4. Aggregates the latest reviews for these identified anime and manga, ensuring that
+     * 1. Identifies the IDs of reviews of anime and manga documents that still have reviews from the
+     *    deleted user in latest review.
+     * 2. Aggregates the latest reviews for these identified anime and manga, ensuring that
      *    only the top 5 latest reviews are retained.
-     * 5. Updates the `latest_reviews` field in the anime and manga collections with the
+     * 3. Updates the `latest_reviews` field in the anime and manga collections with the
      *    aggregated latest reviews.
      *
-     * @param userId The ID of the user being deleted.
+     * @param reviewsIds The IDs of the reviews being deleted.
      * @throws DAOException if a database error or any other error occurs during the operation.
      */
     @Override
@@ -521,10 +517,11 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
     /**
      * Deletes all reviews authored by a specific user.
      * This method performs the following steps:
-     * 1. Constructs a filter to match reviews where the `user.id` matches the provided `userId`.
-     * 2. Deletes all reviews that match the filter criteria from the reviews collection.
+     * 1. Remove all the reviews of the deleted user/media.
+     * 2. Remove all the ID redundancy in review_ids in anime/manga/user collection.
      *
-     * @param userId The ID of the user whose reviews are to be deleted.
+     * @param reviewsIds The ID of the user whose reviews are to be deleted.
+     * @param elementDeleted The type of element that was deleted: "user", "media", or "all".
      * @throws DAOException if a database error or any other error occurs during the operation.
      */
     @Override
@@ -641,6 +638,15 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
         }
     }
 
+
+    /**
+     * Checks if a user has reviewed a specific media content (anime or manga).
+     *
+     * @param userId The ID of the user to check.
+     * @param reviewIds The list of review IDs to check.
+     * @return A ReviewDTO object if the user has reviewed the media content, null otherwise.
+     * @throws DAOException if a database error or any other error occurs during the operation.
+     */
     @Override
     public ReviewDTO isReviewedByUser(String userId, List<String> reviewIds) throws DAOException {
         try {

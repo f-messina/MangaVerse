@@ -22,9 +22,8 @@ public class RemoveDeletedMediaReviewsTask extends Task {
     /**
      * Constructs a RemoveDeletedMediaReviewsTask.
      *
-     * @param mediaId The ID of the deleted media content.
+     * @param reviewsIds The reviewIds of the deleted media content.
      */
-    public RemoveDeletedMediaReviewsTask(String mediaId) {
     public RemoveDeletedMediaReviewsTask(List<String> reviewsIds) {
         super(4);
         this.reviewDAO = DAOLocator.getReviewDAO(DataRepositoryEnum.MONGODB);
