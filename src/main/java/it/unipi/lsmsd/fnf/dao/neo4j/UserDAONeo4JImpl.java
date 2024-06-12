@@ -650,7 +650,7 @@ public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
     }
 
     @Override
-    public void updateNumOfFollowed(String userId, Integer followed) throws DAOException {
+    public void updateNumOfFollowings(String userId, Integer followed) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in Neo4J");
     }
 

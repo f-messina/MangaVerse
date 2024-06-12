@@ -154,12 +154,12 @@ public class UserDAOMongoImplTest {
     }
 
     @Test
-    public void updateNumOfFollowedTest() {
+    public void updateNumOfFollowingsTest() {
         try {
             UserDAOMongoImpl userDAO = new UserDAOMongoImpl();
             UserSummaryDTO userSummaryDTO = userDAO.searchFirstNUsers("exampleUser", 1, null).getFirst();
 
-            userDAO.updateNumOfFollowed(userSummaryDTO.getId(), 10);
+            userDAO.updateNumOfFollowings(userSummaryDTO.getId(), 10);
         } catch (DAOException e) {
             fail("Exception not expected: " + e.getMessage());
         }

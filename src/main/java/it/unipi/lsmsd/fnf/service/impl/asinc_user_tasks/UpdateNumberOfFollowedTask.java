@@ -43,7 +43,7 @@ public class UpdateNumberOfFollowedTask extends Task {
             Integer followed = neo4jUserDAO.getNumOfFollowed(userId);
 
             // Update the number of followed users
-            mongoDbUserDAO.updateNumOfFollowed(userId, followed);
+            mongoDbUserDAO.updateNumOfFollowings(userId, followed);
 
         } catch (DAOException e) {
             if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {

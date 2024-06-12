@@ -1,6 +1,5 @@
 package it.unipi.lsmsd.fnf.dao.mongo;
 
-
 import com.mongodb.MongoException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.*;
@@ -30,7 +29,6 @@ import static com.mongodb.client.model.Accumulators.sum;
 import static com.mongodb.client.model.Aggregates.*;
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.*;
-import static com.mongodb.client.model.Sorts.ascending;
 import static com.mongodb.client.model.Sorts.descending;
 import static it.unipi.lsmsd.fnf.utils.DocumentUtils.RegisteredUserToDocument;
 import static it.unipi.lsmsd.fnf.utils.DocumentUtils.UserToUnsetUserFieldsDocument;
@@ -46,10 +44,13 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
 
     /**
      * Registers a new user in the system.
+     * The method performs the following steps:
+     * 1. Checks if the username and email are already in use.
+     * 2. Inserts the new user into the database.
      *
      * @param user The User object to be registered.
-     * @throws DAOException If an error occurs during registration,
-     *                      such as email or username already in use.
+     * @throws DAOException If an error occurs during the registration process,
+     *                     such as the username or email already being in use.
      */
     @Override
     public void saveUser(UserRegistrationDTO user) throws DAOException {
@@ -88,8 +89,11 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
 
     /**
      * Updates the information of an existing user in the system.
+     * The method performs the following steps:
+     * 1. Checks if the username is already in use by another user (when the username is changed).
+     * 2. Updates the user information in the database.
      *
-     * @param user The User object containing the updated information.
+     * @param user The User object (containing only the updated information).
      * @throws DAOException If an error occurs during the update process,
      *                      such as the username already exists.
      */
@@ -98,7 +102,7 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
         try {
             MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
 
-
+            // Check if the username is already in use by another user (when the username is changed)
             if (user.getUsername() != null) {
                 Bson usernameExistsFilter = and(
                         eq("username", user.getUsername()),
@@ -149,7 +153,6 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
 
             Bson filter = eq("_id", new ObjectId(userId));
 
-            //TODO: check if this method is useful: in the launch of exception, it doesn't do anything
             if (usersCollection.deleteOne(filter).getDeletedCount() == 0) {
                 throw new MongoException("UserDAOMongoImpl: deleteUser: No user found");
             }
@@ -167,6 +170,9 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
      * Retrieves a user from the system based on their ID.
      *
      * @param userId The ID of the user to retrieve.
+     * @param onlyStatsInfo If true, only retrieves the user's location and birthday.
+     *                      If false, retrieves all user information except for the manager flag, password, email, joined_on, and app_rating.
+     * @param isLoggedUserInfo If true, retrieves all user information except for the manager flag.
      * @return The retrieved user, or null if not found.
      * @throws DAOException If an error occurs while retrieving the user.
      */
@@ -180,9 +186,9 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
             if (onlyStatsInfo) {
                 projection = fields(include("location", "birthday"), excludeId());
             } else if (isLoggedUserInfo) {
-                projection = exclude("is_manager", "password");
+                projection = exclude("is_manager", "joined_on");
             } else {
-                projection = exclude("is_manager", "password", "email", "joined_on", "app_rating");
+                projection = exclude("is_manager", "password", "email", "joined_on", "app_rating", "reviews_ids");
             }
 
             return Optional.ofNullable(usersCollection.find(filter).projection(projection).first())
@@ -239,7 +245,11 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
      * Searches for users based on their username.
      *
      * @param username The username to search for.
-     * @return A list of RegisteredUserDTO objects matching the search criteriaOfSearch.
+     *                 If null or empty, all users are returned.
+     * @param n        The maximum number of users to return.
+     * @param loggedUser The username of the logged user.
+     *                   If not null, the logged user is excluded from the search results.
+     * @return A list of RegisteredUserDTO objects matching the search criteria.
      * @throws DAOException If an error occurs while searching for users.
      */
     @Override
@@ -283,33 +293,32 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
     /**
      * Calculates the distribution of users based on a given search criterion.
      *
-     * @param criteriaOfSearch The criterion on which to base the distribution.
-     *                         Can be "gender", "location", "birthday", or "joined_on".
+     * @param criteria The criterion on which to base the distribution.
+     *                         Criteria values: "gender", "location", "birthday", or "joined_on".
      * @return A map where each key represents a unique value of the specified criterion,
      *         and the corresponding value is the count of users having that value.
      * @throws DAOException If there's an issue with the database or a generic error occurs.
      */
     @Override
-    public Map<String, Integer> getDistribution (String criteriaOfSearch) throws DAOException {
+    public Map<String, Integer> getDistribution(String criteria) throws DAOException {
         try {
             MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
-            //criteriaOfSearch can be: gender, location, birthday, joined_on
 
             List<Bson> pipeline = new ArrayList<>();
-            if (criteriaOfSearch.equals("birthday") || criteriaOfSearch.equals("joined_on")) {
+            if (criteria.equals("birthday") || criteria.equals("joined_on")) {
                 pipeline.addAll(List.of(
-                        match(exists(criteriaOfSearch)),
-                        project(fields(computed("year", new Document("$year", "$" + criteriaOfSearch)), include("app_rating" ))),
+                        match(exists(criteria)),
+                        project(fields(computed("year", new Document("$year", "$" + criteria)), include("app_rating" ))),
                         group("$year", sum("count", 1)),
                         sort(descending("count"))));
-            } else if (criteriaOfSearch.equals("location") || criteriaOfSearch.equals("gender")) {
+            } else if (criteria.equals("location") || criteria.equals("gender")) {
                 pipeline.addAll(List.of(
-                        match(exists(criteriaOfSearch)),
-                        project(fields(include(criteriaOfSearch, "app_rating"))),
-                        group("$" + criteriaOfSearch, sum("count", 1)),
+                        match(exists(criteria)),
+                        project(fields(include(criteria, "app_rating"))),
+                        group("$" + criteria, sum("count", 1)),
                         sort(descending("count"))));
             } else {
-                throw new Exception("UserDAOMongoImpl: getDistribution: Invalid criteriaOfSearch");
+                throw new Exception("UserDAOMongoImpl: getDistribution: Invalid criteria");
             }
 
             List<Document> aggregationResult = usersCollection.aggregate(pipeline).into(new ArrayList<>());
@@ -319,7 +328,7 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
 
             Map<String,Integer> map = new LinkedHashMap<>();
             for (Document doc : aggregationResult) {
-                if (criteriaOfSearch.equals("birthday") || criteriaOfSearch.equals("joined_on")) {
+                if (criteria.equals("birthday") || criteria.equals("joined_on")) {
                     map.put(String.valueOf(doc.getInteger("_id")), doc.getInteger("count"));
                 } else {
                     map.put(doc.getString("_id"), doc.getInteger("count"));
@@ -337,20 +346,20 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
     /**
      * Calculates the average application rating based on the specified search criteria.
      *
-     * @param criteriaOfSearch The criteria on which to base the calculation.
-     *                         Typically, this can be fields like "gender", "location", "birthday", "joined_on", etc.
+     * @param criteria The criteria on which to base the calculation.
+     *                         Criteria values: "gender", "location", "birthday", "joined_on".
      * @return A map where each key represents a unique value of the specified criterion,
      *         and the corresponding value is the average application rating associated with that criterion.
      * @throws DAOException If there's an issue with the database or a generic error occurs.
      */
     @Override
-    public Map<String, Double> averageAppRating(String criteriaOfSearch) throws DAOException {
+    public Map<String, Double> averageAppRating(String criteria) throws DAOException {
         try {
             MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
 
             List<Bson> pipeline = List.of(
-                    match(and(exists(criteriaOfSearch), exists("app_rating"))),
-                    group("$" + criteriaOfSearch, avg("averageAppRating", "$app_rating")),
+                    match(and(exists(criteria), exists("app_rating"))),
+                    group("$" + criteria, avg("averageAppRating", "$app_rating")),
                     sort(descending("averageAppRating"))
             );
 
@@ -375,9 +384,13 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
 
     /**
      * Calculates the average app rating for users grouped by age ranges.
-     * The method filters users based on the existence of "birthday" and "app_rating" fields,
-     * calculates the age of each user, groups users into age ranges, and calculates
-     * the average app rating within each age range.
+     * The age ranges are defined as follows:
+     * - 0-13 years
+     * - 13-20 years
+     * - 20-30 years
+     * - 30-40 years
+     * - 40-50 years
+     * - 50+ years
      *
      * @return A map containing the average app rating for each age range.
      * @throws DAOException If an error occurs during database operations.
@@ -430,10 +443,24 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
         }
     }
 
+    private String convertIntegerToAgeRange(Long age) {
+        if (age == 0) {
+            return "0-13";
+        } else if (age == 13) {
+            return "13-20";
+        } else if (age == 20) {
+            return "20-30";
+        } else if (age == 30) {
+            return "30-40";
+        } else if (age == 40) {
+            return "40-50";
+        } else {
+            return "50+";
+        }
+    }
+
     /**
-     * Updates the number of followers for a user with the specified user ID.
-     * If the user is not found or the number of followers is not updated,
-     * appropriate exceptions are thrown.
+     * Updates the number of followers redundancy for the user with the specified user ID.
      *
      * @param userId    The ID of the user whose number of followers to update.
      * @param followers The new number of followers to set for the user.
@@ -466,9 +493,7 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
     }
 
     /**
-     * Updates the number of users followed by a user with the specified user ID.
-     * If the user is not found or the number of followed users is not updated,
-     * appropriate exceptions are thrown.
+     * Updates the number of followings redundancy for the user with the specified user ID.
      *
      * @param userId   The ID of the user whose number of followed users to update.
      * @param followed The new number of followed users to set for the user.
@@ -477,7 +502,7 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
      *                      of followed users is not updated.
      */
     @Override
-    public void updateNumOfFollowed(String userId, Integer followed) throws DAOException {
+    public void updateNumOfFollowings(String userId, Integer followed) throws DAOException {
         try {
             MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
 
@@ -528,28 +553,6 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
         } catch (Exception e) {
             throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
 
-        }
-    }
-
-    /**
-     * Converts an age represented as a Long value to an age range string.
-     *
-     * @param age The age value to be converted to an age range.
-     * @return The corresponding age range string.
-     */
-    private String convertIntegerToAgeRange(Long age) {
-        if (age == null || age < 0) {
-            return "Unknown";
-        } else if (age <= 13) {
-            return "0-13";
-        } else if (age <= 20) {
-            return "13-20";
-        } else if (age <= 40) {
-            return "20-40";
-        } else if (age <= 50) {
-            return "40-50";
-        } else {
-            return "50+";
         }
     }
 

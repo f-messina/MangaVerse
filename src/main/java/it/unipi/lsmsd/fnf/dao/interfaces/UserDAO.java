@@ -24,7 +24,7 @@ public interface UserDAO {
     Map<String, Double> averageAppRating(String criteria) throws DAOException; // MANAGER (TABLE OR BAR CHART)
     Map<String, Double> averageAppRatingByAgeRange() throws DAOException; // MANAGER (TABLE OR BAR CHART)
     void updateNumOfFollowers(String userId, Integer followers) throws DAOException;
-    void updateNumOfFollowed(String userId, Integer followed) throws DAOException;
+    void updateNumOfFollowings(String userId, Integer followed) throws DAOException;
     void rateApp(String userId, Integer rating) throws DAOException;
 
     //Neo4J queries
