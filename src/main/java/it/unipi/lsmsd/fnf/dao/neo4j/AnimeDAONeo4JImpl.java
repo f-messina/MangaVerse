@@ -7,6 +7,7 @@ import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
 import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
+import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
 import it.unipi.lsmsd.fnf.model.mediaContent.MediaContent;
@@ -21,10 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.neo4j.driver.Values.parameters;
@@ -521,11 +519,13 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
                     tx -> tx.run(query, params).list()
             );
 
-            return records.stream().map(record -> {
+            Map<MediaContentDTO, Integer> result = new LinkedHashMap<>();
+            records.forEach(record -> {
                 AnimeDTO animeDTO = (AnimeDTO) recordToMediaContentDTO(record);
                 Integer likes = record.get("numLikes").asInt();
-                return Map.entry(animeDTO, likes);
-            }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                result.put(animeDTO, likes);
+            });
+            return result;
 
         } catch (Neo4jException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());

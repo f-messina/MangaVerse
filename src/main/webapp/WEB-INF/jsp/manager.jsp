@@ -5,11 +5,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Manager Page - Anime Analytics</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/manager.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/navbar.css"/>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/website.css"/>
-
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/user_list.css"/>
+    <title>Analytics</title>
 </head>
 
 <body>
@@ -118,7 +118,7 @@
             <div id="manga-list" class="media-list"></div>
         </div>
 
-        <div id="single-manga-analytics" class="analytic-box" style="display: none;">
+        <div id="single-manga-analytics" class="analytic-box large" style="display: none;">
             <h1 id="manga-selected"></h1>
             <div class="analytic-title">
                 <label class="analytic-title" for="manga-period-selection">Average Rating by: </label>
@@ -127,8 +127,8 @@
                     <option value="year">YEAR</option>
                 </select>
             </div>
-            <div id="manga-year-form" class="diagram-parameter">
-                <div class="select active">
+            <div id="manga-year-form" class="diagram-parameter active">
+                <div class="select">
                     <label for="manga-year">Select Year:</label>
                     <input type="number" id="manga-year" name="year" min="1900" max="${currentYear}">
                 </div>
@@ -183,7 +183,7 @@
             <div id="anime-list" class="media-list"></div>
         </div>
 
-        <div id="single-anime-analytics" class="analytic-box" style="display: none;">
+        <div id="single-anime-analytics" class="analytic-box large" style="display: none;">
             <h1 id="anime-selected"></h1>
             <div class="analytic-title">
                 <label class="analytic-title" for="anime-period-selection">Average Rating by: </label>
@@ -192,8 +192,8 @@
                     <option value="year">YEAR</option>
                 </select>
             </div>
-            <div id="anime-year-form" class="diagram-parameter">
-                <div class="select active">
+            <div id="anime-year-form" class="diagram-parameter active">
+                <div class="select">
                     <label for="anime-year">Select Year:</label>
                     <input type="number" id="anime-year" name="year" min="1900" max="${currentYear}">
                 </div>
@@ -219,8 +219,8 @@
 <script src="${pageContext.request.contextPath}/js/manager.js" defer></script>
 <script>
     const contextPath = '${pageContext.request.contextPath}';
-    const animeDefaultImage = contextPath + '/images/anime-image-default.png';
-    const mangaDefaultImage = contextPath + '/images/manga-image-default.png';
+    const mangaDefaultImage = "${pageContext.request.contextPath}/${Constants.DEFAULT_COVER_MANGA}";
+    const animeDefaultImage = "${pageContext.request.contextPath}/${Constants.DEFAULT_COVER_ANIME}";
     const distributionLabels = [];
     const distributionData = [];
     <c:forEach var="entry" items="${distribution}">

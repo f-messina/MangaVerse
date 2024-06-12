@@ -6,6 +6,7 @@ const overlay = $("#overlay");
 
 const editProfileDiv = $("#editPopup");
 const editButton = $("#edit-button");
+const deleteButton = $("#delete-button");
 
 // Validation functions for the edit form //
 
@@ -106,15 +107,13 @@ function hideEditForm() {
 }
 
 function storeInitialValues() {
-    profile = {
-        username: $("#username").val(),
-        fullname: $("#fullname").val(),
-        description: $("#description").val(),
-        country: $("#country").val(),
-        birthdate: $("#birthdate").val(),
-        picture: $("#picture").val(),
-        gender: $("#gender").val()
-    }
+    profile.username = $("#username").val();
+    profile.fullname = $("#fullname").val();
+    profile.description = $("#description").val();
+    profile.country = $("#country").val();
+    profile.birthdate = $("#birthdate").val();
+    profile.picture = $("#picture").val();
+    profile.gender = $("#gender").val();
 }
 
 function resetForm() {
@@ -166,7 +165,7 @@ function setNewValues() {
     storeInitialValues();
 }
 
-function getModifiedInfo(profile) {
+function getModifiedInfo() {
     // Initialize an empty object for inputData
     const inputData = {};
 
@@ -192,12 +191,13 @@ function getModifiedInfo(profile) {
     }
 
     inputData.action = "editProfile";
+    inputData.reviewsIds = JSON.stringify(profile.reviewsIds)
     return inputData;
 }
 
 editButton.click(function() {
 
-    const inputData = getModifiedInfo(profile);
+    const inputData = getModifiedInfo();
     if (Object.keys(inputData).length === 0) {
         $("#general-error").text("No changes made.");
         return;
@@ -206,11 +206,28 @@ editButton.click(function() {
     $.post(contextPath + "/profile", inputData, function(data) {
         if (data.success) {
             editProfileDiv.hide();
+            $("body").css("overflow-y", "auto");
             overlay.hide();
             setNewValues();
         }
         $("#username-error").text(data.usernameError || "");
         $("#general-error").text(data.generalError || "");
+    }).fail(function() {
+        $("#general-error").text("An error occurred. Please try again later.");
+    });
+});
+
+deleteButton.click(function() {
+    const inputData = {
+        action: "deleteProfile",
+        reviewsIds: JSON.stringify(profile.reviewsIds)
+    };
+    $.post(contextPath + "/profile", inputData, function(data) {
+        if (data.success) {
+            $.post(contextPath+"/auth", {action: "logout"}, function() {
+                window.location.href = contextPath + "/auth";
+            });
+        }
     }).fail(function() {
         $("#general-error").text("An error occurred. Please try again later.");
     });
@@ -351,19 +368,23 @@ function changeSection(button) {
         fetchData("getReviews");
     } else if (section === "anime" && $("#anime-list").children().first().length === 0) {
         fetchData("getAnimeLikes");
-        fetchSuggestions("anime", "location", profile.country);
-        fetchSuggestions("anime", "birthday", profile.birthdate);
+        if (profile.country !== "")
+            fetchSuggestions("anime", "location", profile.country);
+        if (profile.birthdate !== "")
+            fetchSuggestions("anime", "birthday", profile.birthdate);
     } else if (section === "manga" && $("#manga-list").children().first().length === 0) {
         fetchData("getMangaLikes");
-        fetchSuggestions("manga", "location",profile.country);
-        fetchSuggestions("manga", "birthday", profile.birthdate);
+        if (profile.country !== "")
+            fetchSuggestions("manga", "location",profile.country);
+        if (profile.birthdate !== "")
+            fetchSuggestions("manga", "birthday", profile.birthdate);
     }
 }
 
 function fetchData(action, page = 1) {
     const input = { "action": action, "page": page, "userId": profile.userId };
     if (action === "getReviews") {
-        input["reviewIds"] = JSON.stringify(profile.reviewIds);
+        input["reviewsIds"] = JSON.stringify(profile.reviewsIds);
     }
 
     $.post(`${contextPath}/profile`, input, (data) => {

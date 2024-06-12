@@ -23,10 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.neo4j.driver.Values.parameters;
@@ -515,11 +512,13 @@ public class MangaDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<M
                     tx -> tx.run(query, params).list()
             );
 
-            return records.stream().map(record -> {
+            Map<MediaContentDTO, Integer> result = new LinkedHashMap<>();
+            records.forEach(record -> {
                 MangaDTO mangaDTO = (MangaDTO) recordToMediaContentDTO(record);
                 Integer likes = record.get("numLikes").asInt();
-                return Map.entry(mangaDTO, likes);
-            }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                result.put(mangaDTO, likes);
+            });
+            return result;
 
         } catch (Neo4jException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());

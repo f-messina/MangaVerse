@@ -252,7 +252,7 @@ public class MediaContentServlet extends HttpServlet {
         response.getWriter().write(jsonResponse.toString());
     }
 
-    private void handleGetReviews(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    private void handleGetReviews(HttpServletRequest request, HttpServletResponse response) throws IOException {
         JavaTimeModule javaTimeModule = new JavaTimeModule();
 
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT);
@@ -302,22 +302,8 @@ public class MediaContentServlet extends HttpServlet {
     }
 
     private void handleAddReview(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        JavaTimeModule javaTimeModule = new JavaTimeModule();
-
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT);
-        DateTimeFormatter dateTimeFormatter =  DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM);
-
-        // Register the formatters for serialization
-        javaTimeModule.addSerializer(LocalDate.class, new LocalDateSerializer(dateFormatter));
-        javaTimeModule.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer(dateTimeFormatter));
-        // Register the formatters for deserialization
-        javaTimeModule.addDeserializer(LocalDate.class, new LocalDateDeserializer(dateFormatter));
-        javaTimeModule.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(dateTimeFormatter));
-
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode jsonResponse = objectMapper.createObjectNode();
-
-        objectMapper.registerModule(javaTimeModule);
 
         LoggedUserDTO loggedUser = SecurityUtils.getAuthenticatedUser(request);
         String userId = SecurityUtils.getAuthenticatedUser(request).getId();
@@ -325,7 +311,7 @@ public class MediaContentServlet extends HttpServlet {
         String mediaTitle = request.getParameter("mediaTitle");
         String mediaType = request.getParameter("mediaType");
         String comment = request.getParameter("comment");
-        Integer rating = request.getParameter("rating") != null ? Integer.parseInt(request.getParameter("rating")) : null;
+        Integer rating = StringUtils.isNotEmpty(request.getParameter("rating")) ? Integer.parseInt(request.getParameter("rating")) : null;
         if (StringUtils.isBlank(userId) || StringUtils.isBlank(mediaId) || StringUtils.isBlank(mediaTitle) ||
                 StringUtils.isBlank(mediaType) || loggedUser == null || !loggedUser.getType().equals(UserType.USER) ||
                 (StringUtils.isBlank(comment) && (rating == null || rating < 1 || rating > 10))
@@ -337,7 +323,6 @@ public class MediaContentServlet extends HttpServlet {
                 MediaContentDTO mediaContentDTO = mediaType.equals("anime") ? new AnimeDTO(mediaId, mediaTitle) : new MangaDTO(mediaId, mediaTitle);
                 reviewService.addReview(new ReviewDTO(mediaContentDTO, userSummaryDTO, comment, rating));
                 jsonResponse.put("success", true);
-                jsonResponse.put("date", LocalDateTime.now().format(dateTimeFormatter));
             } catch (BusinessException e) {
                 jsonResponse.put("error", "Error occurred during review addition");
             }
@@ -350,29 +335,15 @@ public class MediaContentServlet extends HttpServlet {
     }
 
     private void handleUpdateReview(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        JavaTimeModule javaTimeModule = new JavaTimeModule();
-
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
-
-        // Register the formatters for serialization
-        javaTimeModule.addSerializer(LocalDate.class, new LocalDateSerializer(dateFormatter));
-        javaTimeModule.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer(dateTimeFormatter));
-        // Register the formatters for deserialization
-        javaTimeModule.addDeserializer(LocalDate.class, new LocalDateDeserializer(dateFormatter));
-        javaTimeModule.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(dateTimeFormatter));
-
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode jsonResponse = objectMapper.createObjectNode();
-
-        objectMapper.registerModule(javaTimeModule);
 
         String reviewId = request.getParameter("reviewId");
         String mediaType = request.getParameter("mediaType");
         String mediaId = request.getParameter("mediaId");
         String mediaTitle = request.getParameter("mediaTitle");
         String comment = request.getParameter("comment");
-        Integer rating = request.getParameter("rating") != null ? Integer.parseInt(request.getParameter("rating")) : null;
+        Integer rating = StringUtils.isNotEmpty(request.getParameter("rating")) ? Integer.parseInt(request.getParameter("rating")) : null;
         LoggedUserDTO loggedUser = SecurityUtils.getAuthenticatedUser(request);
 
         if (StringUtils.isBlank(reviewId) || (StringUtils.isBlank(comment) && (rating == null || rating < 1 || rating > 10))) {
@@ -383,7 +354,6 @@ public class MediaContentServlet extends HttpServlet {
                 ReviewDTO reviewDTO = new ReviewDTO(reviewId, null, comment, rating, mediaContentDTO, loggedUser.toUserModel().toSummaryDTO());
                 reviewService.updateReview(reviewDTO);
                 jsonResponse.put("success", true);
-                jsonResponse.put("date", LocalDateTime.now().format(dateTimeFormatter));
             } catch (BusinessException e) {
                 jsonResponse.put("error", "Error occurred during review update");
             }

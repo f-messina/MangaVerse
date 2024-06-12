@@ -95,6 +95,7 @@ public class UserRegistrationDTO {
 
     public User toModel() {
         User user = new User();
+        user.setId(this.getId());
         user.setUsername(this.getUsername());
         user.setPassword(this.getPassword());
         user.setEmail(this.getEmail());

@@ -12,9 +12,12 @@ import it.unipi.lsmsd.fnf.service.interfaces.Task;
 /**
  * Task for removing reviews written by a deleted user.
  */
+import java.util.List;
+
 public class RemoveDeletedUserReviewsTask extends Task {
     private final ReviewDAO reviewDAO;
     private final String userId;
+    private final List<String> reviewsIds;
 
     /**
      * Constructs a RemoveDeletedUserReviewsTask.
@@ -22,9 +25,11 @@ public class RemoveDeletedUserReviewsTask extends Task {
      * @param userId The ID of the deleted user.
      */
     public RemoveDeletedUserReviewsTask(String userId) {
+    public RemoveDeletedUserReviewsTask(String userId, List<String> reviewsIds) {
         super(5);
         this.reviewDAO = DAOLocator.getReviewDAO(DataRepositoryEnum.MONGODB);
         this.userId = userId;
+        this.reviewsIds = reviewsIds;
     }
 
     /**
@@ -35,8 +40,8 @@ public class RemoveDeletedUserReviewsTask extends Task {
     @Override
     public void executeJob() throws BusinessException {
         try {
-            reviewDAO.deleteReviewsByAuthor(userId);
-            reviewDAO.refreshLatestReviewsOnUserDeletion(userId);
+            reviewDAO.deleteReviews(reviewsIds, "user");
+            reviewDAO.refreshLatestReviewsOnUserDeletion(reviewsIds);
 
         } catch (DAOException e) {
             if(e.getType().equals(DAOExceptionType.DATABASE_ERROR)){

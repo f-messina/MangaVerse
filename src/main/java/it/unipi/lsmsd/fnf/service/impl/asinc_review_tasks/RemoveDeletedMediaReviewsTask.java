@@ -13,9 +13,11 @@ import it.unipi.lsmsd.fnf.service.interfaces.Task;
 /**
  * Task for removing reviews associated with deleted media content.
  */
+import java.util.List;
+
 public class RemoveDeletedMediaReviewsTask extends Task {
     private final ReviewDAO reviewDAO;
-    private final String mediaId;
+    private final List<String> reviewsIds;
 
     /**
      * Constructs a RemoveDeletedMediaReviewsTask.
@@ -23,9 +25,10 @@ public class RemoveDeletedMediaReviewsTask extends Task {
      * @param mediaId The ID of the deleted media content.
      */
     public RemoveDeletedMediaReviewsTask(String mediaId) {
+    public RemoveDeletedMediaReviewsTask(List<String> reviewsIds) {
         super(4);
         this.reviewDAO = DAOLocator.getReviewDAO(DataRepositoryEnum.MONGODB);
-        this.mediaId = mediaId;
+        this.reviewsIds = reviewsIds;
     }
 
     /**
@@ -36,7 +39,7 @@ public class RemoveDeletedMediaReviewsTask extends Task {
     @Override
     public void executeJob() throws BusinessException {
         try {
-            reviewDAO.deleteReviewsByMedia(mediaId);
+            reviewDAO.deleteReviews(reviewsIds, "media");
 
         } catch (DAOException e) {
             if(e.getType().equals(DAOExceptionType.DATABASE_ERROR)){

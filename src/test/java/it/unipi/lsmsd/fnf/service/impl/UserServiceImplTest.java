@@ -103,7 +103,7 @@ class UserServiceImplTest {
         try {
             UserService userService = new UserServiceImpl();
             UserSummaryDTO userSummaryDTO = userService.searchFirstNUsers("exampleUser", 1, null).getFirst();
-            userService.deleteUser(userSummaryDTO.getId());
+            userService.deleteUser(userSummaryDTO.getId(), null);
             System.out.println("User deleted: " + userSummaryDTO.getId());
             Thread.sleep(4*1000);
         } catch (BusinessException e) {

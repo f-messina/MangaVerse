@@ -35,10 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.time.Year;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -76,14 +73,14 @@ public class ManagerServlet extends HttpServlet {
         String action = request.getParameter("action");
         LoggedUserDTO loggedUser = SecurityUtils.getAuthenticatedUser(request);
 
-//        if (loggedUser == null) {
-//            response.sendRedirect("auth");
-//            return;
-//
-//        } else if (!loggedUser.getType().equals(UserType.MANAGER)) {
-//            response.sendRedirect("profile");
-//            return;
-//        }
+        if (loggedUser == null) {
+            response.sendRedirect("auth");
+            return;
+
+        } else if (!loggedUser.getType().equals(UserType.MANAGER)) {
+            response.sendRedirect("profile");
+            return;
+        }
 
         switch (action) {
             case "getAnimeDefaultAnalytics" -> handleGetAnimeDefaultAnalytics(request, response);
@@ -390,9 +387,7 @@ public class ManagerServlet extends HttpServlet {
 
         int year = Integer.parseInt(request.getParameter("year"));
         String mediaType = request.getParameter("type");
-        Logger logger = LoggerFactory.getLogger(ManagerServlet.class);
-        logger.info("Year: " + year);
-        logger.info("Media Type: " + mediaType);
+
         int currentYear = Year.now().getValue();
         MediaContentService mediaContentService = ServiceLocator.getMediaContentService();
 
@@ -410,11 +405,10 @@ public class ManagerServlet extends HttpServlet {
                 }
                 jsonResponse.put("success", true);
 
-                Map<String, Integer> trendMediaContentByYearMapSerialized = new HashMap<>();
+                Map<String, Integer> trendMediaContentByYearMapSerialized = new LinkedHashMap<>();
                 trendMediaContentByYear.forEach((key, value) -> {
                     try {
                         trendMediaContentByYearMapSerialized.put(objectMapper.writeValueAsString(key), value);
-                        logger.info("Key: " + key + " Value: " + value);
                     } catch (JsonProcessingException e) {
                         throw new RuntimeException(e);
                     }
@@ -423,7 +417,6 @@ public class ManagerServlet extends HttpServlet {
                 JsonNode trendMediaContentByYearJson = objectMapper.valueToTree(trendMediaContentByYearMapSerialized);
                 jsonResponse.set("results", trendMediaContentByYearJson);
             } catch (BusinessException e) {
-                logger.error("Error: " + e.getMessage());
                 throw new RuntimeException(e);
             }
         }

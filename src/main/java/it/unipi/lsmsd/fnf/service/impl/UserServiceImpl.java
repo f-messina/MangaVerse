@@ -19,6 +19,7 @@ import it.unipi.lsmsd.fnf.service.impl.asinc_user_tasks.*;
 import it.unipi.lsmsd.fnf.service.interfaces.ExecutorTaskService;
 import it.unipi.lsmsd.fnf.service.interfaces.UserService;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
 
 import java.util.List;
 import java.util.Map;
@@ -118,7 +119,8 @@ public class UserServiceImpl implements UserService {
             }
 
             // Create a task which updates the user redundancy inside reviews
-            if (user.getUsername() != null || user.getProfilePicUrl() != null || user.getBirthday() != null || user.getLocation() != null) {
+            if (reviewIds != null && !reviewIds.isEmpty() &&
+                    (user.getUsername() != null || user.getProfilePicUrl() != null || user.getBirthday() != null || user.getLocation() != null)) {
                 aperiodicExecutorTaskService.executeTask(new UpdateReviewRedundancyTask(null, user.toSummaryDTO(), reviewIds));
             }
 
@@ -139,7 +141,7 @@ public class UserServiceImpl implements UserService {
      * @throws BusinessException If an error occurs during the deletion process.
      */
     @Override
-    public void deleteUser(String userId) throws BusinessException {
+    public void deleteUser(String userId, List<String> reviewIds) throws BusinessException {
         try {
             userDAO.deleteUser(userId);
 
@@ -147,7 +149,7 @@ public class UserServiceImpl implements UserService {
             aperiodicExecutorTaskService.executeTask(new DeleteUserTask(userId));
 
             // Create a task which removes the user redundancy inside reviews
-            aperiodicExecutorTaskService.executeTask(new RemoveDeletedUserReviewsTask(userId));
+            aperiodicExecutorTaskService.executeTask(new RemoveDeletedUserReviewsTask(userId, reviewIds));
 
         } catch (DAOException e) {
             if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {
