@@ -6,6 +6,7 @@ const overlay = $("#overlay");
 
 const editProfileDiv = $("#editPopup");
 const editButton = $("#edit-button");
+const deleteButton = $("#delete-button");
 
 // Validation functions for the edit form //
 
@@ -106,15 +107,13 @@ function hideEditForm() {
 }
 
 function storeInitialValues() {
-    profile = {
-        username: $("#username").val(),
-        fullname: $("#fullname").val(),
-        description: $("#description").val(),
-        country: $("#country").val(),
-        birthdate: $("#birthdate").val(),
-        picture: $("#picture").val(),
-        gender: $("#gender").val()
-    }
+    profile.username = $("#username").val();
+    profile.fullname = $("#fullname").val();
+    profile.description = $("#description").val();
+    profile.country = $("#country").val();
+    profile.birthdate = $("#birthdate").val();
+    profile.picture = $("#picture").val();
+    profile.gender = $("#gender").val();
 }
 
 function resetForm() {
@@ -166,7 +165,7 @@ function setNewValues() {
     storeInitialValues();
 }
 
-function getModifiedInfo(profile) {
+function getModifiedInfo() {
     // Initialize an empty object for inputData
     const inputData = {};
 
@@ -192,12 +191,13 @@ function getModifiedInfo(profile) {
     }
 
     inputData.action = "editProfile";
+    inputData.reviewsIds = JSON.stringify(profile.reviewsIds)
     return inputData;
 }
 
 editButton.click(function() {
 
-    const inputData = getModifiedInfo(profile);
+    const inputData = getModifiedInfo();
     if (Object.keys(inputData).length === 0) {
         $("#general-error").text("No changes made.");
         return;
@@ -206,11 +206,28 @@ editButton.click(function() {
     $.post(contextPath + "/profile", inputData, function(data) {
         if (data.success) {
             editProfileDiv.hide();
+            $("body").css("overflow-y", "auto");
             overlay.hide();
             setNewValues();
         }
         $("#username-error").text(data.usernameError || "");
         $("#general-error").text(data.generalError || "");
+    }).fail(function() {
+        $("#general-error").text("An error occurred. Please try again later.");
+    });
+});
+
+deleteButton.click(function() {
+    const inputData = {
+        action: "deleteProfile",
+        reviewsIds: JSON.stringify(profile.reviewsIds)
+    };
+    $.post(contextPath + "/profile", inputData, function(data) {
+        if (data.success) {
+            $.post(contextPath+"/auth", {action: "logout"}, function() {
+                window.location.href = contextPath + "/auth";
+            });
+        }
     }).fail(function() {
         $("#general-error").text("An error occurred. Please try again later.");
     });
@@ -255,7 +272,7 @@ followingSearch.on("input", () => getList("followings", followingSearch.val()));
 
 function getList(type, searchValue) {
     const action = type === "followers" ? "getFollowers" : "getFollowings";
-    const inputData = { action, userId };
+    const inputData = { action, userId: profile.userId };
 
     if (searchValue) inputData.searchValue = searchValue;
 
@@ -294,7 +311,7 @@ function unfollow() {
 }
 
 function changeFollowStatus(action) {
-    const inputData = { action, userId };
+    const inputData = { action, userId: profile.userId };
 
     $.post(`${contextPath}/profile`, inputData, function (data) {
         if (data.success) {
@@ -344,8 +361,6 @@ function changeSection(button) {
     button.classList.add("active");
 
 
-
-
     const sections = { anime: "#anime-like", manga: "#manga-like", reviews: "#reviews" };
     $.each(sections, (key, value) => $(value).toggle(key === section));
 
@@ -353,19 +368,23 @@ function changeSection(button) {
         fetchData("getReviews");
     } else if (section === "anime" && $("#anime-list").children().first().length === 0) {
         fetchData("getAnimeLikes");
-        fetchSuggestions("anime", "location", profile.country, "#anime-suggested-by-location");
-        fetchSuggestions("anime", "birthday", profile.birthdate,"#anime-suggested-by-birthday");
+        if (profile.country !== "")
+            fetchSuggestions("anime", "location", profile.country);
+        if (profile.birthdate !== "")
+            fetchSuggestions("anime", "birthday", profile.birthdate);
     } else if (section === "manga" && $("#manga-list").children().first().length === 0) {
         fetchData("getMangaLikes");
-        fetchSuggestions("manga", "location",profile.country, "#manga-suggested-by-location");
-        fetchSuggestions("manga", "birthday", profile.birthdate,"#manga-suggested-by-birthday");
+        if (profile.country !== "")
+            fetchSuggestions("manga", "location",profile.country);
+        if (profile.birthdate !== "")
+            fetchSuggestions("manga", "birthday", profile.birthdate);
     }
 }
 
 function fetchData(action, page = 1) {
-    const input = { "action": action, "page": page, "userId": userId };
+    const input = { "action": action, "page": page, "userId": profile.userId };
     if (action === "getReviews") {
-        input["reviewIds"] = JSON.stringify(profile.reviewIds);
+        input["reviewsIds"] = JSON.stringify(profile.reviewsIds);
     }
 
     $.post(`${contextPath}/profile`, input, (data) => {
@@ -402,18 +421,13 @@ function showLikes(data, action) {
         const picture = $("<img>").attr("src", media.imageUrl === null ? defaultImage: media.imageUrl).attr("alt", media.title)
             .addClass("box-image")
             .on("error", () => setDefaultCover(picture, isAnime ? "anime" : "manga"));
-        const title = $("<a>").attr("href", `${contextPath}/${isAnime ? "anime" : "manga"}?mediaId=${media.id}`)
+        const title = $("<a>").attr("href", contextPath + "/" + (isAnime ? "anime" : "manga") + "?mediaId=" + media.id)
             .addClass("box-title").text(media.title);
 
         mediaBox.append(picture, title);
         mediaWrapper.append(mediaBox);
         likeList.append(mediaWrapper);
     });
-}
-
-function setDefaultCover(image, type) {
-    image.off("error");
-    image.attr("src", type === "anime" ? animeDefaultImage : mangaDefaultImage);
 }
 
 function showReviews(data) {
@@ -434,7 +448,7 @@ function showReviews(data) {
 
     data.reviews.entries.forEach(review => {
         const type = review.mediaContent.season === undefined ? "manga" : "anime";
-        const title = $("<a>").attr("href", `${contextPath}/${type}?mediaId=${review.mediaContent.id}`)
+        const title = $("<a>").attr("href", contextPath + "/" + type + "?mediaId=" + review.mediaContent.id)
             .addClass("review-media-title").text(review.mediaContent.title);
         const rating = $("<p>").addClass("review-rating")
             .text(review.rating === null ? "No rating" : `Rating: ${review.rating}`);
@@ -526,10 +540,14 @@ $(document).ready(() => {
 //SUGGESTIONS//
 ///////////////
 
-function fetchSuggestions(mediaContentType,criteria, value, targetDiv){
+function fetchSuggestions(mediaContentType, criteria, value){
     if (criteria === "birthday"){
         value = new Date(value).getFullYear();
     }
+
+    const suggestionsList = $("#" + mediaContentType + "-suggestions-lists")
+    const text = criteria === "location" ? "in your country" : "with the same age";
+    const suggestionTitle = $("<h2>").addClass("suggestion-title").text("Other users " + text + " also like:");
 
     $.post(`${contextPath}/profile`,{
         action: "suggestedMediaContent",
@@ -537,41 +555,121 @@ function fetchSuggestions(mediaContentType,criteria, value, targetDiv){
         criteria: criteria,
         value: value
     },function (data){
-        console.log(data);
+
         if (data.success) {
-            displaySuggestions(data.suggestedMediaContent.entries, targetDiv, mediaContentType === "anime" ? true : false);
+            displaySuggestions(data.suggestedMediaContent, criteria, mediaContentType);
         } else if (data.notFoundError) {
-            $(targetDiv).append($("<p>").addClass("no-results-error").text("No suggestions found"));
+            const message = criteria === "location" ? "No suggestions found in your country" : "No suggestions found with the same age";
+            suggestionsList.append(suggestionTitle, message)
         } else {
-            $(targetDiv).append($("<p>").addClass("error").text(data.error));
+            const message = $("<p>").addClass("error").text("An error occurred while fetching suggestions.");
+            suggestionsList.append(suggestionTitle, message);
         }
     }).fail(function () {
-        $(targetDiv).append($("<p>").addClass("error").text("An error occurred while fetching suggestions."));
+        const message = $("<p>").addClass("error").text("An error occurred while fetching suggestions.");
+        suggestionsList.append(suggestionTitle, message);
     });
 }
-function displaySuggestions(suggestions, targetDiv, isAnime){
-    const pagination = isAnime ? $(".anime-pagination") : $(".manga-pagination");
-    const container = $(targetDiv);
-    container.empty();
-    const defaultImage = isAnime ? animeDefaultImage : mangaDefaultImage;
-
-    pagination.empty();
-
+function displaySuggestions(suggestions, criteria, mediaContentType) {
     if (!suggestions || suggestions.length === 0) {
-        container.append($("<p>").addClass("no-results-error").text("No suggestions found"));
         return;
     }
 
+    const suggestionsList = $("#" + mediaContentType + "-suggestions-lists")
+    const text = criteria === "location" ? "in your country" : "with the same age";
+    const suggestionTitle = $("<h2>").addClass("suggestion-title").text("Other users " + text + " also like:");
+    const container = $("<div>").addClass("project-boxes jsGridView");
     suggestions.forEach(item => {
         const suggestionWrapper = $("<div>").addClass("project-box-wrapper");
         const itemDiv = $("<div>").addClass("project-box");
-        const title = $("<a>").attr("href", `${contextPath}/${isAnime ? "anime" : "manga"}?mediaId=${item.id}`)
+        const title = $("<a>").attr("href", contextPath + "/" + mediaContentType + "?mediaId=" + item.id)
             .addClass("box-title").text(item.title);
-
 
         itemDiv.append(title);
         suggestionWrapper.append(itemDiv);
         container.append(suggestionWrapper);
     });
+    suggestionsList.append(suggestionTitle, container);
 }
+
+////////////////////
+//USER SUGGESTIONS//
+////////////////////
+
+const suggestedUsers = $("#suggested-users");
+const showSuggestedUsersButton = $("#show-suggested-users");
+
+showSuggestedUsersButton.click(() => {
+    if ($("#suggested-by-likes-list").is(":empty") && $("#suggested-by-followings-list").is(":empty")) {
+        getSuggestedUsers();
+    } else {
+        overlay.show();
+        $("body").css("overflow-y", "hidden");
+        suggestedUsers.show();
+    }
+});
+
+function showSuggestedUsers(suggestions, targetDiv) {
+    overlay.show();
+    $("body").css("overflow-y", "hidden");
+    suggestedUsers.show();
+    overlay.click(() => {
+        overlay.hide();
+        $("body").css("overflow-y", "auto");
+        suggestedUsers.hide();
+    });
+    const container = $(targetDiv);
+    container.empty();
+
+    if (!suggestions || suggestions.length === 0) {
+        container.append(
+            $("<p>").addClass("no-results-error").text("No suggestions found")
+        );
+        return;
+        }
+
+    suggestions.forEach(item => {
+            //const suggestionWrapper = $("<div>").addClass("project-box-wrapper");
+            const itemDiv = $(`<a href="${contextPath}/profile?userId=${item.id}">`).addClass("user");
+            const img = $(`<img src="${item.profilePicUrl}">`).addClass("user-pic")
+                .on("error", () => setDefaultProfilePicture(img));
+            const p = $("<p>").addClass("user-username").text(item.username);
+            itemDiv.append(img, p);
+            //suggestionWrapper.append(itemDiv)
+            container.append(itemDiv);
+        }
+    );
+    }
+
+function getSuggestedUsers() {
+    const suggestions = [
+        { type: "likes", targetDiv: "#suggested-by-likes-list" },
+        { type: "following", targetDiv: "#suggested-by-followings-list" }
+    ];
+
+    suggestions.forEach(suggestion => {
+        $.post(`${contextPath}/profile`, {
+            action: "suggestedUsers",
+            userId: profile.userId,
+            suggestionType: suggestion.type
+        }, function (data) {
+            if (data.success) {
+                showSuggestedUsers(data.suggestedUsers, suggestion.targetDiv);
+            } else if (data.notFoundError) {
+                $(suggestion.targetDiv).append(
+                    $("<p>").addClass("no-results-error").text("No suggestions found")
+                );
+            } else {
+                $(suggestion.targetDiv).append($("<p>").addClass("error").text(data.error));
+            }
+        }).fail(function () {
+            $(suggestion.targetDiv).append(
+                $("<p>")
+                    .addClass("error")
+                    .text("An error occurred while fetching suggestions.")
+            );
+        });
+    });
+}
+
 

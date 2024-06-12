@@ -70,7 +70,9 @@ public class AuthServlet extends HttpServlet {
             userService.signup(user);
             HttpSession session = request.getSession(true);
             String picture = request.getContextPath() + "/" + Constants.DEFAULT_PROFILE_PICTURE;
-            session.setAttribute(Constants.AUTHENTICATED_USER_KEY, new LoggedUserDTO(user.getId(), user.getUsername(), picture, UserType.USER));
+            LoggedUserDTO loggedUserDTO = user.toModel().toLoggedUserDTO();
+            loggedUserDTO.setProfilePicUrl(picture);
+            session.setAttribute(Constants.AUTHENTICATED_USER_KEY, loggedUserDTO);
 
             // Set the success flag in the JSON response
             jsonResponse.put("success", true);

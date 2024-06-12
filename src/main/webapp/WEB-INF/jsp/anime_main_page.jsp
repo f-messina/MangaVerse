@@ -1,6 +1,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ page import="it.unipi.lsmsd.fnf.utils.Constants" %>
+<%@ page import="it.unipi.lsmsd.fnf.model.enums.UserType" %>
 <%@ page import="static java.time.LocalDate.now" %>
 <%@ page contentType="text/html;charset=UTF-8" %>
 
@@ -26,6 +27,7 @@
 <body>
 <!-- JSP variables -->
 <c:set var="isLogged" value="${not empty sessionScope[Constants.AUTHENTICATED_USER_KEY]}" /> <!-- check if the user is logged in -->
+<c:set var="isManager" value="${isLogged and not sessionScope[Constants.AUTHENTICATED_USER_KEY].getType().equals(UserType.USER)}" />
 <c:set var="currentYear" value="<%= now().getYear() %>" />
 
 <!-- Welcome section -->
@@ -67,8 +69,8 @@
                 <div id="user-search-results"></div>
             </div>
         </div>
-        <a href="${pageContext.request.contextPath}/mainPage/anime" class="anime">Anime</a>
         <a href="${pageContext.request.contextPath}/mainPage/manga" class="manga">Manga</a>
+        <a href="${pageContext.request.contextPath}/mainPage/anime" class="anime">Anime</a>
         <c:choose>
             <c:when test="${isLogged}">
                 <div class="logout" onclick="logout('mainPage')">
@@ -109,7 +111,7 @@
                 <div class="results extended" style="display: none"></div>
             </div>
 
-            <c:if test="${isLogged}">
+            <c:if test="${isLogged and !isManager}">
                 <!-- suggestions by likes -->
                 <div class="landing-section">
                     <div class="title link">
@@ -119,10 +121,10 @@
                     <div class="results">
                         <c:forEach items="${requestScope.suggestionsByLikes}" var="anime">
                             <div class="media-card" >
-                                <a href="${pageContext.request.contextPath}/anime?mediaId=${anime.getId()}" class="cover">
+                                <a href="${pageContext.request.contextPath}/manga?mediaId=${anime.getId()}" class="cover">
                                     <img src="${anime.getImageUrl()}" class="image loaded">
                                 </a>
-                                <a href="${pageContext.request.contextPath}/anime?mediaId=${anime.getId()}" class="title">${anime.getTitle()}</a>
+                                <a href="${pageContext.request.contextPath}/manga?mediaId=${anime.getId()}" class="title">${anime.getTitle()}</a>
                             </div>
                         </c:forEach>
                     </div>
@@ -498,9 +500,10 @@
     </div>
 </section>
 
-<script src="${pageContext.request.contextPath}/js/main_page_test.js" defer></script>
+<script src="${pageContext.request.contextPath}/js/main_page.js" defer></script>
 <script src="${pageContext.request.contextPath}/js/navbar.js" defer></script>
 <script src="${pageContext.request.contextPath}/js/filters.js" defer></script>
+<script src="${pageContext.request.contextPath}/js/load_default_picture.js" defer></script>
 <c:set var="scroll" value="${requestScope['scroll']}"/>
 <script>
     const mediaType = "anime";
@@ -509,20 +512,6 @@
     const mangaDefaultImage = "${pageContext.request.contextPath}/${Constants.DEFAULT_COVER_MANGA}";
     const animeDefaultImage = "${pageContext.request.contextPath}/${Constants.DEFAULT_COVER_ANIME}";
     const scrollToMain = ${scroll != null ? scroll : 'true'};
-
-    $(document).ready(function() {
-        $(".landing-section img").on("error", function() {
-            setDefaultCover($(this));
-        });
-        // Check if the image has already failed to load after a delay
-        setTimeout(function() {
-            $(".landing-section img").each(function() {
-                if (!this.complete || this.naturalWidth === 0) {
-                    setDefaultCover($(this));
-                }
-            });
-        }, 200); // Adjust the delay time (in milliseconds) as needed
-    });
 </script>
 </body>
 </html>

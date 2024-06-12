@@ -223,9 +223,9 @@ class MangaDAOMongoImplTest {
         if (!mangaList.isEmpty()) {
             String mangaId = mangaList.getFirst().getId();
             Manga manga = mangaDAO.readMediaContent(mangaId);
-            if (!manga.getReviews().isEmpty()) {
+            if (!manga.getLatestReviews().isEmpty()) {
                 assertDoesNotThrow(() -> {
-                    boolean isInLatestReviews = mangaDAO.isInLatestReviews(mangaId, manga.getReviews().getFirst().getId());
+                    boolean isInLatestReviews = mangaDAO.isInLatestReviews(mangaId, manga.getLatestReviews().getFirst().getId());
                     System.out.println("Review is in latest reviews: " + isInLatestReviews);
                 });
             } else {

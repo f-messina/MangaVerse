@@ -2,7 +2,14 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ page import="it.unipi.lsmsd.fnf.model.enums.Gender" %>
 <%@ page import="it.unipi.lsmsd.fnf.utils.Constants" %>
+<%@ page import="it.unipi.lsmsd.fnf.model.enums.UserType" %>
 <%@ page contentType="text/html;charset=UTF-8" %>
+
+<c:set var="userInfo" value="${requestScope['userInfo']}" />
+<c:set var="isLogged" value="${not empty sessionScope[Constants.AUTHENTICATED_USER_KEY]}" />
+<c:set var="isManager" value="${isLogged and not sessionScope[Constants.AUTHENTICATED_USER_KEY].getType().equals(UserType.USER)}" />
+<c:set var="isLoggedPageOwner" value="${isLogged and sessionScope[Constants.AUTHENTICATED_USER_KEY].getId() eq userInfo.id}" />
+<c:set var="isFollowed" value="${requestScope['isFollowed']}" />
 <!DOCTYPE html>
 <html>
 <head>
@@ -10,15 +17,9 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/profile.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/navbar.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/user_list.css">
-
-    <title>PROFILE</title>
+    <title>${userInfo.getUsername()} Profile</title>
 </head>
 <body>
-    <c:set var="isLogged" value="${not empty sessionScope[Constants.AUTHENTICATED_USER_KEY]}" />
-    <c:set var="userInfo" value="${requestScope['userInfo']}" />
-    <c:set var="isLoggedPageOwner" value="${isLogged and sessionScope[Constants.AUTHENTICATED_USER_KEY].getId() eq userInfo.id}" />
-    <c:set var="isFollowed" value="${requestScope['isFollowed']}" />
-
     <!-- navbar -->
     <nav>
         <a href="${pageContext.request.contextPath}/mainPage"><img src="${pageContext.request.contextPath}/images/logo-with-initial.png" alt="logo" /></a>
@@ -34,11 +35,18 @@
                     <div id="user-search-results"></div>
                 </div>
             </div>
-            <a href="${pageContext.request.contextPath}/mainPage/anime" class="anime">Anime</a>
             <a href="${pageContext.request.contextPath}/mainPage/manga" class="manga">Manga</a>
+            <a href="${pageContext.request.contextPath}/mainPage/anime" class="anime">Anime</a>
             <c:choose>
                 <c:when test="${isLogged}">
-                    <div class="logout" onclick="logout('auth')">
+                    <c:choose>
+                    <c:when test="${isLoggedPageOwner}">
+                        <div class="logout" onclick="logout('auth')">
+                    </c:when>
+                    <c:otherwise>
+                        <div class="logout" onclick="logout('profile?userId=${userInfo.getId()}')">
+                    </c:otherwise>
+                    </c:choose>
                         <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="sign-out-alt" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="logout-icon"><path data-v-04b245e6="" fill="currentColor" d="M497 273L329 441c-15 15-41 4.5-41-17v-96H152c-13.3 0-24-10.7-24-24v-96c0-13.3 10.7-24 24-24h136V88c0-21.4 25.9-32 41-17l168 168c9.3 9.4 9.3 24.6 0 34zM192 436v-40c0-6.6-5.4-12-12-12H96c-17.7 0-32-14.3-32-32V160c0-17.7 14.3-32 32-32h84c6.6 0 12-5.4 12-12V76c0-6.6-5.4-12-12-12H96c-53 0-96 43-96 96v192c0 53 43 96 96 96h84c6.6 0 12-5.4 12-12z" class=""></path></svg>
                         <div class="logout-text">Log Out</div>
                     </div>
@@ -66,7 +74,7 @@
 
                 <div class="profile-user-settings-px">
                     <h1 id="username-displayed" class="profile-user-name-px">${userInfo.getUsername()}</h1>
-                    <c:if test="${isLogged}">
+                    <c:if test="${isLogged and not isManager}">
                         <c:choose>
                             <c:when test="${isLoggedPageOwner}">
                                 <button class="btn-px profile-edit-btn-px" onclick="showEditForm()">Edit Profile</button>
@@ -97,6 +105,11 @@
                                 ${empty userInfo.getFollowed() ? 0 : userInfo.getFollowed()}
                             </span> following
                         </li>
+                        <c:if test="${isLogged and isLoggedPageOwner}">
+                        <li id="show-suggested-users" class="user-suggestions-button">
+                            user suggestions
+                        </li>
+                        </c:if>
                     </ul>
                 </div>
 
@@ -208,6 +221,7 @@
                                 <!-- cancel and save changes buttons-->
                                 <button class="btn btn-secondary" onclick="hideEditForm()" type="button">Cancel</button>
                                 <button class="btn btn-primary" type="button" id="edit-button">Save changes</button>
+                                <button class="btn btn-secondary" type="button" id="delete-button">Delete account</button>
                                 <span id="general-error" style="color: red;"></span>
                             </div>
                         </div>
@@ -249,7 +263,22 @@
                 <div id="followings-list"></div>
             </div>
         </div>
+
+        <!-- suggested users -->
+        <div id="suggested-users" class="myAlert user-list-section">
+            <div id="suggestedUsersBody" class="myAlertBody double-list">
+                <div class="user-suggestions">
+                    <p class="user-list-name">Users with similar tastes</p>
+                    <div id="suggested-by-likes-list"></div>
+                </div>
+                <div class="user-suggestions">
+                    <p class="user-list-name">Users that you may know</p>
+                    <div id="suggested-by-followings-list"></div>
+                </div>
+            </div>
+        </div>
     </section>
+
 
     <c:if test="${isLogged and isLoggedPageOwner}">
         <section class="app-rating-container">
@@ -293,17 +322,9 @@
 
         <div id="manga-like">
             <c:if test="${isLogged and isLoggedPageOwner}">
-                <div class="suggestions-lists">
-                    <p class="suggestion-title">Suggested Manga By Location</p>
-                    <div id="manga-suggested-by-location" class="project-boxes jsGridView"></div>
-
-                    <p class="suggestion-title">Suggested Manga By Birthday</p>
-                    <div id="manga-suggested-by-birthday" class="project-boxes jsGridView"></div>
-                </div>
+                <div id="manga-suggestions-lists" class="suggestions-lists"></div>
             </c:if>
 
-                <!--check if the page is the registered user(suggestions only if your are in your profile) check will be done in the js
-                take the css of manga-list -->
             <div class="container">
                 <ul class="page manga-pagination">
                 </ul>
@@ -317,17 +338,9 @@
 
         <div id="anime-like">
             <c:if test="${isLogged and isLoggedPageOwner}">
-                <div class="suggestions-lists">
-                    <p class="suggestion-title">Suggested Anime By Location</p>
-                    <div id="anime-suggested-by-location" class="project-boxes jsGridView"></div>
-
-                    <p class="suggestion-title">Suggested Anime By Birthday</p>
-                    <div id="anime-suggested-by-birthday" class="project-boxes jsGridView"></div>
-                </div>
+                <div id="anime-suggestions-lists" class="suggestions-lists"></div>
             </c:if>
 
-                <!--check if the page is the registered user(suggestions only if your are in your profile) check will be done in the js
-                take the css of manga-list -->
             <div class="container">
                 <ul class="page anime-pagination">
                 </ul>
@@ -339,7 +352,7 @@
             </div>
         </div>
 
-        <c:if test="${isLogged and sessionScope[Constants.AUTHENTICATED_USER_KEY].getId() eq userInfo.id}">
+        <c:if test="${isLogged and isLoggedPageOwner}">
             <div id="reviews">
                 <div class="container">
                     <ul class="page review-pagination">
@@ -360,6 +373,7 @@
     <script src="${pageContext.request.contextPath}/js/profile.js" defer></script>
     <script src="${pageContext.request.contextPath}/js/country_dropdown.js" defer></script>
     <script src="${pageContext.request.contextPath}/js/navbar.js" defer></script>
+    <script src="${pageContext.request.contextPath}/js/load_default_picture.js" defer></script>
     <script>
         const contextPath = "${pageContext.request.contextPath}";
         const userId = "${userInfo.getId()}";
@@ -367,6 +381,7 @@
         const animeDefaultImage = "${pageContext.request.contextPath}/${Constants.DEFAULT_COVER_ANIME}";
         const userDefaultImage = "${pageContext.request.contextPath}/${Constants.DEFAULT_PROFILE_PICTURE}";
         let profile = {
+            userId: "${userInfo.getId()}",
             username: "${userInfo.getUsername()}",
             fullname: "${empty userInfo.getFullname() ? "" : userInfo.getFullname()}",
             description: "${empty userInfo.getDescription() ? "" : userInfo.getDescription()}",
@@ -375,7 +390,7 @@
             picture: "${userInfo.getProfilePicUrl()}",
             gender: "${userInfo.getGender().name()}",
             appRating: parseInt("${empty userInfo.appRating ? "" : userInfo.appRating}"),
-            reviewIds: "${empty userInfo.reviewIds ? "" : userInfo.reviewIds}".slice(1, -1).split(", ")
+            reviewsIds: "${empty userInfo.reviewIds ? "" : userInfo.reviewIds}".slice(1, -1).split(", ")
         }
     </script>
 </body>

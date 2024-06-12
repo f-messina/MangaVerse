@@ -13,7 +13,7 @@ public interface UserService {
     void signup(UserRegistrationDTO userRegistrationDTO) throws BusinessException;
     LoggedUserDTO login(String email, String password) throws BusinessException;
     void updateUserInfo(User user) throws BusinessException;
-    void deleteUser(String userId) throws BusinessException;
+    void deleteUser(String userId, List<String> reviewsIds) throws BusinessException;
     User getUserById(String userId, boolean isLoggedUserInfo) throws BusinessException;
     List<UserSummaryDTO> suggestUsersByCommonFollowings(String userId) throws BusinessException;
     List<UserSummaryDTO> searchFirstNUsers(String username, Integer n, String loggedUser) throws BusinessException;

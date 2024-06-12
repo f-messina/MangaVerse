@@ -21,7 +21,6 @@ import static com.mongodb.client.model.Updates.set;
 import static it.unipi.lsmsd.fnf.dao.mongo.BaseMongoDBDAO.getCollection;
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -224,9 +223,9 @@ class AnimeDAOMongoImplTest {
         if (!animeList.isEmpty()) {
             String animeId = animeList.getFirst().getId();
             Anime anime = animeDAO.readMediaContent(animeId);
-            if (!anime.getReviews().isEmpty()) {
+            if (!anime.getLatestReviews().isEmpty()) {
                 assertDoesNotThrow(() -> {
-                    boolean isInLatestReviews = animeDAO.isInLatestReviews(animeId, anime.getReviews().getFirst().getId());
+                    boolean isInLatestReviews = animeDAO.isInLatestReviews(animeId, anime.getLatestReviews().getFirst().getId());
                     System.out.println("Review is in latest reviews: " + isInLatestReviews);
                 });
             } else {

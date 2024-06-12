@@ -12,6 +12,7 @@ import it.unipi.lsmsd.fnf.controller.exception.NotAuthorizedException;
 import it.unipi.lsmsd.fnf.dto.LoggedUserDTO;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
+import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.model.enums.UserType;
@@ -66,6 +67,7 @@ public class ProfileServlet extends HttpServlet {
 
         switch (action) {
             case "editProfile" -> handleUpdate(request, response);
+            case "deleteProfile" -> handleDelete(request, response);
             case "follow" -> handleFollow(request, response);
             case "unfollow" -> handleUnfollow(request, response);
             case "getAnimeLikes" -> handleGetAnimeLikes(request, response);
@@ -73,6 +75,7 @@ public class ProfileServlet extends HttpServlet {
             case "getReviews" -> handleGetReviews(request, response);
             case "rateApp" -> handleRateApp(request, response);
             case "suggestedMediaContent" -> handleSuggestedMediaContent(request, response);
+            case "suggestedUsers" -> handleSuggestedUsers(request, response);
             case null, default -> {
                 String targetJSP = "WEB-INF/jsp/profile.jsp";
                 LoggedUserDTO authUser = SecurityUtils.getAuthenticatedUser(request);
@@ -149,6 +152,24 @@ public class ProfileServlet extends HttpServlet {
                 case NO_CHANGE -> jsonResponse.put("generalError", "No changes were made to the profile.");
                 default -> jsonResponse.put("generalError", "An error occurred while updating the profile. Please try again later.");
             }
+        }
+
+        // Write the JSON response
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(jsonResponse.toString());
+    }
+
+    private void handleDelete(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode jsonResponse = objectMapper.createObjectNode();
+        try {
+            LoggedUserDTO authUser = SecurityUtils.getAuthenticatedUser(request);
+            List<String> reviewsIds = Arrays.stream(objectMapper.readValue(request.getParameter("reviewsIds"), String[].class)).toList();
+            userService.deleteUser(authUser.getId(), reviewsIds);
+            jsonResponse.put("success", true);
+        } catch (BusinessException e) {
+            jsonResponse.put("error", e.getMessage());
         }
 
         // Write the JSON response
@@ -284,7 +305,7 @@ public class ProfileServlet extends HttpServlet {
         objectMapper.registerModule(javaTimeModule);
 
         String userId = request.getParameter("userId");
-        List<String> reviewIds = Arrays.stream(objectMapper.readValue(request.getParameter("reviewIds"), String[].class)).toList();
+        List<String> reviewIds = Arrays.stream(objectMapper.readValue(request.getParameter("reviewsIds"), String[].class)).toList();
         String pageString = request.getParameter("page");
         int page = 0;
         if (pageString != null) {
@@ -295,13 +316,14 @@ public class ProfileServlet extends HttpServlet {
             LoggedUserDTO authUser = SecurityUtils.getAuthenticatedUser(request);
 
             if (authUser == null || !userId.equals(authUser.getId())) {
-                throw new NotAuthorizedException("Trying to update profile without being logged in.");
+                throw new NotAuthorizedException("Trying to view reviews of another user.");
             }
+
             // Get the page of reviews
-            PageDTO<ReviewDTO> reviews = reviewService.findByUser(reviewIds, page);
+            PageDTO<ReviewDTO> reviews = reviewService.getReviewsByIdsList(reviewIds, page, "user");
 
             // Convert the page to a JSON Object
-            if (reviews == null) {
+            if (reviews == null || reviews.getTotalCount() == 0) {
                 jsonResponse.put("notFoundError", true);
             } else {
                 JsonNode reviewsJsonObject  = objectMapper.valueToTree(reviews);
@@ -344,6 +366,7 @@ public class ProfileServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         response.getWriter().write(jsonResponse.toString());
     }
+
     private void handleSuggestedMediaContent(HttpServletRequest request, HttpServletResponse response) throws IOException{
 
         ObjectMapper objectMapper = new ObjectMapper();
@@ -357,8 +380,8 @@ public class ProfileServlet extends HttpServlet {
             jsonResponse.put("error", "Media content type not specified");
         }else {
             try {
-                // Get the page of suggested media content
-                PageDTO<MediaContentDTO> suggestedMediaContent = reviewService.suggestMediaContent(type.equals("manga")?MediaContentType.MANGA:MediaContentType.ANIME, criteria, value);
+                // Get the suggested media content
+                List<MediaContentDTO> suggestedMediaContent = reviewService.suggestMediaContent(type.equals("manga")?MediaContentType.MANGA:MediaContentType.ANIME, criteria, value);
                 if (suggestedMediaContent == null) {
                     jsonResponse.put("notFoundError", true);
                 } else {
@@ -376,6 +399,47 @@ public class ProfileServlet extends HttpServlet {
             }
         }
         // Write the JSON response
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(jsonResponse.toString());
+    }
+
+    private void handleSuggestedUsers(HttpServletRequest request, HttpServletResponse response) throws IOException{
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode jsonResponse = objectMapper.createObjectNode();
+
+
+        String userId = request.getParameter("userId");
+        String suggestionType = request.getParameter("suggestionType");
+        logger.info("Suggestion type: " + suggestionType + " User Id: " + userId);
+        if (userId == null){
+            jsonResponse.put("error", "User Id not specified");
+        }else{
+            try {
+                List<UserSummaryDTO> suggestedUsers = Collections.emptyList();
+                if (suggestionType == null){
+                    jsonResponse.put("error", "Suggestion type not specified");
+                } else if (suggestionType.equals("following")) {
+                    suggestedUsers = userService.suggestUsersByCommonFollowings(userId);
+                } else if (suggestionType.equals("likes")){
+                    suggestedUsers = userService.suggestUsersByCommonLikes(userId);
+                }
+                logger.info("Suggested users: " + suggestedUsers);
+                if (suggestedUsers == null || suggestedUsers.isEmpty()) {
+                    jsonResponse.put("notFoundError", true);
+                } else {
+                    JsonNode suggestedUsersJsonObject = objectMapper.valueToTree(suggestedUsers);
+                    // Add the JSON array to the response
+                    jsonResponse.set("suggestedUsers", suggestedUsersJsonObject);
+                    jsonResponse.put("success", true);
+                }
+            } catch (BusinessException e) {
+                if (e.getType().equals(BusinessExceptionType.DATABASE_ERROR))
+                    jsonResponse.put("notFoundError", true);
+                else
+                    jsonResponse.put("error", e.getMessage());
+            }
+        }
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         response.getWriter().write(jsonResponse.toString());

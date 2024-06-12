@@ -16,6 +16,7 @@ import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.model.enums.UserType;
 import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
+import it.unipi.lsmsd.fnf.utils.ConverterUtils;
 import it.unipi.lsmsd.fnf.utils.DocumentUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
@@ -97,13 +98,15 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
         try {
             MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
 
-            // Check if the new username already exists in the collection
-            Bson usernameExistsFilter = and(
-                    eq("username", user.getUsername()),
-                    ne("_id", new ObjectId(user.getId()))
-            );
-            if (usersCollection.countDocuments(usernameExistsFilter) > 0) {
-                throw new DuplicatedException(DuplicatedExceptionType.DUPLICATED_NAME, "UserDAOMongoImpl: updateUser: Username already in use");
+
+            if (user.getUsername() != null) {
+                Bson usernameExistsFilter = and(
+                        eq("username", user.getUsername()),
+                        ne("_id", new ObjectId(user.getId()))
+                );
+                if (usersCollection.countDocuments(usernameExistsFilter) > 0) {
+                    throw new DuplicatedException(DuplicatedExceptionType.DUPLICATED_NAME, "UserDAOMongoImpl: updateUser: Username already in use");
+                }
             }
 
             // Update the document in the collection and check if the update was successful
@@ -207,7 +210,7 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
             MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
 
             Bson filter = and(eq("email", email),eq("password", password));
-            Bson projection = include("username", "picture", "is_manager");
+            Bson projection = include("username", "picture", "is_manager", "location", "birthday");
 
             return Optional.ofNullable(usersCollection.find(filter).projection(projection).first())
                     .map(doc -> {
@@ -215,6 +218,8 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
                         user.setId(doc.getObjectId("_id").toString());
                         user.setUsername(doc.getString("username"));
                         user.setProfilePicUrl(doc.getString("picture"));
+                        user.setLocation(doc.getString("location"));
+                        user.setBirthday(ConverterUtils.dateToLocalDate(doc.getDate("birthday")));
                         user.setType(doc.getBoolean("is_manager") != null ? UserType.MANAGER : UserType.USER);
                         return user;
                     })

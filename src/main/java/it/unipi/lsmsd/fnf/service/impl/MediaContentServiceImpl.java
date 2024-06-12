@@ -125,7 +125,7 @@ public class MediaContentServiceImpl implements MediaContentService {
      * @throws BusinessException If an error occurs during the operation.
      */
     @Override
-    public void deleteMediaContent(String mediaId, MediaContentType type) throws BusinessException {
+    public void deleteMediaContent(String mediaId, List<String> reviewIds, MediaContentType type) throws BusinessException {
         try {
             if (MediaContentType.ANIME.equals(type))
                 animeDAOMongoDB.deleteMediaContent(mediaId);
@@ -136,7 +136,7 @@ public class MediaContentServiceImpl implements MediaContentService {
             aperiodicExecutorTaskService.executeTask(new DeleteMediaTask(mediaId, type));
 
             // Create a task which delete the reviews of the media content in MongoDB
-            aperiodicExecutorTaskService.executeTask(new RemoveDeletedMediaReviewsTask(mediaId));
+            aperiodicExecutorTaskService.executeTask(new RemoveDeletedMediaReviewsTask(reviewIds));
 
         } catch (DAOException e) {
             if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {

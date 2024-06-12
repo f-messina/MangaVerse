@@ -3,11 +3,13 @@ package it.unipi.lsmsd.fnf.dao.mongo;
 import com.mongodb.DuplicateKeyException;
 import com.mongodb.MongoException;
 import com.mongodb.client.result.UpdateResult;
+import com.sun.tools.jconsole.JConsoleContext;
 import it.unipi.lsmsd.fnf.dao.interfaces.MediaContentDAO;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dao.exception.enums.DAOExceptionType;
 import it.unipi.lsmsd.fnf.dao.exception.DuplicatedException;
 import it.unipi.lsmsd.fnf.dao.exception.enums.DuplicatedExceptionType;
+import it.unipi.lsmsd.fnf.dto.LoggedUserDTO;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
 import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
@@ -22,6 +24,9 @@ import it.unipi.lsmsd.fnf.utils.DocumentUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.*;
 
 import static com.mongodb.client.model.Accumulators.avg;
@@ -98,7 +103,7 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
             // Update the anime in the database
             Bson filter = Filters.eq("_id", new ObjectId(anime.getId()));
             Bson update = new Document("$set", animeToDocument(anime))
-                    .append("$unset", DocumentUtils.animeToUnsetAnimeFieldsDocument(anime));
+                    .append("$unset", animeToUnsetAnimeFieldsDocument(anime));
 
             UpdateResult result = animeCollection.updateOne(filter, update);
 
@@ -243,7 +248,7 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
                     .orElse(0);
 
             // Return the list of AnimeDTO objects and the total count of results
-            return new PageDTO<>(animeList, totalCount);
+            return new PageDTO<>(animeList, totalCount, null);
 
         } catch (MongoException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
@@ -300,9 +305,7 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
 
             // Update the latestReviews array in the database and set the flag to recalculate the average rating
             UpdateResult result = animeCollection.updateOne(filter, update);
-            if (result.getMatchedCount() == 0) {
-                throw new MongoException("AnimeDAOMongoDBImpl : upsertReview: Anime not found");
-            } else if (result.getModifiedCount() == 0) {
+            if (result.getMatchedCount() != 0 && result.getModifiedCount() == 0) {
                 throw new MongoException("AnimeDAOMongoImpl: upsertReview: No review redundancy was updated or inserted");
             }
 
@@ -326,20 +329,13 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
             // Get the latest reviews for the anime
             MongoCollection<Document> reviewCollection = getCollection("reviews");
 
-            Bson reviewFilter = in("_id", reviewIds);
+            Bson reviewFilter = in("_id", reviewIds.stream().map(ObjectId::new).toList());
             Bson reviewProjection = exclude("anime");
 
-            List<ReviewDTO> latestReviews = reviewCollection.find(reviewFilter).projection(reviewProjection)
+            List<Document> latestReviews = reviewCollection.find(reviewFilter).projection(reviewProjection)
                     .sort(descending("date")).limit(Constants.LATEST_REVIEWS_SIZE)
-                    .map(DocumentUtils::documentToReviewDTO).into(new ArrayList<>());
-
-            // Convert the latest reviews to nested documents
-            List<Document> reviewDocuments = null;
-            if (!latestReviews.isEmpty()) {
-                reviewDocuments = latestReviews.stream()
-                        .map(DocumentUtils::reviewDTOToNestedDocument)
-                        .toList();
-            }
+                    .map(DocumentUtils::documentToReviewDTO)
+                    .map(DocumentUtils::reviewDTOToNestedDocument).into(new ArrayList<>());
 
             // Update the latest reviews in the anime document
             MongoCollection<Document> animeCollection = getCollection(COLLECTION_NAME);
@@ -347,10 +343,10 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
             // Update the latest reviews in the database
             Bson filter = eq("_id", new ObjectId(animeId));
             Bson update;
-            if (reviewDocuments == null) {
+            if (latestReviews.isEmpty()) {
                 update = unset("latest_reviews");
             } else {
-                update = set("latest_reviews", reviewDocuments);
+                update = set("latest_reviews", latestReviews);
             }
 
             UpdateResult result = animeCollection.updateOne(filter, update);
@@ -359,6 +355,7 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
             } else if (result.getModifiedCount() == 0) {
                 throw new MongoException("AnimeDAOMongoDBImpl : upsertReview: the reviewArray was not updated");
             }
+
         } catch (MongoException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
         } catch (Exception e) {
