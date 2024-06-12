@@ -18,10 +18,8 @@ public class User extends RegisteredUser {
     private Gender gender;
     private String location;
     private List<Review> reviews = new ArrayList<>();
-    private List<MediaContent> likedMediaContent = new ArrayList<>();
     private Integer followers;
     private Integer followed;
-    //add review_ids
     private List<String> reviewIds;
 
     private Integer appRating;
@@ -64,9 +62,7 @@ public class User extends RegisteredUser {
         return reviews;
     }
 
-    public List<MediaContent> getLikedMediaContent() {
-        return likedMediaContent;
-    }
+
 
     public Integer getFollowers() {
         return followers;
@@ -117,9 +113,7 @@ public class User extends RegisteredUser {
         this.appRating = appRating;
     }
 
-    public void setLikedMediaContent(List<MediaContent> likedMediaContent) {
-        this.likedMediaContent = likedMediaContent;
-    }
+
     public void setReviewIds (List<String> reviewIds) {
         this.reviewIds = reviewIds;
     }
@@ -132,13 +126,6 @@ public class User extends RegisteredUser {
         this.reviews.remove(review);
     }
 
-    public void addLikedMediaContent(MediaContent mediaContent) {
-        this.likedMediaContent.add(mediaContent);
-    }
-
-    public void removeLikedMediaContent(String mediaContentId) {
-        this.likedMediaContent.removeIf(content -> content.getId().equals(mediaContentId));
-    }
 
     @Override
     public String toString() {
@@ -150,7 +137,6 @@ public class User extends RegisteredUser {
                 ", gender='" + gender + '\'' +
                 ", location='" + location + '\'' +
                 ", reviews=" + reviews +
-                ", likedMediaContent=" + likedMediaContent +
                 ", followers=" + followers +
                 ", followed=" + followed +
                 '}';
