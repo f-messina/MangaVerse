@@ -54,11 +54,14 @@ for MongoDB and Neo4j databases. Connections are managed with corresponding DAO 
 With using the configuration module for database connection, web application ensures robustness and reliability in its data access layer.
 
 \subsection*{Controller}
-%%TODO: implemented using http servlet to handle user requests and responses.
 %%TODO: change the code when it is corrected 
 The controller modules plays a role as intermediary between the user requests and backend of the MangaVerse wab application as servlet classes.
-they receives the user requests, process them and returns with the corresponding response.
-Each controller class utilized a switch-case structure to determine the action requested and invokes the appropriate handler method accordingly.\\
+They receives the user requests, process them and returns with the corresponding response. The controller classes are implemented using HttpServlet to handle user requests and responses.
+Within the scope of their intermediary role, the controller classes are responsible of being a bridge between the user interface and backend logic. 
+When a user interacts with the web application, their actions are translated into a HTTP request and these requests are handled by the related servlet class in the controller module. 
+To be able to do do request translation in an efficient way each controller class extend 'HttpServlet' and has various methods to handle HTTP requests like GET and POST. 
+Each controller class utilized a switch-case structure to determine the action requested and invokes the appropriate handler method accordingly.
+This structure allows for clear and organized routing of request to their corresponding handler method. After processing the request, the servlet generates a requested response.\\
 \newline
 \textbf{Example code snippet from MediaContentServlet:}
 \begin{mdframed}[backgroundcolor=yellow!20, innerleftmargin=10pt, innerrightmargin=10pt]
@@ -305,9 +308,6 @@ package structure of Service module is as follows:
     \item ServiceLocator
 \end{itemize}
 
-%%TODO: Add table for explaining each classes in the whole project like i tis done in the example project
-
-
 \section{Adopted Patterns and Techniques}
 \subsection*{Patterns}
 
@@ -330,6 +330,212 @@ Executing the tasks in an asynchronous way using threads allows to perform opera
 Aperiodic executer task service class is implemented by using the interface of executor service. 
 
 
+\section{Description of Main Classes}
+
+\subsection*{Controller}
+\begin{table}[h]
+    \centering
+    \renewcommand{\arraystretch}{1.5} % Adjusts the row height
+    \begin{tabular}{|>{\arraybackslash}p{0.33\linewidth}|>{\arraybackslash}p{0.66\linewidth}|}
+        \hline
+         \textbf{Class} & \textbf{Description} \\
+        \hline
+        AuthServlet & Handles business logic for authentication \\
+        \hline
+        MainPageServlet & Handles business logic for main page\\
+        \hline
+        ManagerServlet &Handles business logic for manager\\
+        \hline
+        MediaContentServlet & Handles business logic for media content \\
+        \hline
+        ProfileServlet & Handles business logic for profile \\
+        \hline
+        UserServlet & Handles business logic for user \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\newpage
+
+\subsection*{DAO}
+\begin{table}[h]
+    \centering
+    \renewcommand{\arraystretch}{1.5} % Adjusts the row height
+    \begin{tabular}{|>{\raggedright\arraybackslash}p{0.3\linewidth}|>{\raggedright\arraybackslash}p{0.1\linewidth}|>{\raggedright\arraybackslash}p{0.6\linewidth}|}
+        \hline
+        \textbf{Class} & \textbf{Sub-package} & \textbf{Description} \\
+        \hline
+        MediaContentDAO & interfaces & Description for Class A \\
+        \hline
+        ReviewDAO B & interfaces & Description for Class B \\
+        \hline
+        UserDAO & interfaces & Description for Class C \\
+        \hline
+        AnimeDAOMongoImpl & mongo & Description for Class D \\
+        \hline
+        BaseMongoDBDAO & mongo & Description for Class E \\
+        \hline
+        MangaDAOMongoImpl & mongo & Description for Class E \\
+        \hline
+        ReviewDAOMongoImpl & mongo & Description for Class E \\
+        \hline
+        UserDAOMongoImpl & mongo & Description for Class E \\
+        \hline
+        AnimeDAONeo4jImpl & neo4j & Description for Class E \\
+        \hline
+        BaseNeo4jDAO & neo4j & Description for Class E \\
+        \hline
+        MangaDAONeo4jImpl & neo4j & Description for Class E \\
+        \hline
+        UserDAONeo4jImpl & neo4j & Description for Class E \\
+        \hline
+        DAOLocator &  & Description for Class E \\
+        \hline
+    \end{tabular}
+    \label{tab:mytable}
+\end{table}
+
+\subsection*{DTO}
+\begin{table}[h]
+    \centering
+    \renewcommand{\arraystretch}{1.5} % Adjusts the row height
+    \begin{tabular}{|>{\raggedright\arraybackslash}p{0.25\linewidth}|>{\raggedright\arraybackslash}p{0.15\linewidth}|>{\raggedright\arraybackslash}p{0.6\linewidth}|}
+        \hline
+        \textbf{Class} & \textbf{Sub-package} & \textbf{Description} \\
+        \hline
+        AnimeDTO & mediaContent & Description for Class A \\
+        \hline
+        MangaDTO B & mediaContent & Description for Class B \\
+        \hline
+        MediaContentDTO & interfaces & mediaContent for Class C \\
+        \hline
+        DashboardDTO & statistics & Description for Class D \\
+        \hline
+        MongoDBStats & statistics & Description for Class E \\
+        \hline
+        LoggedUserDTO &  & Description for Class E \\
+        \hline
+        PageDTO &  & Description for Class E \\
+        \hline
+        REviewDTO &  & Description for Class E \\
+        \hline
+        UserRegistrationDTO &  & Description for Class E \\
+        \hline
+        UserSummaryDTO &  & Description for Class E \\
+        \hline
+    \end{tabular}
+    \label{tab:mytable}
+\end{table}
+
+\newpage
+
+\subsection*{Model}
+\begin{table}[h]
+    \centering
+    \renewcommand{\arraystretch}{1.5} % Adjusts the row height
+    \begin{tabular}{|>{\raggedright\arraybackslash}p{0.25\linewidth}|>{\raggedright\arraybackslash}p{0.15\linewidth}|>{\raggedright\arraybackslash}p{0.6\linewidth}|}
+        \hline
+        \textbf{Class} & \textbf{Sub-package} & \textbf{Description} \\
+        \hline
+        Anime & mediaContent & Description for Class A \\
+        \hline
+        Manga B & mediaContent & Description for Class B \\
+        \hline
+        MangaAuthor & mediaContent & mediaContent for Class C \\
+        \hline
+        MediaContent & mediaContent & Description for Class D \\
+        \hline
+        Manager & registeredUser & Description for Class E \\
+        \hline
+        RegisteredUSer & registeredUser & Description for Class E \\
+        \hline
+        User & registeredUser & Description for Class E \\
+        \hline
+        Review &  & Description for Class E \\
+        \hline
+    \end{tabular}
+    \label{tab:mytable}
+\end{table}
+
+\subsection*{Service}
+\begin{table}[h]
+    \centering
+    \renewcommand{\arraystretch}{1.5} % Adjusts the row height
+    \begin{tabular}{|>{\raggedright\arraybackslash}p{0.3\linewidth}|>{\raggedright\arraybackslash}p{0.2\linewidth}|>{\raggedright\arraybackslash}p{0.5\linewidth}|}
+        \hline
+        \textbf{Class} & \textbf{Sub-package} & \textbf{Description} \\
+        \hline
+        CreateMediaTask & impl/ asinc\_media\_tasks & Description for Class A \\
+        \hline
+        DeleteMediaTask B & impl/ asinc\_media\_tasks & Description for Class B \\
+        \hline
+        RefreshLatestReviewsTasks & impl/ asinc\_media\_tasks & mediaContent for Class C \\
+        \hline
+        UpdateAverageRatingTask & impl/ asinc\_media\_tasks & Description for Class D \\
+        \hline
+        UpdateMediaRedundancyTask & impl/ asinc\_media\_tasks & Description for Class E \\
+        \hline
+        UpdateMediaTask & impl/ asinc\_media\_tasks & Description for Class E \\
+        \hline
+        UpdateNumberofLikesTask & impl/ asinc\_media\_tasks & Description for Class E \\
+        \hline
+        RemoveDeletedMedia ReviewsTask &impl/ asinc\_review\_tasks  & Description for Class E \\
+        \hline
+        RemoveDeletedUser ReviewsTask & impl/ asinc\_review\_tasks & Description for Class E \\
+        \hline
+        UpdateReviewRedundancyTask & impl/ asinc\_review\_tasks & Description for Class E \\
+        \hline
+        CreateUserTask & impl/ asinc\_user\_tasks & Description for Class E \\
+        \hline
+    \end{tabular}
+    \label{tab:mytable}
+\end{table}
+
+\begin{table}[h]
+    \centering
+    \renewcommand{\arraystretch}{1.5} % Adjusts the row height
+    \begin{tabular}{|>{\raggedright\arraybackslash}p{0.3\linewidth}|>{\raggedright\arraybackslash}p{0.2\linewidth}|>{\raggedright\arraybackslash}p{0.5\linewidth}|}
+        \hline
+        DeleteUserTask & impl/ asinc\_user\_tasks & Description for Class A \\
+        \hline
+        UpdateNumberOfFollowedTask B & impl/ asinc\_user\_tasks & Description for Class B \\
+        \hline
+        UpdateNumberOfFollowersTask & impl/ asinc\_user\_tasks & mediaContent for Class C \\
+        \hline
+        UpdateUserTask & impl/ asinc\_user\_tasks & Description for Class D \\
+        \hline
+        AperiodicExecutor TaskServiceImpl & impl & Description for Class E \\
+        \hline
+        ErrorTaskManager & impl & Description for Class E \\
+        \hline
+        MediaContentServiceImpl & impl & Description for Class E \\
+        \hline
+        PeriodicExecutor TaskServiceImpl &impl  & Description for Class E \\
+        \hline
+        ReviewServiceImpl & impl & Description for Class E \\
+        \hline
+        UserServiceImpl & impl & Description for Class E \\
+        \hline
+        ExecutorTaskService &interfaces & Description for Class E \\
+        \hline
+        MediaContentService &interfaces & Description for Class E \\
+        \hline
+        ReviewService &interfaces & Description for Class E \\
+        \hline
+        Task &interfaces & Description for Class E \\
+        \hline
+        TaskManager &interfaces & Description for Class E \\
+        \hline
+        UserService &interfaces & Description for Class E \\
+        \hline
+        ServiceLocator & & Description for Class E \\
+        \hline
+    \end{tabular}
+    \label{tab:mytable}
+\end{table}
+
+
+\newpage
 \section {MongoDB queries}
 Some of the most important MongoDB queries for analytic and suggestion purposes. 
 %% TODO: write the mongoshell query and the java implementation with explaination
