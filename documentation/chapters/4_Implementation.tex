@@ -333,206 +333,246 @@ Aperiodic executer task service class is implemented by using the interface of e
 \section{Description of Main Classes}
 
 \subsection*{Controller}
-\begin{table}[h]
-    \centering
-    \renewcommand{\arraystretch}{1.5} % Adjusts the row height
-    \begin{tabular}{|>{\arraybackslash}p{0.33\linewidth}|>{\arraybackslash}p{0.66\linewidth}|}
-        \hline
-         \textbf{Class} & \textbf{Description} \\
-        \hline
-        AuthServlet & Handles business logic for authentication \\
-        \hline
-        MainPageServlet & Handles business logic for main page\\
-        \hline
-        ManagerServlet &Handles business logic for manager\\
-        \hline
-        MediaContentServlet & Handles business logic for media content \\
-        \hline
-        ProfileServlet & Handles business logic for profile \\
-        \hline
-        UserServlet & Handles business logic for user \\
-        \hline
-    \end{tabular}
-\end{table}
+\renewcommand{\arraystretch}{1.5}
+\begin{longtable}{|>{\arraybackslash}p{0.33\linewidth}|>{\arraybackslash}p{0.66\linewidth}|}
+    \hline
+    \textbf{Class} & \textbf{Description} \\
+    \hline
+    \endfirsthead
+
+    \hline
+    \textbf{Class} & \textbf{Description} \\
+    \hline
+    \endhead
+
+    \hline
+    \endfoot
+
+    \hline
+    \endlastfoot
+
+    AuthServlet & Handles business logic for authentication \\
+    \hline
+    MainPageServlet & Handles business logic for main page \\
+    \hline
+    ManagerServlet & Handles business logic for manager \\
+    \hline
+    MediaContentServlet & Handles business logic for media content \\
+    \hline
+    ProfileServlet & Handles business logic for profile \\
+    \hline
+    UserServlet & Handles business logic for user \\
+    \hline
+\end{longtable}
 
 \newpage
 
 \subsection*{DAO}
-\begin{table}[h]
-    \centering
-    \renewcommand{\arraystretch}{1.5} % Adjusts the row height
-    \begin{tabular}{|>{\raggedright\arraybackslash}p{0.3\linewidth}|>{\raggedright\arraybackslash}p{0.1\linewidth}|>{\raggedright\arraybackslash}p{0.6\linewidth}|}
-        \hline
-        \textbf{Class} & \textbf{Sub-package} & \textbf{Description} \\
-        \hline
-        MediaContentDAO & interfaces & Description for Class A \\
-        \hline
-        ReviewDAO B & interfaces & Description for Class B \\
-        \hline
-        UserDAO & interfaces & Description for Class C \\
-        \hline
-        AnimeDAOMongoImpl & mongo & Description for Class D \\
-        \hline
-        BaseMongoDBDAO & mongo & Description for Class E \\
-        \hline
-        MangaDAOMongoImpl & mongo & Description for Class E \\
-        \hline
-        ReviewDAOMongoImpl & mongo & Description for Class E \\
-        \hline
-        UserDAOMongoImpl & mongo & Description for Class E \\
-        \hline
-        AnimeDAONeo4jImpl & neo4j & Description for Class E \\
-        \hline
-        BaseNeo4jDAO & neo4j & Description for Class E \\
-        \hline
-        MangaDAONeo4jImpl & neo4j & Description for Class E \\
-        \hline
-        UserDAONeo4jImpl & neo4j & Description for Class E \\
-        \hline
-        DAOLocator &  & Description for Class E \\
-        \hline
-    \end{tabular}
-    \label{tab:mytable}
-\end{table}
+\renewcommand{\arraystretch}{1.5}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{0.3\linewidth}|>{\raggedright\arraybackslash}p{0.1\linewidth}|>{\raggedright\arraybackslash}p{0.6\linewidth}|}
+    \hline
+    \textbf{Class} & \textbf{Sub-package} & \textbf{Description} \\
+    \hline
+    \endfirsthead
+
+    \hline
+    \textbf{Class} & \textbf{Sub-package} & \textbf{Description} \\
+    \hline
+    \endhead
+
+    \hline
+    \endfoot
+
+    \hline
+    \endlastfoot
+
+    MediaContentDAO & interfaces & Collection of methods for media content database related entities on mongoDB \\
+    \hline
+    ReviewDAO B & interfaces & Collection of methods for review database related entities on mongoDB \\
+    \hline
+    UserDAO & interfaces & Collection of methods for user database related entities on mongoDB \\
+    \hline
+    AnimeDAOMongoImpl & mongo & Contains all the method implementation for the MongoDB database anime entities \\
+    \hline      
+    BaseMongoDBDAO & mongo & Contains all the method implementations for the MongoDB database \\
+    \hline
+    MangaDAOMongoImpl & mongo & Contains all the method implementations for the MongoDB database manga entities \\
+    \hline
+    ReviewDAOMongoImpl & mongo & Contains all the method implementations for the MongoDB database review entities \\
+    \hline
+    UserDAOMongoImpl & mongo & Contains all the method implementations for the MongoDB database user entities \\
+    \hline
+    AnimeDAONeo4jImpl & neo4j & Contains all the method implementation for the Neo4j database anime entities \\
+    \hline
+    BaseNeo4jDAO & neo4j & Contains all the method implementations for the Neo4j database \\
+    \hline
+    MangaDAONeo4jImpl & neo4j & Contains all the method implementation for the Neo4j database manga entities \\
+    \hline
+    UserDAONeo4jImpl & neo4j & Contains all the method implementation for the Neo4j database user entities \\
+    \hline
+    DAOLocator & & Implements the locator pattern for accessing DAOs based on the specified data repository \\
+    \hline
+\end{longtable}
 
 \subsection*{DTO}
-\begin{table}[h]
-    \centering
-    \renewcommand{\arraystretch}{1.5} % Adjusts the row height
-    \begin{tabular}{|>{\raggedright\arraybackslash}p{0.25\linewidth}|>{\raggedright\arraybackslash}p{0.15\linewidth}|>{\raggedright\arraybackslash}p{0.6\linewidth}|}
-        \hline
-        \textbf{Class} & \textbf{Sub-package} & \textbf{Description} \\
-        \hline
-        AnimeDTO & mediaContent & Description for Class A \\
-        \hline
-        MangaDTO B & mediaContent & Description for Class B \\
-        \hline
-        MediaContentDTO & interfaces & mediaContent for Class C \\
-        \hline
-        DashboardDTO & statistics & Description for Class D \\
-        \hline
-        MongoDBStats & statistics & Description for Class E \\
-        \hline
-        LoggedUserDTO &  & Description for Class E \\
-        \hline
-        PageDTO &  & Description for Class E \\
-        \hline
-        REviewDTO &  & Description for Class E \\
-        \hline
-        UserRegistrationDTO &  & Description for Class E \\
-        \hline
-        UserSummaryDTO &  & Description for Class E \\
-        \hline
-    \end{tabular}
-    \label{tab:mytable}
-\end{table}
+\renewcommand{\arraystretch}{1.5}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{0.25\linewidth}|>{\raggedright\arraybackslash}p{0.15\linewidth}|>{\raggedright\arraybackslash}p{0.6\linewidth}|}
+    \hline
+    \textbf{Class} & \textbf{Sub-package} & \textbf{Description} \\
+    \hline
+    \endfirsthead
 
-\newpage
+    \hline
+    \textbf{Class} & \textbf{Sub-package} & \textbf{Description} \\
+    \hline
+    \endhead
+
+    \hline
+    \endfoot
+
+    \hline
+    \endlastfoot
+
+    AnimeDTO & mediaContent & Represents data transfer object containing attributes for animes \\
+    \hline
+    MangaDTO & mediaContent & Represents data transfer object containing attributes for mangas \\
+    \hline
+    MediaContentDTO & interfaces & Defines common attributes for media content \\
+    \hline
+    DashboardDTO & statistics & Contains statistical data for the dashboard \\
+    \hline
+    MongoDBStats & statistics & Provides statistics specific to MongoDB \\
+    \hline
+    LoggedUserDTO & & Holds information about a logged-in user. \\
+    \hline
+    PageDTO & & Represents pagination details \\
+    \hline
+    ReviewDTO & & Contains attributes for reviews \\
+    \hline
+    UserRegistrationDTO & & Holds data for user registration \\
+    \hline
+    UserSummaryDTO & & Provides a summary of user information \\
+    \hline
+\end{longtable}
+
 
 \subsection*{Model}
-\begin{table}[h]
-    \centering
-    \renewcommand{\arraystretch}{1.5} % Adjusts the row height
-    \begin{tabular}{|>{\raggedright\arraybackslash}p{0.25\linewidth}|>{\raggedright\arraybackslash}p{0.15\linewidth}|>{\raggedright\arraybackslash}p{0.6\linewidth}|}
-        \hline
-        \textbf{Class} & \textbf{Sub-package} & \textbf{Description} \\
-        \hline
-        Anime & mediaContent & Description for Class A \\
-        \hline
-        Manga B & mediaContent & Description for Class B \\
-        \hline
-        MangaAuthor & mediaContent & mediaContent for Class C \\
-        \hline
-        MediaContent & mediaContent & Description for Class D \\
-        \hline
-        Manager & registeredUser & Description for Class E \\
-        \hline
-        RegisteredUSer & registeredUser & Description for Class E \\
-        \hline
-        User & registeredUser & Description for Class E \\
-        \hline
-        Review &  & Description for Class E \\
-        \hline
-    \end{tabular}
-    \label{tab:mytable}
-\end{table}
+\renewcommand{\arraystretch}{1.5}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{0.25\linewidth}|>{\raggedright\arraybackslash}p{0.15\linewidth}|>{\raggedright\arraybackslash}p{0.6\linewidth}|}
+    \hline
+    \textbf{Class} & \textbf{Sub-package} & \textbf{Description} \\
+    \hline
+    \endfirsthead
+
+    \hline
+    \textbf{Class} & \textbf{Sub-package} & \textbf{Description} \\
+    \hline
+    \endhead
+
+    \hline
+    \endfoot
+
+    \hline
+    \endlastfoot
+
+    Anime & mediaContent & Provides unique anime attributes by extending parent class MediaContent and related getter and setter methods. \\
+    \hline
+    Manga & mediaContent & Provides unique manga attributes by extending parent class MediaContent and related getter and setter methods. \\
+    \hline
+    MangaAuthor & mediaContent & Contains manga author attributes and related getter and setter methods. \\
+    \hline
+    MediaContent & mediaContent & Contains all the attributes used by types of media contents and their getter and setter methods. \\
+    \hline
+    Manager & registeredUser & Provides unique manager attributes by extending parent class RegisteredUser and related getter and setter methods. \\
+    \hline
+    RegisteredUSer & registeredUser & Contains all the attributes used by types of registered users and their getter and setter methods. \\
+    \hline
+    User & registeredUser & Provides unique user attributes by extending parent class RegisteredUser and related getter and setter methods. \\
+    \hline
+    Review &  & Contains review attributes and related getter and setter methods. \\
+    \hline
+\end{longtable}
+
+
 
 \subsection*{Service}
-\begin{table}[h]
-    \centering
-    \renewcommand{\arraystretch}{1.5} % Adjusts the row height
-    \begin{tabular}{|>{\raggedright\arraybackslash}p{0.3\linewidth}|>{\raggedright\arraybackslash}p{0.2\linewidth}|>{\raggedright\arraybackslash}p{0.5\linewidth}|}
-        \hline
-        \textbf{Class} & \textbf{Sub-package} & \textbf{Description} \\
-        \hline
-        CreateMediaTask & impl/ asinc\_media\_tasks & Description for Class A \\
-        \hline
-        DeleteMediaTask B & impl/ asinc\_media\_tasks & Description for Class B \\
-        \hline
-        RefreshLatestReviewsTasks & impl/ asinc\_media\_tasks & mediaContent for Class C \\
-        \hline
-        UpdateAverageRatingTask & impl/ asinc\_media\_tasks & Description for Class D \\
-        \hline
-        UpdateMediaRedundancyTask & impl/ asinc\_media\_tasks & Description for Class E \\
-        \hline
-        UpdateMediaTask & impl/ asinc\_media\_tasks & Description for Class E \\
-        \hline
-        UpdateNumberofLikesTask & impl/ asinc\_media\_tasks & Description for Class E \\
-        \hline
-        RemoveDeletedMedia ReviewsTask &impl/ asinc\_review\_tasks  & Description for Class E \\
-        \hline
-        RemoveDeletedUser ReviewsTask & impl/ asinc\_review\_tasks & Description for Class E \\
-        \hline
-        UpdateReviewRedundancyTask & impl/ asinc\_review\_tasks & Description for Class E \\
-        \hline
-        CreateUserTask & impl/ asinc\_user\_tasks & Description for Class E \\
-        \hline
-    \end{tabular}
-    \label{tab:mytable}
-\end{table}
+\renewcommand{\arraystretch}{1.5} % Adjusts the row height
+\begin{longtable}{|>{\raggedright\arraybackslash}p{0.3\linewidth}|>{\raggedright\arraybackslash}p{0.2\linewidth}|>{\raggedright\arraybackslash}p{0.5\linewidth}|}
+   
+    \hline
+    \textbf{Class} & \textbf{Sub-package} & \textbf{Description} \\
+    \hline
+    \endfirsthead
 
-\begin{table}[h]
-    \centering
-    \renewcommand{\arraystretch}{1.5} % Adjusts the row height
-    \begin{tabular}{|>{\raggedright\arraybackslash}p{0.3\linewidth}|>{\raggedright\arraybackslash}p{0.2\linewidth}|>{\raggedright\arraybackslash}p{0.5\linewidth}|}
-        \hline
-        DeleteUserTask & impl/ asinc\_user\_tasks & Description for Class A \\
-        \hline
-        UpdateNumberOfFollowedTask B & impl/ asinc\_user\_tasks & Description for Class B \\
-        \hline
-        UpdateNumberOfFollowersTask & impl/ asinc\_user\_tasks & mediaContent for Class C \\
-        \hline
-        UpdateUserTask & impl/ asinc\_user\_tasks & Description for Class D \\
-        \hline
-        AperiodicExecutor TaskServiceImpl & impl & Description for Class E \\
-        \hline
-        ErrorTaskManager & impl & Description for Class E \\
-        \hline
-        MediaContentServiceImpl & impl & Description for Class E \\
-        \hline
-        PeriodicExecutor TaskServiceImpl &impl  & Description for Class E \\
-        \hline
-        ReviewServiceImpl & impl & Description for Class E \\
-        \hline
-        UserServiceImpl & impl & Description for Class E \\
-        \hline
-        ExecutorTaskService &interfaces & Description for Class E \\
-        \hline
-        MediaContentService &interfaces & Description for Class E \\
-        \hline
-        ReviewService &interfaces & Description for Class E \\
-        \hline
-        Task &interfaces & Description for Class E \\
-        \hline
-        TaskManager &interfaces & Description for Class E \\
-        \hline
-        UserService &interfaces & Description for Class E \\
-        \hline
-        ServiceLocator & & Description for Class E \\
-        \hline
-    \end{tabular}
-    \label{tab:mytable}
-\end{table}
+    \hline
+    \textbf{Class} & \textbf{Sub-package} & \textbf{Description} \\
+    \hline
+    \endhead
+
+    \hline
+    \endfoot
+
+    \hline
+    \endlastfoot
+
+    CreateMediaTask & impl/ asinc\_media\_tasks & Implementation of methods for media task creation for MediaContentService \\
+    \hline
+    DeleteMediaTask B & impl/ asinc\_media\_tasks & Implementation of methods for media task deletion for MediaContentService \\
+    \hline
+    RefreshLatestReviewsTasks & impl/ asinc\_media\_tasks & Implementation of methods for refreshing latest reviews for MediaContentService \\
+    \hline
+    UpdateAverageRatingTask & impl/ asinc\_media\_tasks & Implementation of methods for updating average rating for MediaContentService \\
+    \hline
+    UpdateMediaRedundancyTask & impl/ asinc\_media\_tasks & Implementation of methods for updating media redundancy for MediaContentService \\
+    \hline
+    UpdateMediaTask & impl/ asinc\_media\_tasks & Implementation of methods for updating media for MediaContentService \\
+    \hline
+    UpdateNumberofLikesTask & impl/ asinc\_media\_tasks & Implementation of methods for updating numbers of likes for MediaContentService \\
+    \hline
+    RemoveDeletedMedia ReviewsTask & impl/ asinc\_review\_tasks & Implementation of methods for removing reviews of deleted media for ReviewService \\
+    \hline
+    RemoveDeletedUser ReviewsTask & impl/ asinc\_review\_tasks & Implementation of methods for removing reviews of deleted user for ReviewService \\
+    \hline
+    UpdateReviewRedundancyTask & impl/ asinc\_review\_tasks & Implementation of methods for updating review redundancy for ReviewService \\
+    \hline
+    CreateUserTask & impl/ asinc\_user\_tasks & Implementation of methods for user creation for UserService \\
+    \hline
+    DeleteUserTask & impl/ asinc\_user\_tasks & Implementation of methods for user deletion for UserService \\
+    \hline
+    UpdateNumberOfFollowedTask B & impl/ asinc\_user\_tasks & Implementation of methods for updating number of followed for UserService \\
+    \hline
+    UpdateNumberOfFollowersTask & impl/ asinc\_user\_tasks & Implementation of methods for updating number of followers for UserService \\
+    \hline
+    UpdateUserTask & impl/ asinc\_user\_tasks & Implementation of methods for updating user for MediaContentService \\
+    \hline
+    AperiodicExecutor TaskServiceImpl & impl & Implementation of aperiodic tasks for ExecutorTaskService \\
+    \hline
+    ErrorTaskManager & impl & Implementation of TaskManager interface to handle error \\
+    \hline
+    MediaContentServiceImpl & impl & Implementation of MediaContentService, providing media content operations \\
+    \hline
+    PeriodicExecutor TaskServiceImpl & impl & Implementation of periodic tasks for ExecutorTaskService \\
+    \hline
+    ReviewServiceImpl & impl & Implementation of ReviewService, providing review operations \\
+    \hline
+    UserServiceImpl & impl & Implementation of UserService, providing user operations \\
+    \hline
+    ExecutorTaskService & interfaces & Collection of methods for task management \\
+    \hline
+    MediaContentService & interfaces & Collection of methods for media content service \\
+    \hline
+    ReviewService & interfaces & Collection of methods for review service \\
+    \hline
+    Task & interfaces & Collection of methods for execution operations \\
+    \hline
+    TaskManager & interfaces & Collection of methods for managing task prioritization \\
+    \hline
+    UserService & interfaces & Collection of methods for user service \\
+    \hline
+    ServiceLocator & & Implements locator pattern for services \\
+    \hline
+\end{longtable}
+
 
 
 \newpage
