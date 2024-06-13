@@ -1,13 +1,15 @@
 package it.unipi.lsmsd.fnf.dto.mediaContent;
 
+import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.model.mediaContent.MediaContent;
+
+import java.util.Objects;
 
 public abstract class MediaContentDTO {
     private String id;
     private String title;
     private String imageUrl;
     private Double averageRating;
-
     private Integer likes;
 
     // Used to check if the user has liked the media content
@@ -84,4 +86,19 @@ public abstract class MediaContentDTO {
     }
 
     public abstract MediaContent toModel();
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MediaContentDTO that = (MediaContentDTO) o;
+        return Objects.equals(id, that.id) &&
+                Objects.equals(title, that.title) &&
+                Objects.equals(imageUrl, that.imageUrl);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, title, imageUrl);
+    }
 }

@@ -90,12 +90,7 @@ public class UserServlet extends HttpServlet {
 
         try {
             // Get the list of followers
-            List<UserSummaryDTO> followers;
-            if (StringUtils.isNotBlank(searchValue)) {
-                followers = userService.searchFollowers(userId, searchValue,loggedUserId);
-            } else {
-                followers = userService.getFollowers(userId, loggedUserId);
-            }
+            List<UserSummaryDTO> followers = userService.searchFollowers(userId, searchValue, loggedUserId);
 
             // Convert the list to a JSON array
             if (followers == null) {
@@ -130,12 +125,7 @@ public class UserServlet extends HttpServlet {
 
         try {
             // Get the list of followings
-            List<UserSummaryDTO> followings;
-            if (StringUtils.isNotBlank(searchValue)) {
-                followings = userService.searchFollowings(userId, searchValue, loggedUserId);
-            } else {
-                followings = userService.getFollowings(userId, loggedUserId);
-            }
+            List<UserSummaryDTO> followings = userService.searchFollowings(userId, searchValue, loggedUserId);
 
             // Convert the list to a JSON array
             if (followings == null) {

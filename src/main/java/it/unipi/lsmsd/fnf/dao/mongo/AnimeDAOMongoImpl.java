@@ -38,7 +38,7 @@ import static com.mongodb.client.model.Updates.*;
 import static it.unipi.lsmsd.fnf.utils.DocumentUtils.*;
 
 /**
- * Implementation of the MediaContentDAO interface for Anime objects, providing CRUD operations for Anime data in MongoDB.
+ * Implementation of the MediaContentDAO interface for Anime objects, providing CRUD operations and complex aggregations for Anime collection in MongoDB.
  */
 public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO<Anime> {
     private static final String COLLECTION_NAME = "anime";
@@ -544,6 +544,7 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
     }
 
     // Neo4J specific methods
+
     @Override
     public void like(String userId, String mediaContentId) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
@@ -556,12 +557,10 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
     public boolean isLiked(String userId, String mediaId) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
-
     @Override
     public Integer getNumOfLikes(String mediaId) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
-
     @Override
     public PageDTO<MediaContentDTO> getLiked(String userId, int page) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
@@ -570,17 +569,14 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
     public List<MediaContentDTO> getSuggestedByFollowings(String userId, Integer limit) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
-
     @Override
     public List<MediaContentDTO> getSuggestedByLikes(String userId, Integer limit) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
-
     @Override
     public Map<MediaContentDTO, Integer> getTrendMediaContentByYear(int year, Integer limit) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
-
     @Override
     public List<MediaContentDTO> getMediaContentTrendByLikes(Integer limit) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");

@@ -10,6 +10,12 @@ import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Interface for the DAO of the Review entity.
+ * Provides methods to interact with the MongoDB database.
+ * The methods provide crud operations and operations to maintain consistency between collections,
+ * operations to get statistics and operations to get media content suggestions.
+ */
 public interface ReviewDAO {
     void saveReview(ReviewDTO reviewDTO) throws DAOException;
     void updateReview(String reviewId, String reviewComment, Integer reviewRating) throws DAOException;

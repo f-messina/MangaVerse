@@ -246,23 +246,6 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * Retrieves the list of users being followed by a particular user.
-     * @param userId The ID of the user.
-     * @return The list of users being followed by the specified user.
-     * @throws BusinessException If an error occurs while retrieving the list.
-     */
-    @Override
-    public List<UserSummaryDTO> getFollowings(String userId, String loggedUserId) throws BusinessException {
-        try {
-            return userDAONeo4J.getFirstNFollowing(userId, loggedUserId);
-
-        } catch (DAOException e) {
-            handleDAOException(e);
-            return null;
-        }
-    }
-
-    /**
      * Searches for users followed by a specified user based on the provided search criteria.
      *
      * @param userId       The ID of the user whose followings are being searched.
@@ -275,23 +258,6 @@ public class UserServiceImpl implements UserService {
     public List<UserSummaryDTO> searchFollowings(String userId, String username, String loggedUserId) throws BusinessException {
         try {
             return userDAONeo4J.searchFollowing(userId, username, loggedUserId);
-
-        } catch (DAOException e) {
-            handleDAOException(e);
-            return null;
-        }
-    }
-
-    /**
-     * Retrieves the list of users following a particular user.
-     * @param userId The ID of the user.
-     * @return The list of users following the specified user.
-     * @throws BusinessException If an error occurs while retrieving the list.
-     */
-    @Override
-    public List<UserSummaryDTO> getFollowers(String userId, String loggedUserId) throws BusinessException {
-        try {
-            return userDAONeo4J.getFirstNFollowers(userId, loggedUserId);
 
         } catch (DAOException e) {
             handleDAOException(e);

@@ -3,6 +3,7 @@ package it.unipi.lsmsd.fnf.dto;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 public class UserSummaryDTO {
 
@@ -90,5 +91,20 @@ public class UserSummaryDTO {
         user.setLocation(this.getLocation());
         user.setBirthday(this.getBirthDate());
         return user;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        UserSummaryDTO that = (UserSummaryDTO) o;
+        return Objects.equals(id, that.id) &&
+                Objects.equals(username, that.username) &&
+                Objects.equals(profilePicUrl, that.profilePicUrl);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, username, profilePicUrl);
     }
 }

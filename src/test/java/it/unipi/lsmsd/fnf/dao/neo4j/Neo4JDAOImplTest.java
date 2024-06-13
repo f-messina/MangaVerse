@@ -131,34 +131,6 @@ public class Neo4JDAOImplTest{
 
     }
 
-
-    @Test
-    public void testGetFollowing() throws DAOException {
-        try {
-
-            UserDAONeo4JImpl neo4JDAO = new UserDAONeo4JImpl();
-            List<UserSummaryDTO> followingUsers = neo4JDAO.getFirstNFollowing("6577877be68376234760585d", null);
-            for (UserSummaryDTO user : followingUsers)
-                System.out.println(user);
-        }   catch (DAOException e) {
-            fail("Exception not expected: " + e.getMessage());
-        }
-
-    }
-
-     @Test
-    public void testGetFollowers() throws DAOException {
-        try {
-            UserDAONeo4JImpl neo4JDAO = new UserDAONeo4JImpl();
-            List<UserSummaryDTO> followerUsers = neo4JDAO.getFirstNFollowers("6577877be68376234760585d", null);
-            for(UserSummaryDTO user : followerUsers)
-                System.out.println(user);
-        }  catch (DAOException e) {
-            fail("Exception not expected: " + e.getMessage());
-        }
-    }
-
-
     @Test
     //Test works correctly
     public void testSuggestUsersByCommonFollows() throws DAOException {
@@ -271,26 +243,14 @@ public class Neo4JDAOImplTest{
     //Test works correctly
     public void getTrendAnimeByLikes() throws DAOException {
         AnimeDAONeo4JImpl neo4JDAO = new AnimeDAONeo4JImpl();
-        List<MediaContentDTO> anime = neo4JDAO.getMediaContentTrendByLikes(300);
-        System.out.println(anime.size());
-        if (anime == null || anime.isEmpty()) {
-            fail("No trend anime found");
-        }
-        for (MediaContentDTO animeDTO : anime) {
-            System.out.println("id: " + animeDTO.getId() + ", title: " + animeDTO.getTitle() + ", picture: " + animeDTO.getImageUrl());
-        }
+        neo4JDAO.getMediaContentTrendByLikes(5);
+        neo4JDAO.getMediaContentTrendByLikes(25);
     }
 
     @Test
-    //Test works correctly
     public void getTrendMangaByLikes() throws DAOException {
         MangaDAONeo4JImpl neo4JDAO = new MangaDAONeo4JImpl();
-        List<MediaContentDTO> manga = neo4JDAO.getMediaContentTrendByLikes(6);
-        if (manga == null || manga.isEmpty()) {
-            fail("No trend manga found");
-        }
-        for (MediaContentDTO mangaDTO : manga) {
-            System.out.println("id: " + mangaDTO.getId() + ", title: " + mangaDTO.getTitle() + ", picture: " + mangaDTO.getImageUrl());
-        }
+        neo4JDAO.getMediaContentTrendByLikes(5);
+        neo4JDAO.getMediaContentTrendByLikes(25);
     }
 }

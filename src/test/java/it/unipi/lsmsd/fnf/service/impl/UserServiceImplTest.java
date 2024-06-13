@@ -148,34 +148,6 @@ class UserServiceImplTest {
     }
 
     @Test
-    void getFollowingsTest() {
-        try {
-            UserService userService = new UserServiceImpl();
-            UserSummaryDTO userSummaryDTO = userService.searchFirstNUsers("exampleUser", 1, null).getFirst();
-            System.out.println(userService.getFollowings(userSummaryDTO.getId(), null));
-            Thread.sleep(2*1000);
-        } catch (BusinessException e) {
-            System.err.println(e.getMessage() + " " + e.getType());
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Test
-    void getFollowersTest() {
-        try {
-            UserService userService = new UserServiceImpl();
-            UserSummaryDTO userSummaryDTO = userService.searchFirstNUsers("exampleUser2", 1, null).getFirst();
-            System.out.println(userService.getFollowers(userSummaryDTO.getId(), null));
-            Thread.sleep(2*1000);
-        } catch (BusinessException e) {
-            System.err.println(e.getMessage() + " " + e.getType());
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Test
     void getUserByIdTest() {
         try {
             UserService userService = new UserServiceImpl();

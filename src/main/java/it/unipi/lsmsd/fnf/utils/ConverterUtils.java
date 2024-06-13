@@ -74,9 +74,9 @@ public class ConverterUtils {
             userRegistrationDTO.setFullname(request.getParameter("fullname"));
         if (StringUtils.isNotBlank(request.getParameter("country")))
             userRegistrationDTO.setLocation(request.getParameter("country"));
-        if (StringUtils.isNotBlank(request.getParameter("birthday")))
-            userRegistrationDTO.setBirthday(LocalDate.parse(request.getParameter("birthday")));
-        userRegistrationDTO.setGender(Gender.fromString(request.getParameter("gender")));
+        if (StringUtils.isNotBlank(request.getParameter("birthdate")))
+            userRegistrationDTO.setBirthday(LocalDate.parse(request.getParameter("birthdate")));
+        userRegistrationDTO.setGender(Gender.valueOf(request.getParameter("gender")));
 
         return userRegistrationDTO;
     }

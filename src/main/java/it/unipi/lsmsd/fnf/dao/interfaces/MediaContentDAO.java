@@ -10,6 +10,19 @@ import it.unipi.lsmsd.fnf.model.mediaContent.MediaContent;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Interface for the DAO of the MediaContent entity.
+ * @param <T> The type of the MediaContent entity.
+ * Provides methods to interact with the databases.
+ * The methods are divided into two categories: MongoDB specific methods and Neo4J specific methods.
+ * The MongoDB specific methods are used to interact with the MongoDB database and the
+ * Neo4J specific methods are used to interact with the Neo4J database.
+ * The MongoDB methods provide crud operations and operations to maintain consistency
+ * between collections, search functionality and operations to get statistics.
+ * The Neo4J methods provide CRUD operations to generate relationship between nodes and
+ * maintain consistency between nodes and related mongoDB documents,
+ * operations to get statistics and operations to get media content suggestions.
+ */
 public interface MediaContentDAO<T extends MediaContent> {
 
     // MongoDB specific methods

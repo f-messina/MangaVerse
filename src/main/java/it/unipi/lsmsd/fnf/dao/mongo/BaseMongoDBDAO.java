@@ -6,30 +6,21 @@ import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import org.bson.Document;
-import org.bson.conversions.Bson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import static com.mongodb.client.model.Filters.*;
-import static com.mongodb.client.model.Sorts.*;
 /**
  * This abstract class serves as the base for MongoDB Data Access Objects (DAOs).
- * It provides methods for establishing connections to MongoDB, building filters and sorts,
- * and appending values to documents.
+ * It provides methods for establishing connections to MongoDB and closing the connection.
  */
 public abstract class BaseMongoDBDAO {
     private static final Logger logger = LoggerFactory.getLogger(BaseMongoDBDAO.class);
     private static final String PROTOCOL = "mongodb://";
     private static final String MONGO_HOST = "localhost";
     private static final String MONGO_PORT = "27017";
-    //private static final String MONGO_PORT1 = "27018";
-    //private static final String MONGO_PORT2 = "27019";
-    //private static final String MONGO_PORT3 = "27020";
+//    private static final String MONGO_PORT1 = "27018";
+//    private static final String MONGO_PORT2 = "27019";
+//    private static final String MONGO_PORT3 = "27020";
     private static final String MONGO_DB = "mangaVerse";
     private static final MongoClientSettings settings;
     private static MongoClient mongoClient;
@@ -49,7 +40,7 @@ public abstract class BaseMongoDBDAO {
     /**
      * Opens a connection to the database
      *
-     * @throws DAOException CONNECTION_ERROR if an error occurs while opening the connection
+     * @throws DAOException if an error occurs while opening the connection
      */
     public static void openConnection() throws DAOException {
 
@@ -63,6 +54,11 @@ public abstract class BaseMongoDBDAO {
         }
     }
 
+    /**
+     * Returns the MongoClient object representing the connection to the database
+     *
+     * @return MongoClient object representing the connection to the database
+     */
     public static MongoClient getMongoClient() {
         return mongoClient;
     }
@@ -80,7 +76,7 @@ public abstract class BaseMongoDBDAO {
     /**
      * Closes the connection to the database
      *
-     * @throws DAOException CONNECTION_ERROR if an error occurs while closing the connection or if the connection was not previously opened
+     * @throws DAOException if an error occurs while closing the connection or if the connection was not previously opened
      */
     public static void closeConnection() throws DAOException {
         if(mongoClient != null){
@@ -93,105 +89,5 @@ public abstract class BaseMongoDBDAO {
         else {
             throw new DAOException("Error while closing MongoDB connection: connection was not previously opened");
         }
-    }
-
-    /**
-     * Builds a MongoDB filter based on the provided filter list.
-     *
-     * @param filterList List of maps representing the filter criteria.
-     * @return Bson filter object representing the constructed filter.
-     */
-    protected Bson buildFilter(List<Map<String, Object>> filterList) {
-        if (filterList == null || filterList.isEmpty()) {
-            return empty();
-        } else {
-            List<Bson> filter = buildFilterInternal(filterList);
-            return and(filter);
-        }
-    }
-
-    /**
-     * Recursively builds a MongoDB filter based on nested filter conditions.
-     *
-     * @param filterList List of maps representing the filter criteria.
-     * @return List of Bson objects representing the constructed filter.
-     */
-    protected List<Bson> buildFilterInternal(List<Map<String, Object>> filterList) {
-        return filterList.stream()
-                .map(filter -> {
-                    Map.Entry<String, Object> entry = filter.entrySet().iterator().next();
-                    String key = entry.getKey();
-                    Object value = entry.getValue();
-
-                    return switch (key) {
-                        case "$and" -> and(buildFilterInternal((List<Map<String, Object>>) value));
-                        case "$or" -> or(buildFilterInternal((List<Map<String, Object>>) value));
-                        default -> buildFieldFilter(key, value);
-                    };
-                })
-                .toList();
-    }
-
-
-    /**
-     * Builds a field-specific filter for MongoDB.
-     *
-     * @param fieldName Name of the field to filter on.
-     * @param value     Value of the field for filtering.
-     * @return Bson object representing the constructed field filter.
-     */
-    protected Bson buildFieldFilter(String fieldName, Object value) {
-        return switch (fieldName) {
-            case "$all" -> {
-                Map.Entry<String, Object> entry = ((Map<String, Object>) value).entrySet().iterator().next();
-                yield all(entry.getKey(), (List<?>) entry.getValue());
-            }
-            case "$in" ->  {
-                Map.Entry<String, Object> entry = ((Map<String, Object>) value).entrySet().iterator().next();
-                yield in(entry.getKey(), (List<?>) entry.getValue());
-            }
-            case "$nin" -> {
-                Map.Entry<String, Object> entry = ((Map<String, Object>) value).entrySet().iterator().next();
-                yield nin(entry.getKey(), (List<?>) entry.getValue());
-            }
-            case "$gte" -> {
-                Map.Entry<String, Object> entry = ((Map<String, Object>) value).entrySet().iterator().next();
-                yield gte(entry.getKey(), entry.getValue());
-            }
-            case "$lte" -> {
-                Map.Entry<String, Object> entry = ((Map<String, Object>) value).entrySet().iterator().next();
-                yield lte(entry.getKey(), entry.getValue());
-            }
-            case "$exists" -> {
-                Map.Entry<String, Object> entry = ((Map<String, Object>) value).entrySet().iterator().next();
-                yield exists(entry.getKey(), (Boolean) entry.getValue());
-            }
-            case "$regex" -> {
-                Map.Entry<String, Object> entry = ((Map<String, Object>) value).entrySet().iterator().next();
-                yield regex(entry.getKey(), entry.getValue().toString(), "i");
-            }
-            default -> eq(fieldName, value);
-        };
-    }
-
-
-
-    /**
-     * Builds a sort specification for MongoDB based on the provided ordering criteria.
-     *
-     * @param orderBy Map representing the fields to sort by and their corresponding order.
-     * @return Bson object representing the constructed sort specification.
-     */
-    protected Bson buildSort(Map<String, Integer> orderBy) {
-        List<Bson> sortList = new ArrayList<>();
-        Optional.ofNullable(orderBy)
-                .ifPresent(map ->
-                        sortList.addAll(map.entrySet().stream()
-                                .map(entry -> entry.getValue() == 1 ? ascending(entry.getKey()) : descending(entry.getKey()))
-                                .toList()
-                        )
-                );
-
-        return orderBy(sortList);
     }
 }

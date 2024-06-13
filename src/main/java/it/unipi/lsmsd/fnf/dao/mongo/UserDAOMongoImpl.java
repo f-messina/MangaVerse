@@ -557,6 +557,7 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
     }
 
     // Methods available only in Neo4J
+
     @Override
     public void follow(String followerUserId, String followingUserId) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
@@ -565,47 +566,30 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
     public void unfollow(String followerUserId, String followingUserId) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
-
     @Override
     public boolean isFollowing(String followerUserId, String followedUserId) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
-
     @Override
     public Integer getNumOfFollowers(String userId) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
-
     @Override
     public Integer getNumOfFollowed(String userId) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
-
-    @Override
-    public List<UserSummaryDTO> getFirstNFollowing(String userId, String loggedUser) throws DAOException {
-        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
-    }
-
     @Override
     public List<UserSummaryDTO> searchFollowing(String userId, String username, String loggedUserId) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
-
-    @Override
-    public List<UserSummaryDTO> getFirstNFollowers(String userId, String loggedUserId) throws DAOException {
-        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
-    }
-
     @Override
     public List<UserSummaryDTO> searchFollowers(String userId, String username, String loggedUserId) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
-
     @Override
     public List<UserSummaryDTO> suggestUsersByCommonFollowings(String userId, Integer limit) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
-
     @Override
     public List<UserSummaryDTO> suggestUsersByCommonLikes(String userId, Integer limit, MediaContentType type) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
