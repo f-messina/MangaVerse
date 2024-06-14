@@ -4,9 +4,8 @@ import it.unipi.lsmsd.fnf.dao.DAOLocator;
 import it.unipi.lsmsd.fnf.dao.enums.DataRepositoryEnum;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dao.interfaces.UserDAO;
-import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
+import it.unipi.lsmsd.fnf.dto.registeredUser.UserRegistrationDTO;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
-import it.unipi.lsmsd.fnf.service.exception.enums.BusinessExceptionType;
 import it.unipi.lsmsd.fnf.service.interfaces.Task;
 
 import static it.unipi.lsmsd.fnf.service.exception.BusinessException.handleDAOException;

@@ -2,12 +2,10 @@ package it.unipi.lsmsd.fnf.service.impl;
 
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
-import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dao.mongo.BaseMongoDBDAO;
 import it.unipi.lsmsd.fnf.dao.neo4j.BaseNeo4JDAO;
-import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
-import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
-import it.unipi.lsmsd.fnf.model.enums.Gender;
+import it.unipi.lsmsd.fnf.dto.registeredUser.UserRegistrationDTO;
+import it.unipi.lsmsd.fnf.dto.registeredUser.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import it.unipi.lsmsd.fnf.service.ServiceLocator;
 import it.unipi.lsmsd.fnf.service.enums.ExecutorTaskServiceType;
@@ -23,14 +21,10 @@ import org.bson.conversions.Bson;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.neo4j.driver.Session;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static it.unipi.lsmsd.fnf.dao.neo4j.BaseNeo4JDAO.getSession;
 import static it.unipi.lsmsd.fnf.service.ServiceLocator.getExecutorTaskService;
 
 class UserServiceImplTest {

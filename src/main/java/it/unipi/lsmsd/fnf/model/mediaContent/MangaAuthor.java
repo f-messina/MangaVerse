@@ -1,6 +1,7 @@
 package it.unipi.lsmsd.fnf.model.mediaContent;
+
 /**
- * Represents an author of a manga.
+ * Model class representing a manga author.
  */
 public class MangaAuthor {
     private Integer id;
@@ -48,7 +49,7 @@ public class MangaAuthor {
      */
     @Override
     public String toString() {
-        return "Author{" +
+        return "MangaAuthor{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", role='" + role + '\'' +

@@ -13,7 +13,7 @@ import it.unipi.lsmsd.fnf.dao.exception.enums.DAOExceptionType;
 import it.unipi.lsmsd.fnf.dao.interfaces.ReviewDAO;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
-import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
+import it.unipi.lsmsd.fnf.dto.registeredUser.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
@@ -50,6 +50,9 @@ import static java.util.stream.Collectors.toList;
  * This class provides methods to insert, update, delete, and retrieve reviews from the database,
  * as well as methods to perform various analytical or suggestions queries on review data.
  * Also performs operations to maintain consistency between collections.
+ * @see BaseMongoDBDAO
+ * @see ReviewDAO
+ * @see ReviewDTO
  */
 public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
     private static final String COLLECTION_NAME = "reviews";
@@ -823,8 +826,8 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
                     group("$" + nodeType + ".id",
                             first("title", "$" + nodeType + ".title"),
                             avg("average_rating", "$rating")),
-                    project(include("title")),
                     sort(descending("average_rating")),
+                    project(include("title")),
                     limit(20)));
 
             List<Document> result = reviewCollection.aggregate(pipeline).into(new ArrayList<>());
@@ -837,14 +840,11 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
                 String contentId = String.valueOf(document.getObjectId("_id"));
                 String title = document.getString("title");
 
-                Object ratingObj = document.get("average_rating");
-                Double averageRating = ratingObj instanceof Integer ratingInt? ratingInt.doubleValue() : (Double) ratingObj;
-
                 MediaContentDTO mediaContentDTO;
                 if (nodeType.equals("anime")) {
-                    mediaContentDTO = new AnimeDTO(contentId, title, null, averageRating);
+                    mediaContentDTO = new AnimeDTO(contentId, title);
                 } else {
-                    mediaContentDTO = new MangaDTO(contentId, title, null, averageRating);
+                    mediaContentDTO = new MangaDTO(contentId, title);
                 }
                 entries.add(mediaContentDTO);
             }

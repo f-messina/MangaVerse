@@ -1,9 +1,9 @@
 package it.unipi.lsmsd.fnf.dao.interfaces;
 
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
-import it.unipi.lsmsd.fnf.dto.LoggedUserDTO;
-import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
-import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
+import it.unipi.lsmsd.fnf.dto.registeredUser.LoggedUserDTO;
+import it.unipi.lsmsd.fnf.dto.registeredUser.UserSummaryDTO;
+import it.unipi.lsmsd.fnf.dto.registeredUser.UserRegistrationDTO;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;

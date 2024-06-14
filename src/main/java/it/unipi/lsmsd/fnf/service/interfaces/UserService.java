@@ -1,8 +1,8 @@
 package it.unipi.lsmsd.fnf.service.interfaces;
 
-import it.unipi.lsmsd.fnf.dto.LoggedUserDTO;
-import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
-import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
+import it.unipi.lsmsd.fnf.dto.registeredUser.LoggedUserDTO;
+import it.unipi.lsmsd.fnf.dto.registeredUser.UserSummaryDTO;
+import it.unipi.lsmsd.fnf.dto.registeredUser.UserRegistrationDTO;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 

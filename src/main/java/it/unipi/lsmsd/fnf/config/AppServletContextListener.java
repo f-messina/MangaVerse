@@ -15,6 +15,10 @@ import jakarta.servlet.annotation.WebListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * This class is used to initialize and destroy the application context.
+ * It is used to open and close the database connections and start and stop the services.
+ */
 @WebListener
 public class AppServletContextListener implements ServletContextListener {
     private static final Logger logger = LoggerFactory.getLogger(AppServletContextListener.class);
@@ -22,6 +26,12 @@ public class AppServletContextListener implements ServletContextListener {
     private static final ExecutorTaskService periodicTaskService = ServiceLocator.getExecutorTaskService(ExecutorTaskServiceType.PERIODIC);
     private static final TaskManager errorTaskManager = ServiceLocator.getErrorsTaskManager();
 
+    /**
+     * This method is called when the application is started.
+     * It opens the database connections and starts the services.
+     *
+     * @param sce the ServletContextEvent
+     */
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         System.out.println("Application startup - Opening database connections.");
@@ -30,6 +40,12 @@ public class AppServletContextListener implements ServletContextListener {
         System.out.println("startup complete");
     }
 
+    /**
+     * This method is called when the application is stopped.
+     * It closes the database connections and stops the services.
+     *
+     * @param sce the ServletContextEvent
+     */
     public void contextDestroyed(ServletContextEvent sce) {
         System.out.println("Application shutdown - Closing database connections.");
         closeConnections();
@@ -119,8 +135,6 @@ public class AppServletContextListener implements ServletContextListener {
         System.out.println("PeriodicExecutorTaskService stopped");
     }
 }
-
-// signup: (gender and birthday)
 
 // database: remove default images, update redundancies (user redundancy in review and media, media redundancy in review, neo4j num likes in anime/manga,
 // neo4j num followers/followed in user, remove user/media in neo4j that doesn't exist in mongo)

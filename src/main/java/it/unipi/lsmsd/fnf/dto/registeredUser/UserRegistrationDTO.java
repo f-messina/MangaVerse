@@ -1,10 +1,15 @@
-package it.unipi.lsmsd.fnf.dto;
+package it.unipi.lsmsd.fnf.dto.registeredUser;
 
 import it.unipi.lsmsd.fnf.model.enums.Gender;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 
 import java.time.LocalDate;
 
+/**
+ * Data Transfer Object for the User class.
+ * It is used to store information inserted by the user during the registration process.
+ * @see User
+ */
 public class UserRegistrationDTO {
     private String id;
     private String username;
@@ -93,6 +98,11 @@ public class UserRegistrationDTO {
                 '}';
     }
 
+    /**
+     * Converts the DTO to a User model.
+     *
+     * @return the User model
+     */
     public User toModel() {
         User user = new User();
         user.setId(this.getId());

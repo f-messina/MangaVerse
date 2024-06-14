@@ -3,10 +3,9 @@ package it.unipi.lsmsd.fnf.dao.neo4j;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dao.exception.enums.DAOExceptionType;
 import it.unipi.lsmsd.fnf.dao.interfaces.UserDAO;
-import it.unipi.lsmsd.fnf.dto.LoggedUserDTO;
-import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
-import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
-import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
+import it.unipi.lsmsd.fnf.dto.registeredUser.LoggedUserDTO;
+import it.unipi.lsmsd.fnf.dto.registeredUser.UserRegistrationDTO;
+import it.unipi.lsmsd.fnf.dto.registeredUser.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
@@ -30,6 +29,9 @@ import static org.neo4j.driver.Values.parameters;
 /**
  * Implementation of the MediaContentDAO interface for User objects, providing crud operations
  * and operations to get suggestions and analytics from the Neo4j database.
+ * @see BaseNeo4JDAO
+ * @see UserDAO
+ * @see User
  */
 public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
 

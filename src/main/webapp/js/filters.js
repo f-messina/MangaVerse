@@ -1,6 +1,3 @@
-
-// filter functions
-
 const titleFilter = $("#title-filter");
 const selectWrap = $(".select-wrap");
 const selectInputFilters = $(".select-wrap input");
@@ -41,6 +38,9 @@ selectWrap.click(function () {
     $(".options").hide();
 
     // Show options of the clicked select-wrap
+    if ($(this).find("input").length > 0) {
+        showInputOptions($(this).find("input"));
+    }
     $(this).find(".options").show();
 });
 
@@ -203,8 +203,11 @@ function updateValueWrap(selectWrap) {
     }
 }
 
+// clear all filters button
+
+const clearAllButton = $(".filter.clear-all");
+
 function toggleClearAllButton() {
-    const clearAllButton = $(".filter.clear-all");
 
     if ($(".filter.active").length > 0) {
         clearAllButton.show();
@@ -213,7 +216,7 @@ function toggleClearAllButton() {
     }
 }
 
-$(".filter.clear-all").on("click", function () {
+clearAllButton.on("click", function () {
     $(".filter .close").click();
     $(this).hide();
     getMediaContent();
@@ -222,26 +225,40 @@ $(".filter.clear-all").on("click", function () {
 // input event listeners for select filters where the options can be searched
 selectInputFilters.on("focus", function () {
     $(this).closest(".select-wrap").find(".placeholder").hide();
-});
-
-selectInputFilters.on("blur", function () {
-    if ($(this).val() === "") {
-        $(this).closest(".select-wrap").find(".placeholder").show();
+    if ($(this).closest(".select-wrap").attr("name") === "genre") {
+        $(this).closest(".select-wrap").find(".tags").hide();
+    } else {
+        $(this).closest(".select-wrap").find(".value").hide();
     }
 });
 
-selectInputFilters.on("input", function () {
-    const filter = $(this).val();
-    const options = $(this).closest(".select-wrap").find(".option");
-    options.each(function () {
+selectInputFilters.on("blur", function () {
+    $(this).val("");
+    if ($(this).closest(".select-wrap").find(".option.selected").length === 0) {
+        $(this).closest(".select-wrap").find(".placeholder").show();
+    }
+    if ($(this).closest(".select-wrap").attr("name") === "genre") {
+        $(this).closest(".select-wrap").find(".tags").show();
+    } else {
+        $(this).closest(".select-wrap").find(".value").show();
+    }
+});
+selectInputFilters.on("input", function() {
+    showInputOptions($(this));
+});
+
+function showInputOptions(selectWrap) {
+    const filter = selectWrap.val().toUpperCase();
+    const options = selectWrap.closest(".select-wrap").find(".option");
+    options.each(function() {
         const option = $(this);
-        if (option.text().toUpperCase().indexOf(filter.toUpperCase()) > -1) {
+        if (option.text().toUpperCase().indexOf(filter) > -1) {
             option.show();
         } else {
             option.hide();
         }
     });
-});
+}
 
 genreCheckboxType.change(function () {
     if (this.checked) {

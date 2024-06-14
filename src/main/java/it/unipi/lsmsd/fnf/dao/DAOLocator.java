@@ -1,6 +1,5 @@
 package it.unipi.lsmsd.fnf.dao;
 
-
 import it.unipi.lsmsd.fnf.dao.enums.DataRepositoryEnum;
 import it.unipi.lsmsd.fnf.dao.interfaces.MediaContentDAO;
 import it.unipi.lsmsd.fnf.dao.interfaces.ReviewDAO;
@@ -17,6 +16,9 @@ import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
  * Manage the creation of DAOs for different data repositories (MongoDB and Neo4j) and different entities (Anime, Manga, User, Review),
  * providing a single point of access to the DAOs for the rest of the application.
  * The methods check also if the specified data repository is supported.
+ * @see MediaContentDAO
+ * @see UserDAO
+ * @see ReviewDAO
  */
 public class DAOLocator {
 

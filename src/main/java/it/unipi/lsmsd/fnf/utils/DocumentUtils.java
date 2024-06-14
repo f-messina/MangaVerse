@@ -1,11 +1,11 @@
 package it.unipi.lsmsd.fnf.utils;
 
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
-import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
-import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
+import it.unipi.lsmsd.fnf.dto.registeredUser.UserRegistrationDTO;
+import it.unipi.lsmsd.fnf.dto.registeredUser.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.model.Review;
 import it.unipi.lsmsd.fnf.model.enums.*;
 import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
@@ -16,6 +16,7 @@ import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
@@ -601,83 +602,55 @@ public class DocumentUtils {
     /**
      * Builds a MongoDB filter based on the provided filter list.
      *
-     * @param filterList List of maps representing the filter criteria.
+     * @param filterList List of pairs representing the filter criteria.
      * @return Bson filter object representing the constructed filter.
      */
-    public static Bson buildFilter(List<Map<String, Object>> filterList) {
+    public static Bson buildFilter(List<Pair<String, Object>> filterList) {
         if (filterList == null || filterList.isEmpty()) {
             return empty();
         } else {
             List<Bson> filter = buildFilterInternal(filterList);
+            System.out.println("filter: " + filter);
             return and(filter);
         }
     }
 
-    /**
-     * Recursively builds a MongoDB filter based on nested filter conditions.
-     *
-     * @param filterList List of maps representing the filter criteria.
-     * @return List of Bson objects representing the constructed filter.
-     */
-    private static List<Bson> buildFilterInternal(List<Map<String, Object>> filterList) {
+    private static List<Bson> buildFilterInternal(List<Pair<String, Object>> filterList) {
+        System.out.println("filterList: " + filterList);
         return filterList.stream()
                 .map(filter -> {
-                    Map.Entry<String, Object> entry = filter.entrySet().iterator().next();
-                    String key = entry.getKey();
-                    Object value = entry.getValue();
-
+                    String key = filter.getKey();
+                    Object value = filter.getValue();
+                    System.out.println("key: " + key + " value: " + value);
                     return switch (key) {
-                        case "$and" -> and(buildFilterInternal((List<Map<String, Object>>) value));
-                        case "$or" -> or(buildFilterInternal((List<Map<String, Object>>) value));
+                        case "$and" -> and(buildFilterInternal((List<Pair<String, Object>>) value));
+                        case "$or" -> or(buildFilterInternal((List<Pair<String, Object>>) value));
                         default -> buildFieldFilter(key, value);
                     };
                 })
                 .toList();
     }
 
-
-    /**
-     * Builds a field-specific filter for MongoDB.
-     *
-     * @param fieldName Name of the field to filter on.
-     * @param value     Value of the field for filtering.
-     * @return Bson object representing the constructed field filter.
-     */
     private static Bson buildFieldFilter(String fieldName, Object value) {
+        String key = fieldName;
+        Object fieldValue = value;
+        if (value instanceof Pair) {
+            Pair<String, Object> entry = (Pair<String, Object>) value;
+            key = entry.getKey();
+            fieldValue = entry.getValue();
+        }
+
         return switch (fieldName) {
-            case "$all" -> {
-                Map.Entry<String, Object> entry = ((Map<String, Object>) value).entrySet().iterator().next();
-                yield all(entry.getKey(), (List<?>) entry.getValue());
-            }
-            case "$in" ->  {
-                Map.Entry<String, Object> entry = ((Map<String, Object>) value).entrySet().iterator().next();
-                yield in(entry.getKey(), (List<?>) entry.getValue());
-            }
-            case "$nin" -> {
-                Map.Entry<String, Object> entry = ((Map<String, Object>) value).entrySet().iterator().next();
-                yield nin(entry.getKey(), (List<?>) entry.getValue());
-            }
-            case "$gte" -> {
-                Map.Entry<String, Object> entry = ((Map<String, Object>) value).entrySet().iterator().next();
-                yield gte(entry.getKey(), entry.getValue());
-            }
-            case "$lte" -> {
-                Map.Entry<String, Object> entry = ((Map<String, Object>) value).entrySet().iterator().next();
-                yield lte(entry.getKey(), entry.getValue());
-            }
-            case "$exists" -> {
-                Map.Entry<String, Object> entry = ((Map<String, Object>) value).entrySet().iterator().next();
-                yield exists(entry.getKey(), (Boolean) entry.getValue());
-            }
-            case "$regex" -> {
-                Map.Entry<String, Object> entry = ((Map<String, Object>) value).entrySet().iterator().next();
-                yield regex(entry.getKey(), entry.getValue().toString(), "i");
-            }
-            default -> eq(fieldName, value);
+            case "$all" -> all(key, (List<?>) fieldValue);
+            case "$in" -> in(key, (List<?>) fieldValue);
+            case "$nin" -> nin(key, (List<?>) fieldValue);
+            case "$gte" -> gte(key, fieldValue);
+            case "$lte" -> lte(key, fieldValue);
+            case "$exists" -> exists(key, (Boolean) fieldValue);
+            case "$regex" -> regex(key, (String) fieldValue, "i");
+            default -> eq(key, fieldValue);
         };
     }
-
-
 
     /**
      * Builds a sort specification for MongoDB based on the provided ordering criteria.

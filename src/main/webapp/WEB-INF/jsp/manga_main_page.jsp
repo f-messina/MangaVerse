@@ -464,7 +464,7 @@
                             <div value="title" class="option active">Title</div>
                             <div value="likes" class="option">Popularity</div>
                             <div value="average_rating" class="option">Average Score</div>
-                            <div value="anime" class="option">Release Date </div>
+                            <div value="start_date" class="option">Release Date </div>
                         </div>
                     </div>
                 </div>

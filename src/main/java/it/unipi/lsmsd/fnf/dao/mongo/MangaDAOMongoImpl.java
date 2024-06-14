@@ -14,11 +14,12 @@ import it.unipi.lsmsd.fnf.dao.exception.enums.DuplicatedExceptionType;
 import it.unipi.lsmsd.fnf.dao.interfaces.MediaContentDAO;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
-import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
+import it.unipi.lsmsd.fnf.dto.registeredUser.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
 import it.unipi.lsmsd.fnf.utils.Constants;
 import it.unipi.lsmsd.fnf.utils.DocumentUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
@@ -38,6 +39,9 @@ import static it.unipi.lsmsd.fnf.utils.DocumentUtils.*;
 
 /**
  * Implementation of the MediaContentDAO interface for Manga objects, providing CRUD operations and complex aggregations for Manga collection in MongoDB.
+ * @see BaseMongoDBDAO
+ * @see MediaContentDAO
+ * @see Manga
  */
 public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO<Manga> {
     private static final String COLLECTION_NAME = "manga";
@@ -195,7 +199,7 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
      * @return A PageDTO containing the results and total count.
      * @throws DAOException If an error occurs during search.
      */
-    public PageDTO<MediaContentDTO> search(List<Map<String, Object>> filters, Map<String, Integer> orderBy, int page, boolean reducedInfo) throws DAOException {
+    public PageDTO<MediaContentDTO> search(List<Pair<String, Object>> filters, Map<String, Integer> orderBy, int page, boolean reducedInfo) throws DAOException {
         try {
             MongoCollection<Document> mangaCollection = getCollection(COLLECTION_NAME);
             Bson filter = buildFilter(filters);

@@ -2,6 +2,10 @@ package it.unipi.lsmsd.fnf.model.registeredUser;
 
 import java.time.LocalDate;
 
+/**
+ * Abstract class that represents a registered user of the platform.
+ * It contains the basic information of a registered user.
+ */
 public abstract class RegisteredUser {
     protected String id;
     protected String password;

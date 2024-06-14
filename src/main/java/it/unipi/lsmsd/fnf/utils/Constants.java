@@ -5,19 +5,23 @@ import it.unipi.lsmsd.fnf.model.mediaContent.MangaAuthor;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * This class contains the constants used in the application.
+ */
 public class Constants {
 
-    public static final String DEFAULT_PROFILE_PICTURE = "images/account-icon.png";
-    public static final String DEFAULT_COVER_MANGA = "images/manga-image-default.png";
-    public static final String DEFAULT_COVER_ANIME = "images/anime-image-default.png";
-    public static final String AUTHENTICATED_USER_KEY = "authenticatedUser";
-    public static final int PAGE_SIZE = 30;
-    public static final String PAGINATION_FACET = "paginationResults";
-    public static final String COUNT_FACET = "totalResults";
-    public static final int LATEST_REVIEWS_SIZE = 5;
+    // Constants for the application
+    public static final String DEFAULT_PROFILE_PICTURE = "images/account-icon.png"; // default profile picture for users without image
+    public static final String DEFAULT_COVER_MANGA = "images/manga-image-default.png"; // default cover for manga without image
+    public static final String DEFAULT_COVER_ANIME = "images/anime-image-default.png"; // default cover for anime without image
+    public static final String AUTHENTICATED_USER_KEY = "authenticatedUser"; // key for the authenticated user in the session
+    public static final int PAGE_SIZE = 30; // standard number of items per page
+    public static final String PAGINATION_FACET = "paginationResults"; // facet name for pagination
+    public static final String COUNT_FACET = "totalResults"; // facet name for total results of a query (used for pagination)
+    public static final int LATEST_REVIEWS_SIZE = 5; // number of latest reviews to show in the media content page
     public static final String[] MANGA_GENRES = {"Supernatural", "Adventure", "Boys Love", "Comedy", "Girls Love",
             "Mystery", "Horror", "Drama", "Gourmet", "Award Winning", "Fantasy", "Romance", "Avant Garde", "Action",
-            "Slice of Life", "Sports", "Sci-Fi", "Suspense"};
+            "Slice of Life", "Sports", "Sci-Fi", "Suspense"}; // list of manga genres
     public static final String[] ANIME_TAGS = {
             "comedy", "fantasy", "action", "kids", "adventure", "drama", "present", "music", "slice of life",
             "based on a manga", "family friendly", "sci-fi", "shounen", "romance", "shorts",
@@ -25,9 +29,12 @@ public class Constants {
             "manga", "male protagonist", "magic", "sci fi", "science-fiction", "original work",
             "female protagonist", "supernatural", "historical", "seinen", "school life", "japan", "earth",
             "anthropomorphic", "animal protagonists", "mecha", "super power", "slapstick", "parody", "cg animation"
-        };
+        }; // list of anime tags
+
 
     // null values to unset fields in the database
+    // user to distinguish between fields that are unchanged and fields that are set to null
+
     public static final String NULL_STRING = "null";
     public static final LocalDate NULL_DATE = LocalDate.of(1, 1, 1);
     public static final String NULL_GENDER = "Prefer not to say";

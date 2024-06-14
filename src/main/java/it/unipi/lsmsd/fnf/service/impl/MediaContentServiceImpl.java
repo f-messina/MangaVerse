@@ -22,6 +22,7 @@ import it.unipi.lsmsd.fnf.service.interfaces.MediaContentService;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 import it.unipi.lsmsd.fnf.service.exception.enums.BusinessExceptionType;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -177,6 +178,7 @@ public class MediaContentServiceImpl implements MediaContentService {
 
     /**
      * Searches for media content based on specified filters.
+     *
      * @param filters The filters to apply during the search.
      * @param orderBy The order in which results should be returned.
      * @param page The page number of the search results.
@@ -185,7 +187,7 @@ public class MediaContentServiceImpl implements MediaContentService {
      * @throws BusinessException If an error occurs during the operation.
      */
     @Override
-    public PageDTO<MediaContentDTO> searchByFilter(List<Map<String, Object>> filters, Map<String, Integer> orderBy, int page, MediaContentType type) throws BusinessException {
+    public PageDTO<MediaContentDTO> searchByFilter(List<Pair<String, Object>> filters, Map<String, Integer> orderBy, int page, MediaContentType type) throws BusinessException {
         try {
             if (MediaContentType.ANIME.equals(type))
                 return animeDAOMongoDB.search(filters, orderBy, page, false);
@@ -212,9 +214,9 @@ public class MediaContentServiceImpl implements MediaContentService {
     public PageDTO<MediaContentDTO> searchByTitle(String title, int page, MediaContentType type) throws BusinessException {
         try {
             if (MediaContentType.ANIME.equals(type))
-                return animeDAOMongoDB.search(List.of(Map.of("$regex", Map.of("title", title))), Map.of("title", 1), page, true);
+                return animeDAOMongoDB.search(List.of(Pair.of("$regex", Map.of("title", title))), Map.of("title", 1), page, true);
             else {
-                return mangaDAOMongoDB.search(List.of(Map.of("$regex", Map.of("title", title))), Map.of("title", 1), page, true);
+                return mangaDAOMongoDB.search(List.of(Pair.of("$regex", Map.of("title", title))), Map.of("title", 1), page, true);
             }
         } catch (DAOException e) {
             if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {

@@ -4,29 +4,29 @@ import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
 
 import java.time.LocalDate;
 
+/**
+ * Data Transfer Object for the Manga class.
+ * Extends MediaContentDTO.
+ * @see MediaContentDTO
+ * @see Manga
+ */
 public class MangaDTO extends MediaContentDTO{
     private LocalDate startDate;
     private LocalDate endDate;
 
-    public MangaDTO() {
-    }
+    public MangaDTO() {}
 
     public MangaDTO(String id, String title) {
         super(id, title);
+    }
+    public MangaDTO(String id, String title, String imageUrl) {
+        super(id, title, imageUrl);
     }
 
     public MangaDTO(String id, String title, String imageUrl, Double averageRating, LocalDate startDate, LocalDate endDate) {
         super(id, title, imageUrl, averageRating);
         this.startDate = startDate;
         this.endDate = endDate;
-    }
-
-    public MangaDTO(String id, String title, String imageUrl, Double averageRating) {
-        super(id, title, imageUrl, averageRating);
-    }
-
-    public MangaDTO(String id, String title, String imageUrl) {
-        super(id, title, imageUrl);
     }
 
     public LocalDate getStartDate() {
@@ -47,12 +47,21 @@ public class MangaDTO extends MediaContentDTO{
 
     @Override
     public String toString() {
-        return super.toString() + "MangaDTO{" +
-                ", startDate=" + startDate +
-                ", endDate=" + endDate +
+        return "MangaDTO{" +
+                "id='" + id + '\'' +
+                ", title='" + title + '\'' +
+                ", imageUrl='" + imageUrl + '\'' +
+                ", averageRating='" + averageRating + '\'' +
+                ", startDate='" + startDate + '\'' +
+                ", endDate='" + endDate + '\'' +
                 '}';
     }
 
+    /**
+     * Converts a MangaDTO object to a Manga object.
+     *
+     * @return The Manga object.
+     */
     public Manga toModel() {
         Manga manga = new Manga();
         manga.setId(this.getId());

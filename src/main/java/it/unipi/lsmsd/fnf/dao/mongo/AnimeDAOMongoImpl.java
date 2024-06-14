@@ -3,17 +3,14 @@ package it.unipi.lsmsd.fnf.dao.mongo;
 import com.mongodb.DuplicateKeyException;
 import com.mongodb.MongoException;
 import com.mongodb.client.result.UpdateResult;
-import com.sun.tools.jconsole.JConsoleContext;
 import it.unipi.lsmsd.fnf.dao.interfaces.MediaContentDAO;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dao.exception.enums.DAOExceptionType;
 import it.unipi.lsmsd.fnf.dao.exception.DuplicatedException;
 import it.unipi.lsmsd.fnf.dao.exception.enums.DuplicatedExceptionType;
-import it.unipi.lsmsd.fnf.dto.LoggedUserDTO;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
-import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
-import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
+import it.unipi.lsmsd.fnf.dto.registeredUser.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
 import it.unipi.lsmsd.fnf.utils.Constants;
@@ -21,11 +18,10 @@ import it.unipi.lsmsd.fnf.utils.Constants;
 import com.mongodb.client.model.*;
 import com.mongodb.client.*;
 import it.unipi.lsmsd.fnf.utils.DocumentUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -39,6 +35,9 @@ import static it.unipi.lsmsd.fnf.utils.DocumentUtils.*;
 
 /**
  * Implementation of the MediaContentDAO interface for Anime objects, providing CRUD operations and complex aggregations for Anime collection in MongoDB.
+ * @see BaseMongoDBDAO
+ * @see MediaContentDAO
+ * @see Anime
  */
 public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO<Anime> {
     private static final String COLLECTION_NAME = "anime";
@@ -199,7 +198,7 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
      * @throws DAOException If an error occurs during the search process.
      */
     @Override
-    public PageDTO<MediaContentDTO> search(List<Map<String, Object>> filters, Map<String, Integer> orderBy, int page, boolean reducedInfo) throws DAOException {
+    public PageDTO<MediaContentDTO> search(List<Pair<String, Object>> filters, Map<String, Integer> orderBy, int page, boolean reducedInfo) throws DAOException {
         try {
             MongoCollection<Document> animeCollection = getCollection(COLLECTION_NAME);
 

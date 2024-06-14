@@ -2,20 +2,13 @@ package it.unipi.lsmsd.fnf.utils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import it.unipi.lsmsd.fnf.dto.LoggedUserDTO;
-import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
-import it.unipi.lsmsd.fnf.dto.ReviewDTO;
-import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
-import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
-import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
-import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
-import it.unipi.lsmsd.fnf.model.enums.*;
-
+import it.unipi.lsmsd.fnf.dto.registeredUser.LoggedUserDTO;
+import it.unipi.lsmsd.fnf.dto.registeredUser.UserRegistrationDTO;
+import it.unipi.lsmsd.fnf.model.enums.Gender;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import jakarta.servlet.http.HttpServletRequest;
-
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -23,37 +16,69 @@ import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Stream;
 
-import static org.slf4j.LoggerFactory.getLogger;
-
+/**
+ * Utility class for converting data types.
+ * Provides methods to convert date types, information from HTTP requests to Model/DTO objects
+ * or to filter/sort structures used in the search functionality.
+ */
 public class ConverterUtils {
-    private final static Logger logger = getLogger(ConverterUtils.class.getName());
 
-    // Convert Date to LocalDate
+    /**
+     * Converts a Date object to a LocalDate object.
+     *
+     * @param date The Date object to convert.
+     * @return The LocalDate object converted from the Date object.
+     *         If the Date object is null, the method returns null.
+     */
     public static LocalDate dateToLocalDate(Date date) {
         if (date == null) return null;
         return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
     }
 
-    // Convert LocalDate to Date
+    /**
+     * Converts a LocalDate object to a Date object.
+     *
+     * @param localDate The LocalDate object to convert.
+     * @return The Date object converted from the LocalDate object.
+     *         If the LocalDate object is null, the method returns null.
+     */
     public static Date localDateToDate(LocalDate localDate) {
         if (localDate == null) return null;
         return Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
     }
 
-    // Convert Date to LocalDateTime
+    /**
+     * Converts a Date object to a LocalDateTime object.
+     *
+     * @param date The Date object to convert.
+     * @return The LocalDateTime object converted from the Date object.
+     *         If the Date object is null, the method returns null.
+     */
     public static LocalDateTime dateToLocalDateTime(Date date) {
         if (date == null) return null;
         return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
     }
 
-    // Convert LocalDateTime to Date
+    /**
+     * Converts a LocalDateTime object to a Date object.
+     *
+     * @param localDateTime The LocalDateTime object to convert.
+     * @return The Date object converted from the LocalDateTime object.
+     *         If the LocalDateTime object is null, the method returns null.
+     */
     public static Date localDateTimeToDate(LocalDateTime localDateTime) {
         if (localDateTime == null) return null;
         return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
     }
 
+    /**
+     * Returns the profile picture URL of a user or the default profile picture URL if the user has no profile picture.
+     *
+     * @param picture The URL of the user's profile picture.
+     * @param request The HttpServletRequest containing the context path.
+     * @return The URL of the user's profile picture if the user has a profile picture,
+     */
     public static String getProfilePictureUrlOrDefault(String picture, HttpServletRequest request) {
-        Logger logger = getLogger(ConverterUtils.class.getName());
         if (StringUtils.isEmpty(picture)) {
             return request.getContextPath() + "/" + Constants.DEFAULT_PROFILE_PICTURE;
         }
@@ -62,7 +87,8 @@ public class ConverterUtils {
 
     /**
      * Converts HTTP request parameters to a UserRegistrationDTO object.
-     * @param request The HttpServletRequest containing request parameters.
+     *
+     * @param request The HttpServletRequest containing the user registration parameters.
      * @return The UserRegistrationDTO object populated with request parameters.
      */
     public static UserRegistrationDTO fromRequestToUserRegDTO(HttpServletRequest request){
@@ -81,6 +107,12 @@ public class ConverterUtils {
         return userRegistrationDTO;
     }
 
+    /**
+     * Converts HTTP request parameters to a ReviewDTO object.
+     *
+     * @param request The HttpServletRequest containing the review parameters.
+     * @return The ReviewDTO object populated with request parameters.
+     */
     public static User fromRequestToUser(HttpServletRequest request){
         User user = new User();
         LoggedUserDTO loggedUser = SecurityUtils.getAuthenticatedUser(request);
@@ -131,30 +163,17 @@ public class ConverterUtils {
     }
 
     /**
-     * Converts HTTP request parameters to a ReviewDTO object.
-     * @param request The HttpServletRequest containing request parameters.
-     * @param mediaType The type of media content being reviewed.
+     * Converts HTTP request parameters to a List of Filters for the search functionality of manga.
+     * The filter list is built using a pair for each filter condition.
+     * For logical operator $and, the key is the operator and the value is a list of pairs with the field and value to compare.
+     * For the equality operation, the pair has the field as key and the value to compare as value.
+     * For $regex, $gte, $lte, the key is the operator and the value is a pair with the field as key and the value to compare as value.
+     * For $all, $in, $nin, the key is the operator and the value is a pair with the field as key and a list of values to compare as value.
+     *
+     * @param request The HttpServletRequest containing the filters parameters for manga.
      * @return The ReviewDTO object populated with request parameters.
      */
-    public static ReviewDTO fromRequestToReviewDTO(HttpServletRequest request, MediaContentType mediaType){
-        UserSummaryDTO userDTO = new UserSummaryDTO();
-        userDTO.setId(SecurityUtils.getAuthenticatedUser(request).getId());
-        userDTO.setUsername(SecurityUtils.getAuthenticatedUser(request).getUsername());
-        userDTO.setProfilePicUrl(SecurityUtils.getAuthenticatedUser(request).getProfilePicUrl());
-        MediaContentDTO mediaContentDTO = mediaType.equals(MediaContentType.MANGA) ? new MangaDTO(): new AnimeDTO();
-        mediaContentDTO.setId(request.getParameter("mediaId"));
-        mediaContentDTO.setTitle(request.getParameter("mediaTitle"));
-        ReviewDTO reviewDTO = new ReviewDTO();
-        reviewDTO.setComment(request.getParameter("comment"));
-        if (StringUtils.isNotBlank(request.getParameter("rating"))) {
-            reviewDTO.setRating(Integer.parseInt(request.getParameter("rating")));
-        }
-        reviewDTO.setMediaContent(mediaContentDTO);
-        reviewDTO.setUser(userDTO);
-        return reviewDTO;
-    }
-
-    public static List<Map<String, Object>> fromRequestToMangaFilters(HttpServletRequest request) {
+    public static List<Pair<String, Object>> fromRequestToMangaFilters(HttpServletRequest request) {
         try {
             return Stream.of(
                     buildTitleFilter(request),
@@ -165,13 +184,24 @@ public class ConverterUtils {
                     buildFormatFilter(request),
                     buildYearRangeFilter(request),
                     buildRatingRangeFilter(request)
-            ).filter(filter -> !filter.isEmpty()).toList();
+            ).filter(filter -> filter.getLeft() != null).toList();
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Invalid JSON data for manga filters");
         }
     }
 
-    public static List<Map<String, Object>> fromRequestToAnimeFilters(HttpServletRequest request) {
+    /**
+     * Converts HTTP request parameters to a List of Filters for the search functionality of anime.
+     * The filter list is built using a pair for each filter condition.
+     * For logical operator $and, the key is the operator and the value is a list of pairs with the field and value to compare.
+     * For the equality operation, the pair has the field as key and the value to compare as value.
+     * For $regex, $gte, $lte, the key is the operator and the value is a pair with the field as key and the value to compare as value.
+     * For $all, $in, $nin, the key is the operator and the value is a pair with the field as key and a list of values to compare as value.
+     *
+     * @param request The HttpServletRequest containing the filters parameters for anime.
+     * @return The ReviewDTO object populated with request parameters.
+     */
+    public static List<Pair<String, Object>> fromRequestToAnimeFilters(HttpServletRequest request) {
         try {
             return Stream.of(
                     buildTitleFilter(request),
@@ -182,133 +212,137 @@ public class ConverterUtils {
                     buildFormatFilter(request),
                     buildYearRangeFilter(request),
                     buildRatingRangeFilter(request)
-            ).filter(filter -> !filter.isEmpty()).toList();
+            ).filter(filter -> filter.getLeft() != null).toList();
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Invalid JSON data for manga filters");
         }
     }
 
-    private static Map<String, Object> buildTitleFilter(HttpServletRequest request) {
+    private static Pair<String, Object> buildTitleFilter(HttpServletRequest request) {
         String title = request.getParameter("title");
-        Map<String, Object> titleFilter = new HashMap<>();
-        titleFilter = !StringUtils.isEmpty(title) ? Map.of("$regex", Map.of("title", title)) : Collections.emptyMap();
-        return titleFilter;
+        return !StringUtils.isEmpty(title) ? Pair.of("$regex", Pair.of("title", title)) : Pair.of(null, null);
     }
 
-    private static Map<String, Object> buildGenreFilter(HttpServletRequest request) {
+    private static Pair<String, Object> buildGenreFilter(HttpServletRequest request) {
         ObjectMapper mapper = new ObjectMapper();
-        Map<String, Object> genreFilter = new HashMap<>();
+        Pair<String, Object> genreFilter = Pair.of(null, null);
         String genreSelectMode = request.getParameter("genreSelectMode");
         try {
             String[] selectedGenres = mapper.readValue(request.getParameter("genreSelected"), String[].class);
             String[] avoidedGenres = mapper.readValue(request.getParameter("genreAvoided"), String[].class);
             String operator = genreSelectMode.equals("and") ? "$all" : "$in";
             if ((selectedGenres != null && selectedGenres.length > 0 && avoidedGenres != null && avoidedGenres.length > 0)) {
-                genreFilter = Map.of("$and", Arrays.asList(
-                        Map.of(operator, Map.of("genres", Arrays.asList(selectedGenres))),
-                        Map.of("$nin", Map.of("genres", Arrays.asList(avoidedGenres)))
+                genreFilter = Pair.of("$and", Arrays.asList(
+                        Pair.of(operator, Pair.of("genres", Arrays.asList(selectedGenres))),
+                        Pair.of("$nin", Pair.of("genres", Arrays.asList(avoidedGenres)))
                 ));
             } else if (selectedGenres != null && selectedGenres.length > 0) {
-                genreFilter = Map.of(operator, Map.of("genres", Arrays.asList(selectedGenres)));
+                genreFilter = Pair.of(operator, Pair.of("genres", Arrays.asList(selectedGenres)));
             } else if (avoidedGenres != null && avoidedGenres.length > 0) {
-                genreFilter = Map.of("$nin", Map.of("genres", Arrays.asList(avoidedGenres)));
+                genreFilter = Pair.of("$nin", Pair.of("genres", Arrays.asList(avoidedGenres)));
             }
+
             return genreFilter;
+
         } catch (JsonProcessingException e) {
             throw new IllegalArgumentException("Invalid JSON data for genre filter");
         }
     }
 
-    private static Map<String, Object> buildTagsFilter(HttpServletRequest request) {
+    private static Pair<String, Object> buildTagsFilter(HttpServletRequest request) {
         ObjectMapper mapper = new ObjectMapper();
-        Map<String, Object> genreFilter = new HashMap<>();
+        Pair<String, Object> genreFilter = Pair.of(null, null);
         String genreSelectMode = request.getParameter("genreSelectMode");
         try {
             String[] selectedGenres = mapper.readValue(request.getParameter("genreSelected"), String[].class);
             String[] avoidedGenres = mapper.readValue(request.getParameter("genreAvoided"), String[].class);
             String operator = genreSelectMode.equals("and") ? "$all" : "$in";
             if ((selectedGenres != null && selectedGenres.length > 0 && avoidedGenres != null && avoidedGenres.length > 0)) {
-                genreFilter = Map.of("$and", Arrays.asList(
-                        Map.of(operator, Map.of("tags", Arrays.asList(selectedGenres))),
-                        Map.of("$nin", Map.of("tags", Arrays.asList(avoidedGenres)))
+                genreFilter = Pair.of("$and", Arrays.asList(
+                        Pair.of(operator, Pair.of("tags", Arrays.asList(selectedGenres))),
+                        Pair.of("$nin", Pair.of("tags", Arrays.asList(avoidedGenres)))
                 ));
             } else if (selectedGenres != null && selectedGenres.length > 0) {
-                genreFilter = Map.of(operator, Map.of("tags", Arrays.asList(selectedGenres)));
+                genreFilter = Pair.of(operator, Pair.of("tags", Arrays.asList(selectedGenres)));
             } else if (avoidedGenres != null && avoidedGenres.length > 0) {
-                genreFilter = Map.of("$nin", Map.of("tags", Arrays.asList(avoidedGenres)));
+                genreFilter = Pair.of("$nin", Pair.of("tags", Arrays.asList(avoidedGenres)));
             }
+
             return genreFilter;
+
         } catch (JsonProcessingException e) {
             throw new IllegalArgumentException("Invalid JSON data for genre filter");
         }
     }
 
-    private static Map<String, Object> buildYearFilter(HttpServletRequest request) {
+    private static Pair<String, Object> buildYearFilter(HttpServletRequest request) {
         String year = request.getParameter("year");
-        if (request.getAttribute("mediaType").equals("manga") && !StringUtils.isEmpty(year)) {
-            return Map.of("$and", Arrays.asList(
-                    Map.of("$gte", Map.of("start_date", LocalDate.of(Integer.parseInt(year), 1, 1))),
-                    Map.of("$lte", Map.of("end_date", LocalDate.of(Integer.parseInt(year), 12, 31)))
-            ));
-        } else if (request.getAttribute("mediaType").equals("anime") && !StringUtils.isEmpty(year)) {
-            return Map.of("anime_season.year", Integer.parseInt(year));
+        if (StringUtils.isEmpty(year)) {
+            return Pair.of(null, null);
         }
-        return Collections.emptyMap();
+        if (request.getAttribute("mediaType").equals("manga")) {
+            return Pair.of("$and", Arrays.asList(
+                    Pair.of("$gte", Pair.of("start_date", LocalDate.of(Integer.parseInt(year), 1, 1))),
+                    Pair.of("$lte", Pair.of("end_date", LocalDate.of(Integer.parseInt(year), 12, 31)))
+            ));
+        } else {
+            return Pair.of("anime_season.year", Integer.parseInt(year));
+        }
     }
 
-    private static Map<String, Object> buildSeasonFilter(HttpServletRequest request) {
+    private static Pair<String, Object> buildSeasonFilter(HttpServletRequest request) {
         String season = request.getParameter("season");
-        return !StringUtils.isEmpty(season) ? Map.of("anime_season.season", season) : Collections.emptyMap();
+        return !StringUtils.isEmpty(season) ? Pair.of("anime_season.season", season) : Pair.of(null, null);
     }
 
-    private static Map<String, Object> buildStatusFilter(HttpServletRequest request) {
+    private static Pair<String, Object> buildStatusFilter(HttpServletRequest request) {
         String status = request.getParameter("status");
-        return !StringUtils.isEmpty(status) ? Map.of("status", status) : Collections.emptyMap();
+        return !StringUtils.isEmpty(status) ? Pair.of("status", status) : Pair.of(null, null);
     }
 
-    private static Map<String, Object> buildDemographicsFilter(HttpServletRequest request) {
+    private static Pair<String, Object> buildDemographicsFilter(HttpServletRequest request) {
         String demographics = request.getParameter("demographics");
-        return !StringUtils.isEmpty(demographics) ? Map.of("demographics", demographics) : Collections.emptyMap();
+        return !StringUtils.isEmpty(demographics) ? Pair.of("demographics", demographics) : Pair.of(null, null);
     }
 
-    private static Map<String, Object> buildFormatFilter(HttpServletRequest request) {
-        ObjectMapper mapper = new ObjectMapper();
+    private static Pair<String, Object> buildFormatFilter(HttpServletRequest request) {
         try {
+            ObjectMapper mapper = new ObjectMapper();
             String[] formats = mapper.readValue(request.getParameter("format"), String[].class);
-            return formats != null && formats.length > 0 ? Map.of("$in", Map.of("type", Arrays.asList(formats))) : Collections.emptyMap();
+            return formats != null && formats.length > 0 ? Pair.of("$in", Pair.of("type", Arrays.asList(formats))) : Pair.of(null, null);
         } catch (JsonProcessingException e) {
             throw new IllegalArgumentException("Invalid JSON data for format filter");
         }
     }
 
-    private static Map<String, Object> buildYearRangeFilter(HttpServletRequest request) {
+    private static Pair<String, Object> buildYearRangeFilter(HttpServletRequest request) {
         String minYear = request.getParameter("year-rangeMin");
         String maxYear = request.getParameter("year-rangeMax");
         if (StringUtils.isEmpty(minYear) || StringUtils.isEmpty(maxYear)) {
-            return Collections.emptyMap();
+            return Pair.of(null, null);
         }
         if (request.getAttribute("mediaType").equals("anime")) {
-            return Map.of("$and", Arrays.asList(
-                    Map.of("$gte", Map.of("anime_season.year", Integer.parseInt(minYear))),
-                    Map.of("$lte", Map.of("anime_season.year", Integer.parseInt(maxYear)))
+            return Pair.of("$and", Arrays.asList(
+                    Pair.of("$gte", Pair.of("anime_season.year", Integer.parseInt(minYear))),
+                    Pair.of("$lte", Pair.of("anime_season.year", Integer.parseInt(maxYear)))
             ));
         } else {
-            return Map.of("$and", Arrays.asList(
-                    Map.of("$gte", Map.of("start_date", LocalDate.of(Integer.parseInt(minYear), 1, 1))),
-                    Map.of("$lte", Map.of("start_date", LocalDate.of(Integer.parseInt(maxYear), 12, 31)))
+            return Pair.of("$and", Arrays.asList(
+                    Pair.of("$gte", Pair.of("start_date", LocalDate.of(Integer.parseInt(minYear), 1, 1))),
+                    Pair.of("$lte", Pair.of("start_date", LocalDate.of(Integer.parseInt(maxYear), 12, 31)))
             ));
         }
     }
 
-    private static Map<String, Object> buildRatingRangeFilter(HttpServletRequest request) {
+    private static Pair<String, Object> buildRatingRangeFilter(HttpServletRequest request) {
         String minRating = request.getParameter("rating-rangeMin");
         String maxRating = request.getParameter("rating-rangeMax");
         if (StringUtils.isEmpty(minRating) || StringUtils.isEmpty(maxRating)) {
-            return Collections.emptyMap();
+            return Pair.of(null, null);
         }
-        return Map.of("$and", Arrays.asList(
-                Map.of("$gte", Map.of("average_rating", Double.parseDouble(minRating))),
-                Map.of("$lte", Map.of("average_rating", Double.parseDouble(maxRating)))
+        return Pair.of("$and", Arrays.asList(
+                Pair.of("$gte", Pair.of("average_rating", Double.parseDouble(minRating))),
+                Pair.of("$lte", Pair.of("average_rating", Double.parseDouble(maxRating)))
         ));
     }
 }

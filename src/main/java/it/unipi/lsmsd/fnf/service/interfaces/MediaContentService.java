@@ -5,6 +5,7 @@ import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.model.mediaContent.MediaContent;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
 import java.util.Map;
@@ -14,7 +15,7 @@ public interface MediaContentService {
     void updateMediaContent(MediaContent mediaContent, List<String> reviewIds) throws BusinessException;
     void deleteMediaContent(String id, List<String> reviewIds, MediaContentType type) throws BusinessException;
     MediaContent getMediaContentById(String id, MediaContentType type) throws BusinessException;
-    PageDTO<MediaContentDTO> searchByFilter(List<Map<String, Object>> filters, Map<String, Integer> orderBy, int page, MediaContentType type) throws BusinessException;
+    PageDTO<MediaContentDTO> searchByFilter(List<Pair<String, Object>> filters, Map<String, Integer> orderBy, int page, MediaContentType type) throws BusinessException;
     PageDTO<MediaContentDTO> searchByTitle(String title, int page, MediaContentType type) throws BusinessException;
     void addLike(String userId, String animeId, MediaContentType type) throws BusinessException;
     void removeLike(String userId, String animeId, MediaContentType type) throws BusinessException;

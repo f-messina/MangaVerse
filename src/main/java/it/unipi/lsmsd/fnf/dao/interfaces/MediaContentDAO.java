@@ -3,9 +3,10 @@ package it.unipi.lsmsd.fnf.dao.interfaces;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
-import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
+import it.unipi.lsmsd.fnf.dto.registeredUser.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.mediaContent.MediaContent;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
 import java.util.Map;
@@ -30,7 +31,7 @@ public interface MediaContentDAO<T extends MediaContent> {
     void updateMediaContent(T mediaContent) throws DAOException;
     T readMediaContent(String id) throws DAOException;
     void deleteMediaContent(String id) throws DAOException;
-    PageDTO<MediaContentDTO> search(List<Map<String, Object>> filters, Map<String, Integer> orderBy, int page, boolean reducedInfo) throws DAOException;
+    PageDTO<MediaContentDTO> search(List<Pair<String, Object>> filters, Map<String, Integer> orderBy, int page, boolean reducedInfo) throws DAOException;
     void upsertReview(ReviewDTO reviewDTO) throws DAOException;
     void refreshLatestReviews(String animeId, List<String> reviewIds) throws DAOException;
     boolean isInLatestReviews(String mediaId, String reviewId) throws DAOException;

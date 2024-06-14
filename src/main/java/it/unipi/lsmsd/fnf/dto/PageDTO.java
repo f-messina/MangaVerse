@@ -5,6 +5,11 @@ import it.unipi.lsmsd.fnf.utils.Constants;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Data Transfer Object for the Page class.
+ * It is used to store a list of objects and the total count of objects in the list.
+ * @param <T> the type of the objects in the list
+ */
 public class PageDTO<T> {
     private List<T> entries;
     private int totalCount;
@@ -32,11 +37,11 @@ public class PageDTO<T> {
         return totalPages;
     }
 
-    public void add (T entry) {
+    public void add(T entry) {
         entries.add(entry);
     }
 
-    public void remove (T entry) {
+    public void remove(T entry) {
         entries.remove(entry);
     }
 
@@ -57,6 +62,7 @@ public class PageDTO<T> {
         return "PageDTO{" +
                 "entries=" + entries +
                 ", totalCount=" + totalCount +
+                ", totalPages=" + totalPages +
                 '}';
     }
 }
