@@ -2,18 +2,23 @@ package it.unipi.lsmsd.fnf.dto.mediaContent;
 
 import it.unipi.lsmsd.fnf.model.mediaContent.MediaContent;
 
+import java.util.Objects;
+
+/**
+ * Data Transfer Object for the MediaContent class.
+ * It is used to store information to be displayed in lists (inside reviews, in search results, etc.),
+ * to store redundant information used in reviews collection in MongoDB and
+ * to manipulate nodes in Neo4j.
+ * @see MediaContent
+ */
 public abstract class MediaContentDTO {
-    private String id;
-    private String title;
-    private String imageUrl;
-    private Double averageRating;
+    protected String id;
+    protected String title;
+    protected String imageUrl;
+    protected Double averageRating;
+    protected Integer likes;
 
-    private Integer likes;
-
-    // Used to check if the user has liked the media content
-
-    public MediaContentDTO() {
-    }
+    public MediaContentDTO() {}
 
     public MediaContentDTO(String id, String title) {
         this.id = id;
@@ -84,4 +89,25 @@ public abstract class MediaContentDTO {
     }
 
     public abstract MediaContent toModel();
+
+    /**
+     * Compares two MediaContentDTO objects.
+     *
+     * @param o The object to compare to.
+     * @return True if the objects are equal, false otherwise.
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MediaContentDTO that = (MediaContentDTO) o;
+        return Objects.equals(id, that.id) &&
+                Objects.equals(title, that.title) &&
+                Objects.equals(imageUrl, that.imageUrl);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, title, imageUrl);
+    }
 }

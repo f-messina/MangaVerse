@@ -1,31 +1,14 @@
 package it.unipi.lsmsd.fnf.controller;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import it.unipi.lsmsd.fnf.dto.LoggedUserDTO;
-import it.unipi.lsmsd.fnf.dto.PageDTO;
-import it.unipi.lsmsd.fnf.dto.ReviewDTO;
-import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
-import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
-import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
-import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
-import it.unipi.lsmsd.fnf.dto.PageDTO;
-import it.unipi.lsmsd.fnf.dto.ReviewDTO;
-import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
-import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
-import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
-import it.unipi.lsmsd.fnf.model.enums.UserType;
-import it.unipi.lsmsd.fnf.model.registeredUser.User;
+import it.unipi.lsmsd.fnf.dto.registeredUser.LoggedUserDTO;
+import it.unipi.lsmsd.fnf.dto.registeredUser.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.service.*;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 import it.unipi.lsmsd.fnf.service.exception.enums.BusinessExceptionType;
-import it.unipi.lsmsd.fnf.service.interfaces.MediaContentService;
-import it.unipi.lsmsd.fnf.service.interfaces.ReviewService;
 import it.unipi.lsmsd.fnf.service.interfaces.UserService;
-import it.unipi.lsmsd.fnf.utils.Constants;
 import it.unipi.lsmsd.fnf.utils.ConverterUtils;
 import it.unipi.lsmsd.fnf.utils.SecurityUtils;
 
@@ -35,15 +18,10 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import jakarta.servlet.http.HttpSession;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Objects;
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -90,12 +68,7 @@ public class UserServlet extends HttpServlet {
 
         try {
             // Get the list of followers
-            List<UserSummaryDTO> followers;
-            if (StringUtils.isNotBlank(searchValue)) {
-                followers = userService.searchFollowers(userId, searchValue,loggedUserId);
-            } else {
-                followers = userService.getFollowers(userId, loggedUserId);
-            }
+            List<UserSummaryDTO> followers = userService.searchFollowers(userId, searchValue, loggedUserId);
 
             // Convert the list to a JSON array
             if (followers == null) {
@@ -130,12 +103,7 @@ public class UserServlet extends HttpServlet {
 
         try {
             // Get the list of followings
-            List<UserSummaryDTO> followings;
-            if (StringUtils.isNotBlank(searchValue)) {
-                followings = userService.searchFollowings(userId, searchValue, loggedUserId);
-            } else {
-                followings = userService.getFollowings(userId, loggedUserId);
-            }
+            List<UserSummaryDTO> followings = userService.searchFollowings(userId, searchValue, loggedUserId);
 
             // Convert the list to a JSON array
             if (followings == null) {

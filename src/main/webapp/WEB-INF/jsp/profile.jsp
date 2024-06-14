@@ -13,6 +13,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/website.css"/>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/profile.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/navbar.css">
@@ -178,6 +179,7 @@
                                     <div class="col-md-6 gx-3">
                                         <label class="edit-label" for="password">Password (non-editable)</label>
                                         <input class="form-control" id="password" name="password" type="password"  value="${empty userInfo.getPassword() ? "" : userInfo.getPassword()}" disabled>
+                                        <span class="password-toggle-icon"><i class="fa fa-eye"></i></span>
                                     </div>
                                 </div>
                                 <!-- Form Row-->

@@ -1,11 +1,11 @@
 package it.unipi.lsmsd.fnf.utils;
 
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
-import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
-import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
+import it.unipi.lsmsd.fnf.dto.registeredUser.UserRegistrationDTO;
+import it.unipi.lsmsd.fnf.dto.registeredUser.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.model.Review;
 import it.unipi.lsmsd.fnf.model.enums.*;
 import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
@@ -16,18 +16,26 @@ import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.bson.Document;
+import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.mongodb.client.model.Filters.*;
+import static com.mongodb.client.model.Sorts.*;
+
+/**
+ * Utility class for MongoDB Document operations.
+ * Provides methods for converting objects to MongoDB Documents and vice versa and for appending key-value pairs to a Document if the value is not null or empty.
+ * Provide methods to create filter and sort objects for MongoDB queries.
+ */
 public class DocumentUtils {
+
     /**
      * Appends a key-value pair to a MongoDB document if the value is not null or empty.
      *
@@ -45,10 +53,12 @@ public class DocumentUtils {
         }
     }
 
-    // Model / DTO to Document conversion methods
+    ////////////////////////////////////////////////
+    // MODEL / DTO TO DOCUMENT CONVERSION METHODS //
+    ////////////////////////////////////////////////
 
     /**
-     * Converts an Anime object into a Document for MongoDB storage.
+     * Converts an Anime object into a MongoDB Document.
      *
      * @param anime The Anime object to convert.
      * @return A Document representing the Anime.
@@ -84,9 +94,6 @@ public class DocumentUtils {
 
         return doc;
     }
-
-
-
 
     /**
      * Converts a Manga object to a MongoDB Document.
@@ -142,6 +149,12 @@ public class DocumentUtils {
                 .append("role", author.getRole());
     }
 
+    /**
+     * Converts a ReviewDTO object to a MongoDB Document nested within inside Media Content Document.
+     *
+     * @param reviewDTO The ReviewDTO object to be converted.
+     * @return A MongoDB Document representing the ReviewDTO object.
+     */
     public static Document reviewDTOToNestedDocument(ReviewDTO reviewDTO) {
         Document reviewDocument = new Document();
         appendIfNotNull(reviewDocument, "id", new ObjectId(reviewDTO.getId()));
@@ -157,7 +170,7 @@ public class DocumentUtils {
     }
 
     /**
-     * Converts a ReviewDTO object to a MongoDB document for storage in the database.
+     * Converts a ReviewDTO object to a MongoDB document.
      *
      * @param reviewDTO The ReviewDTO object to be converted.
      * @return A MongoDB Document representing the ReviewDTO object.
@@ -183,12 +196,24 @@ public class DocumentUtils {
         return reviewDocument;
     }
 
+    /**
+     * Converts a UserRegistrationDTO object to a MongoDB Document.
+     *
+     * @param user The UserRegistrationDTO object to be converted.
+     * @return A MongoDB Document representing the UserRegistrationDTO object.
+     */
     public static Document RegisteredUserToDocument(UserRegistrationDTO user) {
         return createUserDocument(user.getPassword(), user.getEmail(), LocalDate.now(),
                 user.getFullname(), null, user.getUsername(),
                 user.getBirthday(), null, user.getGender(), user.getLocation());
     }
 
+    /**
+     * Converts a User object to a MongoDB Document.
+     *
+     * @param user The User object to be converted.
+     * @return A MongoDB Document representing the User object.
+     */
     public static Document RegisteredUserToDocument(User user) {
         return createUserDocument(user.getPassword(), user.getEmail(), user.getJoinedDate(),
                 user.getFullname(), user.getProfilePicUrl(), user.getUsername(),
@@ -214,16 +239,17 @@ public class DocumentUtils {
         return doc;
     }
 
-    // Document to Model / DTO conversion methods
+    ////////////////////////////////////////////////
+    // DOCUMENT TO MODEL / DTO CONVERSION METHODS //
+    ////////////////////////////////////////////////
 
     /**
-     * Converts a Document from MongoDB storage into an Anime object.
+     * Converts a Document from MongoDB collection into an Anime object.
      *
      * @param doc The Document to convert.
      * @return An Anime object representing the Document.
      */
     public static Anime documentToAnime(Document doc) {
-        //Add anime doc.getlist(review_ids)
         Anime anime = new Anime();
         anime.setId(doc.getObjectId("_id").toString());
         anime.setTitle(doc.getString("title"));
@@ -277,7 +303,7 @@ public class DocumentUtils {
     }
 
     /**
-     * Converts a Document from MongoDB storage into an AnimeDTO object.
+     * Converts a Document from MongoDB collection into an AnimeDTO object.
      *
      * @param doc The Document to convert.
      * @return An AnimeDTO object representing the Document.
@@ -302,7 +328,7 @@ public class DocumentUtils {
     }
 
     /**
-     * Converts a MongoDB document representing a review to a ReviewDTO object.
+     * Converts a Document from MongoDB collection into a ReviewDTO object.
      *
      * @param reviewDoc The MongoDB document representing the review.
      * @return A ReviewDTO object representing the MongoDB document.
@@ -328,7 +354,7 @@ public class DocumentUtils {
     }
 
     /**
-     * Converts a MongoDB Document to a Manga object.
+     * Converts a Document from MongoDB collection into a Manga object.
      *
      * @param document The MongoDB Document to be converted.
      * @return The Manga object representation of the MongoDB Document.
@@ -389,7 +415,7 @@ public class DocumentUtils {
     }
 
     /**
-     * Converts a MongoDB Document to a MangaDTO object.
+     * Converts a Document from MongoDB collection into a MangaDTO object.
      *
      * @param doc The MongoDB Document to be converted.
      * @return The MangaDTO object representation of the MongoDB Document.
@@ -410,6 +436,12 @@ public class DocumentUtils {
         return manga;
     }
 
+    /**
+     * Converts a Document from MongoDB collection into a UserSummaryDTO object.
+     *
+     * @param doc The MongoDB Document to be converted.
+     * @return The UserSummaryDTO object representation of the MongoDB Document.
+     */
     public static UserSummaryDTO documentToUserSummaryDTO(Document doc) {
         UserSummaryDTO user = new UserSummaryDTO();
         user.setId(doc.getObjectId("_id").toString());
@@ -422,6 +454,12 @@ public class DocumentUtils {
         return user;
     }
 
+    /**
+     * Converts a Document from MongoDB collection into a RegisteredUser object.
+     *
+     * @param doc The MongoDB Document to be converted.
+     * @return The RegisteredUser object representation of the MongoDB Document.
+     */
     public static RegisteredUser documentToRegisteredUser(Document doc) {
         RegisteredUser user;
 
@@ -452,6 +490,16 @@ public class DocumentUtils {
         return user;
     }
 
+    ////////////////////////////////////////////
+    // UNSET FIELDS DOCUMENT CREATION METHODS //
+    ////////////////////////////////////////////
+
+    /**
+     * Creates a MongoDB Document with the fields to unset in the User document.
+     *
+     * @param registeredUser The User object representing the registered user.
+     * @return A Document with the fields to unset in the User document.
+     */
     public static Document UserToUnsetUserFieldsDocument(User registeredUser) {
         Document doc = new Document();
         if (registeredUser.getFullname() != null && registeredUser.getFullname().equals(Constants.NULL_STRING))
@@ -469,6 +517,12 @@ public class DocumentUtils {
         return doc;
     }
 
+    /**
+     * Creates a MongoDB Document with the fields to unset in the Anime document.
+     *
+     * @param anime The Anime object representing the anime.
+     * @return A Document with the fields to unset in the Anime document.
+     */
     public static Document animeToUnsetAnimeFieldsDocument(Anime anime) {
         Document doc = new Document();
         if (anime.getEpisodeCount() != null && anime.getEpisodeCount().equals(Constants.NULL_INT))
@@ -498,6 +552,12 @@ public class DocumentUtils {
         return doc;
     }
 
+    /**
+     * Creates a MongoDB Document with the fields to unset in the Manga document.
+     *
+     * @param manga The Manga object representing the manga.
+     * @return A Document with the fields to unset in the Manga document.
+     */
     public static Document mangaToUnsetMangaFieldsDocument(Manga manga) {
         Document doc = new Document();
         if (manga.getStatus() != null && manga.getStatus().equals(MangaStatus.UNKNOWN))
@@ -533,5 +593,78 @@ public class DocumentUtils {
         if (manga.getAuthors() != null && manga.getAuthors().equals(Constants.NULL_LIST_AUTHOR))
             doc.append("authors", 1);
         return doc;
+    }
+
+    /////////////////////////////////////////////////
+    // FILTER AND SORT METHODS FOR MONGODB QUERIES //
+    /////////////////////////////////////////////////
+
+    /**
+     * Builds a MongoDB filter based on the provided filter list.
+     *
+     * @param filterList List of pairs representing the filter criteria.
+     * @return Bson filter object representing the constructed filter.
+     */
+    public static Bson buildFilter(List<Pair<String, Object>> filterList) {
+        if (filterList == null || filterList.isEmpty()) {
+            return empty();
+        } else {
+            List<Bson> filter = buildFilterInternal(filterList);
+            return and(filter);
+        }
+    }
+
+    private static List<Bson> buildFilterInternal(List<Pair<String, Object>> filterList) {
+        return filterList.stream()
+                .map(filter -> {
+                    String key = filter.getKey();
+                    Object value = filter.getValue();
+                    return switch (key) {
+                        case "$and" -> and(buildFilterInternal((List<Pair<String, Object>>) value));
+                        case "$or" -> or(buildFilterInternal((List<Pair<String, Object>>) value));
+                        default -> buildFieldFilter(key, value);
+                    };
+                })
+                .toList();
+    }
+
+    private static Bson buildFieldFilter(String fieldName, Object value) {
+        String key = fieldName;
+        Object fieldValue = value;
+        if (value instanceof Pair) {
+            Pair<String, Object> entry = (Pair<String, Object>) value;
+            key = entry.getKey();
+            fieldValue = entry.getValue();
+        }
+
+        return switch (fieldName) {
+            case "$all" -> all(key, (List<?>) fieldValue);
+            case "$in" -> in(key, (List<?>) fieldValue);
+            case "$nin" -> nin(key, (List<?>) fieldValue);
+            case "$gte" -> gte(key, fieldValue);
+            case "$lte" -> lte(key, fieldValue);
+            case "$exists" -> exists(key, (Boolean) fieldValue);
+            case "$regex" -> regex(key, (String) fieldValue, "i");
+            default -> eq(key, fieldValue);
+        };
+    }
+
+    /**
+     * Builds a sort specification for MongoDB based on the provided ordering criteria.
+     *
+     * @param orderBy Map representing the fields to sort by and their corresponding order.
+     * @return Bson object representing the constructed sort specification.
+     */
+    public static Bson buildSort(Map<String, Integer> orderBy) {
+        List<Bson> sortList = new ArrayList<>();
+        Optional.ofNullable(orderBy)
+                .ifPresent(map ->
+                        sortList.addAll(map.entrySet().stream()
+                                .map(entry -> entry.getValue() == 1 ? ascending(entry.getKey()) : descending(entry.getKey()))
+                                .toList()
+                        )
+                );
+
+        return orderBy(sortList);
     }
 }

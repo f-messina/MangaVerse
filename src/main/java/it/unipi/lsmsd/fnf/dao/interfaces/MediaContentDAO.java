@@ -3,13 +3,27 @@ package it.unipi.lsmsd.fnf.dao.interfaces;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
-import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
+import it.unipi.lsmsd.fnf.dto.registeredUser.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.mediaContent.MediaContent;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Interface for the DAO of the MediaContent entity.
+ * @param <T> The type of the MediaContent entity.
+ * Provides methods to interact with the databases.
+ * The methods are divided into two categories: MongoDB specific methods and Neo4J specific methods.
+ * The MongoDB specific methods are used to interact with the MongoDB database and the
+ * Neo4J specific methods are used to interact with the Neo4J database.
+ * The MongoDB methods provide crud operations and operations to maintain consistency
+ * between collections, search functionality and operations to get statistics.
+ * The Neo4J methods provide CRUD operations to generate relationship between nodes and
+ * maintain consistency between nodes and related mongoDB documents,
+ * operations to get statistics and operations to get media content suggestions.
+ */
 public interface MediaContentDAO<T extends MediaContent> {
 
     // MongoDB specific methods
@@ -17,7 +31,7 @@ public interface MediaContentDAO<T extends MediaContent> {
     void updateMediaContent(T mediaContent) throws DAOException;
     T readMediaContent(String id) throws DAOException;
     void deleteMediaContent(String id) throws DAOException;
-    PageDTO<MediaContentDTO> search(List<Map<String, Object>> filters, Map<String, Integer> orderBy, int page, boolean reducedInfo) throws DAOException;
+    PageDTO<MediaContentDTO> search(List<Pair<String, Object>> filters, Map<String, Integer> orderBy, int page, boolean reducedInfo) throws DAOException;
     void upsertReview(ReviewDTO reviewDTO) throws DAOException;
     void refreshLatestReviews(String animeId, List<String> reviewIds) throws DAOException;
     boolean isInLatestReviews(String mediaId, String reviewId) throws DAOException;

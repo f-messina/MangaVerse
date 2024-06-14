@@ -15,6 +15,9 @@ import it.unipi.lsmsd.fnf.service.interfaces.Task;
 import java.util.Objects;
 import java.util.logging.Logger;
 
+/**
+ * Task for updating the number of likes for media content.
+ */
 public class UpdateNumberOfLikesTask extends Task {
     private final MediaContentDAO<Anime> animeDAOMongo;
     private final MediaContentDAO<Anime> animeDAONeo4j;
@@ -23,6 +26,12 @@ public class UpdateNumberOfLikesTask extends Task {
     private final String mediaId;
     private final MediaContentType type;
 
+    /**
+     * Constructs an UpdateNumberOfLikesTask.
+     *
+     * @param recipeId The ID of the media content.
+     * @param type    The type of the media content.
+     */
     public UpdateNumberOfLikesTask(String recipeId, MediaContentType type) {
         super(5);
         this.animeDAOMongo = DAOLocator.getAnimeDAO(DataRepositoryEnum.MONGODB);
@@ -34,6 +43,11 @@ public class UpdateNumberOfLikesTask extends Task {
 
     }
 
+    /**
+     * Executes the task to update the number of likes for media content.
+     *
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public void executeJob() throws BusinessException {
         try {

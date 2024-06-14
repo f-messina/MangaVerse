@@ -1,7 +1,6 @@
 \chapter{Implementation}
 
 \section{Development Environment}
-% Inserisci qui il contenuto del primo design.
 To ensure efficient and successful Implementation of MangaVerse web application,
 choosing the appropriate development environment is one of the most important points of the project.
 
@@ -9,26 +8,25 @@ choosing the appropriate development environment is one of the most important po
 \begin{itemize}
     \item \textbf{Backend:} Java is the main programming language used in the project’s backend development.
     \item \textbf{Frontend:} HTML, CSS, JavaScript are utilized for building user interface in the project.
-    \item \textbf{Data Preprocessing:} Python is used in the project to conduct data preprocessing task with the help of its powerful libraries and ease of use features.
+    \item \textbf{Data Preprocessing:} Python and java were used in the project to conduct data preprocessing task with the help of its powerful libraries and ease of use features. 
 \end{itemize}
 
 \subsection*{Database}
 \begin{itemize}
     \item \textbf{Document Database:} MongoDB is used in the project to store and manage document-based data with the help of its flexibility and scalability features.
-    \item \textbf{Graph Database:} Neo4j is used in the project to manage and query graph data and handle complex relationships and connections in the data efficiently.
+    \item \textbf{Graph Database:} Neo4j is used in the project to manage and query graph data and handle complex relationships and connections between user entities and media contents in an efficient way.
 \end{itemize}
 
-\subsection*{Integrated Development Environment} Intellij IDEA is used as an primary IDE. It is powerful Java 
+\subsection*{Integrated Development Environment} Intellij IDEA was used as an primary IDE. It is powerful Java 
 integrated development environment for developing software in an efficient way.
 
+\subsection*{Version Control} Github was used to provide a collaborative development with its version control system.
 
-\subsection*{Version Control} Github is used to provide a collaborative development with its version control system.
+\subsection*{Web Server} Apache Tomcat was used as a web server to provide reliable environment for deploying and running the java based web application.
 
-\subsection*{Web Server} Apache Tomcat is used as a web server to provide reliable environment for deploying and running the java based web application.
+\subsection*{Build Automation} Maven was used as a build automation tool. It is used to manage the project's build, reporting, and documentation from a central piece of information.
 
-\subsection*{Build Automation} Maven is used as a build automation tool. It is used to manage the project's build, reporting, and documentation from a central piece of information.
-
-\subsection*{Testing}JUnit is used as a testing framework for Java code. It is used to write and run repeatable automated tests. This ensures the reliability and efficiency of the codebase throughout the development process.
+\subsection*{Testing} JUnit was used as a testing framework for Java code. It is used to write and run repeatable automated tests. This ensures the reliability and efficiency of the codebase throughout the development process.
 
 
 
@@ -56,6 +54,8 @@ for MongoDB and Neo4j databases. Connections are managed with corresponding DAO 
 With using the configuration module for database connection, web application ensures robustness and reliability in its data access layer.
 
 \subsection*{Controller}
+%%TODO: implemented using http servlet to handle user requests and responses.
+%%TODO: change the code when it is corrected 
 The controller modules plays a role as intermediary between the user requests and backend of the MangaVerse wab application as servlet classes.
 they receives the user requests, process them and returns with the corresponding response.
 Each controller class utilized a switch-case structure to determine the action requested and invokes the appropriate handler method accordingly.\\
@@ -305,6 +305,8 @@ package structure of Service module is as follows:
     \item ServiceLocator
 \end{itemize}
 
+%%TODO: Add table for explaining each classes in the whole project like i tis done in the example project
+
 
 \section{Adopted Patterns and Techniques}
 \subsection*{Patterns}
@@ -326,3 +328,261 @@ With the help of the Executor Task Service, tasks that are needed to be executed
 While using multiple databases and data replicas for this web application, it is important for maintain data integrity and eventual consistency.
 Executing the tasks in an asynchronous way using threads allows to perform operations without blocking the main execution flow.
 Aperiodic executer task service class is implemented by using the interface of executor service. 
+
+
+\section {MongoDB queries}
+Some of the most important MongoDB queries for analytic and suggestion purposes. 
+%% TODO: write the mongoshell query and the java implementation with explaination
+%% suggestUserByCommonLikes, getDistribution, averageAppRating, averageAppRatingByAge, 
+%% suggestUsersByCommonFollowings, getMediaContentRatingByYear, getMediaContentRatingByMonth,
+%% suggestMediaContent, getBestCriteria, getTrendMediaContentByYear, getMediaContentTrendByLikes,
+%% getSuggestedByFollowings, getSuggestedByLikes(suggest and trenda are on neo4j, sadece suggest media content mongo db, ona göre mongo ya da neo4j kısmına koy)
+
+\textbf{USERS:}
+\begin{itemize}
+  \item GetDistribution query to get the user's location, gender, birthday year that gave the highest rating to the application:
+  
+\end{itemize}
+\begin{lstlisting}[language=JavaScript, caption=GetDistribution]
+  // Match stage to filter documents where 'criteriaOfSearch' exists
+  db.collection.aggregate([
+      {
+          $match: {
+              [criteriaOfSearch]: { $exists: true }
+          }
+      },
+      // Project stage to include 'criteriaOfSearch' and 'app_rating' fields
+      {
+          $project: {
+              [criteriaOfSearch]: 1,
+              app_rating: 1
+          }
+      },
+      // Group stage to count occurrences of each 'criteriaOfSearch'
+      {
+          $group: {
+              _id: "$" + criteriaOfSearch,
+              count: { $sum: 1 }
+          }
+      },
+      // Sort stage to sort documents by 'count' in descending order
+      {
+          $sort: {
+              count: -1
+          }
+      }
+  ]);
+  \end{lstlisting}
+  
+
+
+\textbf{ANIME/MANGA:}
+
+\begin{itemize}
+
+\item GetBestCriteria query, the criteria can be genres, demographics, themes, authors and serialization for manga; tags, producers, studios for anime:
+\begin{lstlisting}[language=JavaScript, caption=GetBestCriteria]
+  db.collection.aggregate([
+      // Match stage to filter documents where 'criteria' exists and 'average_rating' is not null
+      {
+          $match: {
+              criteria: { $exists: true },
+              average_rating: { $ne: null }
+          }
+      },
+      // Unwind stage to deconstruct the 'criteria' array field
+      {
+          $unwind: "$" + criteria
+      },
+      // Group stage to calculate the average rating for each criteria
+      {
+          $group: {
+              _id: "$" + criteria,
+              criteria_average_rating: { $avg: "$average_rating" }
+          }
+      },
+      // Sort stage to sort documents by 'criteria_average_rating' in descending order
+      {
+          $sort: {
+              criteria_average_rating: -1
+          }
+      },
+      // Skip stage to skip the first 'pageOffset' documents
+      {
+          $skip: pageOffset
+      },
+      // Limit stage to limit the results to 25 documents
+      {
+          $limit: 25
+      }
+  ]);
+  \end{lstlisting}
+
+\end{itemize}
+
+\textbf{REVIEWS:}
+
+\begin{itemize}
+\item GetMediaContentRatingByYear query to get the average rating of media content by year:
+\end{itemize}
+
+
+\begin{lstlisting}[language=JavaScript, caption=GetMediaContentRatingByYear]
+  // Match stage to filter documents based on specified conditions
+  db.collection.aggregate([
+      {
+          $match: {
+              [`${nodeType}.id`]: new ObjectId(mediaContentId),
+              rating: { $exists: true },
+              date: { $gte: startDate, $lt: endDate }
+          }
+      },
+      // Group stage to group documents by year and calculate the average rating
+      {
+          $group: {
+              _id: { $year: "$date" },
+              average_rating: { $avg: "$rating" }
+          }
+      },
+      // Project stage to shape the output documents
+      {
+          $project: {
+              _id: 0,
+              year: "$_id",
+              average_rating: 1
+          }
+      },
+      // Sort stage to sort documents by year in ascending order
+      {
+          $sort: { year: 1 }
+      }
+  ]);
+  \end{lstlisting}
+
+
+\begin{itemize}
+  \item SuggestMediaContent query to suggest media content based on common criteria, like birthday or location:
+  
+\end{itemize}
+
+\begin{lstlisting}[language=JavaScript, caption=SuggestMediaContent]
+  db.collection.aggregate([
+  {
+    // Match documents based on a dynamic user criteria
+    $match: {
+      ["user." + criteriaType]: criteriaValue
+    }
+  },
+  {
+    // Group documents by node type ID and calculate the first title and average rating
+    $group: {
+      _id: "$" + nodeType + ".id", // Group by the node type's ID
+      title: { $first: "$" + nodeType + ".title" }, // Get the first title in the group
+      average_rating: { $avg: "$rating" } // Calculate the average rating for the group
+    }
+  },
+  {
+    // Sort the grouped documents by average rating in descending order
+    $sort: { average_rating: -1 }
+  },
+  {
+    // Limit the number of results to the page size constant
+    $limit: Constants.PAGE_SIZE
+  }
+]);
+\end{lstlisting}
+
+\section{GraphDB queries}
+Some of the most important Neo4j queries for analytic and suggestion porpouses.
+
+\textbf{USERS:}
+
+\begin{itemize}
+  \item Suggest other users followings in common:
+\end{itemize}
+\begin{lstlisting}[language=Cypher, caption=SuggestUsersByCommonFollowings]
+
+MATCH (u:User {id: $userId})-[:FOLLOWS]->(following:User)<-[:FOLLOWS]-(suggested:User) 
+WHERE NOT (u)-[:FOLLOWS]->(suggested) AND u <> suggested 
+WITH suggested, COUNT(DISTINCT following) AS commonFollowers 
+WHERE commonFollowers > 5 
+RETURN suggested as user, commonFollowers 
+ORDER BY commonFollowers DESC 
+LIMIT $n
+\end{lstlisting}
+
+\begin{itemize}
+  \item Suggest other users likes in common:
+\end{itemize}
+\begin{lstlisting}[language=Cypher, caption=SuggestUsersByCommonLikes]
+  MATCH (u:User {id: $userId})-[r:LIKE]->(media:Manga)<-[:LIKE]-(suggested:User) 
+  WHERE u <> suggested AND r.date >= $date
+  WITH suggested, COUNT(DISTINCT media) AS commonLikes
+  WHERE commonLikes > $min
+  RETURN suggested AS user, commonLikes
+  ORDER BY commonLikes DESC
+  LIMIT $n
+\end{lstlisting}
+
+
+
+\textbf{ANIME/MANGA:}
+
+\begin{itemize}
+  \item Suggest anime and manga based on following in common:
+\end{itemize}
+\begin{lstlisting}[language=Cypher, caption=GetSuggestedByFollowings]
+  MATCH (u:User {id: $userId})-[:FOLLOWS]->(f:User)-[r:LIKE]->(a:Anime)
+  WHERE NOT (u)-[:LIKE]->(a) AND r.date >= $startDate
+  WITH a, COUNT(DISTINCT f) AS num_likes
+  RETURN a AS anime
+  ORDER BY num_likes DESC
+  LIMIT $n
+  
+\end{lstlisting}
+
+
+\begin{itemize}
+  \item Suggest anime and manga based on likes in common between followers:
+\end{itemize}
+\begin{lstlisting}[language=Cypher, caption=GetSuggestedByLikes]
+  MATCH (u:User {id: $userId})-[r1:LIKE]->(a:Anime)<-[:LIKE]-(f:User)
+  WHERE r1.date >= $startDate
+  WITH u, f, COUNT(a) AS common_likes
+  ORDER BY common_likes DESC
+  LIMIT 20
+  MATCH (f)-[:LIKE]->(a2:Anime)
+  WHERE NOT (u)-[:LIKE]->(a2)
+  WITH a2, COUNT(DISTINCT f) AS num_likes
+  RETURN a2 AS anime
+  ORDER BY num_likes DESC
+  LIMIT $n
+  
+\end{lstlisting}
+
+
+\begin{itemize}
+  \item Get the trend of media contents in a specific year based on the number of likes:
+\end{itemize}
+\begin{lstlisting}[language=Cypher, caption=GetTrendMediaContentByYear]
+  MATCH (a:Anime)<-[r:LIKE]-(u:User)
+  WHERE r.date >= $startDate AND r.date < $endDate
+  WITH a, count(r) AS numLikes
+  ORDER BY numLikes DESC
+  RETURN a AS anime, numLikes
+  LIMIT $n
+  
+\end{lstlisting}
+
+\begin{itemize}
+  \item Get the general trend of media contents based on the number of likes:
+\end{itemize}
+\begin{lstlisting}[language=Cypher, caption=GetMediaContentTrendByLikes]
+  MATCH (u:User)-[r:LIKE]->(a:Anime)
+  WHERE r.date >= $startDate
+  WITH a, COUNT(r) AS numLikes
+  ORDER BY numLikes DESC
+  RETURN a AS anime, numLikes
+  LIMIT $n
+  
+\end{lstlisting}

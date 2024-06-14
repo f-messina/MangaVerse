@@ -66,7 +66,7 @@
             <canvas id="user-distribution-chart" class="small"></canvas>
         </div>
 
-        <div class="analytic-box" id="user-criteria-rating">
+        <div class="analytic-box medium" id="user-criteria-rating">
             <div class="analytic-title">
                 <label for="user-rating-criteria">Average App Rating by:</label>
                 <select id="user-rating-criteria">

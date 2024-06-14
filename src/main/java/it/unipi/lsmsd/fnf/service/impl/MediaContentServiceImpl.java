@@ -22,6 +22,7 @@ import it.unipi.lsmsd.fnf.service.interfaces.MediaContentService;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 import it.unipi.lsmsd.fnf.service.exception.enums.BusinessExceptionType;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,8 +88,12 @@ public class MediaContentServiceImpl implements MediaContentService {
     }
 
     /**
-     * Updates an existing media content in the data repository.
+     * Updates an existing media content in the data repository and triggers associated tasks.
+     * If the media content is an instance of Anime or Manga, it updates the corresponding DAO in MongoDB.
+     * Additionally, it triggers tasks to update review redundancy and media information in the background.
+     *
      * @param mediaContent The media content to be updated.
+     * @param reviewIds The list of review IDs associated with the media content.
      * @throws BusinessException If an error occurs during the operation.
      */
     @Override
@@ -170,9 +175,9 @@ public class MediaContentServiceImpl implements MediaContentService {
         }
     }
 
-
     /**
      * Searches for media content based on specified filters.
+     *
      * @param filters The filters to apply during the search.
      * @param orderBy The order in which results should be returned.
      * @param page The page number of the search results.
@@ -181,7 +186,7 @@ public class MediaContentServiceImpl implements MediaContentService {
      * @throws BusinessException If an error occurs during the operation.
      */
     @Override
-    public PageDTO<MediaContentDTO> searchByFilter(List<Map<String, Object>> filters, Map<String, Integer> orderBy, int page, MediaContentType type) throws BusinessException {
+    public PageDTO<MediaContentDTO> searchByFilter(List<Pair<String, Object>> filters, Map<String, Integer> orderBy, int page, MediaContentType type) throws BusinessException {
         try {
             if (MediaContentType.ANIME.equals(type))
                 return animeDAOMongoDB.search(filters, orderBy, page, false);
@@ -208,9 +213,9 @@ public class MediaContentServiceImpl implements MediaContentService {
     public PageDTO<MediaContentDTO> searchByTitle(String title, int page, MediaContentType type) throws BusinessException {
         try {
             if (MediaContentType.ANIME.equals(type))
-                return animeDAOMongoDB.search(List.of(Map.of("$regex", Map.of("title", title))), Map.of("title", 1), page, true);
+                return animeDAOMongoDB.search(List.of(Pair.of("$regex", Pair.of("title", title))), Map.of("title", 1), page, true);
             else {
-                return mangaDAOMongoDB.search(List.of(Map.of("$regex", Map.of("title", title))), Map.of("title", 1), page, true);
+                return mangaDAOMongoDB.search(List.of(Pair.of("$regex", Pair.of("title", title))), Map.of("title", 1), page, true);
             }
         } catch (DAOException e) {
             if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {
@@ -369,6 +374,15 @@ public class MediaContentServiceImpl implements MediaContentService {
         }
     }
 
+
+    /**
+     * Retrieves trending media content based on likes.
+     *
+     * @param limit The maximum number of media content items to retrieve.
+     * @param type The type of media content (Anime or Manga).
+     * @return A list of MediaContentDTO objects representing the trending media content.
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public List<MediaContentDTO> getMediaContentTrendByLikes(Integer limit, MediaContentType type) throws BusinessException {
         try {
@@ -383,6 +397,15 @@ public class MediaContentServiceImpl implements MediaContentService {
         }
     }
 
+    /**
+     * Retrieves the best criteria for filtering media content.
+     *
+     * @param criteria The criteria for filtering (e.g., tags, genres, producers).
+     * @param page The page number for pagination.
+     * @param type The type of media content (Anime or Manga).
+     * @return A map containing the best criteria and their corresponding scores.
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public Map<String, Double> getBestCriteria (String criteria, int page, MediaContentType type) throws BusinessException {
         try {

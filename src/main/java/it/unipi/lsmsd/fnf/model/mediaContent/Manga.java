@@ -1,7 +1,6 @@
 package it.unipi.lsmsd.fnf.model.mediaContent;
 
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
-import it.unipi.lsmsd.fnf.model.Review;
 import it.unipi.lsmsd.fnf.model.enums.MangaDemographics;
 import it.unipi.lsmsd.fnf.model.enums.MangaStatus;
 import it.unipi.lsmsd.fnf.model.enums.MangaType;
@@ -9,6 +8,10 @@ import it.unipi.lsmsd.fnf.model.enums.MangaType;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * Model class representing a manga.
+ * It extends the MediaContent class and adds the specific attributes of a manga.
+ */
 public class Manga extends MediaContent {
     private List<String> genres;
     private List<String> themes;
@@ -102,15 +105,17 @@ public class Manga extends MediaContent {
         this.status = status;
     }
 
-
-    /**
-     * Returns a string representation of the Manga object.
-     * @return A string representation of the Manga object.
-     */
     @Override
     public String toString() {
         return "Manga{" +
-                super.toString() +
+                "id='" + id + '\'' +
+                ", title='" + title + '\'' +
+                ", imageUrl='" + imageUrl + '\'' +
+                ", averageRating='" + averageRating + '\'' +
+                ", synopsis='" + synopsis + '\'' +
+                ", likes='" + likes + '\'' +
+                ", reviewIds='" + reviewIds + '\'' +
+                ", latestReviews='" + latestReviews + '\'' +
                 ", genres=" + genres +
                 ", themes=" + themes +
                 ", demographics=" + demographics +
@@ -123,9 +128,16 @@ public class Manga extends MediaContent {
                 ", endDate=" + endDate +
                 ", volumes=" + volumes +
                 ", chapters=" + chapters +
+                ", type=" + type +
+                ", status=" + status +
                 '}';
     }
 
+    /**
+     * Converts the Manga object to a MangaDTO object.
+     *
+     * @return The MangaDTO object.
+     */
     public MangaDTO toDTO() {
         return new MangaDTO(this.getId(), this.getTitle(), this.getImageUrl(), this.getAverageRating(), this.getStartDate(), this.getEndDate());
     }

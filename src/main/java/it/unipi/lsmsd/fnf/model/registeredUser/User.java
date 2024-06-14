@@ -1,16 +1,19 @@
 package it.unipi.lsmsd.fnf.model.registeredUser;
 
-import it.unipi.lsmsd.fnf.dto.LoggedUserDTO;
-import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
+import it.unipi.lsmsd.fnf.dto.registeredUser.LoggedUserDTO;
+import it.unipi.lsmsd.fnf.dto.registeredUser.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.model.Review;
 import it.unipi.lsmsd.fnf.model.enums.Gender;
 import it.unipi.lsmsd.fnf.model.enums.UserType;
-import it.unipi.lsmsd.fnf.model.mediaContent.MediaContent;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Model Class that represents a User of the platform.
+ * It extends the RegisteredUser class and adds the specific attributes of a User.
+ */
 public class User extends RegisteredUser {
     private String username;
     private LocalDate birthday;
@@ -18,27 +21,10 @@ public class User extends RegisteredUser {
     private Gender gender;
     private String location;
     private List<Review> reviews = new ArrayList<>();
-    private List<MediaContent> likedMediaContent = new ArrayList<>();
     private Integer followers;
     private Integer followed;
-    //add review_ids
     private List<String> reviewIds;
-
     private Integer appRating;
-    public User() {
-    }
-
-    public User(String id, String username, String profilePicUrl) {
-        this.id = id;
-        this.username = username;
-        this.profilePicUrl = profilePicUrl;
-    }
-
-    public User(String id, LocalDate birthday, String location) {
-        this.id = id;
-        this.birthday = birthday;
-        this.location = location;
-    }
 
     public String getUsername() {
         return username;
@@ -64,10 +50,6 @@ public class User extends RegisteredUser {
         return reviews;
     }
 
-    public List<MediaContent> getLikedMediaContent() {
-        return likedMediaContent;
-    }
-
     public Integer getFollowers() {
         return followers;
     }
@@ -78,6 +60,7 @@ public class User extends RegisteredUser {
     public List<String> getReviewIds () {
         return reviewIds;
     }
+
     public Integer getAppRating() {
         return appRating;
     }
@@ -117,9 +100,6 @@ public class User extends RegisteredUser {
         this.appRating = appRating;
     }
 
-    public void setLikedMediaContent(List<MediaContent> likedMediaContent) {
-        this.likedMediaContent = likedMediaContent;
-    }
     public void setReviewIds (List<String> reviewIds) {
         this.reviewIds = reviewIds;
     }
@@ -132,34 +112,42 @@ public class User extends RegisteredUser {
         this.reviews.remove(review);
     }
 
-    public void addLikedMediaContent(MediaContent mediaContent) {
-        this.likedMediaContent.add(mediaContent);
-    }
-
-    public void removeLikedMediaContent(String mediaContentId) {
-        this.likedMediaContent.removeIf(content -> content.getId().equals(mediaContentId));
-    }
-
     @Override
     public String toString() {
         return "User{" +
-                super.toString() +
+                "id='" + id + '\'' +
+                ", password='" + password + '\'' +
+                ", fullname='" + fullname + '\'' +
+                ", email='" + email + '\'' +
+                ", profilePicUrl='" + profilePicUrl + '\'' +
+                ", joinedDate='" + joinedDate + '\'' +
                 ", username='" + username + '\'' +
                 ", birthday='" + birthday + '\'' +
                 ", description='" + description + '\'' +
                 ", gender='" + gender + '\'' +
                 ", location='" + location + '\'' +
                 ", reviews=" + reviews +
-                ", likedMediaContent=" + likedMediaContent +
                 ", followers=" + followers +
                 ", followed=" + followed +
+                ", reviewIds=" + reviewIds +
+                ", appRating=" + appRating +
                 '}';
     }
 
+    /**
+     * Converts a User object to a UserSummaryDTO object.
+     *
+     * @return The UserSummaryDTO object.
+     */
     public UserSummaryDTO toSummaryDTO () {
         return new UserSummaryDTO(this.getId(), this.getUsername(), this.getProfilePicUrl(), this.getLocation(), this.getBirthday());
     }
 
+    /**
+     * Converts a User object to a LoggedUserDTO object.
+     *
+     * @return The LoggedUserDTO object.
+     */
     public LoggedUserDTO toLoggedUserDTO() {
         return new LoggedUserDTO(this.getId(), this.getUsername(), this.getProfilePicUrl(), this.getLocation(), this.getBirthday(), UserType.USER);
     }

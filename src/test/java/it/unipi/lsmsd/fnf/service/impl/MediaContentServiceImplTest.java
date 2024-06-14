@@ -23,6 +23,7 @@ import it.unipi.lsmsd.fnf.service.interfaces.MediaContentService;
 import it.unipi.lsmsd.fnf.service.interfaces.TaskManager;
 import it.unipi.lsmsd.fnf.service.interfaces.UserService;
 import it.unipi.lsmsd.fnf.utils.Constants;
+import org.apache.commons.lang3.tuple.Pair;
 import org.bson.Document;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -164,18 +165,18 @@ class MediaContentServiceImplTest {
     @Test
     void searchByFilter() {
         MediaContentService mediaContentService = ServiceLocator.getMediaContentService();
-        List<Map<String, Object>> animeFilters = List.of(
-                Map.of("$in",Map.of("tags", List.of("school clubs", "manwha"))),
-                Map.of("$gte", Map.of("average_rating", 8.0))
+        List<Pair<String, Object>> animeFilters = List.of(
+                Pair.of("$in",Pair.of("tags", List.of("school clubs", "manwha"))),
+                Pair.of("$gte", Pair.of("average_rating", 8.0))
         );
         assertDoesNotThrow(() -> {
             PageDTO<MediaContentDTO> anime = mediaContentService.searchByFilter(animeFilters, Map.of("average_rating", -1), 1, MediaContentType.ANIME);
             System.out.println("Anime found: " + anime);
         });
 
-        List<Map<String, Object>> mangaFilters = List.of(
-                Map.of("$in", Map.of("genres", List.of("Fantasy", "Adventure"))),
-                Map.of("$gte", Map.of("start_date", LocalDate.of(2015, 1, 1)))
+        List<Pair<String, Object>> mangaFilters = List.of(
+                Pair.of("$in", Pair.of("genres", List.of("Fantasy", "Adventure"))),
+                Pair.of("$gte", Pair.of("start_date", LocalDate.of(2015, 1, 1)))
         );
         assertDoesNotThrow(() -> {
             PageDTO<MediaContentDTO> manga = mediaContentService.searchByFilter(mangaFilters, Map.of("start_date", -1), 1, MediaContentType.MANGA);

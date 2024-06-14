@@ -113,6 +113,7 @@
                 </div>
 
                 <c:if test="${isLogged and !isManager}">
+                <c:if test="${not empty requestScope.suggestionsByLikes}">
                 <!-- suggestions by likes -->
                 <div class="landing-section">
                     <div class="title link">
@@ -131,7 +132,9 @@
                     </div>
                     <div class="results extended" style="display: none"></div>
                 </div>
+                </c:if>
 
+                <c:if test="${not empty requestScope.suggestionsByFollowings}">
                 <!-- suggestions by followings -->
                 <div class="landing-section">
                     <div class="title link">
@@ -150,6 +153,7 @@
                     </div>
                     <div class="results extended" style="display: none"></div>
                 </div>
+                </c:if>
                 </c:if>
             </div>
 
@@ -460,7 +464,7 @@
                             <div value="title" class="option active">Title</div>
                             <div value="likes" class="option">Popularity</div>
                             <div value="average_rating" class="option">Average Score</div>
-                            <div value="anime" class="option">Release Date </div>
+                            <div value="start_date" class="option">Release Date </div>
                         </div>
                     </div>
                 </div>

@@ -14,11 +14,20 @@ import it.unipi.lsmsd.fnf.service.interfaces.Task;
 
 import static it.unipi.lsmsd.fnf.service.exception.BusinessException.handleDAOException;
 
+/**
+ * Task for updating media content.
+ */
 public class UpdateMediaTask extends Task {
     private final MediaContentDAO<Anime> animeDAONeo4j;
     private final MediaContentDAO<Manga> mangaDAONeo4j;
     private final MediaContent media;
 
+
+    /**
+     * Constructs an UpdateMediaTask.
+     *
+     * @param media The media content to be updated.
+     */
     public UpdateMediaTask(MediaContent media) {
         super(8);
         this.animeDAONeo4j = DAOLocator.getAnimeDAO(DataRepositoryEnum.NEO4J);
@@ -26,6 +35,11 @@ public class UpdateMediaTask extends Task {
         this.media = media;
     }
 
+    /**
+     * Executes the task to update media content.
+     *
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public void executeJob() throws BusinessException {
         try {

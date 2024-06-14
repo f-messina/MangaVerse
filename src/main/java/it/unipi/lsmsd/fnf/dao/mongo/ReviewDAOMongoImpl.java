@@ -2,29 +2,28 @@ package it.unipi.lsmsd.fnf.dao.mongo;
 
 import com.mongodb.MongoException;
 import com.mongodb.client.FindIterable;
-import com.mongodb.client.model.*;
-import com.mongodb.client.result.UpdateResult;
 import com.mongodb.client.MongoCollection;
-
-import it.unipi.lsmsd.fnf.dao.interfaces.ReviewDAO;
+import com.mongodb.client.model.Accumulators;
+import com.mongodb.client.model.Facet;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Projections;
+import com.mongodb.client.result.UpdateResult;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dao.exception.enums.DAOExceptionType;
+import it.unipi.lsmsd.fnf.dao.interfaces.ReviewDAO;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
-import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
+import it.unipi.lsmsd.fnf.dto.registeredUser.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.utils.Constants;
 import it.unipi.lsmsd.fnf.utils.ConverterUtils;
-
 import it.unipi.lsmsd.fnf.utils.DocumentUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -39,28 +38,27 @@ import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.*;
 import static com.mongodb.client.model.Sorts.ascending;
 import static com.mongodb.client.model.Sorts.descending;
+import static com.mongodb.client.model.Updates.set;
+import static com.mongodb.client.model.Updates.unset;
 import static com.mongodb.client.model.Updates.*;
-import static com.mongodb.client.model.Filters.in;
-import static it.unipi.lsmsd.fnf.utils.DocumentUtils.*;
-import static java.util.stream.Collectors.toMap;
-
-import com.mongodb.client.model.Filters;
-import com.mongodb.client.model.Projections;
-
-import java.util.ArrayList;
-import java.util.List;
+import static it.unipi.lsmsd.fnf.utils.DocumentUtils.appendIfNotNull;
+import static it.unipi.lsmsd.fnf.utils.DocumentUtils.reviewDTOToDocument;
+import static java.util.stream.Collectors.toList;
 
 /**
  * Implementation of ReviewDAO interface for MongoDB data access operations related to reviews.
  * This class provides methods to insert, update, delete, and retrieve reviews from the database,
- * as well as methods to perform various analytical queries on review data.
+ * as well as methods to perform various analytical or suggestions queries on review data.
+ * Also performs operations to maintain consistency between collections.
+ * @see BaseMongoDBDAO
+ * @see ReviewDAO
+ * @see ReviewDTO
  */
 public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
     private static final String COLLECTION_NAME = "reviews";
 
-    //Add and remove review, add the id in the other collections.
     /**
-     * Inserts a new review into the database or updates an existing one if the user has already reviewed the media content.
+     * Inserts a new review into the database.
      *
      * @param reviewDTO The ReviewDTO object representing the review to be inserted or updated.
      * @throws DAOException If an error occurs during the insertion or update process.
@@ -155,23 +153,25 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
         }
     }
 
+    /**
+     * Updates the media content information in the specified reviews.
+     *
+     * @param mediaContentDTO The MediaContentDTO object containing the updated media information.
+     * @param review_ids The list of review IDs to be updated.
+     * @throws DAOException If an error occurs during the update process.
+     */
     @Override
-    //Take review ids in input to update the media content
     public void updateMediaRedundancy(MediaContentDTO mediaContentDTO, List<String> review_ids) throws DAOException {
-        //create media embedded Document
         boolean isAnime = mediaContentDTO instanceof AnimeDTO;
         Document mediaDoc = new Document(isAnime ? "anime" : "manga", new Document()
                 .append("id", new ObjectId(mediaContentDTO.getId()))
                 .append("title", mediaContentDTO.getTitle()));
 
-
-        //Convert review ids to ObjectId list
         List<ObjectId> reviewObjectIds = new ArrayList<>();
         for (String id : review_ids) {
             reviewObjectIds.add(new ObjectId(id));
         }
 
-        //update the recipe data in all the reviews
         try {
             MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
             Bson filter = Filters.in("_id", reviewObjectIds);
@@ -189,29 +189,31 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
         }
     }
 
+    /**
+     * Updates the user information in the specified reviews.
+     *
+     * @param userSummaryDTO The UserSummaryDTO object containing the updated user information.
+     * @param reviewIds The list of review IDs to be updated.
+     * @throws DAOException If an error occurs during the update process.
+     */
     @Override
-    //Take review ids in input to update the user
     public void updateUserRedundancy(UserSummaryDTO userSummaryDTO, List<String> reviewIds) throws DAOException {
-        //create user embedded Document
         Document userDoc = new Document();
         appendIfNotNull(userDoc, "user.id", new ObjectId(userSummaryDTO.getId()));
         appendIfNotNull(userDoc, "user.username", userSummaryDTO.getUsername());
         appendIfNotNull(userDoc, "user.picture", userSummaryDTO.getProfilePicUrl());
         appendIfNotNull(userDoc, "user.location", userSummaryDTO.getLocation());
         appendIfNotNull(userDoc, "user.birthday", ConverterUtils.localDateToDate(userSummaryDTO.getBirthDate()));
-        Logger logger = LoggerFactory.getLogger(ReviewDAOMongoImpl.class);
-        logger.info("userDoc: " + userDoc);
+
         try {
             MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
 
-            //Convert review ids to ObjectId list
             List<ObjectId> reviewObjectIds = new ArrayList<>();
             for (String id : reviewIds) {
                 reviewObjectIds.add(new ObjectId(id));
             }
 
             Bson filter = Filters.in("_id", reviewObjectIds);
-
             Bson update = new Document("$set", userDoc);
             if (Objects.equals(userSummaryDTO.getProfilePicUrl(),Constants.NULL_STRING)) {
                 update = combine(update, unset("user.picture"));
@@ -222,8 +224,7 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
             if (Objects.equals(userSummaryDTO.getBirthDate(), Constants.NULL_DATE)) {
                 update = combine(update, unset("user.birthday"));
             }
-            logger.info("update: " + update);
-            logger.info("filter: " + filter);
+
             UpdateResult result = reviewCollection.updateMany(filter, update);
             if (result.getMatchedCount() != 0 && result.getModifiedCount() == 0) {
                 throw new MongoException("ReviewDAOMongoImpl: updateUserRedundancy: No reviews modified");
@@ -237,23 +238,31 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
         }
     }
 
+
+    /**
+     * Updates the average rating of the media content based on the reviews.
+     * This method performs the following steps:
+     * 1. Retrieves the list of reviews IDs of manga/anime whose average rating has not been updated.
+     * 2. Aggregates the average rating of the reviews by media content ID.
+     * 3. Updates the average rating field of the media content with the new average rating.
+     *
+     * @throws DAOException If an error occurs during the update process.
+     */
     @Override
     public void updateAverageRatingMedia() throws DAOException {
         try {
             // get the list of anime and manga IDs whose average rating has not been updated
             Bson filter = or(eq("avg_rating_last_update", false), exists("avg_rating_last_update", false));
-            //The media contents that have the flag false: we need to take their review ids
+            Bson projection = fields(include("review_ids"));
 
-            //Get the anime and manga ids and review_ids
-            List<Document> animeList = getCollection("anime").find(filter).projection(fields(include("_id", "review_ids"))).into(new ArrayList<>());
-            List<Document> mangaList = getCollection("manga").find(filter).projection(fields(include("_id", "review_ids"))).into(new ArrayList<>());
+            List<Document> animeList = getCollection("anime").find(filter).projection(projection).into(new ArrayList<>());
+            List<Document> mangaList = getCollection("manga").find(filter).projection(projection).into(new ArrayList<>());
 
+            // get the average rating for each media content and update the average rating field
+            MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
 
-            //map of anime id and review ids
             Map<String, List<String>> animeReviewIds = new HashMap<>();
             Map<String, List<String>> mangaReviewIds = new HashMap<>();
-
-
             for (Document anime : animeList) {
                 animeReviewIds.put(String.valueOf(anime.getObjectId("_id")), anime.getList("review_ids", String.class));
             }
@@ -261,10 +270,7 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
                 mangaReviewIds.put(String.valueOf(manga.getObjectId("_id")), manga.getList("review_ids", String.class));
             }
 
-
-            // get the average rating for each media content
-            MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
-
+            // anime review aggregation
             for (Map.Entry<String, List<String>> entry : animeReviewIds.entrySet()) {
                 String animeId = entry.getKey();
                 List<String> reviewIds = entry.getValue();
@@ -274,11 +280,14 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
                 Bson filterReviews = in("_id", reviewIds);
                 Bson group = group("$anime.id", avg("avg_rating", "$rating"));
                 Document avgRating = reviewCollection.aggregate(List.of(match(filterReviews), group)).first();
+
+                // update the anime document with the new average rating
                 if (avgRating != null) {
                     getCollection("anime").updateOne(eq("_id", animeId), combine(set("avg_rating", avgRating.getDouble("avg_rating")), set("avg_rating_last_update", true)));
                 }
             }
 
+            // manga review aggregation
             for (Map.Entry<String, List<String>> entry : mangaReviewIds.entrySet()) {
                 String mangaId = entry.getKey();
                 List<String> reviewIds = entry.getValue();
@@ -288,6 +297,8 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
                 Bson filterReviews = in("_id", reviewIds);
                 Bson group = group("$manga.id", avg("avg_rating", "$rating"));
                 Document avgRating = reviewCollection.aggregate(List.of(match(filterReviews), group)).first();
+
+                // update the manga document with the new average rating
                 if (avgRating != null) {
                     getCollection("manga").updateOne(eq("_id", mangaId), combine(set("avg_rating", avgRating.getDouble("avg_rating")), set("avg_rating_last_update", true)));
                 }
@@ -304,6 +315,10 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
 
     /**
      * Deletes a review from the database based on its ID.
+     * This method performs the following steps:
+     * 1. Retrieves the review document to get the associated anime/manga ID.
+     * 2. Deletes the review document from the reviews' collection.
+     * 3. Removes the review ID redundancy in reviews_ids from the anime/manga collection.
      *
      * @param reviewId The ID of the review to be deleted.
      * @throws DAOException If an error occurs during the deletion process.
@@ -314,21 +329,20 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
             MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
 
             Bson filter = eq("_id", new ObjectId(reviewId));
+            Bson projection = fields(include("anime.id", "manga.id"), excludeId());
 
             //Retrieve the review document to get associated media and user IDs
-            Document reviewDocument = reviewCollection.find(filter).first();
+            Document reviewDocument = reviewCollection.find(filter).projection(projection).first();
             if (reviewDocument == null) {
                 throw new MongoException("ReviewDAOMongoImpl: deleteReview: Review not found");
             }
 
             //Delete the review
-            if (reviewCollection.deleteOne(filter).getDeletedCount()==0) {
-                throw new MongoException("ReviewDAOMongoImpl: deleteReview: Review not deleted");
-            }
+            reviewCollection.deleteOne(filter).getDeletedCount();
 
             //Remove the review ID from the anime and manga collections
             String mediaContentType = reviewDocument.containsKey("anime") ? "anime" : "manga";
-            filter = eq("review_ids", reviewId);
+            filter = eq("_id", reviewDocument.getObjectId(mediaContentType + ".id" ));
             Bson pullReviewId = pull("review_ids", reviewId);
             getCollection(mediaContentType).updateMany(filter, pullReviewId);
 
@@ -344,6 +358,16 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
         }
     }
 
+    /**
+     * Refreshes the latest reviews for anime and manga collections when a user is deleted.
+     * This method performs the following steps:
+     * 1. Retrieves the review IDs of the reviews authored by the deleted user.
+     * 2. Retrieves the latest reviews for the anime and manga that the user has reviewed recently.
+     * 3. Updates the latest reviews for the anime and manga collections.
+     *
+     * @param reviewsIds The IDs of the reviews being deleted.
+     * @throws DAOException if a database error or any other error occurs during the operation.
+     */
     @Override
     public void refreshLatestReviewsOnUserDeletion(List<String> reviewsIds) throws DAOException {
         try {
@@ -369,7 +393,6 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
 
             List<Bson> pipeline = List.of(
                     facet(
-                            // anime facet
                             new Facet("anime", List.of(
                                     match(in("_id", animeReviewIds.stream().map(ObjectId::new).toList())),
                                     sort(descending("date")),
@@ -428,29 +451,36 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
 
     /**
      * Deletes all reviews associated with media content not present in the database.
-     * This method is used to clean up the database when media content is deleted.
+     * This method performs the following steps:
+     * 1. Retrieves all the reviews IDs from the anime and manga collections.
+     * 2. Deletes the reviews with ID equal to the review IDs not present in the anime or manga collection.
+     *
      * @throws DAOException If an error occurs during the deletion process.
      */
     public void deleteReviewsWithNoMedia() throws DAOException {
         try {
+            // Get the anime and manga IDs
             MongoCollection<Document> animeCollection = getCollection("anime");
             MongoCollection<Document> mangaCollection = getCollection("manga");
-            List<ObjectId> animeIds = animeCollection.find().projection(new Document("_id", 1)).into(new ArrayList<>()).stream()
-                    .map(document -> document.getObjectId("_id"))
-                    .toList();
-            List<ObjectId> mangaIds = mangaCollection.find().projection(new Document("_id", 1)).into(new ArrayList<>()).stream()
-                    .map(document -> document.getObjectId("_id"))
-                    .toList();
+            List<String> reviewIds = Optional.of(animeCollection.find().projection(fields(include("review_ids"), excludeId()))
+                    .into(new ArrayList<>()))
+                    .map(list -> list.stream()
+                            .flatMap(document -> document.getList("review_ids", String.class).stream())
+                            .collect(toList()))
+                    .orElse(new ArrayList<>());
+            reviewIds.addAll(Optional.of(mangaCollection.find().projection(fields(include("review_ids"), excludeId()))
+                    .into(new ArrayList<>()))
+                    .map(list -> list.stream()
+                            .flatMap(document -> document.getList("review_ids", String.class).stream())
+                            .toList())
+                    .orElse(new ArrayList<>()));
 
-            MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
-            Bson filter = and(
-                    nin("anime.id", animeIds),
-                    nin("manga.id", mangaIds)
-            );
 
             // Delete reviews with anime IDs or manga IDs not present in the anime or manga collection
-            reviewCollection.deleteMany(filter);
+            MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
+            Bson filter = nin("_id", reviewIds.stream().map(ObjectId::new).toList());
 
+            reviewCollection.deleteMany(filter);
         } catch (MongoException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
 
@@ -461,22 +491,28 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
 
     /**
      * Deletes all reviews associated with users not present in the database.
-     * This method is used to clean up the database when users are deleted.
+     * This method performs the following steps:
+     * 1. Retrieves all the reviews IDs from the users' collections.
+     * 2. Deletes the reviews with ID equal to the review IDs not present in the users' collection.
+     *
      * @throws DAOException If an error occurs during the deletion process.
      */
     @Override
     public void deleteReviewsWithNoAuthor() throws DAOException {
         try {
-
+            // Get the anime and manga IDs
             MongoCollection<Document> userCollection = getCollection("users");
-            List<ObjectId> userIds = userCollection.find().projection(new Document("_id", 1)).into(new ArrayList<>()).stream()
-                    .map(document -> document.getObjectId("_id"))
-                    .toList();
+            List<String> reviewIds = Optional.of(userCollection.find().projection(fields(include("review_ids"), excludeId()))
+                            .into(new ArrayList<>()))
+                    .map(list -> list.stream()
+                            .flatMap(document -> document.getList("review_ids", String.class).stream())
+                            .collect(toList()))
+                    .orElse(new ArrayList<>());
 
             MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
 
             // Delete reviews with user IDs not present in the users collection
-            reviewCollection.deleteMany(nin("user.id", userIds));
+            reviewCollection.deleteMany(nin("_id", reviewIds.stream().map(ObjectId::new).toList()));
 
         } catch (MongoException e) {
             throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
@@ -487,6 +523,16 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
         }
     }
 
+    /**
+     * Deletes all reviews from a list of review IDs.
+     * This method performs the following steps:
+     * 1. Remove all the reviews with the given review IDs from the reviews collection.
+     * 2. Remove all the ID redundancy in review_ids in anime/manga/user collection.
+     *
+     * @param reviewsIds The ID of the user whose reviews are to be deleted.
+     * @param elementDeleted The type of element that was deleted: "user", "media", or "all".
+     * @throws DAOException if a database error or any other error occurs during the operation.
+     */
     @Override
     public void deleteReviews(List<String> reviewsIds, String elementDeleted) throws DAOException {
         try {
@@ -521,22 +567,24 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
         }
     }
 
+    /**
+     * Retrieves reviews based on their IDs and paginates the results.
+     * This method performs the following steps:
+     * 1. Get total count of reviews based on the review IDs.
+     * 2. Retrieve the reviews based on the review IDs and paginates the results.
+     *
+     * @param reviewIds The list of review IDs to retrieve.
+     * @param page      The page number for pagination (optional).
+     * @param docExcluded The document to exclude from the retrieved reviews.
+     * @return A PageDTO containing the retrieved ReviewDTOs and total count.
+     * @throws DAOException if a database error or any other error occurs during the operation.
+     */
     @Override
-    //id reviews in input
     public PageDTO<ReviewDTO> getReviewByIdsList(List<String> reviewIds, Integer page, String docExcluded) throws DAOException {
         try {
-            // Convert reviewIds to ObjectId list
-            List<ObjectId> reviewObjectIds = new ArrayList<>();
-
-            for (String id : reviewIds) {
-                reviewObjectIds.add(new ObjectId(id));
-            }
-
-            // Get the Reviews collection
             MongoCollection<Document> reviewCollection = getCollection("reviews");
 
-            // Create a filter using the reviewObjectIds
-            Bson filter = Filters.in("_id", reviewObjectIds);
+            Bson filter = Filters.in("_id", reviewIds.stream().map(ObjectId::new).toList());
             Bson projection;
             if (docExcluded != null && docExcluded.equals("user")) {
                 projection = Projections.exclude("user");
@@ -544,13 +592,15 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
                 projection = Projections.exclude("anime", "manga");
             }
 
-            List<ReviewDTO> result;
+            // Get the total count of reviews
             int totalCount = (int) reviewCollection.countDocuments(filter);
             Integer totalPages = (int) Math.ceil((double) totalCount / 15);
             if (totalCount == 0) {
                 throw new MongoException("ReviewDAOMongoImpl: getReviewByIds: No reviews found");
             }
 
+            // Get the reviews page
+            List<ReviewDTO> result;
             if (page == null) {
                 result = reviewCollection.find(filter).projection(projection)
                         .sort(descending("date"))
@@ -565,7 +615,6 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
                         .map(DocumentUtils::documentToReviewDTO)
                         .into(new ArrayList<>());
             }
-
             return new PageDTO<>(result, totalCount, totalPages);
 
         } catch (MongoException e) {
@@ -575,11 +624,18 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
         }
     }
 
+
+    /**
+     * Checks if a user has reviewed a specific media content (anime or manga).
+     *
+     * @param userId The ID of the user to check.
+     * @param reviewIds The list of review IDs of the media content.
+     * @return A ReviewDTO object if the user has reviewed the media content, null otherwise.
+     * @throws DAOException if a database error or any other error occurs during the operation.
+     */
     @Override
     public ReviewDTO isReviewedByUser(String userId, List<String> reviewIds) throws DAOException {
         try {
-            Logger logger = LoggerFactory.getLogger(ReviewDAOMongoImpl.class);
-            logger.info("Checking if the user has reviewed the media content in dao");
             MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
 
             Bson filter = and(
@@ -598,14 +654,30 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
         }
     }
 
-    //Find the trend of an anime or manga by year, giving in input the media content id
-    //It returns the average rating of the anime or manga for each year
+
+    /**
+     * Retrieves the average ratings for a specific media content (anime or manga) by year within a specified range.
+     * The aggregation pipeline performs the following steps:
+     * 1. Matches the reviews for the specified media content ID and date range, ensuring the reviews have a rating.
+     * 2. Groups the reviews by year and calculates the average rating for each year.
+     * 3. Projects the results to include the year and the calculated average rating.
+     * 4. Sorts the results by year in ascending order.
+     *
+     * @param type The type of media content, either `ANIME` or `MANGA`.
+     * @param mediaContentId The ID of the specific media content.
+     * @param startYear The starting year of the range.
+     * @param endYear The ending year of the range.
+     * @return A map with years as keys and the corresponding average ratings as values.
+     * @throws DAOException if a database error or any other error occurs during the operation.
+     */
+
     @Override
     public Map<String, Double> getMediaContentRatingByYear(MediaContentType type, String mediaContentId, int startYear, int endYear) throws  DAOException {
         try  {
+            // Get media content rating by year
             MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
-            String nodeType = type.equals(MediaContentType.ANIME) ? "anime" : "manga";
 
+            String nodeType = type.equals(MediaContentType.ANIME) ? "anime" : "manga";
             Date startDate = ConverterUtils.localDateToDate(LocalDate.of(startYear, 1, 1));
             Date endDate = ConverterUtils.localDateToDate(LocalDate.of(endYear + 1, 1, 1));
             List<Bson> pipeline = List.of(
@@ -623,21 +695,20 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
                     ),
                     sort(ascending("year"))
             );
-
             List<Document> result = reviewCollection.aggregate(pipeline).into(new ArrayList<>());
 
+            // Initialize the result map with years and default values
             Map<String, Double> resultMap = new LinkedHashMap<>();
-
             for (int year = startYear; year <= endYear; year++) {
                 resultMap.put(String.valueOf(year), null);
             }
 
+            // Populate the result map with the average ratings
             for (Document document : result) {
                 Double averageRating = document.getDouble("average_rating");
                 Integer year = document.getInteger("year");
                 resultMap.put(String.valueOf(year), averageRating);
             }
-
             return resultMap;
 
         } catch (MongoException e) {
@@ -647,13 +718,28 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
         }
     }
 
-    //This function returns the average rating of media content by month when giving in input a certain year and the media content id
+
+    /**
+     * Retrieves the average ratings for a specific media content (anime or manga) by month for a specified year.
+     * The aggregation pipeline performs the following steps:
+     * 1. Matches the reviews for the specified media content ID and year, ensuring the reviews have a rating.
+     * 2. Groups the reviews by month and calculates the average rating for each month.
+     * 3. Projects the results to include the month and the calculated average rating.
+     * 4. Sorts the results by month in ascending order.
+     *
+     * @param type The type of media content, either `ANIME` or `MANGA`.
+     * @param mediaContentId The ID of the specific media content.
+     * @param year The year for which the ratings are to be retrieved.
+     * @return A map with month names as keys and the corresponding average ratings as values.
+     * @throws DAOException if a database error or any other error occurs during the operation.
+     */
     @Override
     public Map<String, Double> getMediaContentRatingByMonth(MediaContentType type, String mediaContentId, int year) throws DAOException {
         try  {
+            // Get media content rating by month
             MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
-            String nodeType = type.equals(MediaContentType.ANIME) ? "anime" : "manga";
 
+            String nodeType = type.equals(MediaContentType.ANIME) ? "anime" : "manga";
             Date startDate = ConverterUtils.localDateToDate(LocalDate.of(year, 1, 1));
             Date endDate = ConverterUtils.localDateToDate(LocalDate.of(year + 1, 1, 1));
             List<Bson> pipeline = List.of(
@@ -673,28 +759,21 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
                     )),
                     sort(ascending("month"))
             );
-
             List<Document> result = reviewCollection.aggregate(pipeline).into(new ArrayList<>());
 
+            // Initialize the result map with months and default values
             Map<String, Double> resultMap = new LinkedHashMap<>();
-
             for (Month month : Month.values()) {
                 resultMap.put(month.getDisplayName(TextStyle.FULL, Locale.ENGLISH), null);
             }
 
+            // Populate the result map with the average ratings
             for (Document document : result) {
-
-                Double averageRating;
                 Object ratingObj = document.get("average_rating");
-                if (ratingObj instanceof Integer) {
-                    averageRating = ((Integer) ratingObj).doubleValue();
-                } else {
-                    averageRating = (Double) ratingObj;
-                }
+                Double averageRating = ratingObj instanceof Integer ratingInt ? ratingInt.doubleValue() : (Double) ratingObj;
                 Integer month = document.getInteger("month");
                 resultMap.put(Month.of(month).getDisplayName(TextStyle.FULL, Locale.ENGLISH), averageRating);
             }
-
             return resultMap;
 
         } catch (MongoException e) {
@@ -705,12 +784,25 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
     }
 
 
-    //For users: suggestions based on birthday year and location. For example: show the 25 anime or manga with the highest average ratings in Italy.
-    //criteriaType is either birthday (more specifically it's the birthday year) or location
-    //criteriaValue is the value of the criteriaType
+    /**
+     * Suggests media content (anime or manga) based on user criteria (location or birthday year).
+     * The aggregation pipeline performs the following steps:
+     * 1. Matches the reviews with a rating, the specified media content type and the user criteria.
+     * 2. Groups the reviews by media content ID and calculates the average rating for each media content.
+     * 3. Projects the results to include the media content title and the calculated average rating.
+     * 4. Sorts the results by average rating in descending order.
+     * 5. Limits the results to 20 entries.
+     *
+     * @param mediaContentType The type of media content (ANIME or MANGA).
+     * @param criteriaType The type of criteria to filter by ("location" or "birthday").
+     * @param criteriaValue The value of the criteria (location as a string or birth year as a string).
+     * @return A PageDTO containing a list of suggested media content and the total count.
+     * @throws DAOException If there is an error accessing the database or if the criteria type is invalid.
+     */
     @Override
     public List<MediaContentDTO> suggestMediaContent(MediaContentType mediaContentType, String criteriaType, String criteriaValue) throws DAOException {
         try  {
+            // Suggest media content based on user criteria
             MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
             String nodeType = mediaContentType.equals(MediaContentType.ANIME) ? "anime" : "manga";
 
@@ -748,19 +840,14 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
                 String contentId = String.valueOf(document.getObjectId("_id"));
                 String title = document.getString("title");
 
-                Object ratingObj = document.get("average_rating");
-                Double averageRating = ratingObj instanceof Integer ratingInt? ratingInt.doubleValue() :
-                        (Double) ratingObj;
-
-                MediaContentDTO mediaContentDTO;// imageUrl is null because not included in the query results
+                MediaContentDTO mediaContentDTO;
                 if (nodeType.equals("anime")) {
-                    mediaContentDTO = new AnimeDTO(contentId, title, null, averageRating);
+                    mediaContentDTO = new AnimeDTO(contentId, title);
                 } else {
-                    mediaContentDTO = new MangaDTO(contentId, title, null, averageRating);
+                    mediaContentDTO = new MangaDTO(contentId, title);
                 }
                 entries.add(mediaContentDTO);
             }
-
             return entries;
 
         } catch (MongoException e) {

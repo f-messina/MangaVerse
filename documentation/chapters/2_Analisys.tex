@@ -2,106 +2,147 @@
 
 \section {Actors}
 \begin{itemize}
-    \item \textbf{Unregistered User}: A visitor who has not created an account on the platform. They can browse media contents, search and filter, view media content details, and register/login.
-    \item \textbf{Registered User}: A user who has created an account on the platform. They can perform all the actions of an unregistered user, as well as logout, manage their profile, explore other user profiles, interact with media contents/users, review media contents, and receive advanced recommendations.
-    \item \textbf{Manager}: A registered user with administrative features. They can access an analytics dashboard, manage user accounts, content entries, and monitor trends.
+    \item \textbf{Unregistered User}: A visitor who has not logged in on the platform.
+    \item \textbf{Registered User}: A user who has created an account on the platform. 
+    \item \textbf{Manager}: A registered user with administrative privileges. 
 \end{itemize}
 
 \section{Requirements}
 \textbf{Unregistered User}:
 
 \begin{itemize}
-    \item Browse Media Contents:
-    \begin{itemize}
-        \item View a list of available manga and anime on the home page.
-        \item Access basic details about each media content without logging in.
-    \end{itemize}
-    \item Search and Filter:
-    \begin{itemize}
-        \item Use the search bar to find specific manga or anime by title.
-        \item Utilize basic filtering options to refine the media content list.
-    \end{itemize}
-    \item View Media Content Details:
-    \begin{itemize}
-        \item Click on a media content to view detailed information, including synopsis and genre.
-    \end{itemize}
     \item Register/Login:
     \begin{itemize}
-        \item Access a registration page to create a new account.
-        \item Use valid credentials to log into the account.
+        \item Create a new account to access additional features.
+        \item Use valid credentials (email and password) to log into the account.
     \end{itemize}
-    \item Explore Features:
+    \item Browse Media Contents.
+    \item Search and Filter Media Contents:
     \begin{itemize}
-        \item Access information about the features available to registered users.
+        \item Find specific manga or anime by title.
+        \item Utilize basic filtering options to refine the media content list.
+    \end{itemize}
+    \item View Media Content Trends.
+    \item View Media Content:
+    \begin{itemize}
+        \item View limited information about each media content.
+    \end{itemize} 
+    \item View Media Content Details:
+    \begin{itemize}
+        \item View detailed information about each media content.
+        \item View reviews and ratings for each media content.
+        \item View number of likes for each media content.
+    \end{itemize}
+    \item Browse Users.
+    \item Search Users by Username.
+    \item View User:
+    \begin{itemize}
+        \item View limited information about each user.
+    \end{itemize} 
+    \item View User Details:
+    \begin{itemize}
+        \item View detailed information about each user.
+        \item View anime and manga liked by the user.
+        \item View followers and following of the user.
     \end{itemize}
 \end{itemize}
 
 \textbf{Registered User}:
 
 \begin{itemize}
-    \item Browse Media Contents:
+    \item Logout.
+    \item Browse Media Contents.
+    \item Search and Filter Media Contents:
     \begin{itemize}
-        \item View a list of available manga and anime on the home page.
-        \item Access basic details about each media content without logging in.
-    \end{itemize}
-    \item Search and Filter:
-    \begin{itemize}
-        \item Use the search bar to find specific media content by title.
+        \item Find specific manga or anime by title.
         \item Utilize basic filtering options to refine the media content list.
     \end{itemize}
+    \item View Media Content Trends.
+    \item View Media Content:
+    \begin{itemize}
+        \item View limited information about each media content.
+    \end{itemize} 
     \item View Media Content Details:
     \begin{itemize}
-        \item Click on a media content to view detailed information, including synopsis and genre.
+        \item View detailed information about each media content.
+        \item View reviews and ratings for each media content.
+        \item View number of likes for each media content.
     \end{itemize}
-    \item Logout:
+    \item Browse Users.
+    \item Search Users by Username.
+    \item View User:
     \begin{itemize}
-        \item Ends the user's session.
+        \item View limited information about each user.
+    \end{itemize} 
+    \item View User Details:
+    \begin{itemize}
+        \item View detailed information about each user.
+        \item View anime and manga liked by the user.
+        \item View followers and following of the user.
     \end{itemize}
     \item Profile Management:
     \begin{itemize}
         \item Edit and update personal information (e.g., profile picture, bio).
-        \item Change account password.
+        \item Delete own profile.
     \end{itemize}
-    \item Explore Other User Profiles:
-    \begin{itemize}
-        \item View profiles of other registered users.
-        \item See their liked manga, anime and reviews.
-    \end{itemize}
-    \item Interact with Media Contents/Users:
-    \begin{itemize}
-        \item Like or dislike manga and anime to indicate preferences.
-        \item Follow/unfollow other users.
-    \end{itemize}
+    \item Like/Unlike Media Contents.
+    \item Follow/Unfollow Users.
     \item Review Media Contents:
     \begin{itemize}
-        \item Add reviews and ratings to manga and anime.
-        \item View and edit own reviews.
+        \item Add comment and rating to manga and anime.
+        \item Edit/Delete own reviews.
     \end{itemize}
     \item Advanced Recommendations:
     \begin{itemize}
-        \item Receive more refined media content suggestions based on detailed user interactions.
-        \item Receive users suggestions based on common interests.
+        \item Receive media content suggestions based on user interactions and personal information.
+        \item Receive users suggestions based on user interactions.
     \end{itemize}
 \end{itemize}
 
 \textbf{Manager}(Registered User with Administrative Features):
 
 \begin{itemize}
+    \item Logout.
+    \item Browse Media Contents.
+    \item Search and Filter Media Contents:
+    \begin{itemize}
+        \item Find specific manga or anime by title.
+        \item Utilize basic filtering options to refine the media content list.
+    \end{itemize}
+    \item View Media Content Trends.
+    \item View Media Content:
+    \begin{itemize}
+        \item View limited information about each media content.
+    \end{itemize} 
+    \item View Media Content Details:
+    \begin{itemize}
+        \item View detailed information about each media content.
+        \item View reviews and ratings for each media content.
+        \item View number of likes for each media content.
+    \end{itemize}
+    \item Browse Users.
+    \item Search Users by Username.
+    \item View User:
+    \begin{itemize}
+        \item View limited information about each user.
+    \end{itemize} 
+    \item View User Details:
+    \begin{itemize}
+        \item View detailed information about each user.
+        \item View anime and manga liked by the user.
+        \item View followers and following of the user.
+    \end{itemize}
     \item Analytics Dashboard:
     \begin{itemize}
-        \item Access a comprehensive analytics dashboard with data on user engagement and media contents trends.
+        \item View user analytics (distribution and app rating).
+        \item View manga analytics (trends and average rating).
+        \item View anime analytics (trends and average rating).
     \end{itemize}
-    \item User Management:
-    \begin{itemize}
-        \item View and manage user accounts, including account activation and deactivation.
-    \end{itemize}
+   
     \item Content Management:
     \begin{itemize}
-        \item Manage media content entries, including adding new manga and anime, updating information, and removing entries if necessary.
-    \end{itemize}
-    \item Monitor Trends:
-    \begin{itemize}
-        \item Monitor trends in user interactions, popular genres, and trending manga.
+        \item Add new media content (manga and anime).
+        \item Update/Remove existing media content.
     \end{itemize}
 \end{itemize}
 
@@ -113,20 +154,28 @@
     \item Response Time: The system should have low latency, with pages loading within an acceptable timeframe.
     \item Scalability: The system should be able to handle an increasing number of users and data without significant degradation in performance.
     \item Concurrency: The application should support multiple users simultaneously without performance bottlenecks. For very high traffic scenarios, acceptable delays may be introduced.
+    \item Availability: The system should be available 24/7, with minimal downtime for maintenance.
+    \item Replication: The system should have data replication to ensure data availability and fault tolerance.
 \end{itemize}
 
 \textbf{Security}
+\begin{itemize}
+    \item Controlled User Operations: Users should only be able to perform operations that they are authorized to do.
+\end{itemize}
+
+\textbf{Data Integrity}
 
 \begin{itemize}
-    \item Data Encryption: All user data, including passwords, should be securely encrypted during transmission and storage.
+    \item Data Consistency: The system should maintain data consistency across all components and databases.
 \end{itemize}
 
 \textbf{User Interface}
-
 \begin{itemize}
     \item Responsiveness: The user interface should be responsive, providing a consistent and seamless experience across various devices and screen sizes.
     \item Intuitiveness: The interface should be user-friendly, with clear navigation and easily understandable features.
 \end{itemize}
+
+\newpage
 
 \section{UML use case diagram}
 \begin{figure}[h]
@@ -141,7 +190,7 @@
 \section{UML class diagram}
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\linewidth]{Media/Class_Diagram.png}
+    \includegraphics[width=\linewidth]{Media/Class Diagram.png}
     \caption{UML Class Diagram}
     \label{uml class diagram}
 \end{figure}
@@ -167,3 +216,4 @@ the anime dataset was created by putting togethere the diffrerent sources;
 the manga dataset was created from MyAnimeList.net;
 the users dataset was cleaned and missing information, like email and password, was added.
 
+%add more details about the data cleaning and preprocessing steps

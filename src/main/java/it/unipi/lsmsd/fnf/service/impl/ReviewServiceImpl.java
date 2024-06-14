@@ -5,7 +5,7 @@ import it.unipi.lsmsd.fnf.dao.exception.enums.DAOExceptionType;
 import it.unipi.lsmsd.fnf.dao.interfaces.MediaContentDAO;
 import it.unipi.lsmsd.fnf.dao.interfaces.ReviewDAO;
 import it.unipi.lsmsd.fnf.dao.enums.DataRepositoryEnum;
-import it.unipi.lsmsd.fnf.dto.LoggedUserDTO;
+import it.unipi.lsmsd.fnf.dto.registeredUser.LoggedUserDTO;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
@@ -156,6 +156,14 @@ public class ReviewServiceImpl implements ReviewService {
         }
     }
 
+    /**
+     * Checks if the logged user has already reviewed the specified media content.
+     *
+     * @param userId The ID of the logged user.
+     * @param reviewIds The IDs of the reviews to check against.
+     * @return A ReviewDTO object representing the review if found, otherwise null.
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public ReviewDTO isReviewedByLoggedUser(String userId, List<String> reviewIds) throws BusinessException {
         try {
@@ -168,6 +176,16 @@ public class ReviewServiceImpl implements ReviewService {
         }
     }
 
+    /**
+     * Retrieves the average rating of the specified media content by year within the given range of years.
+     *
+     * @param type The type of media content (Anime or Manga).
+     * @param mediaContentId The ID of the media content.
+     * @param startYear The start year of the range.
+     * @param endYear The end year of the range.
+     * @return A map containing the average ratings of the media content by year.
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public Map<String, Double> getMediaContentRatingByYear(MediaContentType type, String mediaContentId, int startYear, int endYear) throws BusinessException {
         try {
@@ -183,6 +201,15 @@ public class ReviewServiceImpl implements ReviewService {
         }
     }
 
+    /**
+     * Retrieves the average rating of the specified media content by month for the given year.
+     *
+     * @param type The type of media content (Anime or Manga).
+     * @param mediaContentId The ID of the media content.
+     * @param year The year for which to retrieve ratings.
+     * @return A map containing the average ratings of the media content by month.
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public Map<String, Double> getMediaContentRatingByMonth(MediaContentType type, String mediaContentId, int year) throws BusinessException {
         try {
@@ -196,6 +223,15 @@ public class ReviewServiceImpl implements ReviewService {
         }
     }
 
+    /**
+     * Suggests media content based on the specified criteria.
+     *
+     * @param mediaContentType The type of media content (Anime or Manga).
+     * @param criteria The criteria for suggestion.
+     * @param type The type of criteria.
+     * @return A list of MediaContentDTO objects representing the suggested media content.
+     * @throws BusinessException If an error occurs during the operation.
+     */
     @Override
     public List<MediaContentDTO> suggestMediaContent(MediaContentType mediaContentType, String criteria, String type) throws BusinessException {
         try {

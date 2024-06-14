@@ -82,6 +82,10 @@ a {
     align-items: center;
 }
 
+.analytic-box.medium {
+    min-height: 40vw;
+}
+
 .analytic-box.large {
     min-height: 50vw;
 }

@@ -2,8 +2,8 @@ package it.unipi.lsmsd.fnf.dao.mongo;
 
 import it.unipi.lsmsd.fnf.dao.interfaces.UserDAO;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
-import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
-import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
+import it.unipi.lsmsd.fnf.dto.registeredUser.UserRegistrationDTO;
+import it.unipi.lsmsd.fnf.dto.registeredUser.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.model.enums.Gender;
 
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
@@ -154,12 +154,12 @@ public class UserDAOMongoImplTest {
     }
 
     @Test
-    public void updateNumOfFollowedTest() {
+    public void updateNumOfFollowingsTest() {
         try {
             UserDAOMongoImpl userDAO = new UserDAOMongoImpl();
             UserSummaryDTO userSummaryDTO = userDAO.searchFirstNUsers("exampleUser", 1, null).getFirst();
 
-            userDAO.updateNumOfFollowed(userSummaryDTO.getId(), 10);
+            userDAO.updateNumOfFollowings(userSummaryDTO.getId(), 10);
         } catch (DAOException e) {
             fail("Exception not expected: " + e.getMessage());
         }
