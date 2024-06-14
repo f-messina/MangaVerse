@@ -10,6 +10,15 @@ import java.util.concurrent.ScheduledExecutorService;
 
 import static java.util.concurrent.TimeUnit.*;
 
+/**
+ * Implementation of ExecutorTaskService that executes tasks in a separate thread with a fixed schedule.
+ * It uses a ScheduledExecutorService to execute the tasks periodically.
+ * In this implementation, it schedules only the UpdateAverageRatingTask to execute every 12 hours.
+ * @see ScheduledExecutorService
+ * @see ExecutorTaskService
+ * @see Task
+ * @see UpdateAverageRatingTask
+ */
 public class PeriodicExecutorTaskServiceImpl implements ExecutorTaskService {
     private static volatile ExecutorTaskService instance = null;
     private final ScheduledExecutorService scheduledExecutorService;
@@ -18,10 +27,10 @@ public class PeriodicExecutorTaskServiceImpl implements ExecutorTaskService {
         this.scheduledExecutorService = Executors.newScheduledThreadPool(1);
     }
 
-
     /**
-     * Returns the singleton instance of PeriodicExecutorTaskServiceImpl.
-     * If the instance is null, it creates a new one.
+     * Method to get the singleton instance of PeriodicExecutorTaskServiceImpl.
+     * It uses double-checked locking to ensure thread safety.
+     *
      * @return The singleton instance of PeriodicExecutorTaskServiceImpl
      */
     public static ExecutorTaskService getInstance() {
@@ -35,12 +44,19 @@ public class PeriodicExecutorTaskServiceImpl implements ExecutorTaskService {
         return instance;
     }
 
+    /**
+     * Executes the given task.
+     * In this implementation, the method does nothing as the tasks are executed periodically.
+     *
+     * @param task The task to be executed
+     */
     @Override
     public void executeTask(Task task) {}
 
     /**
-     * Starts the service by scheduling a periodic task.
-     * In this implementation, it schedules the UpdateAverageRatingTask to execute every 12 hours.
+     * Starts the service by scheduling the UpdateAverageRatingTask to execute every 12 hours.
+     * The task is executed immediately and then every 12 hours.
+     * If the task throws a BusinessException, a RuntimeException is thrown.
      */
     @Override
     public void start() {
@@ -54,18 +70,17 @@ public class PeriodicExecutorTaskServiceImpl implements ExecutorTaskService {
         }, 0, 12, HOURS);
     }
 
-
     /**
-     * Stops the service by shutting down the ScheduledExecutorService.
-     * It waits for a maximum of 2 minutes for the scheduled tasks to complete.
-     * If tasks do not complete within this time, they are forcefully shut down.
-     * If the thread is interrupted while waiting, a RuntimeException is thrown.
+     * Stops the service by shutting down the ScheduledExecutorService and waiting for a maximum of 10 minutes
+     * for the tasks to complete. If the tasks do not complete within the timeout, the ScheduledExecutorService
+     * is forcefully shut down.
+     * If the thread is interrupted while waiting for termination, a RuntimeException is thrown.
      */
     @Override
     public void stop() {
         scheduledExecutorService.shutdown();
         try{
-            if (!scheduledExecutorService.awaitTermination(2, MINUTES)) {
+            if (!scheduledExecutorService.awaitTermination(10, MINUTES)) {
                 scheduledExecutorService.shutdownNow();
             }
 

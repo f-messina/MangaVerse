@@ -2,17 +2,15 @@ package it.unipi.lsmsd.fnf.service.impl;
 
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
-import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dao.mongo.BaseMongoDBDAO;
 import it.unipi.lsmsd.fnf.dao.neo4j.BaseNeo4JDAO;
-import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
-import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
-import it.unipi.lsmsd.fnf.model.enums.Gender;
+import it.unipi.lsmsd.fnf.dto.registeredUser.UserRegistrationDTO;
+import it.unipi.lsmsd.fnf.dto.registeredUser.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import it.unipi.lsmsd.fnf.service.ServiceLocator;
 import it.unipi.lsmsd.fnf.service.enums.ExecutorTaskServiceType;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
-import it.unipi.lsmsd.fnf.service.impl.asinc_user_tasks.UpdateNumberOfFollowedTask;
+import it.unipi.lsmsd.fnf.service.impl.asinc_user_tasks.UpdateNumberOfFollowingsTask;
 import it.unipi.lsmsd.fnf.service.impl.asinc_user_tasks.UpdateNumberOfFollowersTask;
 import it.unipi.lsmsd.fnf.service.interfaces.ExecutorTaskService;
 import it.unipi.lsmsd.fnf.service.interfaces.TaskManager;
@@ -23,14 +21,10 @@ import org.bson.conversions.Bson;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.neo4j.driver.Session;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static it.unipi.lsmsd.fnf.dao.neo4j.BaseNeo4JDAO.getSession;
 import static it.unipi.lsmsd.fnf.service.ServiceLocator.getExecutorTaskService;
 
 class UserServiceImplTest {
@@ -148,34 +142,6 @@ class UserServiceImplTest {
     }
 
     @Test
-    void getFollowingsTest() {
-        try {
-            UserService userService = new UserServiceImpl();
-            UserSummaryDTO userSummaryDTO = userService.searchFirstNUsers("exampleUser", 1, null).getFirst();
-            System.out.println(userService.getFollowings(userSummaryDTO.getId(), null));
-            Thread.sleep(2*1000);
-        } catch (BusinessException e) {
-            System.err.println(e.getMessage() + " " + e.getType());
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Test
-    void getFollowersTest() {
-        try {
-            UserService userService = new UserServiceImpl();
-            UserSummaryDTO userSummaryDTO = userService.searchFirstNUsers("exampleUser2", 1, null).getFirst();
-            System.out.println(userService.getFollowers(userSummaryDTO.getId(), null));
-            Thread.sleep(2*1000);
-        } catch (BusinessException e) {
-            System.err.println(e.getMessage() + " " + e.getType());
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Test
     void getUserByIdTest() {
         try {
             UserService userService = new UserServiceImpl();
@@ -260,7 +226,7 @@ class UserServiceImplTest {
         try {
             List<String> usersIds = getUserIds();
             for(String userId : usersIds) {
-                UpdateNumberOfFollowedTask task = new UpdateNumberOfFollowedTask(userId);
+                UpdateNumberOfFollowingsTask task = new UpdateNumberOfFollowingsTask(userId);
                 aperiodicExecutorTaskService.executeTask(task);
             }
             Thread.sleep(10000);

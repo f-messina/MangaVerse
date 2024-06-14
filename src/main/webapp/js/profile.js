@@ -83,6 +83,19 @@ function validatePictureUrl() {
     img.src = pictureUrl.val();
 }
 
+$(".password-toggle-icon").click(function() {
+    const passwordField = $("#password");
+    const togglePasswordIcon = $(".password-toggle-icon .fa");
+    if (passwordField.attr("type") === "password") {
+        passwordField.attr("type", "text");
+        togglePasswordIcon.removeClass("fa-eye");
+        togglePasswordIcon.addClass("fa-eye-slash");
+    } else {
+        passwordField.attr("type", "password");
+        togglePasswordIcon.removeClass("fa-eye-slash");
+        togglePasswordIcon.addClass("fa-eye");
+    }
+});
 
 function showEditForm() {
     resetForm();
@@ -196,7 +209,6 @@ function getModifiedInfo() {
 }
 
 editButton.click(function() {
-
     const inputData = getModifiedInfo();
     if (Object.keys(inputData).length === 0) {
         $("#general-error").text("No changes made.");
@@ -545,30 +557,16 @@ function fetchSuggestions(mediaContentType, criteria, value){
         value = new Date(value).getFullYear();
     }
 
-    const suggestionsList = $("#" + mediaContentType + "-suggestions-lists")
-    const text = criteria === "location" ? "in your country" : "with the same age";
-    const suggestionTitle = $("<h2>").addClass("suggestion-title").text("Other users " + text + " also like:");
-
     $.post(`${contextPath}/profile`,{
         action: "suggestedMediaContent",
         type: mediaContentType,
         criteria: criteria,
         value: value
     },function (data){
-
         if (data.success) {
             displaySuggestions(data.suggestedMediaContent, criteria, mediaContentType);
-        } else if (data.notFoundError) {
-            const message = criteria === "location" ? "No suggestions found in your country" : "No suggestions found with the same age";
-            suggestionsList.append(suggestionTitle, message)
-        } else {
-            const message = $("<p>").addClass("error").text("An error occurred while fetching suggestions.");
-            suggestionsList.append(suggestionTitle, message);
         }
-    }).fail(function () {
-        const message = $("<p>").addClass("error").text("An error occurred while fetching suggestions.");
-        suggestionsList.append(suggestionTitle, message);
-    });
+    })
 }
 function displaySuggestions(suggestions, criteria, mediaContentType) {
     if (!suggestions || suggestions.length === 0) {

@@ -8,9 +8,9 @@ import it.unipi.lsmsd.fnf.dao.exception.*;
 import it.unipi.lsmsd.fnf.dao.exception.enums.DAOExceptionType;
 import it.unipi.lsmsd.fnf.dao.exception.enums.DuplicatedExceptionType;
 import it.unipi.lsmsd.fnf.dao.interfaces.UserDAO;
-import it.unipi.lsmsd.fnf.dto.LoggedUserDTO;
-import it.unipi.lsmsd.fnf.dto.UserRegistrationDTO;
-import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
+import it.unipi.lsmsd.fnf.dto.registeredUser.LoggedUserDTO;
+import it.unipi.lsmsd.fnf.dto.registeredUser.UserRegistrationDTO;
+import it.unipi.lsmsd.fnf.dto.registeredUser.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.model.enums.UserType;
 import it.unipi.lsmsd.fnf.model.registeredUser.RegisteredUser;
@@ -33,11 +33,13 @@ import static com.mongodb.client.model.Sorts.descending;
 import static it.unipi.lsmsd.fnf.utils.DocumentUtils.RegisteredUserToDocument;
 import static it.unipi.lsmsd.fnf.utils.DocumentUtils.UserToUnsetUserFieldsDocument;
 
-
 /**
  * Implementation of UserDAO interface for MongoDB data access.
  * Provides methods for user registration, authentication, updating, and removal,
  * as well as methods for querying user data and performing statistical analyses.
+ * @see BaseMongoDBDAO
+ * @see UserDAO
+ * @see User
  */
 public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
     private static final String COLLECTION_NAME = "users";
@@ -557,6 +559,7 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
     }
 
     // Methods available only in Neo4J
+
     @Override
     public void follow(String followerUserId, String followingUserId) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
@@ -565,47 +568,30 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
     public void unfollow(String followerUserId, String followingUserId) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
-
     @Override
     public boolean isFollowing(String followerUserId, String followedUserId) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
-
     @Override
     public Integer getNumOfFollowers(String userId) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
-
     @Override
     public Integer getNumOfFollowed(String userId) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
-
-    @Override
-    public List<UserSummaryDTO> getFirstNFollowing(String userId, String loggedUser) throws DAOException {
-        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
-    }
-
     @Override
     public List<UserSummaryDTO> searchFollowing(String userId, String username, String loggedUserId) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
-
-    @Override
-    public List<UserSummaryDTO> getFirstNFollowers(String userId, String loggedUserId) throws DAOException {
-        throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
-    }
-
     @Override
     public List<UserSummaryDTO> searchFollowers(String userId, String username, String loggedUserId) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
-
     @Override
     public List<UserSummaryDTO> suggestUsersByCommonFollowings(String userId, Integer limit) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");
     }
-
     @Override
     public List<UserSummaryDTO> suggestUsersByCommonLikes(String userId, Integer limit, MediaContentType type) throws DAOException {
         throw new DAOException(DAOExceptionType.UNSUPPORTED_OPERATION, "Method not available in MongoDB");

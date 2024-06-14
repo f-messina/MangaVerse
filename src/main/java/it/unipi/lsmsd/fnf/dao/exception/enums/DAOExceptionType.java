@@ -1,5 +1,8 @@
 package it.unipi.lsmsd.fnf.dao.exception.enums;
 
+/**
+ * Enumerates the types of exceptions that can be thrown by the DAO layer.
+ */
 public enum DAOExceptionType {
     DUPLICATED_KEY,
     GENERIC_ERROR,

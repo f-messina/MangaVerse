@@ -14,7 +14,7 @@ import java.util.Objects;
 /**
  * Task for updating the number of followed users for a specific user.
  */
-public class UpdateNumberOfFollowedTask extends Task {
+public class UpdateNumberOfFollowingsTask extends Task {
     private final UserDAO mongoDbUserDAO;
     private final UserDAO neo4jUserDAO;
     private final String userId;
@@ -24,7 +24,7 @@ public class UpdateNumberOfFollowedTask extends Task {
      *
      * @param userId The ID of the user whose number of followed users needs to be updated.
      */
-    public UpdateNumberOfFollowedTask(String userId) {
+    public UpdateNumberOfFollowingsTask(String userId) {
         super(5);
         this.userId = userId;
         this.mongoDbUserDAO = DAOLocator.getUserDAO(DataRepositoryEnum.MONGODB);

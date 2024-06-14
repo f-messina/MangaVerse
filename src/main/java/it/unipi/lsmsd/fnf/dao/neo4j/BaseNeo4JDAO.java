@@ -24,7 +24,7 @@ public abstract class BaseNeo4JDAO {
     /**
      * Opens a connection to the graph database
      *
-     * @throws DAOException CONNECTION_ERROR if an error occurs while opening the connection
+     * @throws DAOException if an error occurs while opening the connection
      */
     public static void openConnection() throws DAOException {
         if(driver == null){
@@ -39,9 +39,22 @@ public abstract class BaseNeo4JDAO {
     }
 
     /**
+     * Returns a session to the graph database
+     *
+     * @throws DAOException if an error occurs if the connection was not previously opened
+     */
+    public static Session getSession() throws DAOException {
+        if(driver == null){
+            logger.error("Neo4jBaseDAO: Connection to Neo4j not opened (getSession)");
+            throw new DAOException("Connection to Neo4j not opened");
+        }
+        return driver.session(SessionConfig.builder().withDatabase("neo4j").build());
+    }
+
+    /**
      * Closes the connection to the graph database
      *
-     * @throws DAOException CONNECTION_ERROR if an error occurs while closing the connection
+     * @throws DAOException if an error occurs while closing the connection or if the connection was not previously opened
      */
     public static void closeConnection() throws DAOException {
         if(driver != null){
@@ -57,18 +70,5 @@ public abstract class BaseNeo4JDAO {
             logger.error("Neo4jBaseDAO: Connection to Neo4j not opened (closeConnection)");
             throw new DAOException("Connection to Neo4j not opened");
         }
-    }
-
-    /**
-     * Returns a session to the graph database
-     *
-     * @throws DAOException CONNECTION_ERROR if an error occurs if the connection was not previously opened
-     */
-    public static Session getSession() throws DAOException {
-        if(driver == null){
-            logger.error("Neo4jBaseDAO: Connection to Neo4j not opened (getSession)");
-            throw new DAOException("Connection to Neo4j not opened");
-        }
-        return driver.session(SessionConfig.builder().withDatabase("neo4j").build());
     }
 }

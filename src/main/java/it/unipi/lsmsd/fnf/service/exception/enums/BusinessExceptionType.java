@@ -1,5 +1,8 @@
 package it.unipi.lsmsd.fnf.service.exception.enums;
 
+/**
+ * Enum that represents the type of the BusinessException
+ */
 public enum BusinessExceptionType {
     GENERIC_ERROR,
     INVALID_TYPE,
@@ -7,13 +10,10 @@ public enum BusinessExceptionType {
     DUPLICATED_USERNAME,
     DUPLICATED_EMAIL,
     DUPLICATED_KEY,
-    NO_NAME,
-    NO_USER,
     EMPTY_FIELDS,
     NOT_FOUND,
     RETRYABLE_ERROR,
-    DATABASE_ERROR, NO_CHANGE,
-    NO_LIKES,
-    NO_REVIEWS,
+    DATABASE_ERROR,
+    NO_CHANGE,
     INVALID_INPUT;
 }

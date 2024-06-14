@@ -1,6 +1,5 @@
 package it.unipi.lsmsd.fnf.dao;
 
-
 import it.unipi.lsmsd.fnf.dao.enums.DataRepositoryEnum;
 import it.unipi.lsmsd.fnf.dao.interfaces.MediaContentDAO;
 import it.unipi.lsmsd.fnf.dao.interfaces.ReviewDAO;
@@ -11,8 +10,15 @@ import it.unipi.lsmsd.fnf.dao.neo4j.MangaDAONeo4JImpl;
 import it.unipi.lsmsd.fnf.dao.neo4j.UserDAONeo4JImpl;
 import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
 import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
+
 /**
  * This class provides a locator for various Data Access Objects (DAOs) based on the specified data repository.
+ * It is a singleton class that provides the DAOs to the application.
+ * The class provides methods to retrieve the appropriate DAO for handling Anime, Manga, User, and Review operations.
+ * The methods check also if the specified data repository is supported (MongoDB or Neo4j).
+ * @see MediaContentDAO
+ * @see UserDAO
+ * @see ReviewDAO
  */
 public class DAOLocator {
 

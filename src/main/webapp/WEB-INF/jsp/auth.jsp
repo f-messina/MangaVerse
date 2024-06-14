@@ -59,10 +59,10 @@
                     <label for="gender">Gender</label>
                     <input type="text" class="form-control" id="gender" name="gender" readonly>
                     <div class="dropdown-options">
-                        <a class="option" data-value="male">Male</a>
-                        <a class="option" data-value="female">Female</a>
-                        <a class="option" data-value="non_binary">Non Binary</a>
-                        <a class="option" data-value="unknown">I prefer not to answer</a>
+                        <a class="option" data-value="MALE">Male</a>
+                        <a class="option" data-value="FEMALE">Female</a>
+                        <a class="option" data-value="NON_BINARY">Non Binary</a>
+                        <a class="option" data-value="UNKNOWN">I prefer not to answer</a>
                     </div>
                 </div>
                 <div class="pb-3">

@@ -9,10 +9,10 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import it.unipi.lsmsd.fnf.controller.exception.NotAuthorizedException;
-import it.unipi.lsmsd.fnf.dto.LoggedUserDTO;
+import it.unipi.lsmsd.fnf.dto.registeredUser.LoggedUserDTO;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
-import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
+import it.unipi.lsmsd.fnf.dto.registeredUser.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.model.enums.UserType;
@@ -160,14 +160,17 @@ public class ProfileServlet extends HttpServlet {
         response.getWriter().write(jsonResponse.toString());
     }
 
+    // Delete the user and all its reviews
     private void handleDelete(HttpServletRequest request, HttpServletResponse response) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode jsonResponse = objectMapper.createObjectNode();
+
         try {
             LoggedUserDTO authUser = SecurityUtils.getAuthenticatedUser(request);
             List<String> reviewsIds = Arrays.stream(objectMapper.readValue(request.getParameter("reviewsIds"), String[].class)).toList();
             userService.deleteUser(authUser.getId(), reviewsIds);
             jsonResponse.put("success", true);
+
         } catch (BusinessException e) {
             jsonResponse.put("error", e.getMessage());
         }
@@ -411,7 +414,6 @@ public class ProfileServlet extends HttpServlet {
 
         String userId = request.getParameter("userId");
         String suggestionType = request.getParameter("suggestionType");
-        logger.info("Suggestion type: " + suggestionType + " User Id: " + userId);
         if (userId == null){
             jsonResponse.put("error", "User Id not specified");
         }else{
@@ -424,7 +426,6 @@ public class ProfileServlet extends HttpServlet {
                 } else if (suggestionType.equals("likes")){
                     suggestedUsers = userService.suggestUsersByCommonLikes(userId);
                 }
-                logger.info("Suggested users: " + suggestedUsers);
                 if (suggestedUsers == null || suggestedUsers.isEmpty()) {
                     jsonResponse.put("notFoundError", true);
                 } else {

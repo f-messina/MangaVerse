@@ -112,43 +112,47 @@
             </div>
 
             <c:if test="${isLogged and !isManager}">
-                <!-- suggestions by likes -->
-                <div class="landing-section">
-                    <div class="title link">
-                        <h3>Recommended for you</h3>
-                        <div class="expand clickable" onclick="viewAll('suggestionsByLikes', this)">View All</div>
-                    </div>
-                    <div class="results">
-                        <c:forEach items="${requestScope.suggestionsByLikes}" var="anime">
-                            <div class="media-card" >
-                                <a href="${pageContext.request.contextPath}/manga?mediaId=${anime.getId()}" class="cover">
-                                    <img src="${anime.getImageUrl()}" class="image loaded">
-                                </a>
-                                <a href="${pageContext.request.contextPath}/manga?mediaId=${anime.getId()}" class="title">${anime.getTitle()}</a>
-                            </div>
-                        </c:forEach>
-                    </div>
-                    <div class="results extended" style="display: none"></div>
+            <c:if test="${not empty requestScope.suggestionsByLikes}">
+            <!-- suggestions by likes -->
+            <div class="landing-section">
+                <div class="title link">
+                    <h3>Recommended for you</h3>
+                    <div class="expand clickable" onclick="viewAll('suggestionsByLikes', this)">View All</div>
                 </div>
+                <div class="results">
+                    <c:forEach items="${requestScope.suggestionsByLikes}" var="anime">
+                        <div class="media-card" >
+                            <a href="${pageContext.request.contextPath}/manga?mediaId=${anime.getId()}" class="cover">
+                                <img src="${anime.getImageUrl()}" class="image loaded">
+                            </a>
+                            <a href="${pageContext.request.contextPath}/manga?mediaId=${anime.getId()}" class="title">${anime.getTitle()}</a>
+                        </div>
+                    </c:forEach>
+                </div>
+                <div class="results extended" style="display: none"></div>
+            </div>
+            </c:if>
 
-                <!-- suggestions by followings -->
-                <div class="landing-section">
-                    <div class="title link">
-                        <h3>Recommended by your followings</h3>
-                        <div class="expand clickable" onclick="viewAll('suggestionsByFollowings', this)">View All</div>
-                    </div>
-                    <div class="results">
-                        <c:forEach items="${requestScope.suggestionsByFollowings}" var="anime">
-                            <div class="media-card" >
-                                <a href="${pageContext.request.contextPath}/anime?mediaId=${anime.getId()}" class="cover">
-                                    <img src="${anime.getImageUrl()}" class="image loaded">
-                                </a>
-                                <a href="${pageContext.request.contextPath}/anime?mediaId=${anime.getId()}" class="title">${anime.getTitle()}</a>
-                            </div>
-                        </c:forEach>
-                    </div>
-                    <div class="results extended" style="display: none"></div>
+            <c:if test="${not empty requestScope.suggestionsByFollowings}">
+            <!-- suggestions by followings -->
+            <div class="landing-section">
+                <div class="title link">
+                    <h3>Recommended by your followings</h3>
+                    <div class="expand clickable" onclick="viewAll('suggestionsByFollowings', this)">View All</div>
                 </div>
+                <div class="results">
+                    <c:forEach items="${requestScope.suggestionsByFollowings}" var="anime">
+                        <div class="media-card" >
+                            <a href="${pageContext.request.contextPath}/anime?mediaId=${anime.getId()}" class="cover">
+                                <img src="${anime.getImageUrl()}" class="image loaded">
+                            </a>
+                            <a href="${pageContext.request.contextPath}/anime?mediaId=${anime.getId()}" class="title">${anime.getTitle()}</a>
+                        </div>
+                    </c:forEach>
+                </div>
+                <div class="results extended" style="display: none"></div>
+            </div>
+            </c:if>
             </c:if>
         </div>
 

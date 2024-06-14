@@ -1,9 +1,18 @@
-package it.unipi.lsmsd.fnf.dto;
+package it.unipi.lsmsd.fnf.dto.registeredUser;
 
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
+/**
+ * Data Transfer Object for the User class.
+ * It contains a reduced set of information of a user.
+ * It is used to store information to be displayed in lists (inside reviews, in search results, etc.),
+ * to store redundant information used in reviews and anime/manga collections in MongoDB and
+ * to manipulate nodes in Neo4j.
+ * @see User
+ */
 public class UserSummaryDTO {
 
     private String id;
@@ -79,9 +88,16 @@ public class UserSummaryDTO {
                 "id='" + id + '\'' +
                 ", username='" + username + '\'' +
                 ", profilePicUrl='" + profilePicUrl + '\'' +
+                ", location='" + location + '\'' +
+                ", birthDate=" + birthDate +
                 '}';
     }
 
+    /**
+     * Converts a UserSummaryDTO object to a User object.
+     *
+     * @return The User object.
+     */
     public User toModel() {
         User user = new User();
         user.setId(this.getId());
@@ -90,5 +106,31 @@ public class UserSummaryDTO {
         user.setLocation(this.getLocation());
         user.setBirthday(this.getBirthDate());
         return user;
+    }
+
+    /**
+     * Compares two UserSummaryDTO objects.
+     *
+     * @param o The object to compare to.
+     * @return True if the objects are equal, false otherwise.
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        UserSummaryDTO that = (UserSummaryDTO) o;
+        return Objects.equals(id, that.id) &&
+                Objects.equals(username, that.username) &&
+                Objects.equals(profilePicUrl, that.profilePicUrl);
+    }
+
+    /**
+     * Generates a hash code for a UserSummaryDTO object.
+     *
+     * @return The hash code.
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, username, profilePicUrl);
     }
 }

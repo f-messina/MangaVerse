@@ -1,14 +1,14 @@
 package it.unipi.lsmsd.fnf.model.mediaContent;
 
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
-import it.unipi.lsmsd.fnf.model.Review;
 import it.unipi.lsmsd.fnf.model.enums.AnimeStatus;
 import it.unipi.lsmsd.fnf.model.enums.AnimeType;
 
 import java.util.List;
 
 /**
- * Represents an this media content.
+ * Model class representing an anime.
+ * It extends the MediaContent class and adds the specific attributes of an anime.
  */
 public class Anime extends MediaContent {
     private Integer year;
@@ -94,7 +94,14 @@ public class Anime extends MediaContent {
     @Override
     public String toString() {
         return "Anime{" +
-                super.toString() +
+                "id='" + id + '\'' +
+                ", title='" + title + '\'' +
+                ", imageUrl='" + imageUrl + '\'' +
+                ", averageRating='" + averageRating + '\'' +
+                ", synopsis='" + synopsis + '\'' +
+                ", likes='" + likes + '\'' +
+                ", reviewIds='" + reviewIds + '\'' +
+                ", latestReviews='" + latestReviews + '\'' +
                 ", year=" + year +
                 ", season='" + season + '\'' +
                 ", episodeCount='" + episodeCount + '\'' +
@@ -102,9 +109,16 @@ public class Anime extends MediaContent {
                 ", relatedAnime=" + relatedAnime +
                 ", producers='" + producers + '\'' +
                 ", studios='" + studios + '\'' +
+                ", type=" + type +
+                ", status=" + status +
                 '}';
     }
 
+    /**
+     * Converts the Anime object to an AnimeDTO object.
+     *
+     * @return The AnimeDTO object representing the Anime object.
+     */
     public AnimeDTO toDTO() {
         return new AnimeDTO(this.getId(), this.getTitle(), this.getImageUrl(), this.getAverageRating(), this.getYear(), this.getSeason());
     }

@@ -1,11 +1,17 @@
 package it.unipi.lsmsd.fnf.dto;
 
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
+import it.unipi.lsmsd.fnf.dto.registeredUser.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.model.Review;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+/**
+ * Data Transfer Object for the Review class.
+ * Because the Review class is a composition of other Model classes but the review itself doesn't have a lot of attributes,
+ * this DTO is used for almost all the operations that involve the review.
+ * @see Review
+ */
 public class ReviewDTO {
     private String id;
     private LocalDateTime date;
@@ -98,6 +104,11 @@ public class ReviewDTO {
                 '}';
     }
 
+    /**
+     * Converts the DTO to the Model class.
+     *
+     * @return the Review object.
+     */
     public Review toModel() {
         Review review = new Review();
         review.setId(this.getId());

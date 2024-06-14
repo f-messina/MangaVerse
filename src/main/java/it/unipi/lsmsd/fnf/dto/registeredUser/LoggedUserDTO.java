@@ -1,10 +1,17 @@
-package it.unipi.lsmsd.fnf.dto;
+package it.unipi.lsmsd.fnf.dto.registeredUser;
 
 import it.unipi.lsmsd.fnf.model.enums.UserType;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 
 import java.time.LocalDate;
 
+/**
+ * Data Transfer Object for the User class.
+ * It is used to store information of a logged user that are displayed in the frontend
+ * or that are necessary to perform some operations and reduce the amount of data exchanged.
+ * @see User
+ * @see UserType
+ */
 public class LoggedUserDTO {
 
     private String id;
@@ -14,8 +21,7 @@ public class LoggedUserDTO {
     private LocalDate birthday;
     private UserType type;
 
-    public LoggedUserDTO() {
-    }
+    public LoggedUserDTO() {}
 
     public LoggedUserDTO(String id, String username, String profilePicUrl, String location, LocalDate birthday, UserType type) {
         this.id = id;
@@ -86,7 +92,16 @@ public class LoggedUserDTO {
                 '}';
     }
 
+    /**
+     * Converts a LoggedUserDTO object to a User object.
+     *
+     * @return The User object.
+     */
     public User toUserModel() {
+        if (this.type == UserType.MANAGER) {
+            return null;
+        }
+
         User user = new User();
         user.setId(this.getId());
         user.setUsername(this.getUsername());

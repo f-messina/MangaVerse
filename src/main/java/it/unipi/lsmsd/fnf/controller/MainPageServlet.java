@@ -18,6 +18,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -139,24 +140,21 @@ public class MainPageServlet extends HttpServlet {
 
         try {
             PageDTO<? extends MediaContentDTO> mediaList;
-            List<Map<String, Object>> filters;
+            List<Pair<String, Object>> filters;
 
             if (request.getAttribute("mediaType").equals("manga")) {
                 filters = ConverterUtils.fromRequestToMangaFilters(request);
-                logger.info("manga filters");
             } else {
                 filters = ConverterUtils.fromRequestToAnimeFilters(request);
-                logger.info("anime filters");
             }
 
             // Take order parameter and direction
             String order = request.getParameter("sortParam");
             int direction = Integer.parseInt(request.getParameter("sortDirection"));
             Map<String, Integer> orderBy = Map.of(order, direction);
-            logger.info("sorting");
 
             mediaList = mediaContentService.searchByFilter(filters, orderBy, page, mediaContentType);
-            logger.info("list: " + mediaList.getTotalCount() + " elements");
+
             // Add the search results to the JSON response
             if (mediaList.getTotalCount() == 0) {
                 jsonResponse.put("noResults", "No results found");

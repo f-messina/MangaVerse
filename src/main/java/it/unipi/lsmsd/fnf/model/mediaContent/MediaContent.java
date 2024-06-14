@@ -5,6 +5,10 @@ import it.unipi.lsmsd.fnf.model.Review;
 
 import java.util.List;
 
+/**
+ * Abstract class representing a media content.
+ * It contains the common attributes of all the media content types (Anime, Manga).
+ */
 public abstract class MediaContent {
     protected String id;
     protected String title;
@@ -13,7 +17,7 @@ public abstract class MediaContent {
     protected String synopsis;
     protected Integer likes;
     protected List<String> reviewIds;
-    private List<Review> latestReviews;
+    protected List<Review> latestReviews;
 
     public String getId() {
         return id;
@@ -96,8 +100,8 @@ public abstract class MediaContent {
                 ", averageRating='" + averageRating + '\'' +
                 ", synopsis='" + synopsis + '\'' +
                 ", likes='" + likes + '\'' +
-                ", reviewIds=" + reviewIds +
-                ", latestReviews=" + latestReviews +
+                ", reviewIds='" + reviewIds + '\'' +
+                ", latestReviews='" + latestReviews + '\'' +
                 '}';
     }
 

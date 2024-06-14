@@ -1,7 +1,6 @@
 package it.unipi.lsmsd.fnf.model.enums;
 
 import it.unipi.lsmsd.fnf.utils.Constants;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * Enumeration representing different genders.
@@ -13,18 +12,13 @@ public enum Gender {
     UNKNOWN(4);
     private final int code;
 
-    /**
-     * Constructor for Gender enum.
-     * @param code The code associated with the enum value.
-     */
     Gender(int code){
-        this.code=code;
+        this.code = code;
+    }
+    public int getCode() {
+        return code;
     }
 
-    /**
-     * Returns a string representation of the enum value.
-     * @return A string representation of the enum value.
-     */
     public String toString() {
         String enumName = name().toLowerCase();
         if (enumName.equals("unknown")) {
@@ -51,13 +45,5 @@ public enum Gender {
             case null -> UNKNOWN;
             default -> throw new IllegalArgumentException("No enum constant for string: " + value);
         };
-    }
-
-    /**
-     * Returns the code associated with the enum value.
-     * @return The code associated with the enum value.
-     */
-    public int getCode() {
-        return code;
     }
 }

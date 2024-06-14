@@ -503,6 +503,25 @@ select.form-control {
     padding-top: 1.5rem;
 }
 
+.password-toggle-icon {
+    position: absolute;
+    top: 237px;
+    right: 20px;
+    cursor: pointer;
+    background: white;
+}
+
+.password-toggle-icon i {
+    font-size: 24px;
+    line-height: 1;
+    color: #69707a;
+    transition: color 0.3s ease-in-out;
+}
+
+.password-toggle-icon i:hover {
+    color: #000;
+}
+
 @media (min-width: 768px) {
     .col-md-6 {
         flex: 0 0 auto;
@@ -510,6 +529,9 @@ select.form-control {
     }
     #country-error {
         position: absolute;
+    }
+    .password-toggle-icon {
+        top: 160px;
     }
 }
 

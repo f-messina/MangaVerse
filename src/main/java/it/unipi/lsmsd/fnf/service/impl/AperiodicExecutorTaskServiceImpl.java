@@ -8,89 +8,34 @@ import it.unipi.lsmsd.fnf.service.interfaces.TaskManager;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Logger;
 
 import static java.util.concurrent.TimeUnit.MINUTES;
 
+/**
+ * Implementation of ExecutorTaskService that executes tasks in a separate thread without a fixed schedule.
+ * It uses an ExecutorService to execute the tasks.
+ * If a task throws a BusinessException with type RETRYABLE_ERROR, the task is added back to the task manager
+ * to be retried later. If the BusinessException has any other type, the task is not retried and an error message is logged.
+ * @see ExecutorTaskService
+ * @see Task
+ * @see TaskManager
+ */
 public class AperiodicExecutorTaskServiceImpl implements ExecutorTaskService {
-
     private static volatile ExecutorTaskService instance = null;
-    private ExecutorService executorService;
-    private TaskManager taskManager;
+    private final ExecutorService executorService;
+    private final TaskManager taskManager;
+    Logger logger = Logger.getLogger(AperiodicExecutorTaskServiceImpl.class.getName());
 
     private AperiodicExecutorTaskServiceImpl(TaskManager taskManager) {
         executorService = Executors.newFixedThreadPool(10);
         this.taskManager = taskManager;
     }
-    @Override
-    public synchronized void start() {}
 
     /**
-     * Gracefully stops the execution service, ensuring that all running tasks are completed
-     * or forcefully terminated if they do not finish within a specified timeout.
-     *
-     * This method first initiates an orderly shutdown in which previously submitted tasks are executed,
-     * but no new tasks will be accepted. It then waits for up to 2 minutes for the completion of all
-     * tasks. If the service fails to terminate within this time, it forcefully shuts down by interrupting
-     * the running tasks.
-     *
-     * This method is synchronized to ensure that it is thread-safe and that only one thread can stop the
-     * service at a time.
-     *
-     * @throws RuntimeException if the thread is interrupted while waiting for termination
-     */
-    @Override
-    public synchronized void stop() {
-        executorService.shutdown();
-        try{
-            if (!executorService.awaitTermination(2, MINUTES)) {
-                executorService.shutdownNow();
-            }
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-
-    }
-
-    /**
-     * Executes a given task asynchronously using the executor service.
-     * If the task execution fails with a retryable error, the task is re-added
-     * to the task manager for a future retry. For non-retryable errors, an error
-     * message is logged to the standard error stream. Any other unexpected exceptions
-     * will result in a RuntimeException being thrown.
-     *
-     * This method is synchronized to ensure thread safety, preventing multiple threads
-     * from executing tasks simultaneously.
-     *
-     * @param task The task to be executed.
-     */
-    @Override
-    public synchronized void executeTask(Task task) {
-       executorService.execute(() -> {
-           try {
-               task.executeJob();
-           } catch (BusinessException e) {
-               if (e.getType().equals(BusinessExceptionType.RETRYABLE_ERROR)) {
-                   taskManager.addTask(task);
-               }
-               else {
-                  System.err.println("Cannot execute task: " + e.getMessage() + " " + task.getClass());
-               }
-           } catch (Exception e) {
-               throw new RuntimeException(e);
-           }
-       });
-    }
-
-    /**
-     * Provides a thread-safe singleton instance of the ExecutorTaskService.
-     * This method ensures that only one instance of AperiodicExecutorTaskServiceImpl
-     * is created, even in a multithreaded environment.
-     *
-     * Double-checked locking is used to ensure that the instance is only created
-     * once. The method first checks if the instance is null, and if so, synchronizes
-     * on the class object to create a new instance. This synchronization block ensures
-     * that only one thread can create the instance, even if multiple threads enter
-     * the method simultaneously.
+     * Returns the singleton instance of AperiodicExecutorTaskServiceImpl.
+     * If the instance is null, it creates a new one.
+     * This method is thread-safe.
      *
      * @param taskManager The TaskManager to be used by the ExecutorTaskService.
      * @return The singleton instance of ExecutorTaskService.
@@ -104,5 +49,62 @@ public class AperiodicExecutorTaskServiceImpl implements ExecutorTaskService {
             }
         }
         return instance;
+    }
+
+    /**
+     * Starts the executor service.
+     * This method is synchronized to ensure thread safety.
+     */
+    @Override
+    public synchronized void start() {}
+
+    /**
+     * Stops the executor service by shutting it down and waiting for a maximum of 2 minutes
+     * for the tasks to complete. If the tasks do not complete within the timeout, the executor
+     * service is forcefully shut down.
+     * If the thread is interrupted while waiting for termination, a RuntimeException is thrown.
+     * This method is synchronized to ensure thread safety.
+     *
+     * @throws RuntimeException if the thread is interrupted while waiting for termination
+     */
+    @Override
+    public synchronized void stop() {
+        executorService.shutdown();
+        try{
+            if (!executorService.awaitTermination(2, MINUTES)) {
+                executorService.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            logger.severe("Error while waiting for termination: " + e.getMessage());
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    /**
+     * Executes the given task by submitting it to the executor service.
+     * If the task throws a BusinessException with type RETRYABLE_ERROR, the task is added
+     * back to the task manager to be retried later. If the BusinessException has any other type,
+     * the task is not retried and an error message is logged.
+     *
+     * @param task The task to be executed.
+     */
+    @Override
+    public synchronized void executeTask(Task task) {
+       executorService.execute(() -> {
+           try {
+               task.executeJob();
+           } catch (BusinessException e) {
+               if (e.getType().equals(BusinessExceptionType.RETRYABLE_ERROR)) {
+                   taskManager.addTask(task);
+               }
+               else {
+                     logger.severe("Cannot execute task: " + e.getMessage() + " " + task.getClass());
+               }
+           } catch (Exception e) {
+                logger.severe("Error while executing task: " + e.getMessage());
+               throw new RuntimeException(e);
+           }
+       });
     }
 }

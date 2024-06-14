@@ -4,7 +4,6 @@ import it.unipi.lsmsd.fnf.dto.ReviewDTO;
 import it.unipi.lsmsd.fnf.model.mediaContent.MediaContent;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class Review {

@@ -4,11 +4,12 @@ import com.mongodb.client.MongoCollection;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
-import it.unipi.lsmsd.fnf.dto.UserSummaryDTO;
+import it.unipi.lsmsd.fnf.dto.registeredUser.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.enums.AnimeStatus;
 import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
+import org.apache.commons.lang3.tuple.Pair;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.AfterEach;
@@ -47,7 +48,7 @@ class AnimeDAOMongoImplTest {
         // test 1
         System.out.println("Search by title");
         assertDoesNotThrow(() -> {
-            List<MediaContentDTO> animeList = animeDAO.search(List.of(Map.of("title", "Attack on Titan")), Map.of("title", 1), 1, false).getEntries();
+            List<MediaContentDTO> animeList = animeDAO.search(List.of(Pair.of("title", "Attack on Titan")), Map.of("title", 1), 1, false).getEntries();
             for (MediaContentDTO anime : animeList) {
                 System.out.println("Id: " + anime.getId() + ", Title: " + anime.getTitle());
             }
@@ -57,7 +58,7 @@ class AnimeDAOMongoImplTest {
         System.out.println("Search by filters");
         assertDoesNotThrow(() -> {
             for (int i = 1; i < 5; i++) {
-                PageDTO<MediaContentDTO> animePage = animeDAO.search(List.of(Map.of("$in",Map.of("tags", List.of("school clubs", "manwha")))), Map.of("title", 1), i, false);
+                PageDTO<MediaContentDTO> animePage = animeDAO.search(List.of(Pair.of("$in",Map.of("tags", List.of("school clubs", "manwha")))), Map.of("title", 1), i, false);
                 if (!animePage.getEntries().isEmpty()) {
                     for (MediaContentDTO anime : animePage.getEntries()) {
                         System.out.println("Id: " + anime.getId() + ", Title: " + anime.getTitle());
@@ -74,7 +75,7 @@ class AnimeDAOMongoImplTest {
     void saveMediaContentTest() throws DAOException {
         AnimeDAOMongoImpl animeDAO = new AnimeDAOMongoImpl();
         Anime anime = createSampleAnime();
-        List<MediaContentDTO> animeList = animeDAO.search(List.of(Map.of("title", "Sample Anime")), Map.of("title", 1), 1, false).getEntries();
+        List<MediaContentDTO> animeList = animeDAO.search(List.of(Pair.of("title", "Sample Anime")), Map.of("title", 1), 1, false).getEntries();
 
         if (animeList.isEmpty()) {
             // test 1
@@ -93,7 +94,7 @@ class AnimeDAOMongoImplTest {
     @Test
     void updateMediaContentTest() throws DAOException {
         AnimeDAOMongoImpl animeDAO = new AnimeDAOMongoImpl();
-        List<MediaContentDTO> animeList = animeDAO.search(List.of(Map.of("title", "Sample Anime")), Map.of("title", 1), 1, false).getEntries();
+        List<MediaContentDTO> animeList = animeDAO.search(List.of(Pair.of("title", "Sample Anime")), Map.of("title", 1), 1, false).getEntries();
 
         // test 1
         if (!animeList.isEmpty()) {
@@ -119,7 +120,7 @@ class AnimeDAOMongoImplTest {
     @Test
     void deleteMediaContentTest() throws DAOException {
         AnimeDAOMongoImpl animeDAO = new AnimeDAOMongoImpl();
-        List<MediaContentDTO> animeList = animeDAO.search(List.of(Map.of("title", "Sample Anime")), Map.of("title", 1), 1, false).getEntries();
+        List<MediaContentDTO> animeList = animeDAO.search(List.of(Pair.of("title", "Sample Anime")), Map.of("title", 1), 1, false).getEntries();
 
         // test 1
         if (!animeList.isEmpty()) {
@@ -139,7 +140,7 @@ class AnimeDAOMongoImplTest {
     @Test
     void readMediaContentTest() throws DAOException {
         AnimeDAOMongoImpl animeDAO = new AnimeDAOMongoImpl();
-        List<MediaContentDTO> animeList = animeDAO.search(List.of(Map.of("title", "\"Bungaku Shoujo\" Movie")), Map.of("title", 1), 1, false).getEntries();
+        List<MediaContentDTO> animeList = animeDAO.search(List.of(Pair.of("title", "\"Bungaku Shoujo\" Movie")), Map.of("title", 1), 1, false).getEntries();
 
         // test 1
         if (!animeList.isEmpty()) {
@@ -160,7 +161,7 @@ class AnimeDAOMongoImplTest {
     @Test
     void upsertReviewTest() throws DAOException {
         AnimeDAOMongoImpl animeDAO = new AnimeDAOMongoImpl();
-        List<MediaContentDTO> animeList = animeDAO.search(List.of(Map.of("title", "Sample Anime")), Map.of("title", 1), 1, false).getEntries();
+        List<MediaContentDTO> animeList = animeDAO.search(List.of(Pair.of("title", "Sample Anime")), Map.of("title", 1), 1, false).getEntries();
 
         if (!animeList.isEmpty()) {
 
@@ -192,7 +193,7 @@ class AnimeDAOMongoImplTest {
         List<String> review_ids = new ArrayList<>();
         review_ids.add("6635632b4276578429f29388");
         AnimeDAOMongoImpl animeDAO = new AnimeDAOMongoImpl();
-        List<MediaContentDTO> animeList = animeDAO.search(List.of(Map.of("title", "Sample Anime")), Map.of("title", 1), 1, false).getEntries();
+        List<MediaContentDTO> animeList = animeDAO.search(List.of(Pair.of("title", "Sample Anime")), Map.of("title", 1), 1, false).getEntries();
         if (!animeList.isEmpty()) {
             String animeId = animeList.getFirst().getId();
 
@@ -219,7 +220,7 @@ class AnimeDAOMongoImplTest {
     void isInLatestReviewsTest() throws DAOException {
         AnimeDAOMongoImpl animeDAO = new AnimeDAOMongoImpl();
 
-        List<MediaContentDTO> animeList = animeDAO.search(List.of(Map.of("title", "Sample Anime")), Map.of("title", 1), 1, false).getEntries();
+        List<MediaContentDTO> animeList = animeDAO.search(List.of(Pair.of("title", "Sample Anime")), Map.of("title", 1), 1, false).getEntries();
         if (!animeList.isEmpty()) {
             String animeId = animeList.getFirst().getId();
             Anime anime = animeDAO.readMediaContent(animeId);
@@ -261,7 +262,7 @@ class AnimeDAOMongoImplTest {
     @Test
     public void updateNumOfLikesTest() throws DAOException {
         AnimeDAOMongoImpl animeDAO = new AnimeDAOMongoImpl();
-        List<MediaContentDTO> animeList = animeDAO.search(List.of(Map.of("title", "Sample Anime")), Map.of("title", 1), 1, false).getEntries();
+        List<MediaContentDTO> animeList = animeDAO.search(List.of(Pair.of("title", "Sample Anime")), Map.of("title", 1), 1, false).getEntries();
         if (!animeList.isEmpty()) {
             String animeId = animeList.getFirst().getId();
             assertDoesNotThrow(() -> {
@@ -271,14 +272,9 @@ class AnimeDAOMongoImplTest {
         }
     }
 
-    //Add a list of reviews id connected to the anime: DONE
     @Test
-    public void addReviewsIdTest() throws DAOException {
-        //Get list of anime ids
-        AnimeDAOMongoImpl animeDAO = new AnimeDAOMongoImpl();
-        //Anime collection
+    public void addReviewsIdTest() {
         MongoCollection<Document> animeCollection = getCollection("anime");
-        //Reviews collection
         MongoCollection<Document> reviewsCollection = getCollection("reviews");
 
         try {
