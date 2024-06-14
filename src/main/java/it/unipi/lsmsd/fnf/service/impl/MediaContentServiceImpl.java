@@ -175,7 +175,6 @@ public class MediaContentServiceImpl implements MediaContentService {
         }
     }
 
-
     /**
      * Searches for media content based on specified filters.
      *
@@ -214,9 +213,9 @@ public class MediaContentServiceImpl implements MediaContentService {
     public PageDTO<MediaContentDTO> searchByTitle(String title, int page, MediaContentType type) throws BusinessException {
         try {
             if (MediaContentType.ANIME.equals(type))
-                return animeDAOMongoDB.search(List.of(Pair.of("$regex", Map.of("title", title))), Map.of("title", 1), page, true);
+                return animeDAOMongoDB.search(List.of(Pair.of("$regex", Pair.of("title", title))), Map.of("title", 1), page, true);
             else {
-                return mangaDAOMongoDB.search(List.of(Pair.of("$regex", Map.of("title", title))), Map.of("title", 1), page, true);
+                return mangaDAOMongoDB.search(List.of(Pair.of("$regex", Pair.of("title", title))), Map.of("title", 1), page, true);
             }
         } catch (DAOException e) {
             if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {

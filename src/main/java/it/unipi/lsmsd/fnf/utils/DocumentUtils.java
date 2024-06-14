@@ -610,18 +610,15 @@ public class DocumentUtils {
             return empty();
         } else {
             List<Bson> filter = buildFilterInternal(filterList);
-            System.out.println("filter: " + filter);
             return and(filter);
         }
     }
 
     private static List<Bson> buildFilterInternal(List<Pair<String, Object>> filterList) {
-        System.out.println("filterList: " + filterList);
         return filterList.stream()
                 .map(filter -> {
                     String key = filter.getKey();
                     Object value = filter.getValue();
-                    System.out.println("key: " + key + " value: " + value);
                     return switch (key) {
                         case "$and" -> and(buildFilterInternal((List<Pair<String, Object>>) value));
                         case "$or" -> or(buildFilterInternal((List<Pair<String, Object>>) value));
