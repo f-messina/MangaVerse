@@ -583,6 +583,57 @@ Some of the most important MongoDB queries for analytic and suggestion purposes.
 %% suggestUsersByCommonFollowings, getMediaContentRatingByYear, getMediaContentRatingByMonth,
 %% suggestMediaContent, getBestCriteria, getTrendMediaContentByYear, getMediaContentTrendByLikes,
 %% getSuggestedByFollowings, getSuggestedByLikes(suggest and trenda are on neo4j, sadece suggest media content mongo db, ona göre mongo ya da neo4j kısmına koy)
+\subsection*{MANGA/ANIME:}
+\textbf{Get Best Criteria}
+\begin{lstlisting}[language=JavaScript, caption=GetDistribution]
+    public Map<String, Integer> getDistribution(String criteria) throws DAOException {
+        try {
+            MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
+
+            List<Bson> pipeline = new ArrayList<>();
+            if (criteria.equals("birthday") || criteria.equals("joined_on")) {
+                pipeline.addAll(List.of(
+                        match(exists(criteria)),
+                        project(fields(computed("year", new Document("$year", "$" + criteria)), include("app_rating" ))),
+                        group("$year", sum("count", 1)),
+                        sort(descending("count"))));
+            } else if (criteria.equals("location") || criteria.equals("gender")) {
+                pipeline.addAll(List.of(
+                        match(exists(criteria)),
+                        project(fields(include(criteria, "app_rating"))),
+                        group("$" + criteria, sum("count", 1)),
+                        sort(descending("count"))));
+            } else {
+                throw new Exception("UserDAOMongoImpl: getDistribution: Invalid criteria");
+            }
+
+            List<Document> aggregationResult = usersCollection.aggregate(pipeline).into(new ArrayList<>());
+            if (aggregationResult.isEmpty()) {
+                throw new MongoException("UserDAOMongoImpl: getDistribution: No data found");
+            }
+
+            Map<String,Integer> map = new LinkedHashMap<>();
+            for (Document doc : aggregationResult) {
+                if (criteria.equals("birthday") || criteria.equals("joined_on")) {
+                    map.put(String.valueOf(doc.getInteger("_id")), doc.getInteger("count"));
+                } else {
+                    map.put(doc.getString("_id"), doc.getInteger("count"));
+                }
+            }
+            return map;
+
+        } catch (MongoException e){
+            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+        } catch (Exception e){
+            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+        }
+    }
+    \end{lstlisting}
+    
+
+
+
+
 
 \textbf{USERS:}
 \begin{itemize}
