@@ -138,8 +138,7 @@ public class UserServlet extends HttpServlet {
 
         try {
             // Get the list of users
-            List<UserSummaryDTO> users;
-            users = userService.searchFirstNUsers(searchValue, 10, loggedUserId);
+            List<UserSummaryDTO> users = userService.searchFirstNUsers(searchValue, 10, loggedUserId);
 
             // Convert the list to a JSON array
             if (users == null || users.isEmpty()) {

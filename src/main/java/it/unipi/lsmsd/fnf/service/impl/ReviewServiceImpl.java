@@ -167,10 +167,8 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public ReviewDTO isReviewedByLoggedUser(String userId, List<String> reviewIds) throws BusinessException {
         try {
-            Logger logger = org.slf4j.LoggerFactory.getLogger(LoggedUserDTO.class);
-            logger.info("Checking if the user has already reviewed the media content in service layer");
-            logger.info("User ID: " + userId + " Review IDs: " + reviewIds);
             return reviewDAO.isReviewedByUser(userId, reviewIds);
+
         } catch (DAOException e) {
             throw new BusinessException(BusinessExceptionType.GENERIC_ERROR, e.getMessage());
         }
@@ -193,6 +191,7 @@ public class ReviewServiceImpl implements ReviewService {
                 throw new BusinessException("Invalid year");
             }
             return reviewDAO.getMediaContentRatingByYear(type, mediaContentId, startYear, endYear);
+
         } catch (DAOException e){
             if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {
                 throw new BusinessException(BusinessExceptionType.NOT_FOUND, e.getMessage());

@@ -16,19 +16,16 @@ import java.util.List;
 
 public class RemoveDeletedUserReviewsTask extends Task {
     private final ReviewDAO reviewDAO;
-    private final String userId;
     private final List<String> reviewsIds;
 
     /**
      * Constructs a RemoveDeletedUserReviewsTask.
      *
-     * @param userId The ID of the deleted user.
      * @param reviewsIds The reviewIds of the deleted user.
      */
-    public RemoveDeletedUserReviewsTask(String userId, List<String> reviewsIds) {
+    public RemoveDeletedUserReviewsTask(List<String> reviewsIds) {
         super(5);
         this.reviewDAO = DAOLocator.getReviewDAO(DataRepositoryEnum.MONGODB);
-        this.userId = userId;
         this.reviewsIds = reviewsIds;
     }
 

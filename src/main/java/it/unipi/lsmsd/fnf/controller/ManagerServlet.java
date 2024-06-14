@@ -87,16 +87,21 @@ public class ManagerServlet extends HttpServlet {
     }
 
     public void handleLoadPage(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String targetJSP = "WEB-INF/jsp/manager.jsp";
         try {
+            // Get the distribution of users by gender
             Map<String, Integer> distribution = userService.getDistribution("gender");
             request.setAttribute("distribution", distribution);
+
+            // Get the average app rating by gender
             Map<String, Double> averageAppRating = userService.averageAppRating("gender");
             request.setAttribute("averageAppRating", averageAppRating);
+
         } catch (BusinessException e) {
-            throw new RuntimeException(e);
+            targetJSP = "WEB-INF/jsp/error.jsp";
         }
 
-        request.getRequestDispatcher("/WEB-INF/jsp/manager.jsp").forward(request, response);
+        request.getRequestDispatcher(targetJSP).forward(request, response);
     }
 
     public void handleGetAnimeDefaultAnalytics(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -312,27 +317,26 @@ public class ManagerServlet extends HttpServlet {
         String criteria = request.getParameter("criteria");
         UserService userService = ServiceLocator.getUserService();
 
+        try {
+            // Get the distribution of users by the specified criteria
+            Map<String, Integer> distribution = userService.getDistribution(criteria);
 
-
-        if (!(criteria.equals("gender") || criteria.equals("location") || criteria.equals("birthday") || criteria.equals("joined_on"))) {
-            jsonResponse.put("error", "Criteria not supported");
-        }
-        else {
-            try {
-                Map<String, Integer> distribution = userService.getDistribution(criteria);
-                jsonResponse.put("success", true);
-
-                JsonNode distributionJson = objectMapper.valueToTree(distribution);
-                jsonResponse.set("results", distributionJson);
-            } catch (BusinessException e) {
-                if (e.getType().equals(BusinessExceptionType.NOT_FOUND)) {
+            // Create the JSON response with the distribution data and the success flag
+            jsonResponse.put("success", true);
+            JsonNode distributionJson = objectMapper.valueToTree(distribution);
+            jsonResponse.set("results", distributionJson);
+        } catch (BusinessException e) {
+            switch (e.getType()) {
+                case INVALID_INPUT:
+                    jsonResponse.put("error", "Criteria not supported");
+                    break;
+                case NOT_FOUND:
                     jsonResponse.put("noData", "No data available");
-                } else {
+                    break;
+                default:
                     jsonResponse.put("error", "An error occurred while processing the request");
-
-                }
+                    break;
             }
-
         }
 
         response.setContentType("application/json");
@@ -347,22 +351,25 @@ public class ManagerServlet extends HttpServlet {
 
         String criteria = request.getParameter("criteria");
 
-        if (!(criteria.equals("gender") || criteria.equals("location") || criteria.equals("age"))) {
-            throw new IllegalArgumentException("Criteria not supported");
-        }
-        else {
-            try {
-                Map<String, Double> averageAppRating = userService.averageAppRating(criteria);
-                jsonResponse.put("success", true);
+        try {
+            // Get the average app rating by the specified criteria
+            Map<String, Double> averageAppRating = userService.averageAppRating(criteria);
 
-                JsonNode averageAppRatingJson = objectMapper.valueToTree(averageAppRating);
-                jsonResponse.set("results", averageAppRatingJson);
-            } catch (BusinessException e) {
-                if (e.getType().equals(BusinessExceptionType.NOT_FOUND)) {
+            // Create the JSON response with the average app rating data and the success flag
+            jsonResponse.put("success", true);
+            JsonNode averageAppRatingJson = objectMapper.valueToTree(averageAppRating);
+            jsonResponse.set("results", averageAppRatingJson);
+        } catch (BusinessException e) {
+            switch (e.getType()) {
+                case INVALID_INPUT:
+                    jsonResponse.put("error", "Criteria not supported");
+                    break;
+                case NOT_FOUND:
                     jsonResponse.put("noData", "No data available");
-                } else {
+                    break;
+                default:
                     jsonResponse.put("error", "An error occurred while processing the request");
-                }
+                    break;
             }
         }
 
@@ -371,7 +378,6 @@ public class ManagerServlet extends HttpServlet {
         response.getWriter().write(jsonResponse.toString());
     }
 
-    //Asynchronous request
     private void handleTrendMediaContentByYear(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode jsonResponse = objectMapper.createObjectNode();

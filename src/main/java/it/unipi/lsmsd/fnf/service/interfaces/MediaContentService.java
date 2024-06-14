@@ -10,6 +10,18 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Interface for the MediaContent service.
+ * Provides methods to interact with the MediaContent entity.
+ * The methods access to MediaContent entity in the database and provide
+ * operations to maintain consistency between collections, search functionality,
+ * operations to get statistics and operations to get media content suggestions.
+ * The methods, in general, execute a single DAO method. When needed to maintain
+ * eventual consistency between collections, the methods execute multiple DAO methods,
+ * executing the consistency operations in an asynchronous way.
+ * @see MediaContent
+ * @see MediaContentDTO
+ */
 public interface MediaContentService {
     void saveMediaContent(MediaContent mediaContent) throws BusinessException;
     void updateMediaContent(MediaContent mediaContent, List<String> reviewIds) throws BusinessException;

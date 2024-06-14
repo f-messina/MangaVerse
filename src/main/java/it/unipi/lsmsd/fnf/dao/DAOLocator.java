@@ -13,9 +13,9 @@ import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
 
 /**
  * This class provides a locator for various Data Access Objects (DAOs) based on the specified data repository.
- * Manage the creation of DAOs for different data repositories (MongoDB and Neo4j) and different entities (Anime, Manga, User, Review),
- * providing a single point of access to the DAOs for the rest of the application.
- * The methods check also if the specified data repository is supported.
+ * It is a singleton class that provides the DAOs to the application.
+ * The class provides methods to retrieve the appropriate DAO for handling Anime, Manga, User, and Review operations.
+ * The methods check also if the specified data repository is supported (MongoDB or Neo4j).
  * @see MediaContentDAO
  * @see UserDAO
  * @see ReviewDAO

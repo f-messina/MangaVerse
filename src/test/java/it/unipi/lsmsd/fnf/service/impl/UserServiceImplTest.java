@@ -10,7 +10,7 @@ import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import it.unipi.lsmsd.fnf.service.ServiceLocator;
 import it.unipi.lsmsd.fnf.service.enums.ExecutorTaskServiceType;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
-import it.unipi.lsmsd.fnf.service.impl.asinc_user_tasks.UpdateNumberOfFollowedTask;
+import it.unipi.lsmsd.fnf.service.impl.asinc_user_tasks.UpdateNumberOfFollowingsTask;
 import it.unipi.lsmsd.fnf.service.impl.asinc_user_tasks.UpdateNumberOfFollowersTask;
 import it.unipi.lsmsd.fnf.service.interfaces.ExecutorTaskService;
 import it.unipi.lsmsd.fnf.service.interfaces.TaskManager;
@@ -226,7 +226,7 @@ class UserServiceImplTest {
         try {
             List<String> usersIds = getUserIds();
             for(String userId : usersIds) {
-                UpdateNumberOfFollowedTask task = new UpdateNumberOfFollowedTask(userId);
+                UpdateNumberOfFollowingsTask task = new UpdateNumberOfFollowingsTask(userId);
                 aperiodicExecutorTaskService.executeTask(task);
             }
             Thread.sleep(10000);
