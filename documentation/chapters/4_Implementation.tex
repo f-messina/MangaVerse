@@ -54,11 +54,14 @@ for MongoDB and Neo4j databases. Connections are managed with corresponding DAO 
 With using the configuration module for database connection, web application ensures robustness and reliability in its data access layer.
 
 \subsection*{Controller}
-%%TODO: implemented using http servlet to handle user requests and responses.
 %%TODO: change the code when it is corrected 
 The controller modules plays a role as intermediary between the user requests and backend of the MangaVerse wab application as servlet classes.
-they receives the user requests, process them and returns with the corresponding response.
-Each controller class utilized a switch-case structure to determine the action requested and invokes the appropriate handler method accordingly.\\
+They receives the user requests, process them and returns with the corresponding response. The controller classes are implemented using HttpServlet to handle user requests and responses.
+Within the scope of their intermediary role, the controller classes are responsible of being a bridge between the user interface and backend logic. 
+When a user interacts with the web application, their actions are translated into a HTTP request and these requests are handled by the related servlet class in the controller module. 
+To be able to do do request translation in an efficient way each controller class extend 'HttpServlet' and has various methods to handle HTTP requests like GET and POST. 
+Each controller class utilized a switch-case structure to determine the action requested and invokes the appropriate handler method accordingly.
+This structure allows for clear and organized routing of request to their corresponding handler method. After processing the request, the servlet generates a requested response.\\
 \newline
 \textbf{Example code snippet from MediaContentServlet:}
 \begin{mdframed}[backgroundcolor=yellow!20, innerleftmargin=10pt, innerrightmargin=10pt]
@@ -305,9 +308,6 @@ package structure of Service module is as follows:
     \item ServiceLocator
 \end{itemize}
 
-%%TODO: Add table for explaining each classes in the whole project like i tis done in the example project
-
-
 \section{Adopted Patterns and Techniques}
 \subsection*{Patterns}
 
@@ -330,6 +330,252 @@ Executing the tasks in an asynchronous way using threads allows to perform opera
 Aperiodic executer task service class is implemented by using the interface of executor service. 
 
 
+\section{Description of Main Classes}
+
+\subsection*{Controller}
+\renewcommand{\arraystretch}{1.5}
+\begin{longtable}{|>{\arraybackslash}p{0.33\linewidth}|>{\arraybackslash}p{0.66\linewidth}|}
+    \hline
+    \textbf{Class} & \textbf{Description} \\
+    \hline
+    \endfirsthead
+
+    \hline
+    \textbf{Class} & \textbf{Description} \\
+    \hline
+    \endhead
+
+    \hline
+    \endfoot
+
+    \hline
+    \endlastfoot
+
+    AuthServlet & Handles business logic for authentication \\
+    \hline
+    MainPageServlet & Handles business logic for main page \\
+    \hline
+    ManagerServlet & Handles business logic for manager \\
+    \hline
+    MediaContentServlet & Handles business logic for media content \\
+    \hline
+    ProfileServlet & Handles business logic for profile \\
+    \hline
+    UserServlet & Handles business logic for user \\
+    \hline
+\end{longtable}
+
+\newpage
+
+\subsection*{DAO}
+\renewcommand{\arraystretch}{1.5}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{0.3\linewidth}|>{\raggedright\arraybackslash}p{0.1\linewidth}|>{\raggedright\arraybackslash}p{0.6\linewidth}|}
+    \hline
+    \textbf{Class} & \textbf{Sub-package} & \textbf{Description} \\
+    \hline
+    \endfirsthead
+
+    \hline
+    \textbf{Class} & \textbf{Sub-package} & \textbf{Description} \\
+    \hline
+    \endhead
+
+    \hline
+    \endfoot
+
+    \hline
+    \endlastfoot
+
+    MediaContentDAO & interfaces & Collection of methods for media content database related entities on mongoDB \\
+    \hline
+    ReviewDAO B & interfaces & Collection of methods for review database related entities on mongoDB \\
+    \hline
+    UserDAO & interfaces & Collection of methods for user database related entities on mongoDB \\
+    \hline
+    AnimeDAOMongoImpl & mongo & Contains all the method implementation for the MongoDB database anime entities \\
+    \hline      
+    BaseMongoDBDAO & mongo & Contains all the method implementations for the MongoDB database \\
+    \hline
+    MangaDAOMongoImpl & mongo & Contains all the method implementations for the MongoDB database manga entities \\
+    \hline
+    ReviewDAOMongoImpl & mongo & Contains all the method implementations for the MongoDB database review entities \\
+    \hline
+    UserDAOMongoImpl & mongo & Contains all the method implementations for the MongoDB database user entities \\
+    \hline
+    AnimeDAONeo4jImpl & neo4j & Contains all the method implementation for the Neo4j database anime entities \\
+    \hline
+    BaseNeo4jDAO & neo4j & Contains all the method implementations for the Neo4j database \\
+    \hline
+    MangaDAONeo4jImpl & neo4j & Contains all the method implementation for the Neo4j database manga entities \\
+    \hline
+    UserDAONeo4jImpl & neo4j & Contains all the method implementation for the Neo4j database user entities \\
+    \hline
+    DAOLocator & & Implements the locator pattern for accessing DAOs based on the specified data repository \\
+    \hline
+\end{longtable}
+
+\subsection*{DTO}
+\renewcommand{\arraystretch}{1.5}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{0.25\linewidth}|>{\raggedright\arraybackslash}p{0.15\linewidth}|>{\raggedright\arraybackslash}p{0.6\linewidth}|}
+    \hline
+    \textbf{Class} & \textbf{Sub-package} & \textbf{Description} \\
+    \hline
+    \endfirsthead
+
+    \hline
+    \textbf{Class} & \textbf{Sub-package} & \textbf{Description} \\
+    \hline
+    \endhead
+
+    \hline
+    \endfoot
+
+    \hline
+    \endlastfoot
+
+    AnimeDTO & mediaContent & Represents data transfer object containing attributes for animes \\
+    \hline
+    MangaDTO & mediaContent & Represents data transfer object containing attributes for mangas \\
+    \hline
+    MediaContentDTO & interfaces & Defines common attributes for media content \\
+    \hline
+    DashboardDTO & statistics & Contains statistical data for the dashboard \\
+    \hline
+    MongoDBStats & statistics & Provides statistics specific to MongoDB \\
+    \hline
+    LoggedUserDTO & & Holds information about a logged-in user. \\
+    \hline
+    PageDTO & & Represents pagination details \\
+    \hline
+    ReviewDTO & & Contains attributes for reviews \\
+    \hline
+    UserRegistrationDTO & & Holds data for user registration \\
+    \hline
+    UserSummaryDTO & & Provides a summary of user information \\
+    \hline
+\end{longtable}
+
+
+\subsection*{Model}
+\renewcommand{\arraystretch}{1.5}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{0.25\linewidth}|>{\raggedright\arraybackslash}p{0.15\linewidth}|>{\raggedright\arraybackslash}p{0.6\linewidth}|}
+    \hline
+    \textbf{Class} & \textbf{Sub-package} & \textbf{Description} \\
+    \hline
+    \endfirsthead
+
+    \hline
+    \textbf{Class} & \textbf{Sub-package} & \textbf{Description} \\
+    \hline
+    \endhead
+
+    \hline
+    \endfoot
+
+    \hline
+    \endlastfoot
+
+    Anime & mediaContent & Provides unique anime attributes by extending parent class MediaContent and related getter and setter methods. \\
+    \hline
+    Manga & mediaContent & Provides unique manga attributes by extending parent class MediaContent and related getter and setter methods. \\
+    \hline
+    MangaAuthor & mediaContent & Contains manga author attributes and related getter and setter methods. \\
+    \hline
+    MediaContent & mediaContent & Contains all the attributes used by types of media contents and their getter and setter methods. \\
+    \hline
+    Manager & registeredUser & Provides unique manager attributes by extending parent class RegisteredUser and related getter and setter methods. \\
+    \hline
+    RegisteredUSer & registeredUser & Contains all the attributes used by types of registered users and their getter and setter methods. \\
+    \hline
+    User & registeredUser & Provides unique user attributes by extending parent class RegisteredUser and related getter and setter methods. \\
+    \hline
+    Review &  & Contains review attributes and related getter and setter methods. \\
+    \hline
+\end{longtable}
+
+
+
+\subsection*{Service}
+\renewcommand{\arraystretch}{1.5} % Adjusts the row height
+\begin{longtable}{|>{\raggedright\arraybackslash}p{0.3\linewidth}|>{\raggedright\arraybackslash}p{0.2\linewidth}|>{\raggedright\arraybackslash}p{0.5\linewidth}|}
+   
+    \hline
+    \textbf{Class} & \textbf{Sub-package} & \textbf{Description} \\
+    \hline
+    \endfirsthead
+
+    \hline
+    \textbf{Class} & \textbf{Sub-package} & \textbf{Description} \\
+    \hline
+    \endhead
+
+    \hline
+    \endfoot
+
+    \hline
+    \endlastfoot
+
+    CreateMediaTask & impl/ asinc\_media\_tasks & Implementation of methods for media task creation for MediaContentService \\
+    \hline
+    DeleteMediaTask B & impl/ asinc\_media\_tasks & Implementation of methods for media task deletion for MediaContentService \\
+    \hline
+    RefreshLatestReviewsTasks & impl/ asinc\_media\_tasks & Implementation of methods for refreshing latest reviews for MediaContentService \\
+    \hline
+    UpdateAverageRatingTask & impl/ asinc\_media\_tasks & Implementation of methods for updating average rating for MediaContentService \\
+    \hline
+    UpdateMediaRedundancyTask & impl/ asinc\_media\_tasks & Implementation of methods for updating media redundancy for MediaContentService \\
+    \hline
+    UpdateMediaTask & impl/ asinc\_media\_tasks & Implementation of methods for updating media for MediaContentService \\
+    \hline
+    UpdateNumberofLikesTask & impl/ asinc\_media\_tasks & Implementation of methods for updating numbers of likes for MediaContentService \\
+    \hline
+    RemoveDeletedMedia ReviewsTask & impl/ asinc\_review\_tasks & Implementation of methods for removing reviews of deleted media for ReviewService \\
+    \hline
+    RemoveDeletedUser ReviewsTask & impl/ asinc\_review\_tasks & Implementation of methods for removing reviews of deleted user for ReviewService \\
+    \hline
+    UpdateReviewRedundancyTask & impl/ asinc\_review\_tasks & Implementation of methods for updating review redundancy for ReviewService \\
+    \hline
+    CreateUserTask & impl/ asinc\_user\_tasks & Implementation of methods for user creation for UserService \\
+    \hline
+    DeleteUserTask & impl/ asinc\_user\_tasks & Implementation of methods for user deletion for UserService \\
+    \hline
+    UpdateNumberOfFollowedTask B & impl/ asinc\_user\_tasks & Implementation of methods for updating number of followed for UserService \\
+    \hline
+    UpdateNumberOfFollowersTask & impl/ asinc\_user\_tasks & Implementation of methods for updating number of followers for UserService \\
+    \hline
+    UpdateUserTask & impl/ asinc\_user\_tasks & Implementation of methods for updating user for MediaContentService \\
+    \hline
+    AperiodicExecutor TaskServiceImpl & impl & Implementation of aperiodic tasks for ExecutorTaskService \\
+    \hline
+    ErrorTaskManager & impl & Implementation of TaskManager interface to handle error \\
+    \hline
+    MediaContentServiceImpl & impl & Implementation of MediaContentService, providing media content operations \\
+    \hline
+    PeriodicExecutor TaskServiceImpl & impl & Implementation of periodic tasks for ExecutorTaskService \\
+    \hline
+    ReviewServiceImpl & impl & Implementation of ReviewService, providing review operations \\
+    \hline
+    UserServiceImpl & impl & Implementation of UserService, providing user operations \\
+    \hline
+    ExecutorTaskService & interfaces & Collection of methods for task management \\
+    \hline
+    MediaContentService & interfaces & Collection of methods for media content service \\
+    \hline
+    ReviewService & interfaces & Collection of methods for review service \\
+    \hline
+    Task & interfaces & Collection of methods for execution operations \\
+    \hline
+    TaskManager & interfaces & Collection of methods for managing task prioritization \\
+    \hline
+    UserService & interfaces & Collection of methods for user service \\
+    \hline
+    ServiceLocator & & Implements locator pattern for services \\
+    \hline
+\end{longtable}
+
+
+
+\newpage
 \section {MongoDB queries}
 Some of the most important MongoDB queries for analytic and suggestion purposes. 
 %% TODO: write the mongoshell query and the java implementation with explaination
