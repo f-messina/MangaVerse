@@ -110,9 +110,11 @@ public class MainPageServlet extends HttpServlet {
         request.getRequestDispatcher(targetJSP).forward(request, response);
     }
 
-    // REQUIRED: page, sortParam, sortDirection
-    // OPTIONAL: all filters
-    // RETURN: mediaPage, success flag or error message
+    // Search for media content based on the filters provided in the request
+    // REQUIRED PARAMETERS:         page, mediaType, sortParam, sortDirection
+    // OPTIONAL PARAMETERS:         filters
+    // RESPONSE:                    mediaPage and success flag
+    //                              or error message
     private void handleSearch(HttpServletRequest request, HttpServletResponse response) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode jsonResponse = objectMapper.createObjectNode();
@@ -136,22 +138,22 @@ public class MainPageServlet extends HttpServlet {
         int page = request.getParameter("page") != null ? Integer.parseInt(request.getParameter("page")) : 1;
         MediaContentType mediaContentType = request.getAttribute("mediaType").equals("manga") ? MediaContentType.MANGA : MediaContentType.ANIME;
 
+        // Take the filters from the request
+        List<Pair<String, Object>> filters;
+        if (request.getAttribute("mediaType").equals("manga")) {
+            filters = ConverterUtils.fromRequestToMangaFilters(request);
+        } else {
+            filters = ConverterUtils.fromRequestToAnimeFilters(request);
+        }
+
+        // Take order parameter and direction
+        String order = request.getParameter("sortParam");
+        int direction = Integer.parseInt(request.getParameter("sortDirection"));
+        Map<String, Integer> orderBy = Map.of(order, direction);
+
         try {
-            PageDTO<? extends MediaContentDTO> mediaList;
-            List<Pair<String, Object>> filters;
-
-            if (request.getAttribute("mediaType").equals("manga")) {
-                filters = ConverterUtils.fromRequestToMangaFilters(request);
-            } else {
-                filters = ConverterUtils.fromRequestToAnimeFilters(request);
-            }
-
-            // Take order parameter and direction
-            String order = request.getParameter("sortParam");
-            int direction = Integer.parseInt(request.getParameter("sortDirection"));
-            Map<String, Integer> orderBy = Map.of(order, direction);
-
-            mediaList = mediaContentService.searchByFilter(filters, orderBy, page, mediaContentType);
+            // Search for media content based on the filters
+            PageDTO<? extends MediaContentDTO> mediaList = mediaContentService.searchByFilter(filters, orderBy, page, mediaContentType);
 
             // Add the search results to the JSON response
             if (mediaList.getTotalCount() == 0) {
@@ -161,8 +163,10 @@ public class MainPageServlet extends HttpServlet {
                 jsonResponse.set("mediaPage", mediaListNode);
                 jsonResponse.put("success", true);
             }
+
         } catch (BusinessException e) {
             jsonResponse.put("error", "Error occurred during search operation");
+
         } catch (IllegalArgumentException e) {
             jsonResponse.put("error", "Invalid JSON format for search filters");
         }
@@ -173,8 +177,11 @@ public class MainPageServlet extends HttpServlet {
         response.getWriter().write(jsonResponse.toString());
     }
 
-    // REQUIRED: nameList
-    // RETURN: mediaList, success flag or error message
+    // Get the list of media content for the main page based on the
+    // nameList parameter (trends, suggestionsByLikes, suggestionsByFollowings)
+    // REQUIRED PARAMETERS:         nameList
+    // RESPONSE:                    mediaList and success flag
+    //                              or error message
     private void handleViewAll(HttpServletRequest request, HttpServletResponse response) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode jsonResponse = objectMapper.createObjectNode();
@@ -204,12 +211,15 @@ public class MainPageServlet extends HttpServlet {
             jsonResponse.put("success", true);
             JsonNode mediaListArray = objectMapper.valueToTree(mediaList);
             jsonResponse.set("mediaList", mediaListArray);
+
         } catch (BusinessException e) {
             jsonResponse.put("error", "Error occurred during search operation");
+
         } catch (NotAuthorizedException e) {
             jsonResponse.put("error", "User is not authorized to view suggestions");
         }
 
+        // Set the content type and write the JSON response
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         response.getWriter().write(jsonResponse.toString());

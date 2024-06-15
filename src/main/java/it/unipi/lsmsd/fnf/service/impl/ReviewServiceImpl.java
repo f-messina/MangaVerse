@@ -11,6 +11,7 @@ import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
+import it.unipi.lsmsd.fnf.model.enums.UserType;
 import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
 import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
@@ -61,8 +62,14 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public void addReview(ReviewDTO review) throws BusinessException {
         try{
+            // check if the review has a comment or a rating
             if (StringUtils.isEmpty(review.getComment()) && review.getRating() == null) {
                 throw new BusinessException(BusinessExceptionType.EMPTY_FIELDS, "The review must have a comment or a rating");
+
+            // check if the review has a valid rating, media content ID and title
+            } else if (review.getRating() != null && (review.getRating() < 1 || review.getRating() > 10) ||
+                    StringUtils.isEmpty(review.getMediaContent().getId()) || StringUtils.isEmpty(review.getMediaContent().getTitle())) {
+                throw new BusinessException(BusinessExceptionType.INVALID_INPUT, "Invalid input data");
             }
 
             // save the review
@@ -100,9 +107,16 @@ public class ReviewServiceImpl implements ReviewService {
      */
     @Override
     public void updateReview(ReviewDTO reviewDTO) throws BusinessException {
+        // check if the review has a comment or a rating
         if (StringUtils.isEmpty(reviewDTO.getComment()) && reviewDTO.getRating() == null) {
-            throw new BusinessException("The review must have a comment or a rating");
+            throw new BusinessException(BusinessExceptionType.EMPTY_FIELDS, "The review must have a comment or a rating");
+
+            // check if the reviewDTO has a valid rating, media content ID and title
+        } else if (reviewDTO.getRating() != null && (reviewDTO.getRating() < 1 || reviewDTO.getRating() > 10) ||
+                StringUtils.isEmpty(reviewDTO.getId())) {
+            throw new BusinessException(BusinessExceptionType.INVALID_INPUT, "Invalid input data");
         }
+
         try {
             // update the review
             reviewDAO.updateReview(reviewDTO.getId(), reviewDTO.getComment(), reviewDTO.getRating());
@@ -218,8 +232,8 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public Map<String, Double> getMediaContentRatingByYear(MediaContentType type, String mediaContentId, int startYear, int endYear) throws BusinessException {
         try {
-            if (startYear < 0 || endYear < 0 || startYear > LocalDate.now().getYear() || endYear > LocalDate.now().getYear()) {
-                throw new BusinessException("Invalid year");
+            if (startYear < 0 || endYear < 0 || startYear > LocalDate.now().getYear() || startYear > endYear) {
+                throw new BusinessException(BusinessExceptionType.INVALID_INPUT, "Invalid year range");
             }
 
             // get the average rating of the media content by year
@@ -246,7 +260,7 @@ public class ReviewServiceImpl implements ReviewService {
     public Map<String, Double> getMediaContentRatingByMonth(MediaContentType type, String mediaContentId, int year) throws BusinessException {
         try {
             if (year < 0 || year > LocalDate.now().getYear()) {
-                throw new BusinessException("Invalid year");
+                throw new BusinessException(BusinessExceptionType.INVALID_INPUT, "Invalid year");
             }
 
             // get the average rating of the media content by month
@@ -254,6 +268,7 @@ public class ReviewServiceImpl implements ReviewService {
 
         } catch (DAOException e){
             throw new BusinessException(BusinessExceptionType.GENERIC_ERROR, e.getMessage());
+
         }
     }
 

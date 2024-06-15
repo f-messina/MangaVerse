@@ -27,6 +27,7 @@ import it.unipi.lsmsd.fnf.service.interfaces.MediaContentService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -430,6 +431,10 @@ public class MediaContentServiceImpl implements MediaContentService {
     @Override
     public Map<MediaContentDTO, Integer> getMediaContentTrendByYear(int year, Integer limit, MediaContentType type) throws BusinessException {
         try {
+            // Check if the input is valid
+            if (year < 0 || year > LocalDate.now().getYear() || limit < 0)
+                throw new BusinessException(BusinessExceptionType.INVALID_INPUT, "Invalid input");
+
             // Get the trending media content from Neo4j
             if (MediaContentType.ANIME.equals(type))
                 return animeDAONeo4J.getTrendMediaContentByYear(year, limit);

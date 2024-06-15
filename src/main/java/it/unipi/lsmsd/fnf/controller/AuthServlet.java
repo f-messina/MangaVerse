@@ -60,9 +60,12 @@ public class AuthServlet extends HttpServlet {
         }
     }
 
-    // REQUIRED: username, email, password
-    // CREATE: user session
-    private void handleSignUp(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    // Sign up a new user
+    // REQUIRED PARAMETERS:     username, email, password
+    // CREATE:                  user session
+    // RESPONSE:                JSON object with success flag
+    //                          or error messages
+    private void handleSignUp(HttpServletRequest request, HttpServletResponse response) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode jsonResponse = objectMapper.createObjectNode();
         try {
@@ -109,8 +112,10 @@ public class AuthServlet extends HttpServlet {
         response.getWriter().write(jsonResponse.toString());
     }
 
-    // REQUIRED: email, password
-    // CREATE: user session
+    // Login a user
+    // REQUIRED PARAMETERS:     email, password
+    // CREATE:                  user session
+    // REDIRECT:                mainPage/manga if successful
     private void handleLogin(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         String email = request.getParameter("email");
         String password = request.getParameter("password");
@@ -146,7 +151,8 @@ public class AuthServlet extends HttpServlet {
         }
     }
 
-    // DELETE: user session
+    // Logout the user
+    // REMOVE:                  user session
     private void handleLogout(HttpServletRequest request) {
         // Remove the user from the session and invalidate the session if the user is authenticated
         if (SecurityUtils.getAuthenticatedUser(request) != null) {
