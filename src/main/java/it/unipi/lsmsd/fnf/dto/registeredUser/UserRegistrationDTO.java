@@ -101,7 +101,7 @@ public class UserRegistrationDTO {
     /**
      * Converts the DTO to a User model.
      *
-     * @return the User model
+     * @return      The User model
      */
     public User toModel() {
         User user = new User();

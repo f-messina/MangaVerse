@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/profile.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/navbar.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/user_list.css">
+
     <title>${userInfo.getUsername()} Profile</title>
 </head>
 <body>

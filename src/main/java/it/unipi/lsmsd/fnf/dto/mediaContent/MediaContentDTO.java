@@ -93,8 +93,8 @@ public abstract class MediaContentDTO {
     /**
      * Compares two MediaContentDTO objects.
      *
-     * @param o The object to compare to.
-     * @return True if the objects are equal, false otherwise.
+     * @param o         The object to compare to.
+     * @return          True if the objects are equal, false otherwise.
      */
     @Override
     public boolean equals(Object o) {

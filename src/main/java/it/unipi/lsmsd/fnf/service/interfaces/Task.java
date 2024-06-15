@@ -20,6 +20,22 @@ public abstract class Task implements Serializable {
     private long timestamp;
     private int retries;
 
+    /* TASKS ORDERED BY PRIORITY (from highest to lowest):
+        - CreateMediaTask: 9
+        - CreateUserTask: 9
+        - UpdateMediaTask: 8
+        - UpdateUserTask: 8
+        - DeleteMediaTask: 7
+        - DeleteUserTask: 7
+        - UpdateNumberOfFollowingsTask: 6
+        - UpdateNumberOfFollowersTask: 6
+        - UpdateNumberOfLikesTask: 6
+        - UpdateAverageRatingTask: 6
+        - UpdateReviewRedundancyTask: 5
+        - RemoveDeletedUserReviewsTask: 4
+        - RemoveDeletedMediaReviewsTask: 4
+        - UpdateMediaRedundancyTask: 4
+    */
     public Task(int priority) {
 
         if(priority < 0 || priority > 10)

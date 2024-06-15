@@ -8,12 +8,17 @@ import it.unipi.lsmsd.fnf.dao.interfaces.MediaContentDAO;
 import it.unipi.lsmsd.fnf.dto.registeredUser.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
 import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
+import it.unipi.lsmsd.fnf.model.mediaContent.MediaContent;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 import it.unipi.lsmsd.fnf.service.exception.enums.BusinessExceptionType;
 import it.unipi.lsmsd.fnf.service.interfaces.Task;
 
 /**
- * Task for updating redundancy information related to media content.
+ * Asynchronous task for updating user redundancy information inside latest reviews of media content.
+ * Priority = 4
+ * @see Task
+ * @see MediaContentDAO
+ * @see MediaContent
  */
 public class UpdateMediaRedundancyTask extends Task {
 
@@ -25,10 +30,10 @@ public class UpdateMediaRedundancyTask extends Task {
     /**
      * Constructs an UpdateMediaRedundancyTask.
      *
-     * @param userSummaryDTO The summary DTO of the user.
+     * @param userSummaryDTO    The summary DTO of the user.
      */
     public UpdateMediaRedundancyTask(UserSummaryDTO userSummaryDTO) {
-        super(5);
+        super(4);
         this.animeDAO = DAOLocator.getAnimeDAO(DataRepositoryEnum.MONGODB);
         this.mangaDAO = DAOLocator.getMangaDAO(DataRepositoryEnum.MONGODB);
         this.userSummaryDTO = userSummaryDTO;
@@ -37,13 +42,15 @@ public class UpdateMediaRedundancyTask extends Task {
     /**
      * Executes the task to update redundancy information related to media content.
      *
-     * @throws BusinessException If an error occurs during the operation.
+     * @throws BusinessException    If an error occurs during the operation.
      */
     @Override
     public void executeJob() throws BusinessException {
         try{
+            // Update the redundancy information
             animeDAO.updateUserRedundancy(userSummaryDTO);
             mangaDAO.updateUserRedundancy(userSummaryDTO);
+
         } catch (DAOException e) {
            if(e.getType().equals(DAOExceptionType.DATABASE_ERROR)){
                 throw new BusinessException(BusinessExceptionType.DATABASE_ERROR, "Error while updating review redundancy: " + e.getMessage());

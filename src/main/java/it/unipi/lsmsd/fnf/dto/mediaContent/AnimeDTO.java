@@ -57,7 +57,7 @@ public class AnimeDTO extends MediaContentDTO {
     /**
      * Converts an AnimeDTO object to an Anime object.
      *
-     * @return The Anime object.
+     * @return      The Anime object.
      */
     public Anime toModel() {
         Anime anime = new Anime();

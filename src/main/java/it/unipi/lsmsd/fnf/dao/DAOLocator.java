@@ -25,9 +25,9 @@ public class DAOLocator {
     /**
      * Retrieves the appropriate DAO for handling Anime-related operations based on the data repository.
      *
-     * @param dataRepositoryEnum The enum representing the data repository (MongoDB or Neo4j).
-     * @return The MediaContentDAO for Anime operations based on the specified data repository.
-     * @throws UnsupportedOperationException If the specified data repository is not supported.
+     * @param dataRepositoryEnum                The enum representing the data repository (MongoDB or Neo4j).
+     * @return                                  The MediaContentDAO for Anime operations based on the specified data repository.
+     * @throws UnsupportedOperationException    If the specified data repository is not supported.
      */
     public static MediaContentDAO<Anime> getAnimeDAO(DataRepositoryEnum dataRepositoryEnum){
         if (DataRepositoryEnum.MONGODB.equals(dataRepositoryEnum)){
@@ -41,9 +41,9 @@ public class DAOLocator {
     /**
      * Retrieves the appropriate DAO for handling Manga-related operations based on the data repository.
      *
-     * @param dataRepositoryEnum The enum representing the data repository (MongoDB or Neo4j).
-     * @return The MediaContentDAO for Manga operations based on the specified data repository.
-     * @throws UnsupportedOperationException If the specified data repository is not supported.
+     * @param dataRepositoryEnum                The enum representing the data repository (MongoDB or Neo4j).
+     * @return                                  The MediaContentDAO for Manga operations based on the specified data repository.
+     * @throws UnsupportedOperationException    If the specified data repository is not supported.
      */
     public static MediaContentDAO<Manga> getMangaDAO(DataRepositoryEnum dataRepositoryEnum){
         if (DataRepositoryEnum.MONGODB.equals(dataRepositoryEnum)){
@@ -57,9 +57,9 @@ public class DAOLocator {
     /**
      * Retrieves the appropriate DAO for handling User-related operations based on the data repository.
      *
-     * @param dataRepositoryEnum The enum representing the data repository (MongoDB or Neo4j).
-     * @return The UserDAO for User operations based on the specified data repository.
-     * @throws UnsupportedOperationException If the specified data repository is not supported.
+     * @param dataRepositoryEnum                The enum representing the data repository (MongoDB or Neo4j).
+     * @return                                  The UserDAO for User operations based on the specified data repository.
+     * @throws UnsupportedOperationException    If the specified data repository is not supported.
      */
     public static UserDAO getUserDAO(DataRepositoryEnum dataRepositoryEnum){
         if (DataRepositoryEnum.MONGODB.equals(dataRepositoryEnum)){
@@ -73,9 +73,9 @@ public class DAOLocator {
     /**
      * Retrieves the DAO for handling Review-related operations based on the data repository.
      *
-     * @param dataRepositoryEnum The enum representing the data repository (MongoDB).
-     * @return The ReviewDAO for Review operations based on the specified data repository.
-     * @throws UnsupportedOperationException If the specified data repository is not supported.
+     * @param dataRepositoryEnum                The enum representing the data repository (MongoDB).
+     * @return                                  The ReviewDAO for Review operations based on the specified data repository.
+     * @throws UnsupportedOperationException    If the specified data repository is not supported.
      */
     public static ReviewDAO getReviewDAO(DataRepositoryEnum dataRepositoryEnum){
         if (DataRepositoryEnum.MONGODB.equals(dataRepositoryEnum)){

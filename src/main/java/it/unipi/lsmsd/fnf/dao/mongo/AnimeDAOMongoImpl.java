@@ -48,8 +48,8 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
      * Inserts an Anime object into the MongoDB database.
      * If an Anime object with the same title already exists, a DuplicatedException is thrown.
      *
-     * @param anime The Anime object to insert.
-     * @throws DAOException If an error occurs during the insertion process.
+     * @param anime             The Anime object to insert.
+     * @throws DAOException     If an error occurs during the insertion process.
      */
     @Override
     public void saveMediaContent(Anime anime) throws DAOException {
@@ -89,8 +89,8 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
      * 1. Checks if another anime with the same title exists in the database (if the title has been updated).
      * 2. Updates the anime in the database.
      *
-     * @param anime The Anime object to update (containing only the fields to update).
-     * @throws DAOException If an error occurs during the update process.
+     * @param anime             The Anime object to update (containing only the fields to update).
+     * @throws DAOException     If an error occurs during the update process.
      */
     @Override
     public void updateMediaContent(Anime anime) throws DAOException {
@@ -131,8 +131,8 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
     /**
      * Deletes an Anime object from the MongoDB database based on its ObjectId.
      *
-     * @param animeId The ObjectId of the Anime to delete.
-     * @throws DAOException If an error occurs during the deletion process.
+     * @param animeId           The ObjectId of the Anime to delete.
+     * @throws DAOException     If an error occurs during the deletion process.
      */
     @Override
     public void deleteMediaContent(String animeId) throws DAOException {
@@ -157,9 +157,9 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
     /**
      * Finds an Anime object in the MongoDB database based on its ObjectId.
      *
-     * @param animeId The ObjectId of the Anime to find.
-     * @return The found Anime object, or null if not found.
-     * @throws DAOException If an error occurs during the search process.
+     * @param animeId           The ObjectId of the Anime to find.
+     * @return                  The found Anime object, or null if not found.
+     * @throws DAOException     If an error occurs during the search process.
      */
     @Override
     public Anime readMediaContent(String animeId) throws DAOException {
@@ -186,16 +186,16 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
     /**
      * Searches for Anime objects in the MongoDB database based on provided filters, ordering, and pagination.
      *
-     * @param filters  The list of filters to apply to the search.
-     *                 Each filter is a map containing the operator as key and the name of the field and the related for as values.
-     *                 For equality, the filter is a map containing the field name as key and the value to match as value.
-     *                 Example: Map.of("$in", Map.of("tags", List.of("comedy", "fantasy")))
-     *                 Supported operators: $and, $or, $all, $in, $nin, $gte, $lte, $exists, $regex
-     * @param orderBy  The map defining the ordering criteria for the search.
-     * @param page     The page number for pagination.
-     * @param reducedInfo A boolean indicating whether to return reduced information for the Anime objects.
-     * @return A PageDTO object containing a list of AnimeDTO objects matching the search criteria and the total count of results.
-     * @throws DAOException If an error occurs during the search process.
+     * @param filters           The list of filters to apply to the search.
+     *                          Each filter is a map containing the operator as key and the name of the field and the related for as values.
+     *                          For equality, the filter is a map containing the field name as key and the value to match as value.
+     *                          Example: Map.of("$in", Map.of("tags", List.of("comedy", "fantasy")))
+     *                          Supported operators: $and, $or, $all, $in, $nin, $gte, $lte, $exists, $regex
+     * @param orderBy           The map defining the ordering criteria for the search.
+     * @param page              The page number for pagination.
+     * @param reducedInfo       A boolean indicating whether to return reduced information for the Anime objects.
+     * @return                  A PageDTO object containing a list of AnimeDTO objects matching the search criteria and the total count of results.
+     * @throws DAOException     If an error occurs during the search process.
      */
     @Override
     public PageDTO<MediaContentDTO> search(List<Pair<String, Object>> filters, Map<String, Integer> orderBy, int page, boolean reducedInfo) throws DAOException {
@@ -272,8 +272,8 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
      *     - If it is not, it is added to the beginning of the list.
      * 3. Updates the latest reviews array in the Anime Document.
      *
-     * @param reviewDTO The ReviewDTO object containing the review information.
-     * @throws DAOException If an error occurs during update.
+     * @param reviewDTO         The ReviewDTO object containing the review information.
+     * @throws DAOException     If an error occurs during update.
      */
     @Override
     public void upsertReview(ReviewDTO reviewDTO) throws DAOException {
@@ -329,8 +329,8 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
      * 1. Get the latest reviews for the anime in Review Collection.
      * 2. Update the latest reviews in the Anime Document.
      *
-     * @param animeId       The ObjectId of the Anime object to update.
-     * @throws DAOException If an error occurs during update.
+     * @param animeId           The ObjectId of the Anime object to update.
+     * @throws DAOException     If an error occurs during update.
      */
     @Override
     //Put in input the animeId and refresh the latest reviews
@@ -393,10 +393,10 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
     /**
      * Checks if a review is in the latest reviews of an Anime object.
      *
-     * @param animeId  The ObjectId of the Anime object.
-     * @param reviewId The ObjectId of the Review object.
-     * @return True if the review is in the latest reviews, false otherwise.
-     * @throws DAOException If an error occurs during the search process.
+     * @param animeId           The ObjectId of the Anime object.
+     * @param reviewId          The ObjectId of the Review object.
+     * @return                  True if the review is in the latest reviews, false otherwise.
+     * @throws DAOException     If an error occurs during the search process.
      */
     @Override
     public boolean isInLatestReviews(String animeId, String reviewId) throws DAOException {
@@ -418,8 +418,8 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
      * of all anime documents where the user has posted reviews. Ensures consistency of user information
      * across multiple reviews.
      *
-     * @param userSummaryDTO An object containing the user's ID, username, and profile picture URL.
-     * @throws DAOException If a database error or any other generic error occurs during the update process.
+     * @param userSummaryDTO    An object containing the user's ID, username, and profile picture URL.
+     * @throws DAOException     If a database error or any other generic error occurs during the update process.
      */
     @Override
     public void updateUserRedundancy(UserSummaryDTO userSummaryDTO) throws DAOException {
@@ -462,12 +462,12 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
     /**
      * Retrieves the best criteria based on the average rating of the Anime objects in the MongoDB database.
      *
-     * @param criteria The criteria to search for.
-     *                 Criteria values:  "tags", "producers", "studios".
-     * @param isArray  A boolean indicating whether the criteria are an array.
-     * @param page     The page number for pagination.
-     * @return A map containing the best criteria and their average rating.
-     * @throws DAOException If an error occurs during the search process.
+     * @param criteria          The criteria to search for.
+     *                          Criteria values:  "tags", "producers", "studios".
+     * @param isArray           A boolean indicating whether the criteria are an array.
+     * @param page              The page number for pagination.
+     * @return                  A map containing the best criteria and their average rating.
+     * @throws DAOException     If an error occurs during the search process.
      */
     @Override
     public Map<String, Double> getBestCriteria (String criteria, boolean isArray, int page) throws DAOException {
@@ -514,17 +514,17 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
     /**
      * Updates the number of likes for an Anime object in the MongoDB database.
      *
-     * @param animeId The ObjectId of the Anime object.
-     * @param likes   The new number of likes.
-     * @throws DAOException If an error occurs during the update process.
+     * @param animeId           The ObjectId of the Anime object.
+     * @param increment         The increment value for the number of likes (1 for like, -1 for unlike).
+     * @throws DAOException     If an error occurs during the update process.
      */
     @Override
-    public void updateNumOfLikes(String animeId, Integer likes) throws DAOException {
+    public void updateNumOfLikes(String animeId, Integer increment) throws DAOException {
         try{
             MongoCollection<Document> animeCollection = getCollection(COLLECTION_NAME);
 
             Bson filter = eq("_id", new ObjectId(animeId));
-            Bson update = set("likes", likes);
+            Bson update = inc("likes", increment);
 
             UpdateResult result = animeCollection.updateOne(filter, update);
             if (result.getMatchedCount() == 0) {

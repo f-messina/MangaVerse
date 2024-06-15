@@ -8,11 +8,8 @@ public class MangaAuthor {
     private String name;
     private String role;
 
-    public MangaAuthor() {
-    }
-    /**
-     * Default constructor for the MangaAuthor class.
-     */
+    public MangaAuthor() {}
+
     public MangaAuthor(Integer id, String name, String role) {
         this.id = id;
         this.name = name;
@@ -43,10 +40,6 @@ public class MangaAuthor {
         this.role = role;
     }
 
-    /**
-     * Overrides the default toString method to provide a custom string representation of the MangaAuthor object.
-     * @return A string representation of the MangaAuthor object.
-     */
     @Override
     public String toString() {
         return "MangaAuthor{" +

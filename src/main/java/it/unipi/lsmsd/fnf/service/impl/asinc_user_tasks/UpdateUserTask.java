@@ -6,22 +6,25 @@ import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dao.interfaces.UserDAO;
 import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
-import it.unipi.lsmsd.fnf.service.exception.enums.BusinessExceptionType;
 import it.unipi.lsmsd.fnf.service.interfaces.Task;
 
 import static it.unipi.lsmsd.fnf.service.exception.BusinessException.handleDAOException;
 
 /**
- * Task for updating a user's information.
+ * Asynchronous task for updating user nodes in the Neo4J database.
+ * Priority = 8
+ * @see Task
+ * @see UserDAO
+ * @see User
  */
 public class UpdateUserTask extends Task {
     private final UserDAO userDAONeo4j;
     private final User user;
 
     /**
-     * Constructs an UpdateUserTask.
+     * Constructor for the UpdateUserTask.
      *
-     * @param user The user object containing the updated information.
+     * @param user      The user to update.
      */
     public UpdateUserTask(User user) {
         super(8);
@@ -30,9 +33,9 @@ public class UpdateUserTask extends Task {
     }
 
     /**
-     * Executes the task to update the user's information.
+     * Executes the job of updating a user in the Neo4J database.
      *
-     * @throws BusinessException If an error occurs during the operation.
+     * @throws BusinessException    if an error occurs during the update of the user.
      */
     @Override
     public void executeJob() throws BusinessException {

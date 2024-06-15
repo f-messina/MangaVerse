@@ -40,7 +40,7 @@ public abstract class BaseMongoDBDAO {
     /**
      * Opens a connection to the database
      *
-     * @throws DAOException if an error occurs while opening the connection
+     * @throws DAOException     If an error occurs while opening the connection
      */
     public static void openConnection() throws DAOException {
 
@@ -57,7 +57,7 @@ public abstract class BaseMongoDBDAO {
     /**
      * Returns the MongoClient object representing the connection to the database
      *
-     * @return MongoClient object representing the connection to the database
+     * @return      MongoClient object representing the connection to the database
      */
     public static MongoClient getMongoClient() {
         return mongoClient;
@@ -66,8 +66,8 @@ public abstract class BaseMongoDBDAO {
     /**
      * Returns the collection with the specified name from the database
      *
-     * @param collectionName Name of the collection to retrieve
-     * @return MongoCollection object representing the specified collection
+     * @param collectionName    Name of the collection to retrieve
+     * @return                  MongoCollection object representing the specified collection
      */
     public static MongoCollection<Document> getCollection(String collectionName) {
         return mongoClient.getDatabase(MONGO_DB).getCollection(collectionName);
@@ -76,7 +76,7 @@ public abstract class BaseMongoDBDAO {
     /**
      * Closes the connection to the database
      *
-     * @throws DAOException if an error occurs while closing the connection or if the connection was not previously opened
+     * @throws DAOException     If an error occurs while closing the connection or if the connection was not previously opened
      */
     public static void closeConnection() throws DAOException {
         if(mongoClient != null){

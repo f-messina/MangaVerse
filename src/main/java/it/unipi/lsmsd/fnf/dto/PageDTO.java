@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Data Transfer Object for the Page class.
  * It is used to store a list of objects and the total count of objects in the list.
- * @param <T> the type of the objects in the list
+ * @param <T>       The type of the objects in the list
  */
 public class PageDTO<T> {
     private List<T> entries;

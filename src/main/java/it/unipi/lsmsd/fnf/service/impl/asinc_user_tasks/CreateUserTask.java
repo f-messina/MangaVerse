@@ -11,7 +11,11 @@ import it.unipi.lsmsd.fnf.service.interfaces.Task;
 import static it.unipi.lsmsd.fnf.service.exception.BusinessException.handleDAOException;
 
 /**
- * Task for creating a user.
+ * Asynchronous task for creating a user in the Neo4J database.
+ * Priority = 9
+ * @see Task
+ * @see UserDAO
+ * @see UserRegistrationDTO
  */
 public class CreateUserTask extends Task {
     private final UserDAO userDAONeo4j;
@@ -20,7 +24,7 @@ public class CreateUserTask extends Task {
     /**
      * Constructs a CreateUserTask.
      *
-     * @param user The user registration DTO.
+     * @param user      The user registration DTO.
      */
     public CreateUserTask(UserRegistrationDTO user){
         super(9);
@@ -29,9 +33,9 @@ public class CreateUserTask extends Task {
     }
 
     /**
-     * Executes the task to create a user.
+     * Executes the job of creating a user in the Neo4J database.
      *
-     * @throws BusinessException If an error occurs during the operation.
+     * @throws BusinessException    if an error occurs during the creation of the user.
      */
     @Override
     public void executeJob() throws BusinessException {

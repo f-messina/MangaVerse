@@ -60,7 +60,7 @@ public class MangaDTO extends MediaContentDTO{
     /**
      * Converts a MangaDTO object to a Manga object.
      *
-     * @return The Manga object.
+     * @return      The Manga object.
      */
     public Manga toModel() {
         Manga manga = new Manga();
