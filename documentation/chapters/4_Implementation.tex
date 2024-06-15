@@ -578,259 +578,851 @@ Aperiodic executer task service class is implemented by using the interface of e
 \newpage
 \section {MongoDB queries}
 Some of the most important MongoDB queries for analytic and suggestion purposes. 
-%% TODO: write the mongoshell query and the java implementation with explaination
-%% suggestUserByCommonLikes, getDistribution, averageAppRating, averageAppRatingByAge, 
-%% suggestUsersByCommonFollowings, getMediaContentRatingByYear, getMediaContentRatingByMonth,
-%% suggestMediaContent, getBestCriteria, getTrendMediaContentByYear, getMediaContentTrendByLikes,
-%% getSuggestedByFollowings, getSuggestedByLikes(suggest and trenda are on neo4j, sadece suggest media content mongo db, ona göre mongo ya da neo4j kısmına koy)
-\subsection*{MANGA/ANIME:}
-\textbf{Get Distribution}
+
+\subsection*{USER:}
+\textbf{Get Distribution}\\
+GetDistribution query to get the user's location, birthday year that gave the highest rating to the application
 \begin{itemize}
     \item Java Implementation:
 \end{itemize}
 \begin{lstlisting}[language=JavaScript]
-    public Map<String, Integer> getDistribution(String criteria) throws DAOException {
-        try {
-            MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
+public Map<String, Integer> getDistribution(String criteria) throws DAOException {
+    try {
+        MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
 
-            List<Bson> pipeline = new ArrayList<>();
-            if (criteria.equals("birthday") || criteria.equals("joined_on")) {
-                pipeline.addAll(List.of(
-                        match(exists(criteria)),
-                        project(fields(computed("year", new Document("$year", "$" + criteria)), include("app_rating" ))),
-                        group("$year", sum("count", 1)),
-                        sort(descending("count"))));
-            } else if (criteria.equals("location") || criteria.equals("gender")) {
-                pipeline.addAll(List.of(
-                        match(exists(criteria)),
-                        project(fields(include(criteria, "app_rating"))),
-                        group("$" + criteria, sum("count", 1)),
-                        sort(descending("count"))));
-            } else {
-                throw new Exception("UserDAOMongoImpl: getDistribution: Invalid criteria");
-            }
-
-            List<Document> aggregationResult = usersCollection.aggregate(pipeline).into(new ArrayList<>());
-            if (aggregationResult.isEmpty()) {
-                throw new MongoException("UserDAOMongoImpl: getDistribution: No data found");
-            }
-
-            Map<String,Integer> map = new LinkedHashMap<>();
-            for (Document doc : aggregationResult) {
-                if (criteria.equals("birthday") || criteria.equals("joined_on")) {
-                    map.put(String.valueOf(doc.getInteger("_id")), doc.getInteger("count"));
-                } else {
-                    map.put(doc.getString("_id"), doc.getInteger("count"));
-                }
-            }
-            return map;
-
-        } catch (MongoException e){
-            throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
-        } catch (Exception e){
-            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+        List<Bson> pipeline = new ArrayList<>();
+        if (criteria.equals("birthday") || criteria.equals("joined_on")) {
+            pipeline.addAll(List.of(
+                    match(exists(criteria)),
+                    project(fields(computed("year", new Document("$year", "$" + criteria)), include("app_rating" ))),
+                    group("$year", sum("count", 1)),
+                    sort(descending("count"))));
+        } else if (criteria.equals("location") || criteria.equals("gender")) {
+            pipeline.addAll(List.of(
+                    match(exists(criteria)),
+                    project(fields(include(criteria, "app_rating"))),
+                    group("$" + criteria, sum("count", 1)),
+                    sort(descending("count"))));
+        } else {
+            throw new Exception("UserDAOMongoImpl: getDistribution: Invalid criteria");
         }
+
+        List<Document> aggregationResult = usersCollection.aggregate(pipeline).into(new ArrayList<>());
+        if (aggregationResult.isEmpty()) {
+            throw new MongoException("UserDAOMongoImpl: getDistribution: No data found");
+        }
+
+        Map<String,Integer> map = new LinkedHashMap<>();
+        for (Document doc : aggregationResult) {
+            if (criteria.equals("birthday") || criteria.equals("joined_on")) {
+                map.put(String.valueOf(doc.getInteger("_id")), doc.getInteger("count"));
+            } else {
+                map.put(doc.getString("_id"), doc.getInteger("count"));
+            }
+        }
+        return map;
+
+    } catch (MongoException e){
+        throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+    } catch (Exception e){
+        throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
     }
-    \end{lstlisting}
-    
+}
+\end{lstlisting}
+
+\begin{itemize}
+    \item Mongo Shell Query:
+\end{itemize}
+\begin{lstlisting}[language=JavaScript]
+    // Match stage to filter documents where 'criteriaOfSearch' exists
+    db.collection.aggregate([
+        {
+            $match: {
+                [criteriaOfSearch]: { $exists: true }
+            }
+        },
+        // Project stage to include 'criteriaOfSearch' and 'app_rating' fields
+        {
+            $project: {
+                [criteriaOfSearch]: 1,
+                app_rating: 1
+            }
+        },
+        // Group stage to count occurrences of each 'criteriaOfSearch'
+        {
+            $group: {
+                _id: "$" + criteriaOfSearch,
+                count: { $sum: 1 }
+            }
+        },
+        // Sort stage to sort documents by 'count' in descending order
+        {
+            $sort: {
+                count: -1
+            }
+        }
+    ]);     
+
+
+\end{lstlisting} 
+\textbf{Average App Rating}\\
+Calculates the average application rating based on the specified search criteria
+\begin{itemize}
+    \item Java Implementation:
+\end{itemize}
+\begin{lstlisting}[language=JavaScript]
+    public Map<String, Double> averageAppRating(String criteria) throws DAOException {
+    try {
+        MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
+
+        List<Bson> pipeline = List.of(
+                match(and(exists(criteria), exists("app_rating"))),
+                group("$" + criteria, avg("averageAppRating", "$app_rating")),
+                sort(descending("averageAppRating"))
+        );
+
+        List<Document> aggregationResult = usersCollection.aggregate(pipeline).into(new ArrayList<>());
+        if (aggregationResult.isEmpty()) {
+            throw new MongoException("UserDAOMongoImpl: averageAppRating: No data found");
+        }
+
+        Map<String,Double> map = new LinkedHashMap<>();
+        for (Document doc : aggregationResult) {
+            map.put(doc.getString("_id"), doc.getDouble("averageAppRating"));
+        }
+        return map;
+
+    } catch (MongoException e){
+        throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+    }
+    catch (Exception e){
+        throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+    }
+}
+\end{lstlisting}
+        
     \begin{itemize}
         \item Mongo Shell Query:
     \end{itemize}
     \begin{lstlisting}[language=JavaScript]
-        db.getCollection('COLLECTION_NAME').aggregate([
-            { 
-                $match: { 
-                    birthday: { $exists: true }  
-                } 
+db.getCollection.aggregate([
+    { 
+        $match: { 
+                $and: [
+                { [criteria]: { $exists: true } },
+                { app_rating: { $exists: true } }
+            ]
+        } 
+    },
+    { 
+        $group: { 
+            _id: "$" + criteria, 
+            averageAppRating: { $avg: "$app_rating" }
+        } 
+    },
+    { 
+        $sort: { 
+            averageAppRating: -1 
+        } 
+    }
+]).toArray();      
+        
+\end{lstlisting}
+\textbf{Average App Rating By Age}\\
+Calculates the average app rating for users grouped by age ranges.
+The age ranges are defined as follows:\\
+- 0-13 years\\
+- 13-20 years\\
+- 20-30 years\\
+- 30-40 years\\
+- 40-50 years\\
+- 50+ years
+\begin{itemize}
+    \item Java Implementation:
+\end{itemize}
+\begin{lstlisting}[language=JavaScript]
+public Map<String, Double> averageAppRatingByAgeRange() throws DAOException {
+    try {
+        MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
+
+        // Define the boundaries for the age ranges and the output fields
+        List<Long> boundaries = Arrays.asList(0L, 13L, 20L, 30L, 40L, 50L);
+        BsonField[] outputFields = {
+                new BsonField("avg_app_rating", new Document("$avg", "$app_rating"))
+        };
+        BucketOptions options = new BucketOptions()
+                .defaultBucket(50L)
+                .output(outputFields);
+
+        List<Bson> pipeline = List.of(
+                match(and(exists("birthday"), exists("app_rating"))),
+                project(fields(
+                        computed("age", new Document("$floor", new Document("$divide",
+                        Arrays.asList(
+                                new Document("$subtract", Arrays.asList(new Date(), "$birthday")),
+                                1000L * 60 * 60 * 24 * 365
+                        )))),
+                        include("app_rating")
+                )),
+                bucket("$age", boundaries, options)
+        );
+
+        List<Document> aggregationResult = usersCollection.aggregate(pipeline).into(new ArrayList<>());
+
+        if (aggregationResult.isEmpty()) {
+            throw new MongoException("UserDAOMongoImpl: averageAppRatingByAgeRange: No data found");
+        }
+
+        Map<String, Double> map = new LinkedHashMap<>();
+        for (Document doc : aggregationResult) {
+            String ageRange = convertIntegerToAgeRange(doc.getLong("_id"));
+            map.put(ageRange, doc.getDouble("avg_app_rating"));
+        }
+
+        return map;
+
+    } catch (MongoException e){
+        throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+    } catch (Exception e){
+        throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+    }
+}
+\end{lstlisting}
+    
+\begin{itemize}
+    \item Mongo Shell Query:
+\end{itemize}
+\begin{lstlisting}[language=JavaScript]
+db.getCollection('COLLECTION_NAME').aggregate([
+    { 
+        $match: { 
+            $and: [
+                { birthday: { $exists: true } }, 
+                { app_rating: { $exists: true } }
+            ]
+        } 
+    },
+    { 
+        $project: { 
+            age: { 
+                $floor: { 
+                    $divide: [
+                        { $subtract: [ new Date(), "$birthday" ] },
+                        1000 * 60 * 60 * 24 * 365
+                    ]
+                }
             },
-            { 
-                $project: { 
-                    year: { $year: "$birthday" },  
-                    app_rating: 1 
-                } 
-            },
-            { 
-                $group: { 
-                    _id: "$year", 
-                    count: { $sum: 1 } 
-                } 
-            },
-            { 
-                $sort: { 
-                    count: -1 
-                } 
+            app_rating: 1 
+        } 
+    },
+    { 
+        $bucket: {
+            groupBy: "$age",
+            boundaries: [0, 13, 20, 30, 40, 50],
+            default: 50,
+            output: { 
+                avg_app_rating: { $avg: "$app_rating" }
             }
-        ]).toArray();        
-    \end{lstlisting}
+        }
+    }
+]).toArray();
+       
+    
+\end{lstlisting}
+
+
+
+
+
+\subsection*{REVIEW:}
+\textbf{Get Media Content Rating By Year}\\
+Retrieves the average ratings for a specific media content (anime or manga) by year within a specified range.
+The aggregation pipeline performs the following steps:\\
+1. Matches the reviews for the specified media content ID and date range, ensuring the reviews have a rating.\\
+2. Groups the reviews by year and calculates the average rating for each year.\\
+3. Projects the results to include the year and the calculated average rating.\\
+4. Sorts the results by year in ascending order.
+\begin{itemize}
+    \item Java Implementation:
+\end{itemize}
+\begin{lstlisting}[language=JavaScript]
+public Map<String, Double> getMediaContentRatingByYear(MediaContentType type, String mediaContentId, int startYear, int endYear) throws  DAOException {
+    try  {
+        // Get media content rating by year
+        MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
+
+        String nodeType = type.equals(MediaContentType.ANIME) ? "anime" : "manga";
+        Date startDate = ConverterUtils.localDateToDate(LocalDate.of(startYear, 1, 1));
+        Date endDate = ConverterUtils.localDateToDate(LocalDate.of(endYear + 1, 1, 1));
+        List<Bson> pipeline = List.of(
+                match(and(
+                        eq(nodeType + ".id", new ObjectId(mediaContentId)),
+                        exists("rating", true),
+                        gte("date", startDate),
+                        lt("date", endDate)
+                )),
+                group(new Document("$year", "$date"), avg("average_rating", "$rating")),
+                project(fields(
+                        excludeId(),
+                        computed("year", "$_id"),
+                        include("average_rating"))
+                ),
+                sort(ascending("year"))
+        );
+        List<Document> result = reviewCollection.aggregate(pipeline).into(new ArrayList<>());
+
+        // Initialize the result map with years and default values
+        Map<String, Double> resultMap = new LinkedHashMap<>();
+        for (int year = startYear; year <= endYear; year++) {
+            resultMap.put(String.valueOf(year), null);
+        }
+
+        // Populate the result map with the average ratings
+        for (Document document : result) {
+            Double averageRating = document.getDouble("average_rating");
+            Integer year = document.getInteger("year");
+            resultMap.put(String.valueOf(year), averageRating);
+        }
+        return resultMap;
+
+    } catch (MongoException e) {
+        throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+    } catch (Exception e) {
+        throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+    }
+}
+\end{lstlisting}
+    
+\begin{itemize}
+    \item Mongo Shell Query:
+\end{itemize}
+\begin{lstlisting}[language=JavaScript]
+// Match stage to filter documents based on specified conditions
+db.collection.aggregate([
+    {
+        $match: {
+            [`${nodeType}.id`]: new ObjectId(mediaContentId),
+            rating: { $exists: true },
+            date: { $gte: startDate, $lt: endDate }
+        }
+    },
+    // Group stage to group documents by year and calculate the average rating
+    {
+        $group: {
+            _id: { $year: "$date" },
+            average_rating: { $avg: "$rating" }
+        }
+    },
+    // Project stage to shape the output documents
+    {
+        $project: {
+            _id: 0,
+            year: "$_id",
+            average_rating: 1
+        }
+    },
+    // Sort stage to sort documents by year in ascending order
+    {
+        $sort: { year: 1 }
+    }
+]);
+\end{lstlisting}
+\textbf{Get Media Content Rating By Month}\\
+Retrieves the average ratings for a specific media content (anime or manga) by month for a specified year.
+The aggregation pipeline performs the following steps:\\
+1. Matches the reviews for the specified media content ID and year, ensuring the reviews have a rating.\\
+2. Groups the reviews by month and calculates the average rating for each month.\\
+3. Projects the results to include the month and the calculated average rating.\\
+4. Sorts the results by month in ascending order.
+\begin{itemize}
+    \item Java Implementation:
+\end{itemize}
+\begin{lstlisting}[language=JavaScript]
+public Map<String, Double> getMediaContentRatingByMonth(MediaContentType type, String mediaContentId, int year) throws DAOException {
+    try  {
+        // Get media content rating by month
+        MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
+
+        String nodeType = type.equals(MediaContentType.ANIME) ? "anime" : "manga";
+        Date startDate = ConverterUtils.localDateToDate(LocalDate.of(year, 1, 1));
+        Date endDate = ConverterUtils.localDateToDate(LocalDate.of(year + 1, 1, 1));
+        List<Bson> pipeline = List.of(
+                match(and(
+                        eq(nodeType + ".id", new ObjectId(mediaContentId)),
+                        exists("rating", true),
+                        gte("date", startDate),
+                        lt("date", endDate)
+                )),
+                group(new Document("$month", "$date"),
+                        avg("average_rating", "$rating")
+                ),
+                project(fields(
+                        excludeId(),
+                        computed("month", "$_id"),
+                        include("average_rating")
+                )),
+                sort(ascending("month"))
+        );
+        List<Document> result = reviewCollection.aggregate(pipeline).into(new ArrayList<>());
+
+        // Initialize the result map with months and default values
+        Map<String, Double> resultMap = new LinkedHashMap<>();
+        for (Month month : Month.values()) {
+            resultMap.put(month.getDisplayName(TextStyle.FULL, Locale.ENGLISH), null);
+        }
+
+        // Populate the result map with the average ratings
+        for (Document document : result) {
+            Object ratingObj = document.get("average_rating");
+            Double averageRating = ratingObj instanceof Integer ratingInt ? ratingInt.doubleValue() : (Double) ratingObj;
+            Integer month = document.getInteger("month");
+            resultMap.put(Month.of(month).getDisplayName(TextStyle.FULL, Locale.ENGLISH), averageRating);
+        }
+        return resultMap;
+
+    } catch (MongoException e) {
+        throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+    } catch (Exception e) {
+        throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+    }
+}
+\end{lstlisting}
+\begin{itemize}
+    \item Mongo Shell Query:
+\end{itemize}
+\begin{lstlisting}[language=JavaScript]
+db.getCollection.aggregate([
+    { 
+        $match: { 
+            $and: [
+                { [nodeType + ".id"]: mediaContentId },
+                { rating: { $exists: true } },
+                { date: { $gte: startDate } },
+                { date: { $lt: endDate } }
+            ]
+        } 
+    },
+    { 
+        $group: { 
+            _id: { $month: "$date" },
+            average_rating: { $avg: "$rating" }
+        } 
+    },
+    { 
+        $project: { 
+            _id: 0,
+            month: "$_id",
+            average_rating: 1
+        } 
+    },
+    { 
+        $sort: { 
+            month: 1 
+        } 
+    }
+]).toArray();
+\end{lstlisting}
+\textbf{Suggest Media Content}\\
+Suggests media content (anime or manga) based on user criteria (location or birthday year).
+The aggregation pipeline performs the following steps:\\
+1. Matches the reviews with a rating, the specified media content type and the user criteria.\\
+2. Groups the reviews by media content ID and calculates the average rating for each media content.\\
+3. Projects the results to include the media content title and the calculated average rating.\\
+4. Sorts the results by average rating in descending order.\\
+5. Limits the results to 20 entries.
+\begin{itemize}
+    \item Java Implementation:
+\end{itemize}
+\begin{lstlisting}[language=JavaScript]
+public List<MediaContentDTO> suggestMediaContent(MediaContentType mediaContentType, String criteriaType, String criteriaValue) throws DAOException {
+    try  {
+        // Suggest media content based on user criteria
+        MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
+        String nodeType = mediaContentType.equals(MediaContentType.ANIME) ? "anime" : "manga";
+
+        Bson filter = and(
+                exists("rating", true),
+                exists(nodeType, true)
+        );
+
+        if (criteriaType.equals("location")) {
+            filter = and(filter, eq("user.location", criteriaValue));
+        } else if (criteriaType.equals("birthday")) {
+            Date startDate = ConverterUtils.localDateToDate(LocalDate.of(Integer.parseInt(criteriaValue), 1, 1));
+            Date endDate = ConverterUtils.localDateToDate(LocalDate.of(Integer.parseInt(criteriaValue) + 1, 1, 1));
+            filter = and(filter, gte("user.birthday", startDate), lt("user.birthday", endDate));
+        } else {
+            throw new Exception("ReviewDAOMongoImpl: suggestMediaContent: Invalid criteria type");
+        }
+
+        List<Bson> pipeline = new ArrayList<>(List.of(
+                match(filter),
+                group("$" + nodeType + ".id",
+                        first("title", "$" + nodeType + ".title"),
+                        avg("average_rating", "$rating")),
+                sort(descending("average_rating")),
+                project(include("title")),
+                limit(20)));
+
+        List<Document> result = reviewCollection.aggregate(pipeline).into(new ArrayList<>());
+        if (result.isEmpty()) {
+            throw new MongoException("ReviewDAOMongoImpl: suggestMediaContent: No reviews found");
+        }
+
+        List<MediaContentDTO> entries = new ArrayList<>();
+        for (Document document : result) {
+            String contentId = String.valueOf(document.getObjectId("_id"));
+            String title = document.getString("title");
+
+            MediaContentDTO mediaContentDTO;
+            if (nodeType.equals("anime")) {
+                mediaContentDTO = new AnimeDTO(contentId, title);
+            } else {
+                mediaContentDTO = new MangaDTO(contentId, title);
+            }
+            entries.add(mediaContentDTO);
+        }
+        return entries;
+
+    } catch (MongoException e) {
+        throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+    } catch (Exception e) {
+        throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+    }
+}
+\end{lstlisting}
+\begin{itemize}
+    \item Mongo Shell Query:
+\end{itemize}
+\begin{lstlisting}[language=JavaScript]
+db.collection.aggregate([
+    {
+        // Match documents based on a dynamic user criteria
+        $match: {
+        ["user." + criteriaType]: criteriaValue
+        }
+    },
+    {
+        // Group documents by node type ID and calculate the first title and average rating
+        $group: {
+        _id: "$" + nodeType + ".id", // Group by the node type's ID
+        title: { $first: "$" + nodeType + ".title" }, // Get the first title in the group
+        average_rating: { $avg: "$rating" } // Calculate the average rating for the group
+        }
+    },
+    {
+        // Sort the grouped documents by average rating in descending order
+        $sort: { average_rating: -1 }
+    },
+    {
+        // Limit the number of results to the page size constant
+        $limit: Constants.PAGE_SIZE
+    }
+    ]);
+\end{lstlisting}
+
+
+\subsection*{MANGA/ANIME:}
+\textbf{Get Best Criteria}\\
+Retrieves the best criteria based on the average rating of the Anime objects in the MongoDB database.
+\begin{itemize}
+    \item Java Implementation:
+\end{itemize}
+\begin{lstlisting}[language=JavaScript]
+public Map<String, Double> getBestCriteria (String criteria, boolean isArray, int page) throws DAOException {
+    try {
+        MongoCollection<Document> animeCollection = getCollection(COLLECTION_NAME);
+        int pageOffset = (page - 1) * Constants.PAGE_SIZE;
+
+        List<Bson> pipeline;
+        if (isArray) {
+            pipeline = List.of(
+                    match(and(exists(criteria), ne("average_rating", null))),
+                    unwind("$" + criteria),
+                    group("$" + criteria, avg("criteria_average_rating", "$average_rating")),
+                    sort(descending("criteria_average_rating")),
+                    skip(pageOffset),
+                    limit(25)
+            );
+        } else {
+            pipeline = List.of(
+                    match(Filters.exists(criteria)),
+                    group("$" + criteria, avg("criteria_average_rating", "$average_rating")),
+                    sort(new Document("criteria_average_rating", -1)),
+                    skip(pageOffset),
+                    limit(25)
+            );
+        }
+
+        List <Document> document = animeCollection.aggregate(pipeline).into(new ArrayList<>());
+        Map<String, Double> bestCriteria = new LinkedHashMap<>();
+        for (Document doc : document) {
+            Double avgRating = doc.get("criteria_average_rating") instanceof Integer?
+                    doc.getInteger("criteria_average_rating").doubleValue() :
+                    doc.getDouble("criteria_average_rating");
+            bestCriteria.put(doc.get("_id").toString(), avgRating);
+        }
+
+        return bestCriteria;
+
+    } catch (Exception e) {
+        throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+    }
+}
+\end{lstlisting}
+\begin{itemize}
+    \item Mongo Shell Query:
+\end{itemize}
+\begin{lstlisting}[language=JavaScript]
+db.collection.aggregate([
+    // Match stage to filter documents where 'criteria' exists and 'average_rating' is not null
+    {
+        $match: {
+            criteria: { $exists: true },
+            average_rating: { $ne: null }
+        }
+    },
+    // Unwind stage to deconstruct the 'criteria' array field
+    {
+        $unwind: "$" + criteria
+    },
+    // Group stage to calculate the average rating for each criteria
+    {
+        $group: {
+            _id: "$" + criteria,
+            criteria_average_rating: { $avg: "$average_rating" }
+        }
+    },
+    // Sort stage to sort documents by 'criteria_average_rating' in descending order
+    {
+        $sort: {
+            criteria_average_rating: -1
+        }
+    },
+    // Skip stage to skip the first 'pageOffset' documents
+    {
+        $skip: pageOffset
+    },
+    // Limit stage to limit the results to 25 documents
+    {
+        $limit: 25
+    }
+]);
+\end{lstlisting}
+
 
 
 
 \newpage
 
-\textbf{USERS:}
-\begin{itemize}
-  \item GetDistribution query to get the user's location, gender, birthday year that gave the highest rating to the application:
+
   
-\end{itemize}
-\begin{lstlisting}[language=JavaScript, caption=GetDistribution]
-  // Match stage to filter documents where 'criteriaOfSearch' exists
-  db.collection.aggregate([
-      {
-          $match: {
-              [criteriaOfSearch]: { $exists: true }
-          }
-      },
-      // Project stage to include 'criteriaOfSearch' and 'app_rating' fields
-      {
-          $project: {
-              [criteriaOfSearch]: 1,
-              app_rating: 1
-          }
-      },
-      // Group stage to count occurrences of each 'criteriaOfSearch'
-      {
-          $group: {
-              _id: "$" + criteriaOfSearch,
-              count: { $sum: 1 }
-          }
-      },
-      // Sort stage to sort documents by 'count' in descending order
-      {
-          $sort: {
-              count: -1
-          }
-      }
-  ]);
-  \end{lstlisting}
-  
-
-
-\textbf{ANIME/MANGA:}
-
-\begin{itemize}
-
-\item GetBestCriteria query, the criteria can be genres, demographics, themes, authors and serialization for manga; tags, producers, studios for anime:
-\begin{lstlisting}[language=JavaScript, caption=GetBestCriteria]
-  db.collection.aggregate([
-      // Match stage to filter documents where 'criteria' exists and 'average_rating' is not null
-      {
-          $match: {
-              criteria: { $exists: true },
-              average_rating: { $ne: null }
-          }
-      },
-      // Unwind stage to deconstruct the 'criteria' array field
-      {
-          $unwind: "$" + criteria
-      },
-      // Group stage to calculate the average rating for each criteria
-      {
-          $group: {
-              _id: "$" + criteria,
-              criteria_average_rating: { $avg: "$average_rating" }
-          }
-      },
-      // Sort stage to sort documents by 'criteria_average_rating' in descending order
-      {
-          $sort: {
-              criteria_average_rating: -1
-          }
-      },
-      // Skip stage to skip the first 'pageOffset' documents
-      {
-          $skip: pageOffset
-      },
-      // Limit stage to limit the results to 25 documents
-      {
-          $limit: 25
-      }
-  ]);
-  \end{lstlisting}
-
-\end{itemize}
-
-\textbf{REVIEWS:}
-
-\begin{itemize}
-\item GetMediaContentRatingByYear query to get the average rating of media content by year:
-\end{itemize}
-
-
-\begin{lstlisting}[language=JavaScript, caption=GetMediaContentRatingByYear]
-  // Match stage to filter documents based on specified conditions
-  db.collection.aggregate([
-      {
-          $match: {
-              [`${nodeType}.id`]: new ObjectId(mediaContentId),
-              rating: { $exists: true },
-              date: { $gte: startDate, $lt: endDate }
-          }
-      },
-      // Group stage to group documents by year and calculate the average rating
-      {
-          $group: {
-              _id: { $year: "$date" },
-              average_rating: { $avg: "$rating" }
-          }
-      },
-      // Project stage to shape the output documents
-      {
-          $project: {
-              _id: 0,
-              year: "$_id",
-              average_rating: 1
-          }
-      },
-      // Sort stage to sort documents by year in ascending order
-      {
-          $sort: { year: 1 }
-      }
-  ]);
-  \end{lstlisting}
-
-
-\begin{itemize}
-  \item SuggestMediaContent query to suggest media content based on common criteria, like birthday or location:
-  
-\end{itemize}
-
-\begin{lstlisting}[language=JavaScript, caption=SuggestMediaContent]
-  db.collection.aggregate([
-  {
-    // Match documents based on a dynamic user criteria
-    $match: {
-      ["user." + criteriaType]: criteriaValue
-    }
-  },
-  {
-    // Group documents by node type ID and calculate the first title and average rating
-    $group: {
-      _id: "$" + nodeType + ".id", // Group by the node type's ID
-      title: { $first: "$" + nodeType + ".title" }, // Get the first title in the group
-      average_rating: { $avg: "$rating" } // Calculate the average rating for the group
-    }
-  },
-  {
-    // Sort the grouped documents by average rating in descending order
-    $sort: { average_rating: -1 }
-  },
-  {
-    // Limit the number of results to the page size constant
-    $limit: Constants.PAGE_SIZE
-  }
-]);
-\end{lstlisting}
-
 \section{GraphDB queries}
-Some of the most important Neo4j queries for analytic and suggestion porpouses.
-
-\textbf{USERS:}
-
+Some of the most important Neo4j queries for analytic and suggestion purposes.
+\subsection*{USERS:}
+\textbf{Suggest User By Common Likes}\\
+Retrieves a list of suggested users for a specific user based on common likes from the Neo4j database.
+The method performs the following steps:\\
+1. Retrieve users who like the same media content as the specified user in the last 6 month.\\
+2. Retrieve users who like the same media content as the specified user in the last year.\\
+3. Retrieve users who like the same media content as the specified user.\\
 \begin{itemize}
-  \item Suggest other users followings in common:
+    \item Java Implementation:
 \end{itemize}
-\begin{lstlisting}[language=Cypher, caption=SuggestUsersByCommonFollowings]
+\begin{lstlisting}[language=JavaScript]
+public List<UserSummaryDTO> suggestUsersByCommonLikes(String userId, Integer limit, MediaContentType type) throws DAOException {
 
+    try (Session session = getSession()) {
+        if (type == null) {
+            throw new IllegalArgumentException("Media content type must be specified");
+        }
+
+        int n = limit == null ? 5 : limit;
+        int remaining;
+
+        StringBuilder queryBuilder = new StringBuilder();
+        if (type == MediaContentType.ANIME)
+            queryBuilder.append("MATCH (u:User {id: $userId})-[r:LIKE]->(media:Anime)<-[:LIKE]-(suggested:User) ");
+        else
+            queryBuilder.append("MATCH (u:User {id: $userId})-[r:LIKE]->(media:Manga)<-[:LIKE]-(suggested:User) ");
+        queryBuilder.append("""
+                WHERE u <> suggested AND r.date >= date($date)
+                WITH suggested, COUNT(DISTINCT media) AS commonLikes
+                WHERE commonLikes > $min
+                RETURN suggested AS user, commonLikes
+                ORDER BY commonLikes DESC
+                LIMIT $n
+                """);
+        String query1 = queryBuilder.toString();
+        Value params1 = parameters("userId", userId, "n", n, "date", LocalDate.now().minusMonths(6), "min", 5);
+
+        List<UserSummaryDTO> suggested = session.executeRead(
+                tx -> tx.run(query1, params1).list()
+        ).stream()
+                .map(this::recordToUserSummaryDTO)
+                .collect(Collectors.toList());
+
+        remaining = n - suggested.size();
+
+        if (remaining > 0) {
+            Value params2 = parameters("userId", userId, "n", n, "date", LocalDate.now().minusYears(1), "min", 5);
+
+            List<Record> records = session.executeRead(tx -> tx.run(query1, params2).list());
+            for (Record record : records) {
+                UserSummaryDTO userDTO = recordToUserSummaryDTO(record);
+                if (!suggested.contains(userDTO))
+                    suggested.add(userDTO);
+                if (suggested.size() == n)
+                    break;
+            }
+
+            remaining = n - suggested.size();
+        }
+
+        if(remaining > 0) {
+            StringBuilder queryBuilder3 = new StringBuilder();
+            if (type == MediaContentType.ANIME)
+                queryBuilder3.append("MATCH (u:User {id: $userId})-[r:LIKE]->(media:Anime)<-[:LIKE]-(suggested:User) ");
+            else
+                queryBuilder3.append("MATCH (u:User {id: $userId})-[r:LIKE]->(media:Manga)<-[:LIKE]-(suggested:User) ");
+            queryBuilder3.append("""
+                    WHERE u <> suggested
+                    WITH suggested, COUNT(DISTINCT media) AS commonLikes
+                    RETURN suggested AS user, commonLikes
+                    ORDER BY commonLikes DESC
+                    LIMIT $n
+                    """);
+            String query2 = queryBuilder3.toString();
+            Value params3 = parameters("userId", userId, "n", n);
+
+            List<Record> records = session.executeRead(tx -> tx.run(query2, params3).list());
+            for (Record record : records) {
+                UserSummaryDTO userDTO = recordToUserSummaryDTO(record);
+                if (!suggested.contains(userDTO))
+                    suggested.add(userDTO);
+                if (suggested.size() == n)
+                    break;
+            }
+        }
+
+        return suggested.isEmpty() ? null : suggested;
+
+    } catch (Neo4jException e) {
+        throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
+    } catch (Exception e) {
+        throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+    }
+}
+\end{lstlisting}
+\begin{itemize}
+    \item Neo4j Query:
+\end{itemize}
+\begin{lstlisting}[language=Cypher]
+MATCH (u:User {id: $userId})-[r:LIKE]->(media:Manga)<-[:LIKE]-(suggested:User) 
+WHERE u <> suggested AND r.date >= $date
+WITH suggested, COUNT(DISTINCT media) AS commonLikes
+WHERE commonLikes > $min
+RETURN suggested AS user, commonLikes
+ORDER BY commonLikes DESC
+LIMIT $n
+\end{lstlisting}
+\textbf{Suggest Users By Common Followings}\\
+Retrieves a list of suggested users for a specific user based on common followings from the Neo4j database.
+The method performs the following steps:\\
+1. Retrieve users that follow user's followings and have more than 5 common followings.\\
+2. Retrieve users that are followed by user's followings and have more than 5 connections.\\
+3. Retrieve users that follow user's followings.\\
+\begin{itemize}
+    \item Java Implementation:
+\end{itemize}
+\begin{lstlisting}[language=JavaScript]
+public List<UserSummaryDTO> suggestUsersByCommonFollowings(String userId, Integer limit) throws DAOException {
+    try (Session session = getSession()) {
+        int n = limit == null ? 5 : limit;
+        int remaining;
+
+        // suggest users that follow user's followings and have more than 5 common followings
+        String query = """
+                MATCH (u:User {id: $userId})-[:FOLLOWS]->(following:User)<-[:FOLLOWS]-(suggested:User)
+                WHERE NOT (u)-[:FOLLOWS]->(suggested) AND u <> suggested
+                WITH suggested, COUNT(DISTINCT following) AS commonFollowings
+                WHERE commonFollowings > 5
+                RETURN suggested as user
+                ORDER BY commonFollowings DESC
+                LIMIT $n
+                """;
+        Value params = parameters("userId", userId, "n", n);
+
+        List<UserSummaryDTO> suggested = session.executeRead(
+                tx -> tx.run(query, params).list()
+        ).stream()
+                .map(this::recordToUserSummaryDTO)
+                .collect(Collectors.toList());
+
+        remaining = n - suggested.size();
+
+        // if there are not enough suggestions, suggest users that are followed by the user's followings and have more than 5 connections
+        if (remaining > 0) {
+            String query2 = """
+                    MATCH (u:User {id: $userId})-[:FOLLOWS]->(following:User)-[:FOLLOWS]->(suggested:User)
+                    WHERE NOT (u)-[:FOLLOWS]->(suggested) AND u <> suggested
+                    WITH suggested, COUNT(DISTINCT following) AS commonUsers
+                    WHERE commonUsers > 5
+                    RETURN suggested as user
+                    ORDER BY commonUsers DESC
+                    LIMIT $n
+                    """;
+            Value params2 = parameters("userId", userId, "n", n);
+
+            List<Record> records = session.executeRead(tx -> tx.run(query2, params2).list());
+            for (Record record : records) {
+                UserSummaryDTO userDTO = recordToUserSummaryDTO(record);
+                if (!suggested.contains(userDTO))
+                    suggested.add(userDTO);
+                if (suggested.size() == n)
+                    break;
+            }
+
+            remaining = n - suggested.size();
+        }
+
+        // if there are still not enough suggestions, suggest users that follow the user's followings
+        if (remaining > 0) {
+            String query3 = """
+                    MATCH (u:User {id: $userId})-[:FOLLOWS]->(following:User)<-[:FOLLOWS]-(suggested:User)
+                    WHERE NOT (u)-[:FOLLOWS]->(suggested) AND u <> suggested
+                    WITH suggested, COUNT(DISTINCT following) AS commonFollowings
+                    RETURN suggested as user
+                    ORDER BY commonFollowings DESC
+                    LIMIT $n
+                    """;
+            Value params3 = parameters("userId", userId, "n", n);
+
+            List<Record> records = session.executeRead(tx -> tx.run(query3, params3).list());
+            for (Record record : records) {
+                UserSummaryDTO userDTO = recordToUserSummaryDTO(record);
+                if (!suggested.contains(userDTO))
+                    suggested.add(userDTO);
+                if (suggested.size() == n)
+                    break;
+            }
+        }
+
+        return suggested.isEmpty() ? null : suggested;
+
+    } catch (Neo4jException e) {
+        throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
+    } catch (Exception e) {
+        throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+    }
+}
+\end{lstlisting}
+\begin{itemize}
+    \item Neo4j Query:
+\end{itemize}
+\begin{lstlisting}[language=Cypher]
 MATCH (u:User {id: $userId})-[:FOLLOWS]->(following:User)<-[:FOLLOWS]-(suggested:User) 
 WHERE NOT (u)-[:FOLLOWS]->(suggested) AND u <> suggested 
 WITH suggested, COUNT(DISTINCT following) AS commonFollowers 
@@ -840,78 +1432,359 @@ ORDER BY commonFollowers DESC
 LIMIT $n
 \end{lstlisting}
 
+
+\subsection*{ANIME/MANGA:}
+\textbf{Get Trend Media Content By Year}\\
+Retrieves a list of trending MangaDTO objects for a specific year from the Neo4j database.
 \begin{itemize}
-  \item Suggest other users likes in common:
+    \item Java Implementation:
 \end{itemize}
-\begin{lstlisting}[language=Cypher, caption=SuggestUsersByCommonLikes]
-  MATCH (u:User {id: $userId})-[r:LIKE]->(media:Manga)<-[:LIKE]-(suggested:User) 
-  WHERE u <> suggested AND r.date >= $date
-  WITH suggested, COUNT(DISTINCT media) AS commonLikes
-  WHERE commonLikes > $min
-  RETURN suggested AS user, commonLikes
-  ORDER BY commonLikes DESC
-  LIMIT $n
+\begin{lstlisting}[language=JavaScript]
+public Map<MediaContentDTO, Integer> getTrendMediaContentByYear(int year, Integer limit) throws DAOException {
+    int n = limit == null ? 5 : limit;
+    try (Session session = getSession()) {
+        LocalDate startDate = LocalDate.of(year, 1, 1);
+        LocalDate endDate = LocalDate.of(year + 1, 1, 1);
+
+        String query = """
+        MATCH (m:Manga)<-[r:LIKE]-(u:User)
+        WHERE r.date >= date($startDate) AND r.date < date($endDate)
+        WITH m, count(r) AS numLikes
+        ORDER BY numLikes DESC
+        RETURN m AS manga, numLikes
+        LIMIT $n
+        """;
+
+        Value params = parameters("startDate", startDate, "endDate", endDate, "n", n);
+
+        Map<MediaContentDTO, Integer> result = new LinkedHashMap<>();
+        session.executeRead(
+                tx -> tx.run(query, params).list()
+        ).forEach(record -> {
+            MangaDTO mangaDTO = (MangaDTO) recordToMediaContentDTO(record);
+            Integer likes = record.get("numLikes").asInt();
+            result.put(mangaDTO, likes);
+        });
+
+        return result;
+
+    } catch (Neo4jException e) {
+        throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
+    } catch (Exception e) {
+        throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+    }
+}
+\end{lstlisting}
+\begin{itemize}
+    \item Neo4j Query:
+\end{itemize}
+\begin{lstlisting}[language=Cypher]
+MATCH (a:Anime)<-[r:LIKE]-(u:User)
+WHERE r.date >= $startDate AND r.date < $endDate
+WITH a, count(r) AS numLikes
+ORDER BY numLikes DESC
+RETURN a AS anime, numLikes
+LIMIT $n
+\end{lstlisting}
+\textbf{Get Media Content Trend By Likes}\\
+Retrieves a list of trending MangaDTO objects by likes from the Neo4j database.
+The method performs the following steps:\\
+1. Retrieve the trending Manga by likes in the last 6 months.\\
+2. If there are not enough trending Manga, retrieve more results from the last year.\\
+3. If there are still not enough trending Manga, retrieve more results from the last 5 years.\\
+\begin{itemize}
+    \item Java Implementation:
+\end{itemize}
+\begin{lstlisting}[language=JavaScript]
+public List<MediaContentDTO> getMediaContentTrendByLikes(Integer limit) throws DAOException {
+    try (Session session = getSession()) {
+        int n = limit == null ? 5 : limit;
+        int remaining;
+        LocalDate now = LocalDate.now();
+
+        // Try to get trending content based on likes in the last 6 months
+        String query1 = """
+            MATCH (u:User)-[r:LIKE]->(m:Manga)
+            WHERE r.date >= date($startDate)
+            WITH m, COUNT(r) AS numLikes
+            WHERE numLikes > 10
+            RETURN m AS manga, numLikes
+            ORDER BY numLikes DESC, m.title ASC
+            LIMIT $n
+            """;
+
+        Value params1 = parameters("startDate", now.minusMonths(6), "n", n);
+        List<MediaContentDTO> trendingContent = session.executeRead(
+                        tx -> tx.run(query1, params1).list()
+                ).stream()
+                .map(record -> (MangaDTO) recordToMediaContentDTO(record))
+                .collect(Collectors.toList());
+
+        remaining = n - trendingContent.size();
+
+        // If not enough results, add more results from the last year
+        if (remaining > 0) {
+            Value params2 = parameters("startDate", now.minusYears(1), "n", remaining);
+
+            List<Record> records = session.executeRead(tx -> tx.run(query1, params2).list());
+            for (Record record : records) {
+                MangaDTO mangaDTO = (MangaDTO) recordToMediaContentDTO(record);
+                if (!trendingContent.contains(mangaDTO))
+                    trendingContent.add(mangaDTO);
+                if (trendingContent.size() == n)
+                    break;
+            }
+
+            remaining = n - trendingContent.size();
+        }
+
+        // If still not enough results, add more results from the last 5 years
+        if (remaining > 0) {
+            String query2 = """
+            MATCH (u:User)-[r:LIKE]->(m:Manga)
+            WHERE r.date >= date($startDate)
+            WITH m, COUNT(r) AS numLikes
+            RETURN m AS manga, numLikes
+            ORDER BY numLikes DESC, m.title ASC
+            LIMIT $n
+            """;
+            Value params3 = parameters("startDate", now.minusYears(5), "n", remaining);
+
+            List<Record> records = session.executeRead(tx -> tx.run(query2, params3).list());
+            for (Record record : records) {
+                MangaDTO mangaDTO = (MangaDTO) recordToMediaContentDTO(record);
+                if (!trendingContent.contains(mangaDTO))
+                    trendingContent.add(mangaDTO);
+                if (trendingContent.size() == n)
+                    break;
+            }
+        }
+
+        return trendingContent.isEmpty() ? null : trendingContent;
+
+    } catch (Neo4jException e) {
+        throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
+    } catch (Exception e) {
+        throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+    }
+}
+\end{lstlisting}
+\begin{itemize}
+    \item Neo4j Query:
+\end{itemize}
+\begin{lstlisting}[language=Cypher]
+MATCH (u:User)-[r:LIKE]->(a:Anime)
+WHERE r.date >= $startDate
+WITH a, COUNT(r) AS numLikes
+ORDER BY numLikes DESC
+RETURN a AS anime, numLikes
+LIMIT $n
+\end{lstlisting}
+\textbf{Get Suggested By Followings}\\
+Retrieves a list of suggested MangaDTO objects for a user from the Neo4j database.
+The method performs the following steps:\\
+1. Retrieve Manga that the user's followings have liked in the last 6 months.\\
+2. If there are not enough suggestions, retrieve Manga that the user's followings have liked in the last 2 years.\\
+3. If there are still not enough suggestions, retrieve Manga that the user's followings have liked.
+\begin{itemize}
+    \item Java Implementation:
+\end{itemize}
+\begin{lstlisting}[language=JavaScript]
+public List<MediaContentDTO> getSuggestedByFollowings(String userId, Integer limit) throws DAOException {
+    try (Session session = getSession()) {
+        int n = limit == null ? 5 : limit;
+        int remaining;
+        LocalDate now = LocalDate.now();
+
+        // try to get suggestions based on likes in the last 6 months
+        String query1 = """
+            MATCH (u:User {id: $userId})-[:FOLLOWS]->(f:User)-[r:LIKE]->(m:Manga)
+            WHERE NOT (u)-[:LIKE]->(m) AND r.date >= date($startDate)
+            WITH m, COUNT(DISTINCT f) AS num_likes
+            RETURN m AS manga
+            ORDER BY num_likes DESC, m.title ASC
+            LIMIT $n
+            """;
+        Value params1 = parameters("userId", userId, "n", n, "startDate", now.minusMonths(6));
+
+        List<MediaContentDTO> suggested = session.executeRead(
+                        tx -> tx.run(query1, params1).list()
+                ).stream()
+                .map(record -> (MangaDTO) recordToMediaContentDTO(record))
+                .collect(Collectors.toList());
+
+        remaining = n - suggested.size();
+
+        // if there are not enough suggestions, add more results from the last 2 years
+        if (remaining > 0) {
+            Value params2 = parameters("userId", userId, "n", n, "startDate", now.minusYears(2));
+
+            List<Record> records = session.executeRead(tx -> tx.run(query1, params2).list());
+            for (Record record : records) {
+                MangaDTO mangaDTO = (MangaDTO) recordToMediaContentDTO(record);
+                if (!suggested.contains(mangaDTO))
+                    suggested.add(mangaDTO);
+                if (suggested.size() == n)
+                    break;
+            }
+
+            remaining = n - suggested.size();
+        }
+
+        // if there are still not enough suggestions, add more results based on all likes
+        if (remaining > 0) {
+            String query2 = """
+                MATCH (u:User {id: $userId})-[:FOLLOWS]->(f:User)-[r:LIKE]->(m:Manga)
+                WHERE NOT (u)-[:LIKE]->(m)
+                WITH m, COUNT(DISTINCT f) AS num_likes
+                RETURN m AS manga
+                ORDER BY num_likes DESC, m.title ASC
+                LIMIT $n
+                """;
+            Value params3 = parameters("userId", userId, "n", n);
+
+            List<Record> records = session.executeRead(tx -> tx.run(query2, params3).list());
+            for (Record record : records) {
+                MangaDTO mangaDTO = (MangaDTO) recordToMediaContentDTO(record);
+                if (!suggested.contains(mangaDTO))
+                    suggested.add(mangaDTO);
+                if (suggested.size() == n)
+                    break;
+            }
+        }
+
+        return suggested.isEmpty() ? null : suggested;
+
+    } catch (Neo4jException e) {
+        throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
+    } catch (Exception e) {
+        throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+    }
+}
+\end{lstlisting}
+\begin{itemize}
+    \item Neo4j Query:
+\end{itemize}
+\begin{lstlisting}[language=Cypher]
+MATCH (u:User {id: $userId})-[:FOLLOWS]->(f:User)-[r:LIKE]->(a:Anime)
+WHERE NOT (u)-[:LIKE]->(a) AND r.date >= $startDate
+WITH a, COUNT(DISTINCT f) AS num_likes
+RETURN a AS anime
+ORDER BY num_likes DESC
+LIMIT $n
+\end{lstlisting}
+\textbf{Get Suggested By Likes}\\
+Retrieves a list of suggested MangaDTO objects for a user from the Neo4j database.
+The method performs the following steps:\\
+1. Retrieve Manga that other users with similar taste have liked in the last 6 months.\\
+2. If there are not enough suggestions, retrieve Manga that other users with similar taste have liked in the last 2 years.\\
+3. If there are still not enough suggestions, retrieve Manga that other users with similar taste have liked.\\
+\begin{itemize}
+    \item Java Implementation:
+\end{itemize}
+\begin{lstlisting}[language=JavaScript]
+public List<MediaContentDTO> getSuggestedByLikes(String userId, Integer limit) throws DAOException {
+    try (Session session = getSession()) {
+        int n = limit == null ? 5 : limit;
+        int remaining;
+        LocalDate today = LocalDate.now();
+
+        // Try to get suggestions based on likes in the last 6 months
+        String query1 = """
+                MATCH (u:User {id: $userId})-[r1:LIKE]->(m:Manga)<-[:LIKE]-(f:User)
+                WHERE r1.date >= $startDate
+                WITH u, f, COUNT(m) AS common_likes
+                ORDER BY common_likes DESC
+                LIMIT 20
+                MATCH (f)-[:LIKE]->(m2:Manga)
+                WHERE NOT (u)-[:LIKE]->(m2)
+                WITH m2, COUNT(DISTINCT f) AS num_likes
+                RETURN m2 AS manga
+                ORDER BY num_likes DESC, m2.title ASC
+                LIMIT $n
+                """;
+        Value params1 = parameters("userId", userId, "n", n, "startDate", today.minusMonths(6));
+
+        List<MediaContentDTO> suggested = session.executeRead(
+                        tx -> tx.run(query1, params1).list()
+                ).stream()
+                .map(record -> (MangaDTO) recordToMediaContentDTO(record))
+                .collect(Collectors.toList());
+
+        remaining = n - suggested.size();
+
+        // If there are not enough suggestions, add more results from the last 2 years
+        if (remaining > 0) {
+            Value params2 = parameters("userId", userId, "n", n, "startDate", today.minusYears(2));
+
+            List<Record> records = session.executeRead(tx -> tx.run(query1, params2).list());
+            for (Record record : records) {
+                MangaDTO mangaDTO = (MangaDTO) recordToMediaContentDTO(record);
+                if (!suggested.contains(mangaDTO))
+                    suggested.add(mangaDTO);
+                if (suggested.size() == n)
+                    break;
+            }
+
+            remaining = n - suggested.size();
+        }
+
+        // If there are not enough suggestions, add more results based on all likes
+        if (remaining > 0) {
+            String query2 = """
+                    MATCH (u:User {id: $userId})-[r1:LIKE]->(m:Manga)<-[:LIKE]-(f:User)
+                    WITH u, f, COUNT(m) AS common_likes
+                    ORDER BY common_likes DESC
+                    MATCH (f)-[:LIKE]->(m2:Manga)
+                    WHERE NOT (u)-[:LIKE]->(m2)
+                    WITH m2, COUNT(DISTINCT f) AS num_likes
+                    RETURN m2 AS manga
+                    ORDER BY num_likes DESC, m2.title ASC
+                    LIMIT $n
+                    """;
+            Value params3 = parameters("userId", userId, "n", n);
+
+            List<Record> records = session.executeRead(tx -> tx.run(query2, params3).list());
+            for (Record record : records) {
+                MangaDTO mangaDTO = (MangaDTO) recordToMediaContentDTO(record);
+                if (!suggested.contains(mangaDTO))
+                    suggested.add(mangaDTO);
+                if (suggested.size() == n)
+                    break;
+            }
+        }
+
+        return suggested.isEmpty() ? null : suggested;
+
+    } catch (Neo4jException e) {
+        throw new DAOException(DAOExceptionType.DATABASE_ERROR, e.getMessage());
+
+    } catch (Exception e) {
+        throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
+    }
+}
+\end{lstlisting}
+\begin{itemize}
+    \item Neo4j Query:
+\end{itemize}
+\begin{lstlisting}[language=Cypher]
+MATCH (u:User {id: $userId})-[r1:LIKE]->(a:Anime)<-[:LIKE]-(f:User)
+WHERE r1.date >= $startDate
+WITH u, f, COUNT(a) AS common_likes
+ORDER BY common_likes DESC
+LIMIT 20
+MATCH (f)-[:LIKE]->(a2:Anime)
+WHERE NOT (u)-[:LIKE]->(a2)
+WITH a2, COUNT(DISTINCT f) AS num_likes
+RETURN a2 AS anime
+ORDER BY num_likes DESC
+LIMIT $n
 \end{lstlisting}
 
 
 
-\textbf{ANIME/MANGA:}
-
-\begin{itemize}
-  \item Suggest anime and manga based on following in common:
-\end{itemize}
-\begin{lstlisting}[language=Cypher, caption=GetSuggestedByFollowings]
-  MATCH (u:User {id: $userId})-[:FOLLOWS]->(f:User)-[r:LIKE]->(a:Anime)
-  WHERE NOT (u)-[:LIKE]->(a) AND r.date >= $startDate
-  WITH a, COUNT(DISTINCT f) AS num_likes
-  RETURN a AS anime
-  ORDER BY num_likes DESC
-  LIMIT $n
-  
-\end{lstlisting}
 
 
-\begin{itemize}
-  \item Suggest anime and manga based on likes in common between followers:
-\end{itemize}
-\begin{lstlisting}[language=Cypher, caption=GetSuggestedByLikes]
-  MATCH (u:User {id: $userId})-[r1:LIKE]->(a:Anime)<-[:LIKE]-(f:User)
-  WHERE r1.date >= $startDate
-  WITH u, f, COUNT(a) AS common_likes
-  ORDER BY common_likes DESC
-  LIMIT 20
-  MATCH (f)-[:LIKE]->(a2:Anime)
-  WHERE NOT (u)-[:LIKE]->(a2)
-  WITH a2, COUNT(DISTINCT f) AS num_likes
-  RETURN a2 AS anime
-  ORDER BY num_likes DESC
-  LIMIT $n
-  
-\end{lstlisting}
-
-
-\begin{itemize}
-  \item Get the trend of media contents in a specific year based on the number of likes:
-\end{itemize}
-\begin{lstlisting}[language=Cypher, caption=GetTrendMediaContentByYear]
-  MATCH (a:Anime)<-[r:LIKE]-(u:User)
-  WHERE r.date >= $startDate AND r.date < $endDate
-  WITH a, count(r) AS numLikes
-  ORDER BY numLikes DESC
-  RETURN a AS anime, numLikes
-  LIMIT $n
-  
-\end{lstlisting}
-
-\begin{itemize}
-  \item Get the general trend of media contents based on the number of likes:
-\end{itemize}
-\begin{lstlisting}[language=Cypher, caption=GetMediaContentTrendByLikes]
-  MATCH (u:User)-[r:LIKE]->(a:Anime)
-  WHERE r.date >= $startDate
-  WITH a, COUNT(r) AS numLikes
-  ORDER BY numLikes DESC
-  RETURN a AS anime, numLikes
-  LIMIT $n
-  
-\end{lstlisting}
