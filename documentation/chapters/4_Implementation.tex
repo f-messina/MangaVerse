@@ -584,8 +584,11 @@ Some of the most important MongoDB queries for analytic and suggestion purposes.
 %% suggestMediaContent, getBestCriteria, getTrendMediaContentByYear, getMediaContentTrendByLikes,
 %% getSuggestedByFollowings, getSuggestedByLikes(suggest and trenda are on neo4j, sadece suggest media content mongo db, ona göre mongo ya da neo4j kısmına koy)
 \subsection*{MANGA/ANIME:}
-\textbf{Get Best Criteria}
-\begin{lstlisting}[language=JavaScript, caption=GetDistribution]
+\textbf{Get Distribution}
+\begin{itemize}
+    \item Java Implementation:
+\end{itemize}
+\begin{lstlisting}[language=JavaScript]
     public Map<String, Integer> getDistribution(String criteria) throws DAOException {
         try {
             MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
@@ -630,10 +633,39 @@ Some of the most important MongoDB queries for analytic and suggestion purposes.
     }
     \end{lstlisting}
     
+    \begin{itemize}
+        \item Mongo Shell Query:
+    \end{itemize}
+    \begin{lstlisting}[language=JavaScript]
+        db.getCollection('COLLECTION_NAME').aggregate([
+            { 
+                $match: { 
+                    birthday: { $exists: true }  
+                } 
+            },
+            { 
+                $project: { 
+                    year: { $year: "$birthday" },  
+                    app_rating: 1 
+                } 
+            },
+            { 
+                $group: { 
+                    _id: "$year", 
+                    count: { $sum: 1 } 
+                } 
+            },
+            { 
+                $sort: { 
+                    count: -1 
+                } 
+            }
+        ]).toArray();        
+    \end{lstlisting}
 
 
 
-
+\newpage
 
 \textbf{USERS:}
 \begin{itemize}
