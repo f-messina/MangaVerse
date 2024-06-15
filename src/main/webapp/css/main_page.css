@@ -207,6 +207,10 @@ iframe {
     position: relative;
 }
 
+#results {
+    min-height: 60vh;
+}
+
 .media-card {
     animation: in-data-v-4d8937d6 .3s linear;
     display: grid;

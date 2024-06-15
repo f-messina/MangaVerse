@@ -37,8 +37,8 @@ public class AperiodicExecutorTaskServiceImpl implements ExecutorTaskService {
      * If the instance is null, it creates a new one.
      * This method is thread-safe.
      *
-     * @param taskManager The TaskManager to be used by the ExecutorTaskService.
-     * @return The singleton instance of ExecutorTaskService.
+     * @param taskManager       The TaskManager to be used by the ExecutorTaskService.
+     * @return                  The singleton instance of ExecutorTaskService.
      */
     public static ExecutorTaskService getInstance(TaskManager taskManager) {
         if (instance == null) {
@@ -65,7 +65,7 @@ public class AperiodicExecutorTaskServiceImpl implements ExecutorTaskService {
      * If the thread is interrupted while waiting for termination, a RuntimeException is thrown.
      * This method is synchronized to ensure thread safety.
      *
-     * @throws RuntimeException if the thread is interrupted while waiting for termination
+     * @throws RuntimeException     if the thread is interrupted while waiting for termination
      */
     @Override
     public synchronized void stop() {
@@ -87,7 +87,7 @@ public class AperiodicExecutorTaskServiceImpl implements ExecutorTaskService {
      * back to the task manager to be retried later. If the BusinessException has any other type,
      * the task is not retried and an error message is logged.
      *
-     * @param task The task to be executed.
+     * @param task          The task to be executed.
      */
     @Override
     public synchronized void executeTask(Task task) {

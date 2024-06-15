@@ -107,7 +107,7 @@ public class ReviewDTO {
     /**
      * Converts the DTO to the Model class.
      *
-     * @return the Review object.
+     * @return      the Review object.
      */
     public Review toModel() {
         Review review = new Review();

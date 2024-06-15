@@ -30,8 +30,8 @@ import static it.unipi.lsmsd.fnf.service.exception.BusinessException.handleDAOEx
 
 /**
  * Implementation of the UserService interface.
- * Provides methods to interact with the User entity.
- * The methods access to User entity in the database and provide
+ * It uses DAOs to interact with the data repository and ExecutorTaskService to execute tasks in the background.
+ * The methods access to User entity in the database, provide
  * operations to maintain consistency between collections, search functionality,
  * operations to get statistics and operations to get user suggestions.
  * The methods, in general, execute a single DAO method. When needed to maintain
@@ -61,8 +61,8 @@ public class UserServiceImpl implements UserService {
      * The method creates a new user in the database and executes
      * a task to add a new node User in Neo4j.
      *
-     * @param userRegistrationDTO The user registration information.
-     * @throws BusinessException If an error occurs during the signup process.
+     * @param userRegistrationDTO   The user registration information.
+     * @throws BusinessException    If an error occurs during the signup process.
      */
     @Override
     public void signup(UserRegistrationDTO userRegistrationDTO) throws BusinessException {
@@ -99,10 +99,10 @@ public class UserServiceImpl implements UserService {
     /**
      * Authenticates a user based on email and password.
      *
-     * @param email    The email of the user.
-     * @param password The password of the user.
-     * @return The authenticated user.
-     * @throws BusinessException If an error occurs during the authentication process.
+     * @param email                 The email of the user.
+     * @param password              The password of the user.
+     * @return                      The authenticated user.
+     * @throws BusinessException    If an error occurs during the authentication process.
      */
     @Override
     public LoggedUserDTO login(String email, String password) throws BusinessException {
@@ -126,8 +126,8 @@ public class UserServiceImpl implements UserService {
      * If the user's username, profile picture URL, birthday or location is updated,
      * the method executes a task to update the user redundancy inside reviews.
      *
-     * @param user The user object containing the updated information.
-     * @throws BusinessException If an error occurs during the update process.
+     * @param user                  The user object containing the updated information.
+     * @throws BusinessException    If an error occurs during the update process.
      */
     @Override
     public void updateUserInfo(User user) throws BusinessException {
@@ -163,8 +163,8 @@ public class UserServiceImpl implements UserService {
      * If the user has reviews, the method executes a task to remove the user redundancy inside reviews
      * and, if the reviews are present in the latest reviews, the method executes a task to update the latest reviews.
      *
-     * @param userId The ID of the user to delete.
-     * @throws BusinessException If an error occurs during the deletion process.
+     * @param userId                The ID of the user to delete.
+     * @throws BusinessException    If an error occurs during the deletion process.
      */
     @Override
     public void deleteUser(String userId, List<String> reviewIds) throws BusinessException {
@@ -190,10 +190,10 @@ public class UserServiceImpl implements UserService {
     /**
      * Retrieves the user information based on the provided ID.
      *
-     * @param userId           The ID of the user to retrieve.
-     * @param isUserLoggedInfo Indicates whether to include user's logged information.
-     * @return The user object corresponding to the provided ID.
-     * @throws BusinessException If an error occurs during the retrieval process.
+     * @param userId                The ID of the user to retrieve.
+     * @param isUserLoggedInfo      Indicates whether to include user's logged information.
+     * @return                      The user object corresponding to the provided ID.
+     * @throws BusinessException    If an error occurs during the retrieval process.
      */
     @Override
     public User getUserById(String userId, boolean isUserLoggedInfo) throws BusinessException {
@@ -213,9 +213,9 @@ public class UserServiceImpl implements UserService {
      * Follows a user.
      * The method executes a task to update the number of followed and followers.
      *
-     * @param followerUserId  The ID of the user who wants to follow.
-     * @param followingUserId The ID of the user to be followed.
-     * @throws BusinessException If an error occurs while following the user.
+     * @param followerUserId        The ID of the user who wants to follow.
+     * @param followingUserId       The ID of the user to be followed.
+     * @throws BusinessException    If an error occurs while following the user.
      */
     @Override
     public void follow(String followerUserId, String followingUserId) throws BusinessException {
@@ -224,11 +224,11 @@ public class UserServiceImpl implements UserService {
             userDAONeo4J.follow(followerUserId, followingUserId);
 
             // Create a task which updates the number of followings
-            UpdateNumberOfFollowingsTask task = new UpdateNumberOfFollowingsTask(followerUserId);
+            UpdateNumberOfFollowingsTask task = new UpdateNumberOfFollowingsTask(followerUserId, 1);
             aperiodicExecutorTaskService.executeTask(task);
 
             // Create a task which updates the number of followers
-            UpdateNumberOfFollowersTask task1 = new UpdateNumberOfFollowersTask(followingUserId);
+            UpdateNumberOfFollowersTask task1 = new UpdateNumberOfFollowersTask(followingUserId, 1);
             aperiodicExecutorTaskService.executeTask(task1);
 
         } catch (DAOException e) {
@@ -240,9 +240,9 @@ public class UserServiceImpl implements UserService {
      * Unfollows a user.
      * The method executes a task to update the number of followed and followers.
      *
-     * @param followerUserId The ID of the user who wants to unfollow.
-     * @param followingUserId The ID of the user to be unfollowed.
-     * @throws BusinessException If an error occurs while unfollowing the user.
+     * @param followerUserId        The ID of the user who wants to unfollow.
+     * @param followingUserId       The ID of the user to be unfollowed.
+     * @throws BusinessException    If an error occurs while unfollowing the user.
      */
     @Override
     public void unfollow(String followerUserId, String followingUserId) throws BusinessException {
@@ -251,11 +251,11 @@ public class UserServiceImpl implements UserService {
             userDAONeo4J.unfollow(followerUserId, followingUserId);
 
             // Create a task which updates the number of followings
-            UpdateNumberOfFollowingsTask task = new UpdateNumberOfFollowingsTask(followerUserId);
+            UpdateNumberOfFollowingsTask task = new UpdateNumberOfFollowingsTask(followerUserId, -1);
             aperiodicExecutorTaskService.executeTask(task);
 
             // Create a task which updates the number of followers
-            UpdateNumberOfFollowersTask task1 = new UpdateNumberOfFollowersTask(followingUserId);
+            UpdateNumberOfFollowersTask task1 = new UpdateNumberOfFollowersTask(followingUserId, -1);
             aperiodicExecutorTaskService.executeTask(task1);
 
         } catch (DAOException e) {
@@ -266,10 +266,10 @@ public class UserServiceImpl implements UserService {
     /**
      * Checks if a user is following another user.
      *
-     * @param followerUserId  The ID of the user who is following.
-     * @param followingUserId The ID of the user being followed.
-     * @return True if the follower user is following the specified user, false otherwise.
-     * @throws BusinessException If an error occurs during the operation.
+     * @param followerUserId        The ID of the user who is following.
+     * @param followingUserId       The ID of the user being followed.
+     * @return                      True if the follower user is following the specified user, false otherwise.
+     * @throws BusinessException    If an error occurs during the operation.
      */
     @Override
     public boolean isFollowing(String followerUserId, String followingUserId) throws BusinessException {
@@ -287,11 +287,11 @@ public class UserServiceImpl implements UserService {
      * Searches followings of a user (with userID) based on the provided username.
      * Hide the logged user from the search results.
      *
-     * @param userId       The ID of the user whose followings are being searched.
-     * @param username     The username of the user being searched for.
-     * @param loggedUserId The ID of the logged-in user performing the search.
-     * @return A list of UserSummaryDTO objects representing the followings found based on the search criteria.
-     * @throws BusinessException If an error occurs during the operation.
+     * @param userId                The ID of the user whose followings are being searched.
+     * @param username              The username of the user being searched for.
+     * @param loggedUserId          The ID of the logged-in user performing the search.
+     * @return                      A list of UserSummaryDTO objects representing the followings found based on the search criteria.
+     * @throws BusinessException    If an error occurs during the operation.
      */
     @Override
     public List<UserSummaryDTO> searchFollowings(String userId, String username, String loggedUserId) throws BusinessException {
@@ -309,11 +309,11 @@ public class UserServiceImpl implements UserService {
      * Searches followers of a user (with userID) based on the provided username.
      * Hide the logged user from the search results.
      *
-     * @param userId       The ID of the user whose followers are being searched.
-     * @param username     The username of the user being searched for.
-     * @param loggedUserId The ID of the logged-in user performing the search.
-     * @return A list of UserSummaryDTO objects representing the followers found based on the search criteria.
-     * @throws BusinessException If an error occurs during the operation.
+     * @param userId                The ID of the user whose followers are being searched.
+     * @param username              The username of the user being searched for.
+     * @param loggedUserId          The ID of the logged-in user performing the search.
+     * @return                      A list of UserSummaryDTO objects representing the followers found based on the search criteria.
+     * @throws BusinessException    If an error occurs during the operation.
      */
     @Override
     public List<UserSummaryDTO> searchFollowers(String userId, String username, String loggedUserId) throws BusinessException {
@@ -330,11 +330,11 @@ public class UserServiceImpl implements UserService {
     /**
      * Searches for the first N users based on the provided username.
      *
-     * @param username    The username to search for.
-     * @param n           The maximum number of users to retrieve.
-     * @param loggedUser  The ID of the logged-in user performing the search.
-     * @return A list of UserSummaryDTO objects representing the first N users found based on the search criteria.
-     * @throws BusinessException If an error occurs during the operation.
+     * @param username              The username to search for.
+     * @param n                     The maximum number of users to retrieve.
+     * @param loggedUser            The ID of the logged-in user performing the search.
+     * @return                      A list of UserSummaryDTO objects representing the first N users found based on the search criteria.
+     * @throws BusinessException    If an error occurs during the operation.
      */
     @Override
     public List<UserSummaryDTO> searchFirstNUsers(String username, Integer n, String loggedUser) throws BusinessException {
@@ -353,9 +353,9 @@ public class UserServiceImpl implements UserService {
     /**
      * Suggests users based on common followings with a specified user.
      *
-     * @param userId The ID of the user for whom suggestions are made.
-     * @return A list of UserSummaryDTO objects representing suggested users.
-     * @throws BusinessException If an error occurs during the operation.
+     * @param userId                The ID of the user for whom suggestions are made.
+     * @return                      A list of UserSummaryDTO objects representing suggested users.
+     * @throws BusinessException    If an error occurs during the operation.
      */
     @Override
     public List<UserSummaryDTO> suggestUsersByCommonFollowings(String userId) throws BusinessException {
@@ -374,9 +374,9 @@ public class UserServiceImpl implements UserService {
     /**
      * Suggests users based on common likes with a specified user.
      *
-     * @param userId The ID of the user for whom suggestions are made.
-     * @return A list of UserSummaryDTO objects representing suggested users.
-     * @throws BusinessException If an error occurs during the operation.
+     * @param userId                The ID of the user for whom suggestions are made.
+     * @return                      A list of UserSummaryDTO objects representing suggested users.
+     * @throws BusinessException    If an error occurs during the operation.
      */
     @Override
     public List<UserSummaryDTO> suggestUsersByCommonLikes(String userId) throws BusinessException {
@@ -399,9 +399,9 @@ public class UserServiceImpl implements UserService {
     /**
      * Add the user's rating for the application.
      *
-     * @param userId  The ID of the user who is rating the application.
-     * @param rating  The rating provided by the user.
-     * @throws BusinessException If an error occurs during the operation.
+     * @param userId                The ID of the user who is rating the application.
+     * @param rating                The rating provided by the user.
+     * @throws BusinessException    If an error occurs during the operation.
      */
     @Override
     public void rateApp(String userId, Integer rating) throws BusinessException {
@@ -420,10 +420,10 @@ public class UserServiceImpl implements UserService {
     /**
      * Retrieves the distribution of users based on the specified criteria.
      *
-     * @param criteria The criteria for which the distribution is requested.
-     *                 Criteria Types: "location", "gender", "birthday", "joined_on".
-     * @return A map containing the distribution data.
-     * @throws BusinessException If an error occurs during the operation.
+     * @param criteria              The criteria for which the distribution is requested.
+     *                              Criteria Types: "location", "gender", "birthday", "joined_on".
+     * @return                      A map containing the distribution data.
+     * @throws BusinessException    If an error occurs during the operation.
      */
     @Override
     public Map<String, Integer> getDistribution(String criteria) throws BusinessException {
@@ -447,10 +447,10 @@ public class UserServiceImpl implements UserService {
     /**
      * Retrieves the average app rating based on the specified criteria.
      *
-     * @param criteria The criteria for which the average app rating is requested.
-     *                 Criteria Types: "location", "gender", "age".
-     * @return A map containing the average app rating data.
-     * @throws BusinessException If an error occurs during the operation.
+     * @param criteria              The criteria for which the average app rating is requested.
+     *                              Criteria Types: "location", "gender", "age".
+     * @return                      A map containing the average app rating data.
+     * @throws BusinessException    If an error occurs during the operation.
      */
     @Override
     public Map<String, Double> averageAppRating(String criteria) throws BusinessException {

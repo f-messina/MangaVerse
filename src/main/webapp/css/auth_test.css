@@ -34,7 +34,7 @@
     width: 100%;
 }
 
-.options {
+.container .options {
     display: flex;
     flex-direction: column;
     gap: 25px;
@@ -107,7 +107,7 @@ form {
     width: 100%;
 }
 
-input[type="text"],
+.container input[type="text"],
 input[type="email"],
 input[type="password"],
 input[type="date"],
@@ -120,11 +120,11 @@ select {
     box-sizing: border-box;
 }
 
-input::placeholder {
+.container input::placeholder {
     color: #6c757d;
 }
 
-select {
+.container select {
     background-color: transparent;
 }
 
@@ -133,7 +133,7 @@ select {
 }
 
 input[type="submit"],
-button {
+.container button {
     padding: 10px 20px;
     margin: 10px 0;
     border: none;
@@ -201,7 +201,7 @@ input[type="submit"].btn-block {
     text-decoration: underline;
 }
 
-input {
+.container input {
     font: inherit;
 }
 
@@ -226,7 +226,7 @@ input {
     display: none;
 }
 
-.option {
+.container .option {
     padding: 10px;
     cursor: pointer;
     width: 100%;

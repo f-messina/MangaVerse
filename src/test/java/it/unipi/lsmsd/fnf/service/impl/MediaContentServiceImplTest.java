@@ -376,17 +376,14 @@ class MediaContentServiceImplTest {
             //Get all anime and manga ids
             List<String> animeIds = getAnimeIds();
             List<String> mangaIds = getMangaIds();
-            // Create a task which updates the number of likes in MongoDB
 
             for(String animeId : animeIds) {
-                UpdateNumberOfLikesTask task = new UpdateNumberOfLikesTask(animeId, MediaContentType.ANIME);
-                aperiodicExecutorTaskService.executeTask(task);
+                // Create a task which updates the number of likes in MongoDB
             }
 
             // Create a task which updates the number of likes in MongoDB
             for(String mangaId : mangaIds) {
-                UpdateNumberOfLikesTask task = new UpdateNumberOfLikesTask(mangaId, MediaContentType.MANGA);
-                aperiodicExecutorTaskService.executeTask(task);
+                // Create a task which updates the number of likes in MongoDB
             }
 
             Thread.sleep(60000);

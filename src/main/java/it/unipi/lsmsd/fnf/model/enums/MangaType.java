@@ -42,9 +42,9 @@ public enum MangaType {
     /**
      * Returns the MangaType enum value corresponding to the given string value.
      * It is case-insensitive and returns the UNKNOWN enum value if the string value is null or empty.
-     * @param value The string value to convert to MangaType enum.
-     * @return The MangaType enum value corresponding to the given string value.
-     * @throws IllegalArgumentException if no enum constant is found for the given string value.
+     * @param value                         The string value to convert to MangaType enum.
+     * @return                              The MangaType enum value corresponding to the given string value.
+     * @throws IllegalArgumentException     If no enum constant is found for the given string value.
      */
     public static MangaType fromString(String value) {
         if (StringUtils.isEmpty(value)) {

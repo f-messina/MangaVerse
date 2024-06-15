@@ -5,16 +5,20 @@ import it.unipi.lsmsd.fnf.dao.enums.DataRepositoryEnum;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dao.exception.enums.DAOExceptionType;
 import it.unipi.lsmsd.fnf.dao.interfaces.ReviewDAO;
-import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
+import it.unipi.lsmsd.fnf.dto.ReviewDTO;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 import it.unipi.lsmsd.fnf.service.exception.enums.BusinessExceptionType;
 import it.unipi.lsmsd.fnf.service.interfaces.Task;
 
-/**
- * Task for removing reviews associated with deleted media content.
- */
 import java.util.List;
 
+/**
+ * Asynchronous task for removing reviews associated with deleted media content from the database.
+ * Priority = 4
+ * @see Task
+ * @see ReviewDAO
+ * @see ReviewDTO
+ */
 public class RemoveDeletedMediaReviewsTask extends Task {
     private final ReviewDAO reviewDAO;
     private final List<String> reviewsIds;
@@ -22,7 +26,7 @@ public class RemoveDeletedMediaReviewsTask extends Task {
     /**
      * Constructs a RemoveDeletedMediaReviewsTask.
      *
-     * @param reviewsIds The reviewIds of the deleted media content.
+     * @param reviewsIds    The reviewIds of the deleted media content.
      */
     public RemoveDeletedMediaReviewsTask(List<String> reviewsIds) {
         super(4);
@@ -33,11 +37,12 @@ public class RemoveDeletedMediaReviewsTask extends Task {
     /**
      * Executes the task to remove reviews associated with the deleted media content.
      *
-     * @throws BusinessException If an error occurs during the operation.
+     * @throws BusinessException    If an error occurs during the operation.
      */
     @Override
     public void executeJob() throws BusinessException {
         try {
+            // Delete the reviews associated with the deleted media content
             reviewDAO.deleteReviews(reviewsIds, "media");
 
         } catch (DAOException e) {

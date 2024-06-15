@@ -49,7 +49,7 @@ public abstract class TaskManager {
      * Adds a task to the task queue.
      * The task is added to the queue based on its priority.
      *
-     * @param task The task to be added
+     * @param task      The task to be added
      */
     public synchronized void addTask(Task task) {
         if (task == null) {

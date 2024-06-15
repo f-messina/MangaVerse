@@ -1,44 +1,45 @@
 package it.unipi.lsmsd.fnf.controller;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import it.unipi.lsmsd.fnf.controller.exception.NotAuthorizedException;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.enums.*;
-import it.unipi.lsmsd.fnf.service.interfaces.MediaContentService;
 import it.unipi.lsmsd.fnf.service.ServiceLocator;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
+import it.unipi.lsmsd.fnf.service.interfaces.MediaContentService;
 import it.unipi.lsmsd.fnf.utils.Constants;
 import it.unipi.lsmsd.fnf.utils.ConverterUtils;
 import it.unipi.lsmsd.fnf.utils.SecurityUtils;
-
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.*;
-
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.tuple.Pair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-
-
+/**
+ * Servlet for handling the main page operations (search, view all)
+ * and loading the main page (anime or manga, depending on the URL).
+ */
 @WebServlet(urlPatterns = {"/mainPage", "/mainPage/anime", "/mainPage/manga"})
 public class MainPageServlet extends HttpServlet {
-    private static final Logger logger = LoggerFactory.getLogger(MainPageServlet.class);
     private static final MediaContentService mediaContentService = ServiceLocator.getMediaContentService();
 
     @Override
@@ -63,74 +64,71 @@ public class MainPageServlet extends HttpServlet {
     private void handleLoadPage(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String path = request.getServletPath();
         String targetJSP;
-        logger.info("Before DAOs");
         if (path.equals("/mainPage") || Objects.equals(request.getParameter("scroll"), "false")) {
             request.setAttribute("scroll", false);
-            logger.info("main page");
         }
 
-        logger.info("Loading main page for " + request.getAttribute("mediaType"));
         if (request.getAttribute("mediaType").equals("manga")) {
             request.setAttribute("mangaGenres", Constants.MANGA_GENRES);
             request.setAttribute("mangaTypes", MangaType.values());
             request.setAttribute("mangaDemographics", MangaDemographics.values());
             request.setAttribute("mangaStatus", MangaStatus.values());
-            targetJSP = "/WEB-INF/jsp/manga_main_page.jsp";
-            logger.info("manga page");
 
             try {
-                logger.info("Loading manga main page");
+                // Set the trending media content for the manga page
                 request.setAttribute("trending", mediaContentService.getMediaContentTrendByLikes(6, MediaContentType.MANGA));
-                logger.info("Trending manga loaded");
+
+                // Set the suggestions for the manga page if the user is authenticated
                 if (SecurityUtils.getAuthenticatedUser(request) != null && SecurityUtils.getAuthenticatedUser(request).getType().equals(UserType.USER)) {
                     request.setAttribute("suggestionsByLikes", mediaContentService.getSuggestedMediaContentByLikes(SecurityUtils.getAuthenticatedUser(request).getId(), MediaContentType.MANGA, 6));
                     request.setAttribute("suggestionsByFollowings", mediaContentService.getSuggestedMediaContentByFollowings(SecurityUtils.getAuthenticatedUser(request).getId(), MediaContentType.MANGA, 6));
                 }
                 targetJSP = "/WEB-INF/jsp/manga_main_page.jsp";
             } catch (BusinessException e) {
-                targetJSP = "/error.jsp";
+                targetJSP = "/WEB-INF/jsp/error.jsp";
             }
+
         } else {
             request.setAttribute("animeTags", Constants.ANIME_TAGS);
             request.setAttribute("animeTypes", AnimeType.values());
             request.setAttribute("animeStatus", AnimeStatus.values());
-            targetJSP = "/WEB-INF/jsp/anime_main_page.jsp";
-            logger.info("anime page");
             try {
+                // Set the trending media content for the anime page
                 request.setAttribute("trending", mediaContentService.getMediaContentTrendByLikes(6, MediaContentType.ANIME));
+
+                // Set the suggestions for the anime page if the user is authenticated
                 if (SecurityUtils.getAuthenticatedUser(request) != null) {
                     request.setAttribute("suggestionsByLikes", mediaContentService.getSuggestedMediaContentByLikes(SecurityUtils.getAuthenticatedUser(request).getId(), MediaContentType.ANIME, 6));
                     request.setAttribute("suggestionsByFollowings", mediaContentService.getSuggestedMediaContentByFollowings(SecurityUtils.getAuthenticatedUser(request).getId(), MediaContentType.ANIME, 6));
                 }
                 targetJSP = "/WEB-INF/jsp/anime_main_page.jsp";
             } catch (BusinessException e) {
-                targetJSP = "/error.jsp";
+                targetJSP = "/WEB-INF/jsp/error.jsp";
             }
         }
-
 
         request.getRequestDispatcher(targetJSP).forward(request, response);
     }
 
-    private void handleSearch(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    // REQUIRED: page, sortParam, sortDirection
+    // OPTIONAL: all filters
+    // RETURN: mediaPage, success flag or error message
+    private void handleSearch(HttpServletRequest request, HttpServletResponse response) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode jsonResponse = objectMapper.createObjectNode();
-
-        logger.info("Search operation");
 
         // Create a module to handle the serialization and deserialization of LocalDate and LocalDateTime objects
         JavaTimeModule javaTimeModule = new JavaTimeModule();
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy");
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM);
-        logger.info("serialization of LocalDate and LocalDateTime objects");
+
         // Register the formatters for serialization
         javaTimeModule.addSerializer(LocalDate.class, new LocalDateSerializer(dateFormatter));
         javaTimeModule.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer(dateTimeFormatter));
-        logger.info("serialization");
+
         // Register the formatters for deserialization
         javaTimeModule.addDeserializer(LocalDate.class, new LocalDateDeserializer(dateFormatter));
         javaTimeModule.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(dateTimeFormatter));
-        logger.info("deserialization");
 
         // Register the module with the ObjectMapper
         objectMapper.registerModule(javaTimeModule);
@@ -162,7 +160,6 @@ public class MainPageServlet extends HttpServlet {
                 JsonNode mediaListNode = objectMapper.valueToTree(mediaList);
                 jsonResponse.set("mediaPage", mediaListNode);
                 jsonResponse.put("success", true);
-                logger.info("search result");
             }
         } catch (BusinessException e) {
             jsonResponse.put("error", "Error occurred during search operation");
@@ -174,10 +171,11 @@ public class MainPageServlet extends HttpServlet {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         response.getWriter().write(jsonResponse.toString());
-        logger.info("JSON response");
     }
 
-    private void handleViewAll(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    // REQUIRED: nameList
+    // RETURN: mediaList, success flag or error message
+    private void handleViewAll(HttpServletRequest request, HttpServletResponse response) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode jsonResponse = objectMapper.createObjectNode();
 
@@ -185,11 +183,18 @@ public class MainPageServlet extends HttpServlet {
         String nameList = request.getParameter("nameList");
 
         try {
+
             List<MediaContentDTO> mediaList;
             switch (nameList) {
                 case "trends" -> mediaList = mediaContentService.getMediaContentTrendByLikes(30, mediaContentType);
-                case "suggestionsByLikes" -> mediaList = mediaContentService.getSuggestedMediaContentByLikes(SecurityUtils.getAuthenticatedUser(request).getId(), mediaContentType, 30);
-                case "suggestionsByFollowings" -> mediaList = mediaContentService.getSuggestedMediaContentByFollowings(SecurityUtils.getAuthenticatedUser(request).getId(), mediaContentType, 30);
+                case "suggestionsByLikes" -> {
+                    SecurityUtils.isUserAuthorized(request, UserType.USER);
+                    mediaList = mediaContentService.getSuggestedMediaContentByLikes(SecurityUtils.getAuthenticatedUser(request).getId(), mediaContentType, 30);
+                }
+                case "suggestionsByFollowings" -> {
+                    SecurityUtils.isUserAuthorized(request, UserType.USER);
+                    mediaList = mediaContentService.getSuggestedMediaContentByFollowings(SecurityUtils.getAuthenticatedUser(request).getId(), mediaContentType, 30);
+                }
                 default -> {
                     jsonResponse.put("error", "Invalid nameList parameter");
                     response.getWriter().write(jsonResponse.toString());
@@ -201,6 +206,8 @@ public class MainPageServlet extends HttpServlet {
             jsonResponse.set("mediaList", mediaListArray);
         } catch (BusinessException e) {
             jsonResponse.put("error", "Error occurred during search operation");
+        } catch (NotAuthorizedException e) {
+            jsonResponse.put("error", "User is not authorized to view suggestions");
         }
 
         response.setContentType("application/json");

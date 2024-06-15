@@ -36,8 +36,8 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
     /**
      * Creates a node for an Anime in the Neo4j database.
      *
-     * @param anime The Anime object to be saved.
-     * @throws DAOException If an error occurs while creating the Anime node.
+     * @param anime             The Anime object to be saved.
+     * @throws DAOException     If an error occurs while creating the Anime node.
      */
     @Override
     public void saveMediaContent(Anime anime) throws DAOException {
@@ -67,9 +67,9 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
     /**
      * Updates an Anime node in the Neo4j database.
      *
-     * @param anime The Anime object to be updated.
-     *              The Anime object must have at least one field to update.
-     * @throws DAOException If an error occurs while updating the Anime node.
+     * @param anime             The Anime object to be updated.
+     *                          The Anime object must have at least one field to update.
+     * @throws DAOException     If an error occurs while updating the Anime node.
      */
     @Override
     public void updateMediaContent(Anime anime) throws DAOException {
@@ -118,8 +118,8 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
     /**
      * Deletes an Anime node from the Neo4j database.
      *
-     * @param animeId The ID of the Anime node to be deleted.
-     * @throws DAOException If an error occurs while deleting the Anime node.
+     * @param animeId           The ID of the Anime node to be deleted.
+     * @throws DAOException     If an error occurs while deleting the Anime node.
      */
     @Override
     public void deleteMediaContent(String animeId) throws DAOException {
@@ -149,9 +149,9 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
     /**
      * Records a user's like for a specific Anime in the Neo4j database.
      *
-     * @param userId  The ID of the user liking the Anime.
-     * @param animeId The ID of the Anime being liked.
-     * @throws DAOException If an error occurs while processing the like operation.
+     * @param userId            The ID of the user liking the Anime.
+     * @param animeId           The ID of the Anime being liked.
+     * @throws DAOException     If an error occurs while processing the like operation.
      */
     @Override
     public void like(String userId, String animeId) throws DAOException {
@@ -185,9 +185,9 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
     /**
      * Removes a user's like for a specific Anime from the Neo4j database.
      *
-     * @param userId  The ID of the user unliking the Anime.
-     * @param animeId The ID of the Anime being unliked.
-     * @throws DAOException If an error occurs while processing the unlike operation.
+     * @param userId            The ID of the user unliking the Anime.
+     * @param animeId           The ID of the Anime being unliked.
+     * @throws DAOException     If an error occurs while processing the unlike operation.
      */
     @Override
     public void unlike(String userId, String animeId) throws DAOException {
@@ -217,10 +217,10 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
     /**
      * Checks if a user has liked a specific Anime in the Neo4j database.
      *
-     * @param userId   The ID of the user to check.
-     * @param animeId  The ID of the Anime to check.
-     * @return True if the user has liked the Anime, false otherwise.
-     * @throws DAOException If an error occurs while checking the like status.
+     * @param userId            The ID of the user to check.
+     * @param animeId           The ID of the Anime to check.
+     * @return                  True if the user has liked the Anime, false otherwise.
+     * @throws DAOException     If an error occurs while checking the like status.
      */
     @Override
     public boolean isLiked(String userId, String animeId) throws DAOException {
@@ -247,9 +247,9 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
     /**
      * Retrieves the number of likes for a specific Anime from the Neo4j database.
      *
-     * @param animeId The ID of the Anime for which the number of likes is to be retrieved.
-     * @return The number of likes for the Anime.
-     * @throws DAOException If an error occurs while retrieving the number of likes.
+     * @param animeId           The ID of the Anime for which the number of likes is to be retrieved.
+     * @return                  The number of likes for the Anime.
+     * @throws DAOException     If an error occurs while retrieving the number of likes.
      */
     @Override
     public Integer getNumOfLikes(String animeId) throws DAOException {
@@ -280,10 +280,10 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
      * 1. Retrieve the total number of likes for the user.
      * 2. If the user has likes, retrieve the liked Anime, otherwise return an empty list.
      *
-     * @param userId The ID of the user whose liked Anime are to be retrieved.
-     * @param page   The page number of the results to retrieve.
-     * @return A PageDTO containing a list of AnimeDTO objects representing the liked Anime.
-     * @throws DAOException If an error occurs while retrieving the liked Anime.
+     * @param userId            The ID of the user whose liked Anime are to be retrieved.
+     * @param page              The page number of the results to retrieve.
+     * @return                  A PageDTO containing a list of AnimeDTO objects representing the liked Anime.
+     * @throws DAOException     If an error occurs while retrieving the liked Anime.
      */
     @Override
     public PageDTO<MediaContentDTO> getLiked(String userId, int page) throws DAOException {
@@ -331,10 +331,10 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
      * 2. If there are not enough suggestions, retrieve Anime that the user's followings have liked in the last 2 years.
      * 3. If there are still not enough suggestions, retrieve Anime that the user's followings have liked.
      *
-     * @param userId The ID of the user for whom suggested Anime are to be retrieved.
-     * @param limit  The maximum number of suggestions to retrieve.
-     * @return A list of AnimeDTO objects representing suggested Anime for the user.
-     * @throws DAOException If an error occurs while retrieving suggested Anime.
+     * @param userId            The ID of the user for whom suggested Anime are to be retrieved.
+     * @param limit             The maximum number of suggestions to retrieve.
+     * @return                  A list of AnimeDTO objects representing suggested Anime for the user.
+     * @throws DAOException     If an error occurs while retrieving suggested Anime.
      */
     @Override
     public List<MediaContentDTO> getSuggestedByFollowings(String userId, Integer limit) throws DAOException {
@@ -417,10 +417,10 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
      * 2. If there are not enough suggestions, retrieve Anime that other users with similar taste have liked in the last 2 years.
      * 3. If there are still not enough suggestions, retrieve Anime that other users with similar taste have liked.
      *
-     * @param userId The ID of the user for whom suggested Anime are to be retrieved.
-     * @param limit  The maximum number of suggestions to retrieve.
-     * @return A list of AnimeDTO objects representing suggested Anime for the user.
-     * @throws DAOException If an error occurs while retrieving suggested Anime.
+     * @param userId            The ID of the user for whom suggested Anime are to be retrieved.
+     * @param limit             The maximum number of suggestions to retrieve.
+     * @return                  A list of AnimeDTO objects representing suggested Anime for the user.
+     * @throws DAOException     If an error occurs while retrieving suggested Anime.
      */
     public List<MediaContentDTO> getSuggestedByLikes(String userId, Integer limit) throws DAOException {
         try (Session session = getSession()) {
@@ -506,10 +506,10 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
     /**
      * Retrieves a list of trending AnimeDTO objects by likes for a specific year from the Neo4j database.
      *
-     * @param year The year for which trending Anime are to be retrieved.
-     * @param limit The maximum number of trending Anime to retrieve.
-     * @return A map of AnimeDTO objects representing trending Anime by likes, with the number of likes as the value.
-     * @throws DAOException If an error occurs while retrieving trending Anime.
+     * @param year              The year for which trending Anime are to be retrieved.
+     * @param limit             The maximum number of trending Anime to retrieve.
+     * @return                  A map of AnimeDTO objects representing trending Anime by likes, with the number of likes as the value.
+     * @throws DAOException     If an error occurs while retrieving trending Anime.
      */
     @Override
     public Map<MediaContentDTO, Integer> getTrendMediaContentByYear(int year, Integer limit) throws DAOException {
@@ -555,9 +555,9 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
      * 2. If there are not enough trending Anime, retrieve more results from the last year.
      * 3. If there are still not enough trending Anime, retrieve more results from the last 5 years.
      *
-     * @param limit The maximum number of trending Anime to retrieve.
-     * @return A list of AnimeDTO objects representing trending Anime by likes.
-     * @throws DAOException If an error occurs while retrieving trending Anime by likes.
+     * @param limit             The maximum number of trending Anime to retrieve.
+     * @return                  A list of AnimeDTO objects representing trending Anime by likes.
+     * @throws DAOException     If an error occurs while retrieving trending Anime by likes.
      */
     @Override
     public List<MediaContentDTO> getMediaContentTrendByLikes(Integer limit) throws DAOException {

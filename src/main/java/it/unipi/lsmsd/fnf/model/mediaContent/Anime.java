@@ -117,7 +117,7 @@ public class Anime extends MediaContent {
     /**
      * Converts the Anime object to an AnimeDTO object.
      *
-     * @return The AnimeDTO object representing the Anime object.
+     * @return      The AnimeDTO object representing the Anime object.
      */
     public AnimeDTO toDTO() {
         return new AnimeDTO(this.getId(), this.getTitle(), this.getImageUrl(), this.getAverageRating(), this.getYear(), this.getSeason());

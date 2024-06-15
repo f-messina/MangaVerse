@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import it.unipi.lsmsd.fnf.controller.exception.NotAuthorizedException;
 import it.unipi.lsmsd.fnf.dto.registeredUser.LoggedUserDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
@@ -32,6 +33,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+/**
+ * Servlet for handling manager operations and loading the manager page.
+ */
 @WebServlet("/manager")
 public class ManagerServlet extends HttpServlet {
 
@@ -39,8 +43,6 @@ public class ManagerServlet extends HttpServlet {
     private static final UserService userService = ServiceLocator.getUserService();
     private static final ReviewService reviewService = ServiceLocator.getReviewService();
 
-
-    //DoGet and DoPost methods as the other servlets
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
@@ -59,34 +61,34 @@ public class ManagerServlet extends HttpServlet {
         }
     }
 
-    //Process request method to execute task based on the type
     private void processRequest(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException, ExecutionException, InterruptedException {
-        String action = request.getParameter("action");
-        LoggedUserDTO loggedUser = SecurityUtils.getAuthenticatedUser(request);
-
-        if (loggedUser == null) {
-            response.sendRedirect("auth");
-            return;
-
-        } else if (!loggedUser.getType().equals(UserType.MANAGER)) {
-            response.sendRedirect("profile");
-            return;
-        }
-
-        switch (action) {
+        switch (request.getParameter("action")) {
             case "getAnimeDefaultAnalytics" -> handleGetAnimeDefaultAnalytics(request, response);
             case "getMangaDefaultAnalytics" -> handleGetMangaDefaultAnalytics(request, response);
             case "getBestCriteria" -> handleBestCriteria(request, response);
-            case "getAverageRatingByYear" -> handleMediaContentAverageRatingByYear(request, response); // Asynchronous request for anime and manga
-            case "getAverageRatingByMonth" -> handleMediaContentAverageRatingByMonth(request, response); // Asynchronous request for anime and manga
-            case "getDistribution" -> handleUsersDistribution(request, response); // Asynchronous request for user
-            case "getAverageAppRatingByCriteria" -> handleUsersAverageAppRatingCriteria(request, response); // Asynchronous request for user
-            case "getTrendMediaContentByYear" ->  handleTrendMediaContentByYear(request, response); // Asynchronous request for anime and manga
+            case "getAverageRatingByYear" -> handleMediaContentAverageRatingByYear(request, response);
+            case "getAverageRatingByMonth" -> handleMediaContentAverageRatingByMonth(request, response);
+            case "getDistribution" -> handleUsersDistribution(request, response);
+            case "getAverageAppRatingByCriteria" -> handleUsersAverageAppRatingCriteria(request, response);
+            case "getTrendMediaContentByYear" ->  handleTrendMediaContentByYear(request, response);
             case null, default -> handleLoadPage(request, response);
         }
     }
 
     public void handleLoadPage(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        LoggedUserDTO loggedUser = SecurityUtils.getAuthenticatedUser(request);
+
+        // Redirect to the auth page if the user is not authenticated
+        if (loggedUser == null) {
+            response.sendRedirect("auth");
+            return;
+
+        // Redirect to the profile page if the user is not a manager
+        } else if (!loggedUser.getType().equals(UserType.MANAGER)) {
+            response.sendRedirect("profile");
+            return;
+        }
+
         String targetJSP = "WEB-INF/jsp/manager.jsp";
         try {
             // Get the distribution of users by gender
@@ -128,16 +130,24 @@ public class ManagerServlet extends HttpServlet {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode jsonResponse = objectMapper.createObjectNode();
         try {
+            // Check if the user is authorized to perform the operation
+            SecurityUtils.isUserAuthorized(request, UserType.MANAGER);
+
+            // Get the results from the threads
             Map<String, Double> bestAnimeCriteria = bestAnimeCriteriaFuture.get();
             Map<MediaContentDTO, Integer> trendAnimeByYear = trendAnimeByYearFuture.get();
-            jsonResponse.put("success", true);
 
+            // Create the JSON response with the results and the success flag
             JsonNode bestAnimeCriteriaJson = objectMapper.valueToTree(bestAnimeCriteria);
             JsonNode trendAnimeByYearJson = objectMapper.valueToTree(trendAnimeByYear);
             jsonResponse.set("bestCriteria", bestAnimeCriteriaJson);
             jsonResponse.set("trendByYear", trendAnimeByYearJson);
+            jsonResponse.put("success", true);
+
         } catch (InterruptedException | ExecutionException e) {
             jsonResponse.put("error", "An error occurred while processing the request");
+        } catch (NotAuthorizedException e) {
+            jsonResponse.put("error", "User is not authorized to perform this operation");
         }
 
         // Shut down the ExecutorService
@@ -174,16 +184,24 @@ public class ManagerServlet extends HttpServlet {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode jsonResponse = objectMapper.createObjectNode();
         try {
+            // Check if the user is authorized to perform the operation
+            SecurityUtils.isUserAuthorized(request, UserType.MANAGER);
+
+            // Get the results from the threads
             Map<String, Double> bestMangaCriteria = bestAnimeCriteriaFuture.get();
             Map<MediaContentDTO, Integer> trendMangaByYear = trendMangaByYearFuture.get();
-            jsonResponse.put("success", true);
 
+            // Create the JSON response with the results and the success flag
             JsonNode bestMangaCriteriaJson = objectMapper.valueToTree(bestMangaCriteria);
             JsonNode trendMangaByYearJson = objectMapper.valueToTree(trendMangaByYear);
             jsonResponse.set("bestCriteria", bestMangaCriteriaJson);
             jsonResponse.set("trendByYear", trendMangaByYearJson);
+            jsonResponse.put("success", true);
+
         } catch (InterruptedException | ExecutionException e) {
             jsonResponse.put("error", "An error occurred while processing the request");
+        } catch (NotAuthorizedException e) {
+            jsonResponse.put("error", "User is not authorized to perform this operation");
         }
 
         // Shut down the ExecutorService
@@ -196,7 +214,7 @@ public class ManagerServlet extends HttpServlet {
     }
 
 
-    private void handleBestCriteria(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    private void handleBestCriteria(HttpServletRequest request, HttpServletResponse response) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode jsonResponse = objectMapper.createObjectNode();
 
@@ -208,6 +226,7 @@ public class ManagerServlet extends HttpServlet {
             jsonResponse.put("error", "Section not specified");
         } else {
             try {
+                SecurityUtils.isUserAuthorized(request, UserType.MANAGER);
                 Map<String, Double> bestCriteria = mediaContentService.getBestCriteria(criteria, page, mediaType.equals("manga") ? MediaContentType.MANGA : MediaContentType.ANIME);
                 if(bestCriteria.isEmpty()){
                     jsonResponse.put("error", "No data available");
@@ -215,12 +234,15 @@ public class ManagerServlet extends HttpServlet {
                 jsonResponse.put("success", true);
                 JsonNode bestCriteriaJson = objectMapper.valueToTree(bestCriteria);
                 jsonResponse.set("results", bestCriteriaJson);
+
             } catch (BusinessException e) {
                 if (e.getType().equals(BusinessExceptionType.INVALID_INPUT)) {
                     jsonResponse.put("error", "Invalid criteria");
                 } else {
                     jsonResponse.put("error", "An error occurred while processing the request");
                 }
+            } catch (NotAuthorizedException e) {
+                jsonResponse.put("error", "User is not authorized to perform this operation");
             }
         }
 
@@ -230,7 +252,7 @@ public class ManagerServlet extends HttpServlet {
         response.getWriter().write(jsonResponse.toString());
     }
 
-    private void handleMediaContentAverageRatingByYear(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    private void handleMediaContentAverageRatingByYear(HttpServletRequest request, HttpServletResponse response) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode jsonResponse = objectMapper.createObjectNode();
 
@@ -249,7 +271,13 @@ public class ManagerServlet extends HttpServlet {
             jsonResponse.put("error", "Invalid year range");
         } else {
             try {
+                // Check if the user is authorized to perform the operation
+                SecurityUtils.isUserAuthorized(request, UserType.MANAGER);
+
+                // Get the average rating by year for the specified media content
                 Map<String, Double> averageRatingByYear = reviewService.getMediaContentRatingByYear(mediaType.equals("manga") ? MediaContentType.MANGA : MediaContentType.ANIME, mediaId, startYear, endYear);
+
+                // Create the JSON response with the average rating data and the success flag if the data is not empty
                 if(averageRatingByYear.isEmpty()){
                     jsonResponse.put("error", "No data available");
                 } else {
@@ -260,15 +288,18 @@ public class ManagerServlet extends HttpServlet {
 
             } catch (BusinessException e) {
                 jsonResponse.put("error", "An error occurred while processing the request");
+            } catch (NotAuthorizedException e) {
+                jsonResponse.put("error", "User is not authorized to perform this operation");
             }
         }
 
+        // Write the JSON response
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         response.getWriter().write(jsonResponse.toString());
     }
 
-    private void handleMediaContentAverageRatingByMonth(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    private void handleMediaContentAverageRatingByMonth(HttpServletRequest request, HttpServletResponse response) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode jsonResponse = objectMapper.createObjectNode();
 
@@ -289,7 +320,13 @@ public class ManagerServlet extends HttpServlet {
         }
         else {
             try {
+                // Check if the user is authorized to perform the operation
+                SecurityUtils.isUserAuthorized(request, UserType.MANAGER);
+
+                // Get the average rating by month for the specified media content
                 Map<String, Double> averageRatingByMonth = reviewService.getMediaContentRatingByMonth(mediaType.equals("manga") ? MediaContentType.MANGA : MediaContentType.ANIME, mediaId, year);
+
+                // Create the JSON response with the average rating data and the success flag if the data is not empty
                 if (averageRatingByMonth.isEmpty()) {
                     jsonResponse.put("error", "No data available");
                 } else {
@@ -300,17 +337,19 @@ public class ManagerServlet extends HttpServlet {
 
             } catch (BusinessException e) {
                 jsonResponse.put("error", "An error occurred while processing the request");
+            } catch (NotAuthorizedException e) {
+                jsonResponse.put("error", "User is not authorized to perform this operation");
             }
 
-
         }
+
+        // Write the JSON response
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         response.getWriter().write(jsonResponse.toString());
-
     }
 
-    private void handleUsersDistribution(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    private void handleUsersDistribution(HttpServletRequest request, HttpServletResponse response) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode jsonResponse = objectMapper.createObjectNode();
 
@@ -318,6 +357,9 @@ public class ManagerServlet extends HttpServlet {
         UserService userService = ServiceLocator.getUserService();
 
         try {
+            // Check if the user is authorized to perform the operation
+            SecurityUtils.isUserAuthorized(request, UserType.MANAGER);
+
             // Get the distribution of users by the specified criteria
             Map<String, Integer> distribution = userService.getDistribution(criteria);
 
@@ -325,6 +367,7 @@ public class ManagerServlet extends HttpServlet {
             jsonResponse.put("success", true);
             JsonNode distributionJson = objectMapper.valueToTree(distribution);
             jsonResponse.set("results", distributionJson);
+
         } catch (BusinessException e) {
             switch (e.getType()) {
                 case INVALID_INPUT:
@@ -337,6 +380,8 @@ public class ManagerServlet extends HttpServlet {
                     jsonResponse.put("error", "An error occurred while processing the request");
                     break;
             }
+        } catch (NotAuthorizedException e) {
+            jsonResponse.put("error", "User is not authorized to perform this operation");
         }
 
         response.setContentType("application/json");
@@ -345,13 +390,16 @@ public class ManagerServlet extends HttpServlet {
 
     }
 
-    private void handleUsersAverageAppRatingCriteria(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    private void handleUsersAverageAppRatingCriteria(HttpServletRequest request, HttpServletResponse response) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode jsonResponse = objectMapper.createObjectNode();
 
         String criteria = request.getParameter("criteria");
 
         try {
+            // Check if the user is authorized to perform the operation
+            SecurityUtils.isUserAuthorized(request, UserType.MANAGER);
+
             // Get the average app rating by the specified criteria
             Map<String, Double> averageAppRating = userService.averageAppRating(criteria);
 
@@ -359,6 +407,7 @@ public class ManagerServlet extends HttpServlet {
             jsonResponse.put("success", true);
             JsonNode averageAppRatingJson = objectMapper.valueToTree(averageAppRating);
             jsonResponse.set("results", averageAppRatingJson);
+
         } catch (BusinessException e) {
             switch (e.getType()) {
                 case INVALID_INPUT:
@@ -371,14 +420,17 @@ public class ManagerServlet extends HttpServlet {
                     jsonResponse.put("error", "An error occurred while processing the request");
                     break;
             }
+        } catch (NotAuthorizedException e) {
+            jsonResponse.put("error", "User is not authorized to perform this operation");
         }
 
+        // Write the JSON response
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         response.getWriter().write(jsonResponse.toString());
     }
 
-    private void handleTrendMediaContentByYear(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    private void handleTrendMediaContentByYear(HttpServletRequest request, HttpServletResponse response) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode jsonResponse = objectMapper.createObjectNode();
 
@@ -396,12 +448,16 @@ public class ManagerServlet extends HttpServlet {
         }
         else {
             try {
+                // Check if the user is authorized to perform the operation
+                SecurityUtils.isUserAuthorized(request, UserType.MANAGER);
+
+                // Get the trend of media content by year for the specified media type
                 Map<MediaContentDTO, Integer> trendMediaContentByYear = mediaContentService.getMediaContentTrendByYear(year, Constants.PAGE_SIZE, mediaType.equals("manga") ? MediaContentType.MANGA : MediaContentType.ANIME);
                 if(trendMediaContentByYear.isEmpty()){
                     jsonResponse.put("error", "No data available");
                 }
-                jsonResponse.put("success", true);
 
+                // Create the JSON response with the trend data and the success flag
                 Map<String, Integer> trendMediaContentByYearMapSerialized = new LinkedHashMap<>();
                 trendMediaContentByYear.forEach((key, value) -> {
                     try {
@@ -410,11 +466,14 @@ public class ManagerServlet extends HttpServlet {
                         throw new RuntimeException(e);
                     }
                 });
-
+                jsonResponse.put("success", true);
                 JsonNode trendMediaContentByYearJson = objectMapper.valueToTree(trendMediaContentByYearMapSerialized);
                 jsonResponse.set("results", trendMediaContentByYearJson);
+
             } catch (BusinessException e) {
                 throw new RuntimeException(e);
+            } catch (NotAuthorizedException e) {
+                jsonResponse.put("error", "User is not authorized to perform this operation");
             }
         }
         response.setContentType("application/json");

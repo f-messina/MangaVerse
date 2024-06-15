@@ -34,7 +34,7 @@ public class ErrorTaskManager extends TaskManager {
      * Returns the singleton instance of ErrorTaskManager.
      * If the instance is null, it is created in a thread-safe manner using double-checked locking.
      *
-     * @return the singleton instance of ErrorTaskManager
+     * @return      the singleton instance of ErrorTaskManager
      */
     public static ErrorTaskManager getInstance() {
         if (instance == null) {
@@ -57,9 +57,9 @@ public class ErrorTaskManager extends TaskManager {
      * 3. If the retry count exceeds the maximum allowed retries, the task is skipped.
      * 4. The task's job is executed.
      *
-     * @throws RuntimeException If an exception occurs while executing the task.
-     *                          If the exception is a BusinessException with type RETRYABLE_ERROR,
-     *                          the task is added back to the queue.
+     * @throws RuntimeException     If an exception occurs while executing the task.
+     *                              If the exception is a BusinessException with type RETRYABLE_ERROR,
+     *                              the task is added back to the queue.
      */
     @Override
     public void start() {
@@ -94,7 +94,7 @@ public class ErrorTaskManager extends TaskManager {
      * It then waits for a maximum of 1 second for the existing tasks to complete.
      * If the tasks do not complete within this time frame, the executor service is forcefully shut down.
      *
-     * @throws RuntimeException If an exception occurs while stopping the task manager.
+     * @throws RuntimeException     If an exception occurs while stopping the task manager.
      */
     @Override
     public void stop() {

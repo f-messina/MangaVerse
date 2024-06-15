@@ -136,7 +136,7 @@ public class Manga extends MediaContent {
     /**
      * Converts the Manga object to a MangaDTO object.
      *
-     * @return The MangaDTO object.
+     * @return      The MangaDTO object.
      */
     public MangaDTO toDTO() {
         return new MangaDTO(this.getId(), this.getTitle(), this.getImageUrl(), this.getAverageRating(), this.getStartDate(), this.getEndDate());

@@ -96,7 +96,7 @@ public class UserSummaryDTO {
     /**
      * Converts a UserSummaryDTO object to a User object.
      *
-     * @return The User object.
+     * @return      The User object.
      */
     public User toModel() {
         User user = new User();
@@ -111,8 +111,8 @@ public class UserSummaryDTO {
     /**
      * Compares two UserSummaryDTO objects.
      *
-     * @param o The object to compare to.
-     * @return True if the objects are equal, false otherwise.
+     * @param o         The object to compare to.
+     * @return          True if the objects are equal, false otherwise.
      */
     @Override
     public boolean equals(Object o) {
@@ -127,7 +127,7 @@ public class UserSummaryDTO {
     /**
      * Generates a hash code for a UserSummaryDTO object.
      *
-     * @return The hash code.
+     * @return      The hash code.
      */
     @Override
     public int hashCode() {

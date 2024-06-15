@@ -137,7 +137,7 @@ public class User extends RegisteredUser {
     /**
      * Converts a User object to a UserSummaryDTO object.
      *
-     * @return The UserSummaryDTO object.
+     * @return      The UserSummaryDTO object.
      */
     public UserSummaryDTO toSummaryDTO () {
         return new UserSummaryDTO(this.getId(), this.getUsername(), this.getProfilePicUrl(), this.getLocation(), this.getBirthday());
@@ -146,7 +146,7 @@ public class User extends RegisteredUser {
     /**
      * Converts a User object to a LoggedUserDTO object.
      *
-     * @return The LoggedUserDTO object.
+     * @return      The LoggedUserDTO object.
      */
     public LoggedUserDTO toLoggedUserDTO() {
         return new LoggedUserDTO(this.getId(), this.getUsername(), this.getProfilePicUrl(), this.getLocation(), this.getBirthday(), UserType.USER);

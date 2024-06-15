@@ -31,7 +31,8 @@ import static com.mongodb.client.model.Sorts.*;
 
 /**
  * Utility class for MongoDB Document operations.
- * Provides methods for converting objects to MongoDB Documents and vice versa and for appending key-value pairs to a Document if the value is not null or empty.
+ * Provides methods for converting objects to MongoDB Documents and vice versa
+ * and for appending key-value pairs to a Document if the value is not null or empty.
  * Provide methods to create filter and sort objects for MongoDB queries.
  */
 public class DocumentUtils {
@@ -39,9 +40,9 @@ public class DocumentUtils {
     /**
      * Appends a key-value pair to a MongoDB document if the value is not null or empty.
      *
-     * @param doc   MongoDB document to which the key-value pair is to be appended.
-     * @param key   Key of the key-value pair.
-     * @param value Value of the key-value pair.
+     * @param doc       MongoDB document to which the key-value pair is to be appended.
+     * @param key       Key of the key-value pair.
+     * @param value     Value of the key-value pair.
      */
     public static void appendIfNotNull(Document doc, String key, Object value) {
         if (value != null &&
@@ -60,8 +61,8 @@ public class DocumentUtils {
     /**
      * Converts an Anime object into a MongoDB Document.
      *
-     * @param anime The Anime object to convert.
-     * @return A Document representing the Anime.
+     * @param anime         The Anime object to convert.
+     * @return              A Document representing the Anime.
      */
     public static Document animeToDocument(Anime anime) {
         Document doc = new Document();
@@ -98,8 +99,8 @@ public class DocumentUtils {
     /**
      * Converts a Manga object to a MongoDB Document.
      *
-     * @param manga The Manga object to be converted.
-     * @return The MongoDB Document representation of the Manga object.
+     * @param manga         The Manga object to be converted.
+     * @return              The MongoDB Document representation of the Manga object.
      */
     public static Document mangaToDocument(Manga manga) {
         Document doc = new Document();
@@ -152,8 +153,8 @@ public class DocumentUtils {
     /**
      * Converts a ReviewDTO object to a MongoDB Document nested within inside Media Content Document.
      *
-     * @param reviewDTO The ReviewDTO object to be converted.
-     * @return A MongoDB Document representing the ReviewDTO object.
+     * @param reviewDTO         The ReviewDTO object to be converted.
+     * @return                  A MongoDB Document representing the ReviewDTO object.
      */
     public static Document reviewDTOToNestedDocument(ReviewDTO reviewDTO) {
         Document reviewDocument = new Document();
@@ -172,8 +173,8 @@ public class DocumentUtils {
     /**
      * Converts a ReviewDTO object to a MongoDB document.
      *
-     * @param reviewDTO The ReviewDTO object to be converted.
-     * @return A MongoDB Document representing the ReviewDTO object.
+     * @param reviewDTO         The ReviewDTO object to be converted.
+     * @return                  A MongoDB Document representing the ReviewDTO object.
      */
     public static Document reviewDTOToDocument(ReviewDTO reviewDTO) {
         Document reviewDocument = new Document();
@@ -199,8 +200,8 @@ public class DocumentUtils {
     /**
      * Converts a UserRegistrationDTO object to a MongoDB Document.
      *
-     * @param user The UserRegistrationDTO object to be converted.
-     * @return A MongoDB Document representing the UserRegistrationDTO object.
+     * @param user      The UserRegistrationDTO object to be converted.
+     * @return          A MongoDB Document representing the UserRegistrationDTO object.
      */
     public static Document RegisteredUserToDocument(UserRegistrationDTO user) {
         return createUserDocument(user.getPassword(), user.getEmail(), LocalDate.now(),
@@ -211,8 +212,8 @@ public class DocumentUtils {
     /**
      * Converts a User object to a MongoDB Document.
      *
-     * @param user The User object to be converted.
-     * @return A MongoDB Document representing the User object.
+     * @param user      The User object to be converted.
+     * @return          A MongoDB Document representing the User object.
      */
     public static Document RegisteredUserToDocument(User user) {
         return createUserDocument(user.getPassword(), user.getEmail(), user.getJoinedDate(),
@@ -246,8 +247,8 @@ public class DocumentUtils {
     /**
      * Converts a Document from MongoDB collection into an Anime object.
      *
-     * @param doc The Document to convert.
-     * @return An Anime object representing the Document.
+     * @param doc       The Document to convert.
+     * @return          An Anime object representing the Document.
      */
     public static Anime documentToAnime(Document doc) {
         Anime anime = new Anime();
@@ -305,8 +306,8 @@ public class DocumentUtils {
     /**
      * Converts a Document from MongoDB collection into an AnimeDTO object.
      *
-     * @param doc The Document to convert.
-     * @return An AnimeDTO object representing the Document.
+     * @param doc       The Document to convert.
+     * @return          An AnimeDTO object representing the Document.
      */
     public static AnimeDTO documentToAnimeDTO(Document doc) {
         AnimeDTO anime = new AnimeDTO();
@@ -330,8 +331,8 @@ public class DocumentUtils {
     /**
      * Converts a Document from MongoDB collection into a ReviewDTO object.
      *
-     * @param reviewDoc The MongoDB document representing the review.
-     * @return A ReviewDTO object representing the MongoDB document.
+     * @param reviewDoc     The MongoDB document representing the review.
+     * @return              A ReviewDTO object representing the MongoDB document.
      */
     public static ReviewDTO documentToReviewDTO(Document reviewDoc) {
         String reviewId = reviewDoc.getObjectId("_id").toString();
@@ -356,8 +357,8 @@ public class DocumentUtils {
     /**
      * Converts a Document from MongoDB collection into a Manga object.
      *
-     * @param document The MongoDB Document to be converted.
-     * @return The Manga object representation of the MongoDB Document.
+     * @param document      The MongoDB Document to be converted.
+     * @return              The Manga object representation of the MongoDB Document.
      */
     public static Manga documentToManga(Document document) {
         Manga manga = new Manga();
@@ -417,8 +418,8 @@ public class DocumentUtils {
     /**
      * Converts a Document from MongoDB collection into a MangaDTO object.
      *
-     * @param doc The MongoDB Document to be converted.
-     * @return The MangaDTO object representation of the MongoDB Document.
+     * @param doc       The MongoDB Document to be converted.
+     * @return          The MangaDTO object representation of the MongoDB Document.
      */
     public static MangaDTO documentToMangaDTO(Document doc) {
         MangaDTO manga = new MangaDTO();
@@ -439,8 +440,8 @@ public class DocumentUtils {
     /**
      * Converts a Document from MongoDB collection into a UserSummaryDTO object.
      *
-     * @param doc The MongoDB Document to be converted.
-     * @return The UserSummaryDTO object representation of the MongoDB Document.
+     * @param doc       The MongoDB Document to be converted.
+     * @return          The UserSummaryDTO object representation of the MongoDB Document.
      */
     public static UserSummaryDTO documentToUserSummaryDTO(Document doc) {
         UserSummaryDTO user = new UserSummaryDTO();
@@ -457,8 +458,8 @@ public class DocumentUtils {
     /**
      * Converts a Document from MongoDB collection into a RegisteredUser object.
      *
-     * @param doc The MongoDB Document to be converted.
-     * @return The RegisteredUser object representation of the MongoDB Document.
+     * @param doc       The MongoDB Document to be converted.
+     * @return          The RegisteredUser object representation of the MongoDB Document.
      */
     public static RegisteredUser documentToRegisteredUser(Document doc) {
         RegisteredUser user;
@@ -497,8 +498,8 @@ public class DocumentUtils {
     /**
      * Creates a MongoDB Document with the fields to unset in the User document.
      *
-     * @param registeredUser The User object representing the registered user.
-     * @return A Document with the fields to unset in the User document.
+     * @param registeredUser    The User object representing the registered user.
+     * @return                  A Document with the fields to unset in the User document.
      */
     public static Document UserToUnsetUserFieldsDocument(User registeredUser) {
         Document doc = new Document();
@@ -520,8 +521,8 @@ public class DocumentUtils {
     /**
      * Creates a MongoDB Document with the fields to unset in the Anime document.
      *
-     * @param anime The Anime object representing the anime.
-     * @return A Document with the fields to unset in the Anime document.
+     * @param anime         The Anime object representing the anime.
+     * @return              A Document with the fields to unset in the Anime document.
      */
     public static Document animeToUnsetAnimeFieldsDocument(Anime anime) {
         Document doc = new Document();
@@ -555,8 +556,8 @@ public class DocumentUtils {
     /**
      * Creates a MongoDB Document with the fields to unset in the Manga document.
      *
-     * @param manga The Manga object representing the manga.
-     * @return A Document with the fields to unset in the Manga document.
+     * @param manga     The Manga object representing the manga.
+     * @return          A Document with the fields to unset in the Manga document.
      */
     public static Document mangaToUnsetMangaFieldsDocument(Manga manga) {
         Document doc = new Document();
@@ -602,8 +603,8 @@ public class DocumentUtils {
     /**
      * Builds a MongoDB filter based on the provided filter list.
      *
-     * @param filterList List of pairs representing the filter criteria.
-     * @return Bson filter object representing the constructed filter.
+     * @param filterList    List of pairs representing the filter criteria.
+     * @return              Bson filter object representing the constructed filter.
      */
     public static Bson buildFilter(List<Pair<String, Object>> filterList) {
         if (filterList == null || filterList.isEmpty()) {
@@ -652,8 +653,8 @@ public class DocumentUtils {
     /**
      * Builds a sort specification for MongoDB based on the provided ordering criteria.
      *
-     * @param orderBy Map representing the fields to sort by and their corresponding order.
-     * @return Bson object representing the constructed sort specification.
+     * @param orderBy       Map representing the fields to sort by and their corresponding order.
+     * @return              Bson object representing the constructed sort specification.
      */
     public static Bson buildSort(Map<String, Integer> orderBy) {
         List<Bson> sortList = new ArrayList<>();

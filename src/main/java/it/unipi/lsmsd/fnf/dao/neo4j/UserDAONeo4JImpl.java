@@ -38,8 +38,8 @@ public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
     /**
      * Creates a node for a RegisteredUser in the Neo4j database.
      *
-     * @param user The UserRegistrationDTO object containing the user's information.
-     * @throws DAOException If an error occurs while creating the user node.
+     * @param user              The UserRegistrationDTO object containing the user's information.
+     * @throws DAOException     If an error occurs while creating the user node.
      */
     @Override
     public void saveUser(UserRegistrationDTO user) throws DAOException {
@@ -70,9 +70,9 @@ public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
     /**
      * Updates the information of a user in the Neo4j database.
      *
-     * @param user The User object containing the updated user information.
-     *             The object must have at least one field to update (username or profile picture URL).
-     * @throws DAOException If an error occurs while updating the user node.
+     * @param user              The User object containing the updated user information.
+     *                          The object must have at least one field to update (username or profile picture URL).
+     * @throws DAOException     If an error occurs while updating the user node.
      */
     @Override
     public void updateUser(User user) throws DAOException {
@@ -126,8 +126,8 @@ public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
     /**
      * Deletes a user node from the Neo4j database.
      *
-     * @param userId The ID of the user to be deleted.
-     * @throws DAOException If an error occurs while deleting the user node.
+     * @param userId            The ID of the user to be deleted.
+     * @throws DAOException     If an error occurs while deleting the user node.
      */
     @Override
     public void deleteUser(String userId) throws DAOException {
@@ -158,9 +158,9 @@ public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
     /**
      * Establishes a 'follow' relationship between two users in the Neo4j database.
      *
-     * @param userId   The ID of the user initiating the follow action.
-     * @param followedUserId  The ID of the user being followed.
-     * @throws DAOException If an error occurs while establishing the 'follow' relationship.
+     * @param userId                The ID of the user initiating the follow action.
+     * @param followedUserId        The ID of the user being followed.
+     * @throws DAOException         If an error occurs while establishing the 'follow' relationship.
      */
     @Override
     public void follow(String userId, String followedUserId) throws DAOException {
@@ -196,9 +196,9 @@ public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
     /**
      * Removes a 'follow' relationship between two users in the Neo4j database.
      *
-     * @param followerUserId   The ID of the user initiating the unfollow action.
-     * @param followingUserId  The ID of the user being unfollowed.
-     * @throws DAOException If an error occurs while removing the 'follow' relationship.
+     * @param followerUserId        The ID of the user initiating the unfollow action.
+     * @param followingUserId       The ID of the user being unfollowed.
+     * @throws DAOException         If an error occurs while removing the 'follow' relationship.
      */
     @Override
     public void unfollow(String followerUserId, String followingUserId) throws DAOException {
@@ -233,10 +233,10 @@ public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
     /**
      * Checks if a user is following another user in the Neo4j database.
      *
-     * @param userId The ID of the user to check if it is following another user.
-     * @param followedUserId The ID of the user to check if it is being followed.
-     * @return True if the user is following the other user, false otherwise.
-     * @throws DAOException If an error occurs while checking if the user is following another user.
+     * @param userId            The ID of the user to check if it is following another user.
+     * @param followedUserId    The ID of the user to check if it is being followed.
+     * @return                  True if the user is following the other user, false otherwise.
+     * @throws DAOException     If an error occurs while checking if the user is following another user.
      */
     @Override
     public boolean isFollowing(String userId, String followedUserId) throws DAOException {
@@ -264,9 +264,9 @@ public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
     /**
      * Retrieves the number of followers for a specific user from the Neo4j database.
      *
-     * @param userId The ID of the user whose followers are to be counted.
-     * @return The number of followers for the specified user.
-     * @throws DAOException If an error occurs while retrieving the number of followers.
+     * @param userId            The ID of the user whose followers are to be counted.
+     * @return                  The number of followers for the specified user.
+     * @throws DAOException     If an error occurs while retrieving the number of followers.
      */
     @Override
     public Integer getNumOfFollowers(String userId) throws DAOException {
@@ -294,9 +294,9 @@ public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
     /**
      * Retrieves the number of users followed by a specific user from the Neo4j database.
      *
-     * @param userId The ID of the user whose followed users are to be counted.
-     * @return The number of users followed by the specified user.
-     * @throws DAOException If an error occurs while retrieving the number of followed users.
+     * @param userId            The ID of the user whose followed users are to be counted.
+     * @return                  The number of users followed by the specified user.
+     * @throws DAOException     If an error occurs while retrieving the number of followed users.
      */
     @Override
     public Integer getNumOfFollowed(String userId) throws DAOException {
@@ -324,10 +324,10 @@ public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
     /**
      * Retrieves a list of users following a specific user from the Neo4j database.
      *
-     * @param userId The ID of the user whose followers are to be retrieved.
-     * @param loggedUserId The ID of the user requesting the list of followers.
-     * @return A list of RegisteredUserDTO objects representing the followers of the specified user.
-     * @throws DAOException If an error occurs while retrieving the followers list.
+     * @param userId            The ID of the user whose followers are to be retrieved.
+     * @param loggedUserId      The ID of the user requesting the list of followers.
+     * @return                  A list of RegisteredUserDTO objects representing the followers of the specified user.
+     * @throws DAOException     If an error occurs while retrieving the followers list.
      */
     @Override
     public List<UserSummaryDTO> searchFollowing(String userId, String username, String loggedUserId) throws DAOException {
@@ -375,10 +375,10 @@ public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
     /**
      * Retrieves a list of users followed by a specific user from the Neo4j database.
      *
-     * @param userId The ID of the user whose followed users are to be retrieved.
-     * @param loggedUserId The ID of the user requesting the list of followed users.
-     * @return A list of RegisteredUserDTO objects representing the users followed by the specified user.
-     * @throws DAOException If an error occurs while retrieving the followed users list.
+     * @param userId            The ID of the user whose followed users are to be retrieved.
+     * @param loggedUserId      The ID of the user requesting the list of followed users.
+     * @return                  A list of RegisteredUserDTO objects representing the users followed by the specified user.
+     * @throws DAOException     If an error occurs while retrieving the followed users list.
      */
     @Override
     public List<UserSummaryDTO> searchFollowers(String userId, String username, String loggedUserId) throws DAOException {
@@ -429,9 +429,9 @@ public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
      * 2. Retrieve users that are followed by user's followings and have more than 5 connections.
      * 3. Retrieve users that follow user's followings.
      *
-     * @param userId The ID of the user for whom suggested users are to be retrieved.
-     * @return A list of RegisteredUserDTO objects representing suggested users for the specified user.
-     * @throws DAOException If an error occurs while retrieving suggested users.
+     * @param userId            The ID of the user for whom suggested users are to be retrieved.
+     * @return                  A list of RegisteredUserDTO objects representing suggested users for the specified user.
+     * @throws DAOException     If an error occurs while retrieving suggested users.
      */
     @Override
     public List<UserSummaryDTO> suggestUsersByCommonFollowings(String userId, Integer limit) throws DAOException {
@@ -523,11 +523,11 @@ public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
      * 2. Retrieve users who like the same media content as the specified user in the last year.
      * 3. Retrieve users who like the same media content as the specified user.
      *
-     * @param userId The ID of the user for whom suggested users are to be retrieved.
-     * @param limit The maximum number of suggested users to retrieve.
-     * @param type The type of media content to consider for the suggestions (Anime or Manga).
-     * @return A list of RegisteredUserDTO objects representing suggested users for the specified user.
-     * @throws DAOException If an error occurs while retrieving suggested users.
+     * @param userId            The ID of the user for whom suggested users are to be retrieved.
+     * @param limit             The maximum number of suggested users to retrieve.
+     * @param type              The type of media content to consider for the suggestions (Anime or Manga).
+     * @return                  A list of RegisteredUserDTO objects representing suggested users for the specified user.
+     * @throws DAOException     If an error occurs while retrieving suggested users.
      */
     @Override
     public List<UserSummaryDTO> suggestUsersByCommonLikes(String userId, Integer limit, MediaContentType type) throws DAOException {

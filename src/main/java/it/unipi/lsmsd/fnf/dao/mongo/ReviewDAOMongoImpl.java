@@ -59,9 +59,13 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
 
     /**
      * Inserts a new review into the database.
+     * This method performs the following steps:
+     * 1. Checks if the media content exists in the database.
+     * 2. Inserts the review into the reviews' collection.
+     * 3. Appends the new review ID to the review_ids field of the corresponding anime or manga.
      *
-     * @param reviewDTO The ReviewDTO object representing the review to be inserted or updated.
-     * @throws DAOException If an error occurs during the insertion or update process.
+     * @param reviewDTO         The ReviewDTO object representing the review to be inserted or updated.
+     * @throws DAOException     If an error occurs during the insertion or update process.
      */
     @Override
     public void saveReview(ReviewDTO reviewDTO) throws DAOException {
@@ -113,10 +117,10 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
     /**
      * Updates an existing review in the database.
      *
-     * @param reviewId     The ID of the review to be updated.
-     * @param reviewComment The new comment for the review.
-     * @param reviewRating  The new rating for the review.
-     * @throws DAOException If an error occurs during the update process.
+     * @param reviewId          The ID of the review to be updated.
+     * @param reviewComment     The new comment for the review.
+     * @param reviewRating      The new rating for the review.
+     * @throws DAOException     If an error occurs during the update process.
      */
     @Override
     public void updateReview(String reviewId, String reviewComment, Integer reviewRating) throws DAOException {
@@ -156,9 +160,9 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
     /**
      * Updates the media content information in the specified reviews.
      *
-     * @param mediaContentDTO The MediaContentDTO object containing the updated media information.
-     * @param review_ids The list of review IDs to be updated.
-     * @throws DAOException If an error occurs during the update process.
+     * @param mediaContentDTO       The MediaContentDTO object containing the updated media information.
+     * @param review_ids            The list of review IDs to be updated.
+     * @throws DAOException         If an error occurs during the update process.
      */
     @Override
     public void updateMediaRedundancy(MediaContentDTO mediaContentDTO, List<String> review_ids) throws DAOException {
@@ -192,9 +196,9 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
     /**
      * Updates the user information in the specified reviews.
      *
-     * @param userSummaryDTO The UserSummaryDTO object containing the updated user information.
-     * @param reviewIds The list of review IDs to be updated.
-     * @throws DAOException If an error occurs during the update process.
+     * @param userSummaryDTO    The UserSummaryDTO object containing the updated user information.
+     * @param reviewIds         The list of review IDs to be updated.
+     * @throws DAOException     If an error occurs during the update process.
      */
     @Override
     public void updateUserRedundancy(UserSummaryDTO userSummaryDTO, List<String> reviewIds) throws DAOException {
@@ -246,7 +250,7 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
      * 2. Aggregates the average rating of the reviews by media content ID.
      * 3. Updates the average rating field of the media content with the new average rating.
      *
-     * @throws DAOException If an error occurs during the update process.
+     * @throws DAOException     If an error occurs during the update process.
      */
     @Override
     public void updateAverageRatingMedia() throws DAOException {
@@ -320,8 +324,8 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
      * 2. Deletes the review document from the reviews' collection.
      * 3. Removes the review ID redundancy in reviews_ids from the anime/manga collection.
      *
-     * @param reviewId The ID of the review to be deleted.
-     * @throws DAOException If an error occurs during the deletion process.
+     * @param reviewId          The ID of the review to be deleted.
+     * @throws DAOException     If an error occurs during the deletion process.
      */
     @Override
     public void deleteReview(String reviewId) throws DAOException {
@@ -365,8 +369,8 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
      * 2. Retrieves the latest reviews for the anime and manga that the user has reviewed recently.
      * 3. Updates the latest reviews for the anime and manga collections.
      *
-     * @param reviewsIds The IDs of the reviews being deleted.
-     * @throws DAOException if a database error or any other error occurs during the operation.
+     * @param reviewsIds        The IDs of the reviews being deleted.
+     * @throws DAOException     If a database error or any other error occurs during the operation.
      */
     @Override
     public void refreshLatestReviewsOnUserDeletion(List<String> reviewsIds) throws DAOException {
@@ -455,7 +459,7 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
      * 1. Retrieves all the reviews IDs from the anime and manga collections.
      * 2. Deletes the reviews with ID equal to the review IDs not present in the anime or manga collection.
      *
-     * @throws DAOException If an error occurs during the deletion process.
+     * @throws DAOException     If an error occurs during the deletion process.
      */
     public void deleteReviewsWithNoMedia() throws DAOException {
         try {
@@ -495,7 +499,7 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
      * 1. Retrieves all the reviews IDs from the users' collections.
      * 2. Deletes the reviews with ID equal to the review IDs not present in the users' collection.
      *
-     * @throws DAOException If an error occurs during the deletion process.
+     * @throws DAOException     If an error occurs during the deletion process.
      */
     @Override
     public void deleteReviewsWithNoAuthor() throws DAOException {
@@ -509,9 +513,8 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
                             .collect(toList()))
                     .orElse(new ArrayList<>());
 
-            MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
-
             // Delete reviews with user IDs not present in the users collection
+            MongoCollection<Document> reviewCollection = getCollection(COLLECTION_NAME);
             reviewCollection.deleteMany(nin("_id", reviewIds.stream().map(ObjectId::new).toList()));
 
         } catch (MongoException e) {
@@ -529,9 +532,9 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
      * 1. Remove all the reviews with the given review IDs from the reviews collection.
      * 2. Remove all the ID redundancy in review_ids in anime/manga/user collection.
      *
-     * @param reviewsIds The ID of the user whose reviews are to be deleted.
-     * @param elementDeleted The type of element that was deleted: "user", "media", or "all".
-     * @throws DAOException if a database error or any other error occurs during the operation.
+     * @param reviewsIds            The ID of the user whose reviews are to be deleted.
+     * @param elementDeleted        The type of element that was deleted: "user", "media", or "all".
+     * @throws DAOException         If a database error or any other error occurs during the operation.
      */
     @Override
     public void deleteReviews(List<String> reviewsIds, String elementDeleted) throws DAOException {
@@ -573,11 +576,11 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
      * 1. Get total count of reviews based on the review IDs.
      * 2. Retrieve the reviews based on the review IDs and paginates the results.
      *
-     * @param reviewIds The list of review IDs to retrieve.
-     * @param page      The page number for pagination (optional).
-     * @param docExcluded The document to exclude from the retrieved reviews.
-     * @return A PageDTO containing the retrieved ReviewDTOs and total count.
-     * @throws DAOException if a database error or any other error occurs during the operation.
+     * @param reviewIds         The list of review IDs to retrieve.
+     * @param page              The page number for pagination (optional).
+     * @param docExcluded       The document to exclude from the retrieved reviews.
+     * @return                  A PageDTO containing the retrieved ReviewDTOs and total count.
+     * @throws DAOException     If a database error or any other error occurs during the operation.
      */
     @Override
     public PageDTO<ReviewDTO> getReviewByIdsList(List<String> reviewIds, Integer page, String docExcluded) throws DAOException {
@@ -628,10 +631,10 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
     /**
      * Checks if a user has reviewed a specific media content (anime or manga).
      *
-     * @param userId The ID of the user to check.
-     * @param reviewIds The list of review IDs of the media content.
-     * @return A ReviewDTO object if the user has reviewed the media content, null otherwise.
-     * @throws DAOException if a database error or any other error occurs during the operation.
+     * @param userId            The ID of the user to check.
+     * @param reviewIds         The list of review IDs of the media content.
+     * @return                  A ReviewDTO object if the user has reviewed the media content, null otherwise.
+     * @throws DAOException     If a database error or any other error occurs during the operation.
      */
     @Override
     public ReviewDTO isReviewedByUser(String userId, List<String> reviewIds) throws DAOException {
@@ -663,12 +666,12 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
      * 3. Projects the results to include the year and the calculated average rating.
      * 4. Sorts the results by year in ascending order.
      *
-     * @param type The type of media content, either `ANIME` or `MANGA`.
-     * @param mediaContentId The ID of the specific media content.
-     * @param startYear The starting year of the range.
-     * @param endYear The ending year of the range.
-     * @return A map with years as keys and the corresponding average ratings as values.
-     * @throws DAOException if a database error or any other error occurs during the operation.
+     * @param type              The type of media content, either `ANIME` or `MANGA`.
+     * @param mediaContentId    The ID of the specific media content.
+     * @param startYear         The starting year of the range.
+     * @param endYear           The ending year of the range.
+     * @return                  A map with years as keys and the corresponding average ratings as values.
+     * @throws DAOException     If a database error or any other error occurs during the operation.
      */
 
     @Override
@@ -727,11 +730,11 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
      * 3. Projects the results to include the month and the calculated average rating.
      * 4. Sorts the results by month in ascending order.
      *
-     * @param type The type of media content, either `ANIME` or `MANGA`.
-     * @param mediaContentId The ID of the specific media content.
-     * @param year The year for which the ratings are to be retrieved.
-     * @return A map with month names as keys and the corresponding average ratings as values.
-     * @throws DAOException if a database error or any other error occurs during the operation.
+     * @param type              The type of media content, either `ANIME` or `MANGA`.
+     * @param mediaContentId    The ID of the specific media content.
+     * @param year              The year for which the ratings are to be retrieved.
+     * @return                  A map with month names as keys and the corresponding average ratings as values.
+     * @throws DAOException     If a database error or any other error occurs during the operation.
      */
     @Override
     public Map<String, Double> getMediaContentRatingByMonth(MediaContentType type, String mediaContentId, int year) throws DAOException {
@@ -793,11 +796,11 @@ public class ReviewDAOMongoImpl extends BaseMongoDBDAO implements ReviewDAO {
      * 4. Sorts the results by average rating in descending order.
      * 5. Limits the results to 20 entries.
      *
-     * @param mediaContentType The type of media content (ANIME or MANGA).
-     * @param criteriaType The type of criteria to filter by ("location" or "birthday").
-     * @param criteriaValue The value of the criteria (location as a string or birth year as a string).
-     * @return A PageDTO containing a list of suggested media content and the total count.
-     * @throws DAOException If there is an error accessing the database or if the criteria type is invalid.
+     * @param mediaContentType      The type of media content (ANIME or MANGA).
+     * @param criteriaType          The type of criteria to filter by ("location" or "birthday").
+     * @param criteriaValue         The value of the criteria (location as a string or birth year as a string).
+     * @return                      A PageDTO containing a list of suggested media content and the total count.
+     * @throws DAOException         If there is an error accessing the database or if the criteria type is invalid.
      */
     @Override
     public List<MediaContentDTO> suggestMediaContent(MediaContentType mediaContentType, String criteriaType, String criteriaValue) throws DAOException {

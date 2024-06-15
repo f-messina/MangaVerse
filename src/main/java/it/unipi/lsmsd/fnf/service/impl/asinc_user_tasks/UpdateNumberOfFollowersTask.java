@@ -5,6 +5,7 @@ import it.unipi.lsmsd.fnf.dao.enums.DataRepositoryEnum;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dao.exception.enums.DAOExceptionType;
 import it.unipi.lsmsd.fnf.dao.interfaces.UserDAO;
+import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 import it.unipi.lsmsd.fnf.service.exception.enums.BusinessExceptionType;
 import it.unipi.lsmsd.fnf.service.interfaces.Task;
@@ -12,38 +13,40 @@ import it.unipi.lsmsd.fnf.service.interfaces.Task;
 import java.util.Objects;
 
 /**
- * Task for updating the number of followers for a specific user.
+ * Asynchronous task for updating the number of followers for a user.
+ * Priority = 6
+ * @see Task
+ * @see UserDAO
+ * @see User
  */
 public class UpdateNumberOfFollowersTask extends Task {
     private final UserDAO mongoDbUserDAO;
-    private final UserDAO neo4jUserDAO;
     private final String userId;
+    private final int increment;
 
     /**
      * Constructs an UpdateNumberOfFollowersTask.
      *
-     * @param userId The ID of the user whose number of followers needs to be updated.
+     * @param userId            The id of the user to update.
+     * @param increment         The increment to apply to the number of followers.
      */
-    public UpdateNumberOfFollowersTask(String userId) {
-        super(5);
-        this.userId = userId;
+    public UpdateNumberOfFollowersTask(String userId, int increment) {
+        super(6);
         this.mongoDbUserDAO = DAOLocator.getUserDAO(DataRepositoryEnum.MONGODB);
-        this.neo4jUserDAO = DAOLocator.getUserDAO(DataRepositoryEnum.NEO4J);
+        this.userId = userId;
+        this.increment = increment;
     }
 
     /**
-     * Executes the task to update the number of followers for the specified user.
+     * Executes the job of updating the number of followers for a user.
      *
-     * @throws BusinessException If an error occurs during the operation.
+     * @throws BusinessException    if an error occurs during the update of the number of followers.
      */
     @Override
     public void executeJob() throws BusinessException {
         try{
-            // Get the number of followers
-            Integer followed = neo4jUserDAO.getNumOfFollowers(userId);
-
             // Update the number of followers
-            mongoDbUserDAO.updateNumOfFollowers(userId, followed);
+            mongoDbUserDAO.updateNumOfFollowers(userId, increment);
 
         } catch (DAOException e) {
             if (Objects.requireNonNull(e.getType()) == DAOExceptionType.DATABASE_ERROR) {

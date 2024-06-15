@@ -13,7 +13,11 @@ import it.unipi.lsmsd.fnf.service.interfaces.Task;
 import static it.unipi.lsmsd.fnf.service.exception.BusinessException.handleDAOException;
 
 /**
- * Task for creating new media content in the data repository.
+ * Asynchronous task for creating media content in the Neo4J database.
+ * Priority = 9
+ * @see Task
+ * @see MediaContentDAO
+ * @see MediaContent
  */
 public class CreateMediaTask extends Task {
     private final MediaContentDAO<Anime> animeDAONeo4j;
@@ -23,7 +27,7 @@ public class CreateMediaTask extends Task {
     /**
      * Constructs a CreateMediaTask with the specified media content.
      *
-     * @param media The media content to be created.
+     * @param media         The media content to be created.
      */
     public CreateMediaTask(MediaContent media) {
         super(9);
@@ -35,11 +39,12 @@ public class CreateMediaTask extends Task {
     /**
      * Executes the task to create the media content in the data repository.
      *
-     * @throws BusinessException If an error occurs during the operation.
+     * @throws BusinessException    If an error occurs during the operation.
      */
     @Override
     public void executeJob() throws BusinessException {
         try {
+            // Save the media content
             if (media instanceof Anime anime)
                 animeDAONeo4j.saveMediaContent(anime);
             else if (media instanceof Manga manga)

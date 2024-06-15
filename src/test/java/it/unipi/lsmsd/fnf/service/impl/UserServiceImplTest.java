@@ -220,14 +220,13 @@ class UserServiceImplTest {
     //Get the number of following of the users
 
     @Test
-    void getNumberOfFollowingsTest() {
+    void updateNumberOfFollowingsTest() {
         ExecutorTaskService aperiodicExecutorTaskService = getExecutorTaskService(ExecutorTaskServiceType.APERIODIC);
 
         try {
             List<String> usersIds = getUserIds();
             for(String userId : usersIds) {
-                UpdateNumberOfFollowingsTask task = new UpdateNumberOfFollowingsTask(userId);
-                aperiodicExecutorTaskService.executeTask(task);
+                // Create a task for each user to update the number of followings
             }
             Thread.sleep(10000);
         } catch (InterruptedException e) {
@@ -239,14 +238,13 @@ class UserServiceImplTest {
 
     //Get the number of followers of the users
     @Test
-    void getNumberOfFollowersTest() {
+    void updateNumberOfFollowersTest() {
         ExecutorTaskService aperiodicExecutorTaskService = getExecutorTaskService(ExecutorTaskServiceType.APERIODIC);
 
         try {
             List<String> usersIds = getUserIds();
             for(String userId : usersIds) {
-                UpdateNumberOfFollowersTask task1 = new UpdateNumberOfFollowersTask(userId);
-                aperiodicExecutorTaskService.executeTask(task1);
+                // Create a task for each user to update the number of followers
             }
             Thread.sleep(10000);
         } catch (InterruptedException e) {

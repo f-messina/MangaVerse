@@ -26,7 +26,6 @@ import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 import it.unipi.lsmsd.fnf.service.exception.enums.BusinessExceptionType;
 import it.unipi.lsmsd.fnf.service.interfaces.MediaContentService;
 import it.unipi.lsmsd.fnf.service.interfaces.ReviewService;
-import it.unipi.lsmsd.fnf.service.interfaces.UserService;
 import it.unipi.lsmsd.fnf.utils.SecurityUtils;
 
 import jakarta.servlet.ServletException;
@@ -47,11 +46,14 @@ import java.time.format.FormatStyle;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Servlet for handling media content operations (like, search, review)
+ * and loading the media content page.
+ */
 @WebServlet(urlPatterns = {"/manga", "/anime"})
 public class MediaContentServlet extends HttpServlet {
     private static final Logger logger = LoggerFactory.getLogger(MediaContentServlet.class);
     private static final MediaContentService mediaContentService = ServiceLocator.getMediaContentService();
-    private static final UserService userService = ServiceLocator.getUserService();
     private static final ReviewService reviewService = ServiceLocator.getReviewService();
 
     @Override
@@ -70,7 +72,7 @@ public class MediaContentServlet extends HttpServlet {
         switch (action) {
             case "toggleLike" -> handleToggleLike(request, response);
             case "getMediaContent" -> handleGetMediaContentById(request,response);
-            case "getReviews" -> handleGetReviews(request, response);
+            case "getReviews" -> handleGetReviewsByMediaId(request, response);
             case "searchByTitle" -> handleSearchByTitle(request,response);
             case "addReview" -> handleAddReview(request, response);
             case "updateReview" -> handleUpdateReview(request, response);
@@ -111,7 +113,7 @@ public class MediaContentServlet extends HttpServlet {
                         }
                         if (!found) {
                             logger.info("finding user review");
-                            request.setAttribute("userReview", reviewService.isReviewedByLoggedUser(userId, mediaContent.getReviewIds()));
+                            request.setAttribute("userReview", reviewService.isReviewedByUser(userId, mediaContent.getReviewIds()));
                         }
                     }
 
@@ -251,7 +253,7 @@ public class MediaContentServlet extends HttpServlet {
         response.getWriter().write(jsonResponse.toString());
     }
 
-    private void handleGetReviews(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    private void handleGetReviewsByMediaId(HttpServletRequest request, HttpServletResponse response) throws IOException {
         JavaTimeModule javaTimeModule = new JavaTimeModule();
 
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT);

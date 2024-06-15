@@ -31,7 +31,7 @@ public class PeriodicExecutorTaskServiceImpl implements ExecutorTaskService {
      * Method to get the singleton instance of PeriodicExecutorTaskServiceImpl.
      * It uses double-checked locking to ensure thread safety.
      *
-     * @return The singleton instance of PeriodicExecutorTaskServiceImpl
+     * @return          The singleton instance of PeriodicExecutorTaskServiceImpl
      */
     public static ExecutorTaskService getInstance() {
         if (instance == null) {
@@ -48,7 +48,7 @@ public class PeriodicExecutorTaskServiceImpl implements ExecutorTaskService {
      * Executes the given task.
      * In this implementation, the method does nothing as the tasks are executed periodically.
      *
-     * @param task The task to be executed
+     * @param task      The task to be executed
      */
     @Override
     public void executeTask(Task task) {}

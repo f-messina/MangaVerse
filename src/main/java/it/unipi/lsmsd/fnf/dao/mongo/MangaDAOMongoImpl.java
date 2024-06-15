@@ -51,8 +51,8 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
      * Inserts a Manga object into the MongoDB database.
      * If a Manga object with the same title already exists, a DuplicatedException is thrown.
      *
-     * @param manga The Manga object to insert.
-     * @throws DAOException If an error occurs during insertion.
+     * @param manga             The Manga object to insert.
+     * @throws DAOException     If an error occurs during insertion.
      */
     @Override
     public void saveMediaContent(Manga manga) throws DAOException {
@@ -92,8 +92,8 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
      * 1. Checks if another manga with the same title exists in the database (if the title has been updated).
      * 2. Updates the manga in the database.
      *
-     * @param manga The Manga object to update (containing only the fields to update).
-     * @throws DAOException If an error occurs during update.
+     * @param manga             The Manga object to update (containing only the fields to update).
+     * @throws DAOException     If an error occurs during update.
      */
     @Override
     public void updateMediaContent(Manga manga) throws DAOException {
@@ -134,8 +134,8 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
     /**
      * Deletes a Manga object from the MongoDB database based on its ObjectId.
      *
-     * @param mangaId The ID of the Manga to delete.
-     * @throws DAOException If an error occurs during deletion.
+     * @param mangaId           The ID of the Manga to delete.
+     * @throws DAOException     If an error occurs during deletion.
      */
     @Override
     public void deleteMediaContent(String mangaId) throws DAOException {
@@ -160,9 +160,9 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
     /**
      * Finds a Manga object in the MongoDB database based on its ObjectId.
      *
-     * @param mangaId The ID of the Manga to find.
-     * @return The Manga object if found, otherwise null.
-     * @throws DAOException If an error occurs during search.
+     * @param mangaId           The ID of the Manga to find.
+     * @return                  The Manga object if found, otherwise null.
+     * @throws DAOException     If an error occurs during search.
      */
     @Override
     public Manga readMediaContent(String mangaId) throws DAOException {
@@ -189,15 +189,15 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
     /**
      * Searches for Manga objects in the MongoDB database based on provided filters, ordering, and pagination.
      *
-     * @param filters  The list of filters to apply to the search.
-     *                 Each filter is a map containing the operator as key and the name of the field and the related for as values.
-     *                 For equality, the filter is a map containing the field name as key and the value to match as value.
-     *                 Example: Map.of("$in", Map.of("genres", List.of("comedy", "fantasy")))
-     *                 Supported operators: $and, $or, $all, $in, $nin, $gte, $lte, $exists, $regex
-     * @param orderBy  The map defining the ordering criteria for the search
-     * @param page     The page number for pagination.
-     * @return A PageDTO containing the results and total count.
-     * @throws DAOException If an error occurs during search.
+     * @param filters           The list of filters to apply to the search.
+     *                          Each filter is a map containing the operator as key and the name of the field and the related for as values.
+     *                          For equality, the filter is a map containing the field name as key and the value to match as value.
+     *                          Example: Map.of("$in", Map.of("genres", List.of("comedy", "fantasy")))
+     *                          Supported operators: $and, $or, $all, $in, $nin, $gte, $lte, $exists, $regex
+     * @param orderBy           The map defining the ordering criteria for the search
+     * @param page              The page number for pagination.
+     * @return                  A PageDTO containing the results and total count.
+     * @throws DAOException     If an error occurs during search.
      */
     public PageDTO<MediaContentDTO> search(List<Pair<String, Object>> filters, Map<String, Integer> orderBy, int page, boolean reducedInfo) throws DAOException {
         try {
@@ -274,8 +274,8 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
      *     - If it is not, it is added to the beginning of the list.
      * 3. Updates the latest reviews array in the Manga Document.
      *
-     * @param reviewDTO The ReviewDTO object containing the review information.
-     * @throws DAOException If an error occurs during update.
+     * @param reviewDTO         The ReviewDTO object containing the review information.
+     * @throws DAOException     If an error occurs during update.
      */
     @Override
     public void upsertReview(ReviewDTO reviewDTO) throws DAOException {
@@ -331,8 +331,8 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
      * 1. Get the latest reviews for the anime in Review Collection.
      * 2. Update the latest reviews in the Manga Document.
      *
-     * @param mangaId       The ObjectId of the Manga object to update.
-     * @throws DAOException If an error occurs during update.
+     * @param mangaId           The ObjectId of the Manga object to update.
+     * @throws DAOException     If an error occurs during update.
      */
     @Override
     public void refreshLatestReviews(String mangaId, List<String> reviewIds) throws DAOException {
@@ -397,10 +397,10 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
     /**
      * Checks if a review is in the latest reviews of a Manga object.
      *
-     * @param mangaId  The ObjectId of the Manga object.
-     * @param reviewId The ObjectId of the Review object.
-     * @return True if the review is in the latest reviews, false otherwise.
-     * @throws DAOException If an error occurs during the search process.
+     * @param mangaId           The ObjectId of the Manga object.
+     * @param reviewId          The ObjectId of the Review object.
+     * @return                  True if the review is in the latest reviews, false otherwise.
+     * @throws DAOException     If an error occurs during the search process.
      */
     @Override
     public boolean isInLatestReviews(String mangaId, String reviewId) throws DAOException {
@@ -421,8 +421,8 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
      * of all manga documents where the user has posted reviews. Ensures consistency of user information
      * across multiple reviews.
      *
-     * @param userSummaryDTO An object containing the user's ID, username, and profile picture URL.
-     * @throws DAOException If a database error or any other generic error occurs during the update process.
+     * @param userSummaryDTO    An object containing the user's ID, username, and profile picture URL.
+     * @throws DAOException     If a database error or any other generic error occurs during the update process.
      */
     @Override
     public void updateUserRedundancy(UserSummaryDTO userSummaryDTO) throws DAOException {
@@ -465,12 +465,12 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
     /**
      * Retrieves the best criteria based on the average rating of the Manga objects in the MongoDB database.
      *
-     * @param criteria The criteria to search for.
-     *                 Criteria values: "genres", "authors", "themes", "demographics", "serializations".
-     * @param isArray  A boolean indicating whether the criteria are an array.
-     * @param page     The page number for pagination.
-     * @return A map containing the best criteria and their average rating.
-     * @throws DAOException If an error occurs during the search process.
+     * @param criteria          The criteria to search for.
+     *                          Criteria values: "genres", "authors", "themes", "demographics", "serializations".
+     * @param isArray           A boolean indicating whether the criteria are an array.
+     * @param page              The page number for pagination.
+     * @return                  A map containing the best criteria and their average rating.
+     * @throws DAOException     If an error occurs during the search process.
      */
     @Override
     public Map<String, Double> getBestCriteria (String criteria, boolean isArray, int page) throws DAOException {
@@ -521,9 +521,9 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
     /**
      * Updates the number of likes for a Manga object in the MongoDB database.
      *
-     * @param mangaId The ObjectId of the Manga object.
-     * @param likes   The new number of likes.
-     * @throws DAOException If an error occurs during the update process.
+     * @param mangaId           The ObjectId of the Manga object.
+     * @param likes             The new number of likes.
+     * @throws DAOException     If an error occurs during the update process.
      */
     @Override
     public void updateNumOfLikes(String mangaId, Integer likes) throws DAOException {

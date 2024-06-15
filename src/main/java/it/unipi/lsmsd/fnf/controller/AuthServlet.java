@@ -1,30 +1,31 @@
 package it.unipi.lsmsd.fnf.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import it.unipi.lsmsd.fnf.dto.registeredUser.LoggedUserDTO;
 import it.unipi.lsmsd.fnf.dto.registeredUser.UserRegistrationDTO;
 import it.unipi.lsmsd.fnf.model.enums.UserType;
 import it.unipi.lsmsd.fnf.service.ServiceLocator;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 import it.unipi.lsmsd.fnf.service.exception.enums.BusinessExceptionType;
+import it.unipi.lsmsd.fnf.service.interfaces.UserService;
 import it.unipi.lsmsd.fnf.utils.Constants;
 import it.unipi.lsmsd.fnf.utils.ConverterUtils;
 import it.unipi.lsmsd.fnf.utils.SecurityUtils;
-import it.unipi.lsmsd.fnf.service.interfaces.UserService;
-
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
 
 import java.io.IOException;
 
+/**
+ * Servlet for handling user authentication operations (login, signup, logout)
+ * and loading the auth page if the user is not authenticated.
+ */
 @WebServlet("/auth")
 public class AuthServlet extends HttpServlet {
     private static final UserService userService = ServiceLocator.getUserService();
@@ -50,13 +51,12 @@ public class AuthServlet extends HttpServlet {
 
     // Load the auth page if the user is not authenticated, otherwise redirect to the profile or manager page
     private void handleLoadPage (HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        String targetJSP = "WEB-INF/jsp/auth.jsp";
         LoggedUserDTO loggedUser = SecurityUtils.getAuthenticatedUser(request);
         if (loggedUser != null) {
             String servlet = loggedUser.getType() == UserType.MANAGER ? "manager" : "profile";
             response.sendRedirect(servlet);
         } else {
-            request.getRequestDispatcher(targetJSP).forward(request, response);
+            request.getRequestDispatcher("WEB-INF/jsp/auth.jsp").forward(request, response);
         }
     }
 
@@ -148,6 +148,7 @@ public class AuthServlet extends HttpServlet {
 
     // DELETE: user session
     private void handleLogout(HttpServletRequest request) {
+        // Remove the user from the session and invalidate the session if the user is authenticated
         if (SecurityUtils.getAuthenticatedUser(request) != null) {
             request.getSession().removeAttribute(Constants.AUTHENTICATED_USER_KEY);
             request.getSession().invalidate();
