@@ -9,20 +9,141 @@ guarantees that the methods are working as expected.JUnit testing framework is u
 different modules of the application such as DAOs and services. With that process each methods efficiency and correctness is guaranteed. 
 Some examples of JUnit testing are shown below.\\ \\
 
-%%TODO: change the pictures with better ones
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=\linewidth]{Media/test_example_1.png}
-    \caption{MangaDAOMongoImpl Class Test Example}
-    \label{MangaDAOMongoImpl Class Test Example}
-\end{figure}
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=\linewidth]{Media/test_example_2.png}
-    \caption{UserServiceImpl Class Test Example}
-    \label{UserServiceImpl Class Test Example}
-\end{figure}
+\textbf{Example code snippet from AnimeDAOMongoImplTest:}
+\begin{mdframed}[backgroundcolor=yellow!20, innerleftmargin=10pt, innerrightmargin=10pt]
+    \begin{lstlisting}[language=java]
+class AnimeDAOMongoImplTest {
+
+@BeforeEach
+public void setUp() throws Exception {
+    BaseMongoDBDAO.openConnection();
+}
+
+@AfterEach
+public void tearDown() throws Exception {
+    BaseMongoDBDAO.closeConnection();
+}
+// test 1 : search for an anime by name
+// test 2 : search for an anime by filters
+@Test
+void searchTest() {
+    AnimeDAOMongoImpl animeDAO = new AnimeDAOMongoImpl();
+
+    // test 1
+    System.out.println("Search by title");
+    assertDoesNotThrow(() -> {
+        List<MediaContentDTO> animeList = animeDAO.search(List.of(Pair.of("title", "Attack on Titan")), Map.of("title", 1), 1, false).getEntries();
+        for (MediaContentDTO anime : animeList) {
+            System.out.println("Id: " + anime.getId() + ", Title: " + anime.getTitle());
+        }
+    });
+
+    // test 2
+    System.out.println("Search by filters");
+    assertDoesNotThrow(() -> {
+        for (int i = 1; i < 5; i++) {
+            PageDTO<MediaContentDTO> animePage = animeDAO.search(List.of(Pair.of("$in",Map.of("tags", List.of("school clubs", "manwha")))), Map.of("title", 1), i, false);
+            if (!animePage.getEntries().isEmpty()) {
+                for (MediaContentDTO anime : animePage.getEntries()) {
+                    System.out.println("Id: " + anime.getId() + ", Title: " + anime.getTitle());
+                }
+            }
+
+        }
+    });
+}
+}
+    \end{lstlisting}
+\end{mdframed}
+
+\textbf{Example code snippet from Neo4jDAOImplTest:}
+\begin{mdframed}[backgroundcolor=yellow!20, innerleftmargin=10pt, innerrightmargin=10pt]
+    \begin{lstlisting}[language=java]
+public class Neo4JDAOImplTest{
+
+@BeforeEach
+public void setUp() throws Exception {
+    BaseMongoDBDAO.openConnection();
+    BaseNeo4JDAO.openConnection();
+}
+
+@AfterEach
+public void tearDown() throws DAOException {
+    BaseMongoDBDAO.closeConnection();
+    BaseNeo4JDAO.closeConnection();
+}
+@Test
+public void testFollowUser() throws DAOException {
+    try {
+        UserDAONeo4JImpl neo4JDAO = new UserDAONeo4JImpl();
+        neo4JDAO.follow("6577877be68376234760585a", "6577877be683762347605859");
+    } catch (DAOException e) {
+        fail("Exception not expected: " + e.getMessage());
+    }
+
+}
+
+@Test
+public void testUnlikeAnime() throws DAOException {
+    try {
+        AnimeDAONeo4JImpl dao = new AnimeDAONeo4JImpl();
+        dao.unlike("6577877be68376234760585f","65789bb52f5d29465d0abd09");
+    } catch (DAOException e) {
+        fail("Exception not expected: " + e.getMessage());
+    }
+
+}
+}
+    \end{lstlisting}
+\end{mdframed}
+
+
+\textbf{Example code snippet from ReviewServiceImpl:}
+\begin{mdframed}[backgroundcolor=yellow!20, innerleftmargin=10pt, innerrightmargin=10pt]
+    \begin{lstlisting}[language=java]
+class ReviewServiceImplTest {
+    private static final ExecutorTaskService aperiodicTaskService = ServiceLocator.getExecutorTaskService(ExecutorTaskServiceType.APERIODIC);
+    private static final TaskManager errorTaskManager = ServiceLocator.getErrorsTaskManager();
+    @BeforeEach
+    public void setUp() throws Exception {
+        BaseMongoDBDAO.openConnection();
+        BaseNeo4JDAO.openConnection();
+        aperiodicTaskService.start();
+        errorTaskManager.start();
+    }
+
+    @AfterEach
+    public void tearDown() throws Exception {
+        BaseMongoDBDAO.closeConnection();
+        BaseNeo4JDAO.closeConnection();
+        aperiodicTaskService.stop();
+        errorTaskManager.stop();
+    }
+    @Test
+    void updateReview() {
+        ReviewServiceImpl reviewService = new ReviewServiceImpl();
+        try {
+            ReviewDTO reviewAnime = createSampleAnimeReview();
+            assertDoesNotThrow(() -> reviewService.addReview(reviewAnime));
+            reviewAnime.setComment("This is an updated test review");
+            reviewAnime.setRating(4);
+            assertDoesNotThrow(() -> reviewService.updateReview(reviewAnime));
+            System.out.println("Anime review updated: " + reviewAnime);
+
+            ReviewDTO reviewManga = createSampleMangaReview();
+            assertDoesNotThrow(() -> reviewService.addReview(reviewManga));
+            reviewManga.setComment("This is an updated test review");
+            reviewManga.setRating(4);
+            assertDoesNotThrow(() -> reviewService.updateReview(reviewManga));
+            System.out.println("Manga review updated: " + reviewManga);
+        } catch (BusinessException e) {
+            fail(e);
+        }
+    }
+}
+    \end{lstlisting}
+\end{mdframed}
 
 \newpage
 
