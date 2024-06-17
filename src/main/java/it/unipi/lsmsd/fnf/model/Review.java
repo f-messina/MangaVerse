@@ -64,7 +64,7 @@ public class Review {
 
     /**
      * Overrides the default toString method to provide a custom string representation of the Review object.
-     * @return A string representation of the Review object.
+     * @return      A string representation of the Review object.
      */
     @Override
     public String toString() {
@@ -78,6 +78,10 @@ public class Review {
                 '}';
     }
 
+    /**
+     * Converts the Review object to a ReviewDTO object.
+     * @return      A ReviewDTO object representing the Review object.
+     */
     public ReviewDTO toDTO() {
         ReviewDTO dto = new ReviewDTO();
         dto.setId(this.getId());

@@ -20,10 +20,6 @@ public class Manager extends RegisteredUser {
         this.hiredDate = hiredDate;
     }
 
-    /**
-     * Overrides the default toString method to provide a custom string representation of the Manager object.
-     * @return A string representation of the Manager object.
-     */
     @Override
     public String toString() {
         return "Manager{" +
@@ -40,7 +36,7 @@ public class Manager extends RegisteredUser {
     /**
      * Converts the Manager object to a LoggedUserDTO object.
      *
-     * @return A LoggedUserDTO object representing the Manager object.
+     * @return      A LoggedUserDTO object representing the Manager object.
      */
     public LoggedUserDTO toLoggedUserDTO() {
         return new LoggedUserDTO(this.getId(), this.getFullname(), this.getProfilePicUrl(), null, null, UserType.MANAGER);

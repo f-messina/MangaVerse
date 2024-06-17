@@ -30,7 +30,7 @@ public class AppServletContextListener implements ServletContextListener {
      * This method is called when the application is started.
      * It opens the database connections and starts the services.
      *
-     * @param sce the ServletContextEvent
+     * @param sce       The ServletContextEvent
      */
     @Override
     public void contextInitialized(ServletContextEvent sce) {
@@ -44,7 +44,7 @@ public class AppServletContextListener implements ServletContextListener {
      * This method is called when the application is stopped.
      * It closes the database connections and stops the services.
      *
-     * @param sce the ServletContextEvent
+     * @param sce       The ServletContextEvent
      */
     public void contextDestroyed(ServletContextEvent sce) {
         System.out.println("Application shutdown - Closing database connections.");

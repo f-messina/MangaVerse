@@ -26,9 +26,9 @@ public class ConverterUtils {
     /**
      * Converts a Date object to a LocalDate object.
      *
-     * @param date The Date object to convert.
-     * @return The LocalDate object converted from the Date object.
-     *         If the Date object is null, the method returns null.
+     * @param date      The Date object to convert.
+     * @return          The LocalDate object converted from the Date object.
+     *                  If the Date object is null, the method returns null.
      */
     public static LocalDate dateToLocalDate(Date date) {
         if (date == null) return null;
@@ -38,9 +38,9 @@ public class ConverterUtils {
     /**
      * Converts a LocalDate object to a Date object.
      *
-     * @param localDate The LocalDate object to convert.
-     * @return The Date object converted from the LocalDate object.
-     *         If the LocalDate object is null, the method returns null.
+     * @param localDate     The LocalDate object to convert.
+     * @return              The Date object converted from the LocalDate object.
+     *                      If the LocalDate object is null, the method returns null.
      */
     public static Date localDateToDate(LocalDate localDate) {
         if (localDate == null) return null;
@@ -50,9 +50,9 @@ public class ConverterUtils {
     /**
      * Converts a Date object to a LocalDateTime object.
      *
-     * @param date The Date object to convert.
-     * @return The LocalDateTime object converted from the Date object.
-     *         If the Date object is null, the method returns null.
+     * @param date      The Date object to convert.
+     * @return          The LocalDateTime object converted from the Date object.
+     *                  If the Date object is null, the method returns null.
      */
     public static LocalDateTime dateToLocalDateTime(Date date) {
         if (date == null) return null;
@@ -62,9 +62,9 @@ public class ConverterUtils {
     /**
      * Converts a LocalDateTime object to a Date object.
      *
-     * @param localDateTime The LocalDateTime object to convert.
-     * @return The Date object converted from the LocalDateTime object.
-     *         If the LocalDateTime object is null, the method returns null.
+     * @param localDateTime     The LocalDateTime object to convert.
+     * @return                  The Date object converted from the LocalDateTime object.
+     *                          If the LocalDateTime object is null, the method returns null.
      */
     public static Date localDateTimeToDate(LocalDateTime localDateTime) {
         if (localDateTime == null) return null;
@@ -74,9 +74,9 @@ public class ConverterUtils {
     /**
      * Returns the profile picture URL of a user or the default profile picture URL if the user has no profile picture.
      *
-     * @param picture The URL of the user's profile picture.
-     * @param request The HttpServletRequest containing the context path.
-     * @return The URL of the user's profile picture if the user has a profile picture,
+     * @param picture       The URL of the user's profile picture.
+     * @param request       The HttpServletRequest containing the context path.
+     * @return              The URL of the user's profile picture if the user has a profile picture,
      */
     public static String getProfilePictureUrlOrDefault(String picture, HttpServletRequest request) {
         if (StringUtils.isEmpty(picture)) {
@@ -88,8 +88,8 @@ public class ConverterUtils {
     /**
      * Converts HTTP request parameters to a UserRegistrationDTO object.
      *
-     * @param request The HttpServletRequest containing the user registration parameters.
-     * @return The UserRegistrationDTO object populated with request parameters.
+     * @param request       The HttpServletRequest containing the user registration parameters.
+     * @return              The UserRegistrationDTO object populated with request parameters.
      */
     public static UserRegistrationDTO fromRequestToUserRegDTO(HttpServletRequest request){
         UserRegistrationDTO userRegistrationDTO = new UserRegistrationDTO();
@@ -110,8 +110,8 @@ public class ConverterUtils {
     /**
      * Converts HTTP request parameters to a ReviewDTO object.
      *
-     * @param request The HttpServletRequest containing the review parameters.
-     * @return The ReviewDTO object populated with request parameters.
+     * @param request       The HttpServletRequest containing the review parameters.
+     * @return              The ReviewDTO object populated with request parameters.
      */
     public static User fromRequestToUser(HttpServletRequest request){
         User user = new User();
@@ -170,8 +170,8 @@ public class ConverterUtils {
      * For $regex, $gte, $lte, the key is the operator and the value is a pair with the field as key and the value to compare as value.
      * For $all, $in, $nin, the key is the operator and the value is a pair with the field as key and a list of values to compare as value.
      *
-     * @param request The HttpServletRequest containing the filters parameters for manga.
-     * @return The ReviewDTO object populated with request parameters.
+     * @param request       The HttpServletRequest containing the filters parameters for manga.
+     * @return              The ReviewDTO object populated with request parameters.
      */
     public static List<Pair<String, Object>> fromRequestToMangaFilters(HttpServletRequest request) {
         try {
@@ -198,8 +198,8 @@ public class ConverterUtils {
      * For $regex, $gte, $lte, the key is the operator and the value is a pair with the field as key and the value to compare as value.
      * For $all, $in, $nin, the key is the operator and the value is a pair with the field as key and a list of values to compare as value.
      *
-     * @param request The HttpServletRequest containing the filters parameters for anime.
-     * @return The ReviewDTO object populated with request parameters.
+     * @param request       The HttpServletRequest containing the filters parameters for anime.
+     * @return              The ReviewDTO object populated with request parameters.
      */
     public static List<Pair<String, Object>> fromRequestToAnimeFilters(HttpServletRequest request) {
         try {

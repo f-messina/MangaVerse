@@ -7,8 +7,9 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/auth_test.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/website.css"/>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/navbar.css"/>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/user_list.css"/>
 
-    <title>AUTH PAGE</title>
+    <title>Log in</title>
 </head>
 
 <body>
@@ -17,6 +18,14 @@
         <nav>
             <a href="${pageContext.request.contextPath}/mainPage"><img src="${pageContext.request.contextPath}/images/logo-with-initial.png" alt="logo" /></a>
             <div class="nav-items">
+                <div class="search-box">
+                    <button id="user-search-button" class="btn-search"><i class="fa fa-search"></i></button>
+                    <label for="user-search"></label>
+                    <input id="user-search" type="text" class="input-search" placeholder="Search user...">
+                    <div id="user-search-section" class="user-list-section users-results">
+                        <div id="user-search-results"></div>
+                    </div>
+                </div>
                 <a href="${pageContext.request.contextPath}/mainPage/manga" class="manga">Manga</a>
                 <a href="${pageContext.request.contextPath}/mainPage/anime" class="anime">Anime</a>
             </div>
@@ -110,5 +119,9 @@
     <script src="https://code.jquery.com/jquery-3.6.4.min.js" defer></script>
     <script src="${pageContext.request.contextPath}/js/auth_test.js" defer></script>
     <script src="${pageContext.request.contextPath}/js/country_dropdown.js" defer></script>
+    <script src="${pageContext.request.contextPath}/js/navbar.js" defer></script>
+    <script>
+        const contextPath = '${pageContext.request.contextPath}';
+    </script>
 </body>
 </html>

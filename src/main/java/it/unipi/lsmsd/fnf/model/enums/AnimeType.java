@@ -38,9 +38,9 @@ public enum AnimeType {
     /**
      * Returns the AnimeType enum value corresponding to the given string value.
      * It is case-insensitive and returns the UNKNOWN enum value if the string value is null or empty.
-     * @param value The string value to convert to AnimeType enum.
-     * @return The AnimeType enum value corresponding to the given string value.
-     * @throws IllegalArgumentException if no enum constant is found for the given string value.
+     * @param value                         The string value to convert to AnimeType enum.
+     * @return                              The AnimeType enum value corresponding to the given string value.
+     * @throws IllegalArgumentException     If no enum constant is found for the given string value.
      */
     public static AnimeType fromString(String value) {
         if (StringUtils.isEmpty(value)) {

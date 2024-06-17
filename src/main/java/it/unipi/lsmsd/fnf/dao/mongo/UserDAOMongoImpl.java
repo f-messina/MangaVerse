@@ -30,6 +30,7 @@ import static com.mongodb.client.model.Aggregates.*;
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.*;
 import static com.mongodb.client.model.Sorts.descending;
+import static com.mongodb.client.model.Updates.inc;
 import static it.unipi.lsmsd.fnf.utils.DocumentUtils.RegisteredUserToDocument;
 import static it.unipi.lsmsd.fnf.utils.DocumentUtils.UserToUnsetUserFieldsDocument;
 
@@ -50,9 +51,9 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
      * 1. Checks if the username and email are already in use.
      * 2. Inserts the new user into the database.
      *
-     * @param user The User object to be registered.
-     * @throws DAOException If an error occurs during the registration process,
-     *                     such as the username or email already being in use.
+     * @param user              The User object to be registered.
+     * @throws DAOException     If an error occurs during the registration process,
+     *                          such as the username or email already being in use.
      */
     @Override
     public void saveUser(UserRegistrationDTO user) throws DAOException {
@@ -95,9 +96,9 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
      * 1. Checks if the username is already in use by another user (when the username is changed).
      * 2. Updates the user information in the database.
      *
-     * @param user The User object (containing only the updated information).
-     * @throws DAOException If an error occurs during the update process,
-     *                      such as the username already exists.
+     * @param user              The User object (containing only the updated information).
+     * @throws DAOException     If an error occurs during the update process,
+     *                          such as the username already exists.
      */
     @Override
     public void updateUser(User user) throws DAOException {
@@ -145,8 +146,8 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
     /**
      * Removes a user from the system based on their ID.
      *
-     * @param userId The ID of the user to be removed.
-     * @throws DAOException If an error occurs while removing the user.
+     * @param userId            The ID of the user to be removed.
+     * @throws DAOException     If an error occurs while removing the user.
      */
     @Override
     public void deleteUser(String userId) throws DAOException {
@@ -171,12 +172,13 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
     /**
      * Retrieves a user from the system based on their ID.
      *
-     * @param userId The ID of the user to retrieve.
-     * @param onlyStatsInfo If true, only retrieves the user's location and birthday.
-     *                      If false, retrieves all user information except for the manager flag, password, email, joined_on, and app_rating.
-     * @param isLoggedUserInfo If true, retrieves all user information except for the manager flag.
-     * @return The retrieved user, or null if not found.
-     * @throws DAOException If an error occurs while retrieving the user.
+     * @param userId                The ID of the user to retrieve.
+     * @param onlyStatsInfo         If true, only retrieves the user's location and birthday.
+     *                              If false, retrieves all user information except for the manager flag,
+     *                              password, email, joined_on, and app_rating.
+     * @param isLoggedUserInfo      If true, retrieves all user information except for the manager flag.
+     * @return                      The retrieved user, or null if not found.
+     * @throws DAOException         If an error occurs while retrieving the user.
      */
     @Override
     public RegisteredUser readUser(String userId, boolean onlyStatsInfo, boolean isLoggedUserInfo) throws DAOException {
@@ -208,10 +210,10 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
     /**
      * Authenticates a user based on their email and password.
      *
-     * @param email    The email of the user to authenticate.
-     * @param password The password of the user to authenticate.
-     * @return The authenticated user.
-     * @throws DAOException If authentication fails due to incorrect email or password.
+     * @param email             The email of the user to authenticate.
+     * @param password          The password of the user to authenticate.
+     * @return                  The authenticated user.
+     * @throws DAOException     If authentication fails due to incorrect email or password.
      */
     public LoggedUserDTO authenticate(String email, String password) throws DAOException {
         try {
@@ -246,13 +248,13 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
     /**
      * Searches for users based on their username.
      *
-     * @param username The username to search for.
-     *                 If null or empty, all users are returned.
-     * @param n        The maximum number of users to return.
-     * @param loggedUser The username of the logged user.
-     *                   If not null, the logged user is excluded from the search results.
-     * @return A list of RegisteredUserDTO objects matching the search criteria.
-     * @throws DAOException If an error occurs while searching for users.
+     * @param username          The username to search for.
+     *                          If null or empty, all users are returned.
+     * @param n                 The maximum number of users to return.
+     * @param loggedUser        The username of the logged user.
+     *                          If not null, the logged user is excluded from the search results.
+     * @return                  A list of RegisteredUserDTO objects matching the search criteria.
+     * @throws DAOException     If an error occurs while searching for users.
      */
     @Override
     public List<UserSummaryDTO> searchFirstNUsers(String username, Integer n, String loggedUser) throws DAOException {
@@ -295,11 +297,11 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
     /**
      * Calculates the distribution of users based on a given search criterion.
      *
-     * @param criteria The criterion on which to base the distribution.
-     *                         Criteria values: "gender", "location", "birthday", or "joined_on".
-     * @return A map where each key represents a unique value of the specified criterion,
-     *         and the corresponding value is the count of users having that value.
-     * @throws DAOException If there's an issue with the database or a generic error occurs.
+     * @param criteria          The criterion on which to base the distribution.
+     *                          Criteria values: "gender", "location", "birthday", or "joined_on".
+     * @return                  A map where each key represents a unique value of the specified criterion,
+     *                          and the corresponding value is the count of users having that value.
+     * @throws DAOException     If there's an issue with the database or a generic error occurs.
      */
     @Override
     public Map<String, Integer> getDistribution(String criteria) throws DAOException {
@@ -348,11 +350,11 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
     /**
      * Calculates the average application rating based on the specified search criteria.
      *
-     * @param criteria The criteria on which to base the calculation.
-     *                         Criteria values: "gender", "location", "birthday", "joined_on".
-     * @return A map where each key represents a unique value of the specified criterion,
-     *         and the corresponding value is the average application rating associated with that criterion.
-     * @throws DAOException If there's an issue with the database or a generic error occurs.
+     * @param criteria          The criteria on which to base the calculation.
+     *                          Criteria values: "gender", "location", "birthday", "joined_on".
+     * @return                  A map where each key represents a unique value of the specified criterion,
+     *                          and the corresponding value is the average application rating associated with that criterion.
+     * @throws DAOException     If there's an issue with the database or a generic error occurs.
      */
     @Override
     public Map<String, Double> averageAppRating(String criteria) throws DAOException {
@@ -394,8 +396,8 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
      * - 40-50 years
      * - 50+ years
      *
-     * @return A map containing the average app rating for each age range.
-     * @throws DAOException If an error occurs during database operations.
+     * @return                  A map containing the average app rating for each age range.
+     * @throws DAOException     If an error occurs during database operations.
      */
     @Override
     public Map<String, Double> averageAppRatingByAgeRange() throws DAOException {
@@ -466,19 +468,19 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
     /**
      * Updates the number of followers redundancy for the user with the specified user ID.
      *
-     * @param userId    The ID of the user whose number of followers to update.
-     * @param followers The new number of followers to set for the user.
-     * @throws DAOException If an error occurs during database operations,
-     *                      such as if the user is not found or the number
-     *                      of followers is not updated.
+     * @param userId            The ID of the user whose number of followers to update.
+     * @param increment         The increment to apply to the number of followers.
+     * @throws DAOException     If an error occurs during database operations,
+     *                          such as if the user is not found or the number
+     *                          of followers is not updated.
      */
     @Override
-    public void updateNumOfFollowers(String userId, Integer followers) throws DAOException {
+    public void updateNumOfFollowers(String userId, Integer increment) throws DAOException {
         try {
             MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
 
             Bson filter = eq("_id", new ObjectId(userId));
-            Bson update = new Document("$set", new Document("followers", followers));
+            Bson update = inc("followers", increment);
 
             UpdateResult result = usersCollection.updateOne(filter, update);
             if (result.getMatchedCount() == 0) {
@@ -499,19 +501,19 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
     /**
      * Updates the number of followings redundancy for the user with the specified user ID.
      *
-     * @param userId   The ID of the user whose number of followed users to update.
-     * @param followed The new number of followed users to set for the user.
-     * @throws DAOException If an error occurs during database operations,
-     *                      such as if the user is not found or the number
-     *                      of followed users is not updated.
+     * @param userId            The ID of the user whose number of followed users to update.
+     * @param increment         The increment to apply to the number of followed users.
+     * @throws DAOException     If an error occurs during database operations,
+     *                          such as if the user is not found or the number
+     *                          of followed users is not updated.
      */
     @Override
-    public void updateNumOfFollowings(String userId, Integer followed) throws DAOException {
+    public void updateNumOfFollowings(String userId, Integer increment) throws DAOException {
         try {
             MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
 
             Bson filter = eq("_id", new ObjectId(userId));
-            Bson update = new Document("$set", new Document("followed", followed));
+            Bson update = inc("followings", increment);
 
             UpdateResult result = usersCollection.updateOne(filter, update);
             if (result.getMatchedCount() == 0) {
@@ -529,13 +531,12 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
         }
     }
 
-
     /**
      * Updates the app rating for a user identified by their user ID.
      *
-     * @param userId The ID of the user whose app rating is to be updated.
-     * @param rating The new app rating to be set for the user.
-     * @throws DAOException If an error occurs while updating the app rating.
+     * @param userId            The ID of the user whose app rating is to be updated.
+     * @param rating            The new app rating to be set for the user.
+     * @throws DAOException     If an error occurs while updating the app rating.
      */
     @Override
     public void rateApp(String userId, Integer rating) throws DAOException {

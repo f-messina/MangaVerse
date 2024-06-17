@@ -325,7 +325,7 @@ function unfollow() {
 function changeFollowStatus(action) {
     const inputData = { action, userId: profile.userId };
 
-    $.post(`${contextPath}/profile`, inputData, function (data) {
+    $.post(contextPath + '/user', inputData, function (data) {
         if (data.success) {
             const followButton = $(".profile-edit-btn-px");
             followButton.text(action === "follow" ? "Followed" : "Follow");
@@ -395,11 +395,13 @@ function changeSection(button) {
 
 function fetchData(action, page = 1) {
     const input = { "action": action, "page": page, "userId": profile.userId };
+    let serverUrl = contextPath + "/user";
     if (action === "getReviews") {
         input["reviewsIds"] = JSON.stringify(profile.reviewsIds);
+        serverUrl = contextPath + "/profile";
     }
 
-    $.post(`${contextPath}/profile`, input, (data) => {
+    $.post(serverUrl, input, (data) => {
         if (action === "getReviews") {
             reviewsPage = page;
             showReviews(data);

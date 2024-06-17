@@ -4,14 +4,18 @@ import it.unipi.lsmsd.fnf.dao.DAOLocator;
 import it.unipi.lsmsd.fnf.dao.enums.DataRepositoryEnum;
 import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dao.interfaces.UserDAO;
+import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
-import it.unipi.lsmsd.fnf.service.exception.enums.BusinessExceptionType;
 import it.unipi.lsmsd.fnf.service.interfaces.Task;
 
 import static it.unipi.lsmsd.fnf.service.exception.BusinessException.handleDAOException;
 
 /**
- * Task for deleting a user.
+ * Asynchronous task for deleting a user from the Neo4J database.
+ * Priority = 7
+ * @see Task
+ * @see UserDAO
+ * @see User
  */
 public class DeleteUserTask extends Task {
     private final UserDAO neo4jUserDAO;
@@ -20,7 +24,7 @@ public class DeleteUserTask extends Task {
     /**
      * Constructs a DeleteUserTask.
      *
-     * @param id The ID of the user to delete.
+     * @param id        The ID of the user to delete.
      */
     public DeleteUserTask(String id) {
         super(7);
@@ -29,9 +33,9 @@ public class DeleteUserTask extends Task {
     }
 
     /**
-     * Executes the task to delete a user.
+     * Executes the job of deleting a user from the Neo4J database.
      *
-     * @throws BusinessException If an error occurs during the operation.
+     * @throws BusinessException    if an error occurs during the deletion of the user.
      */
     @Override
     public void executeJob() throws BusinessException {

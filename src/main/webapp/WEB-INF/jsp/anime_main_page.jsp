@@ -19,9 +19,7 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/user_list.css"/>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/filters.css"/>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-    <title>MAIN PAGE</title>
+    <title>Home</title>
 </head>
 
 <body>
@@ -504,6 +502,7 @@
     </div>
 </section>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js" defer></script>
 <script src="${pageContext.request.contextPath}/js/main_page.js" defer></script>
 <script src="${pageContext.request.contextPath}/js/navbar.js" defer></script>
 <script src="${pageContext.request.contextPath}/js/filters.js" defer></script>

@@ -8,36 +8,29 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
-import it.unipi.lsmsd.fnf.dto.registeredUser.LoggedUserDTO;
+import it.unipi.lsmsd.fnf.controller.exception.NotAuthorizedException;
 import it.unipi.lsmsd.fnf.dto.PageDTO;
 import it.unipi.lsmsd.fnf.dto.ReviewDTO;
-import it.unipi.lsmsd.fnf.dto.registeredUser.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MangaDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
+import it.unipi.lsmsd.fnf.dto.registeredUser.LoggedUserDTO;
+import it.unipi.lsmsd.fnf.dto.registeredUser.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.model.Review;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.model.enums.UserType;
-import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
-import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
 import it.unipi.lsmsd.fnf.model.mediaContent.MediaContent;
-import it.unipi.lsmsd.fnf.service.*;
+import it.unipi.lsmsd.fnf.service.ServiceLocator;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
-import it.unipi.lsmsd.fnf.service.exception.enums.BusinessExceptionType;
 import it.unipi.lsmsd.fnf.service.interfaces.MediaContentService;
 import it.unipi.lsmsd.fnf.service.interfaces.ReviewService;
-import it.unipi.lsmsd.fnf.service.interfaces.UserService;
 import it.unipi.lsmsd.fnf.utils.SecurityUtils;
-
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -47,11 +40,13 @@ import java.time.format.FormatStyle;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Servlet for handling media content operations (like, search, review)
+ * and loading the media content page.
+ */
 @WebServlet(urlPatterns = {"/manga", "/anime"})
 public class MediaContentServlet extends HttpServlet {
-    private static final Logger logger = LoggerFactory.getLogger(MediaContentServlet.class);
     private static final MediaContentService mediaContentService = ServiceLocator.getMediaContentService();
-    private static final UserService userService = ServiceLocator.getUserService();
     private static final ReviewService reviewService = ServiceLocator.getReviewService();
 
     @Override
@@ -65,12 +60,9 @@ public class MediaContentServlet extends HttpServlet {
     }
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String action = request.getParameter("action");
-
-        switch (action) {
+        switch (request.getParameter("action")) {
             case "toggleLike" -> handleToggleLike(request, response);
-            case "getMediaContent" -> handleGetMediaContentById(request,response);
-            case "getReviews" -> handleGetReviews(request, response);
+            case "getReviews" -> handleGetReviewsByMediaId(request, response);
             case "searchByTitle" -> handleSearchByTitle(request,response);
             case "addReview" -> handleAddReview(request, response);
             case "updateReview" -> handleUpdateReview(request, response);
@@ -78,6 +70,9 @@ public class MediaContentServlet extends HttpServlet {
             case null, default -> handleLoadPage(request,response);
         }
     }
+
+    // Load the media content page
+    // REQUESTED PARAMETERS:        mediaId
     private void handleLoadPage(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String mediaId = request.getParameter("mediaId");
         if (mediaId == null) {
@@ -87,18 +82,24 @@ public class MediaContentServlet extends HttpServlet {
 
         MediaContentType mediaType = MediaContentType.valueOf(request.getServletPath().substring(1).toUpperCase());
         String targetJSP = mediaType.equals(MediaContentType.ANIME) ? "WEB-INF/jsp/anime.jsp" : "WEB-INF/jsp/manga.jsp";
+
         try {
+            // Get the media content by ID
             MediaContent mediaContent = mediaContentService.getMediaContentById(mediaId, mediaType);
-            logger.info("Media content: " + mediaContent);
             if (mediaContent == null) {
                 request.setAttribute("error", "Media not found");
-                targetJSP = "error.jsp";
+                throw new Exception("Media not found");
             } else {
-                request.setAttribute("mediaType", mediaType);
                 request.setAttribute("media", mediaContent);
+
+                // Check if the user is authenticated and is not a manager
                 if (SecurityUtils.getAuthenticatedUser(request) != null && SecurityUtils.getAuthenticatedUser(request).getType().equals(UserType.USER)) {
                     String userId = SecurityUtils.getAuthenticatedUser(request).getId();
+
+                    // Check if the user has liked the media content
                     request.setAttribute("isLiked", mediaContentService.isLiked(userId, mediaId, mediaType));
+
+                    // Check if the user has reviewed the media content and get the review
                     if (mediaContent.getReviewIds() != null && !mediaContent.getReviewIds().isEmpty()) {
                         List<Review> latestReviews = mediaContent.getLatestReviews();
                         boolean found = false;
@@ -110,111 +111,73 @@ public class MediaContentServlet extends HttpServlet {
                             }
                         }
                         if (!found) {
-                            logger.info("finding user review");
-                            request.setAttribute("userReview", reviewService.isReviewedByLoggedUser(userId, mediaContent.getReviewIds()));
+                            request.setAttribute("userReview", reviewService.isReviewedByUser(userId, mediaContent.getReviewIds()));
                         }
                     }
-
                 }
             }
+
         } catch (Exception e) {
-            logger.error("Error while processing request", e);
-            targetJSP = "error.jsp";
+            targetJSP = "WEB-INF/jsp/error.jsp";
         }
+
         request.getRequestDispatcher(targetJSP).forward(request, response);
     }
 
-    private void handleToggleLike(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    // Handles the like/unlike operation on a media content
+    // REQUESTED PARAMETERS:        mediaId, mediaType
+    // RESPONSE:                    JSON object with the "isLiked" boolean flag
+    private void handleToggleLike(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode jsonResponse = objectMapper.createObjectNode();
+
         MediaContentType mediaType = MediaContentType.valueOf(request.getServletPath().substring(1).toUpperCase());
         boolean isManga = mediaType.equals(MediaContentType.MANGA);
         String userId = SecurityUtils.getAuthenticatedUser(request).getId();
         String mediaId = request.getParameter("mediaId");
+
         try {
-            //if is liked: unlike, else like
-            logger.info("User " + userId + " is toggling like on " + mediaId);
+            // Check if the user is authorized to perform the operation
+            SecurityUtils.isUserAuthorized(request, UserType.USER);
+
+            //if is liked: unlike, else like and set the isLiked flag in the JSON response
             if (mediaContentService.isLiked(userId, mediaId, isManga ? MediaContentType.MANGA : MediaContentType.ANIME)) {
                 mediaContentService.removeLike(userId, mediaId, isManga ? MediaContentType.MANGA : MediaContentType.ANIME);
-                request.setAttribute("isLiked", false);
+                jsonResponse.put("isLiked", false);
+
             } else {
                 mediaContentService.addLike(userId, mediaId, isManga ? MediaContentType.MANGA : MediaContentType.ANIME);
-                request.setAttribute("isLiked", true);
+                jsonResponse.put("isLiked", true);
             }
-            logger.info(mediaContentService.isLiked(userId, mediaId, isManga ? MediaContentType.MANGA : MediaContentType.ANIME) ? "Liked" : "Unliked");
+
         } catch (BusinessException e) {
-            logger.error("Error occurred during like operation", e);
-            request.getRequestDispatcher("/error.jsp").forward(request, response);
+            jsonResponse.put("error", "Error occurred during like operation");
+
+        } catch (NotAuthorizedException e) {
+            jsonResponse.put("error", "User is not authorized to perform this operation");
         }
 
         // Set the content type and write the JSON response
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        response.getWriter().write("{\"isLiked\": " + request.getAttribute("isLiked") + "}");
-    }
-
-    private void handleGetMediaContentById(HttpServletRequest request, HttpServletResponse response) throws ServletException,IOException{
-        String type = request.getParameter("type");
-        String mediaId = request.getParameter("mediaId");
-
-        JavaTimeModule javaTimeModule = new JavaTimeModule();
-
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT);
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM);
-
-        // Register the formatters for serialization
-        javaTimeModule.addSerializer(LocalDate.class, new LocalDateSerializer(dateFormatter));
-        javaTimeModule.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer(dateTimeFormatter));
-        // Register the formatters for deserialization
-        javaTimeModule.addDeserializer(LocalDate.class, new LocalDateDeserializer(dateFormatter));
-        javaTimeModule.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(dateTimeFormatter));
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        ObjectNode jsonResponse = objectMapper.createObjectNode();
-
-        objectMapper.registerModule(javaTimeModule);
-
-        if (type.equals("anime")){
-            try {
-                Anime anime = (Anime)mediaContentService.getMediaContentById(mediaId,MediaContentType.ANIME);
-                JsonNode jsonNode = objectMapper.valueToTree(anime);
-                jsonResponse.set("anime", jsonNode);
-                jsonResponse.put("success", true);
-            } catch (BusinessException e) {
-                if (e.getType().equals(BusinessExceptionType.NOT_FOUND)){
-                    jsonResponse.put("anime-search-failed","anime-not-found");
-                }else{
-                    jsonResponse.put("anime-search-failed","problem-on-searching-anime");
-                }
-            }
-        }else if(type.equals("manga")){
-            try {
-                Manga manga = (Manga)mediaContentService.getMediaContentById(mediaId,MediaContentType.MANGA);
-                JsonNode jsonNode = objectMapper.valueToTree(manga);
-                jsonResponse.set("manga",jsonNode);
-                jsonResponse.put("success", true);
-            } catch (BusinessException e) {
-                if (e.getType().equals(BusinessExceptionType.NOT_FOUND)){
-                    jsonResponse.put("manga-search-failed","manga-not-found");
-                }else{
-                    jsonResponse.put("manga-search-failed","problem-on-searching-manga");
-                }
-            }
-        }else{
-            jsonResponse.put("error","Invalid type");
-        }
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
         response.getWriter().write(jsonResponse.toString());
     }
 
-    private void handleSearchByTitle(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    // Handles the search operation by title
+    // REQUESTED PARAMETERS:        title, page
+    // RESPONSE:                    JSON object with the search results
+    //                              or an error message
+    private void handleSearchByTitle(HttpServletRequest request, HttpServletResponse response) throws IOException {
         JavaTimeModule javaTimeModule = new JavaTimeModule();
 
+        // Create the date and date-time formatters
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT);
         DateTimeFormatter dateTimeFormatter =  DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM);
 
         // Register the formatters for serialization
         javaTimeModule.addSerializer(LocalDate.class, new LocalDateSerializer(dateFormatter));
         javaTimeModule.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer(dateTimeFormatter));
+
         // Register the formatters for deserialization
         javaTimeModule.addDeserializer(LocalDate.class, new LocalDateDeserializer(dateFormatter));
         javaTimeModule.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(dateTimeFormatter));
@@ -224,23 +187,27 @@ public class MediaContentServlet extends HttpServlet {
 
         objectMapper.registerModule(javaTimeModule);
 
-        try {
-            int page = request.getAttribute("page") != null ? Integer.parseInt(request.getParameter("page")) : 1;
-            MediaContentType mediaContentType = MediaContentType.valueOf(request.getServletPath().substring(1).toUpperCase());
-            String title = request.getParameter("title");
+        int page = request.getAttribute("page") != null ? Integer.parseInt(request.getParameter("page")) : 1;
+        MediaContentType mediaContentType = MediaContentType.valueOf(request.getServletPath().substring(1).toUpperCase());
+        String title = request.getParameter("title");
 
+        try {
+            // Search the media content by title
             PageDTO<? extends MediaContentDTO> mediaList = mediaContentService.searchByTitle(title, page, mediaContentType);
 
-            // Add the search results to the JSON response
+            // Add the search results to the JSON response and set the success flag
             if (mediaList.getTotalCount() == 0) {
                 jsonResponse.put("noResults", "No results found");
+
             } else {
                 JsonNode mediaListNode = objectMapper.valueToTree(mediaList);
                 jsonResponse.set("results", mediaListNode);
                 jsonResponse.put("success", true);
             }
+
         } catch (BusinessException e) {
             jsonResponse.put("error", "Error occurred during search operation");
+
         } catch (IllegalArgumentException e) {
             jsonResponse.put("error", "Invalid JSON format for search filters");
         }
@@ -251,7 +218,11 @@ public class MediaContentServlet extends HttpServlet {
         response.getWriter().write(jsonResponse.toString());
     }
 
-    private void handleGetReviews(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    // Handles the get reviews operation by media ID
+    // REQUESTED PARAMETERS:        reviewIds, page
+    // RESPONSE:                    JSON object with the reviews
+    //                              or an error message
+    private void handleGetReviewsByMediaId(HttpServletRequest request, HttpServletResponse response) throws IOException {
         JavaTimeModule javaTimeModule = new JavaTimeModule();
 
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT);
@@ -269,29 +240,29 @@ public class MediaContentServlet extends HttpServlet {
 
         objectMapper.registerModule(javaTimeModule);
 
-        try {
-            List<String> reviewIds = Arrays.stream(objectMapper.readValue(request.getParameter("reviewIds"), String[].class)).toList();
-            String pageString = request.getParameter("page");
-            int page = 0;
-            if (pageString != null) {
-                page = Integer.parseInt(pageString);
-            }
+        List<String> reviewIds = Arrays.stream(objectMapper.readValue(request.getParameter("reviewIds"), String[].class)).toList();
+        String pageString = request.getParameter("page");
+        int page = 0;
+        if (pageString != null) {
+            page = Integer.parseInt(pageString);
+        }
 
+        try {
+            // Get the reviews by IDs list
             PageDTO<ReviewDTO> reviews = reviewService.getReviewsByIdsList(reviewIds, page, "media");
 
-            // Convert the page to a JSON Object
+            // Convert the page to a JSON Object and set the success flag
             if (reviews == null || reviews.getTotalCount() == 0) {
                 jsonResponse.put("notFoundError", true);
+
             } else {
                 JsonNode reviewsJsonObject  = objectMapper.valueToTree(reviews);
-
-                // Add the JSON array to the response
                 jsonResponse.set("reviews", reviewsJsonObject);
                 jsonResponse.put("success", true);
             }
 
         } catch (BusinessException e) {
-            jsonResponse.put("error", e.getMessage());
+            jsonResponse.put("error", "Error occurred during reviews retrieval");
         }
 
         // Write the JSON response
@@ -300,30 +271,40 @@ public class MediaContentServlet extends HttpServlet {
         response.getWriter().write(jsonResponse.toString());
     }
 
-    private void handleAddReview(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    // Handles the add review operation
+    // REQUESTED PARAMETERS:        mediaId, mediaTitle, mediaType, comment, rating
+    // RESPONSE:                    JSON object with the success flag
+    //                              or an error message
+    private void handleAddReview(HttpServletRequest request, HttpServletResponse response) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode jsonResponse = objectMapper.createObjectNode();
 
         LoggedUserDTO loggedUser = SecurityUtils.getAuthenticatedUser(request);
-        String userId = SecurityUtils.getAuthenticatedUser(request).getId();
         String mediaId = request.getParameter("mediaId");
         String mediaTitle = request.getParameter("mediaTitle");
         String mediaType = request.getParameter("mediaType");
         String comment = request.getParameter("comment");
         Integer rating = StringUtils.isNotEmpty(request.getParameter("rating")) ? Integer.parseInt(request.getParameter("rating")) : null;
-        if (StringUtils.isBlank(userId) || StringUtils.isBlank(mediaId) || StringUtils.isBlank(mediaTitle) ||
-                StringUtils.isBlank(mediaType) || loggedUser == null || !loggedUser.getType().equals(UserType.USER) ||
-                (StringUtils.isBlank(comment) && (rating == null || rating < 1 || rating > 10))
-        ) {
+        if (StringUtils.isBlank(mediaType)) {
             jsonResponse.put("error", "Invalid request parameters");
+
         } else {
+            MediaContentDTO mediaContentDTO = mediaType.equals("anime") ? new AnimeDTO(mediaId, mediaTitle) : new MangaDTO(mediaId, mediaTitle);
+
             try {
+                // Check if the user is authorized to perform the operation
+                SecurityUtils.isUserAuthorized(request, UserType.USER);
                 UserSummaryDTO userSummaryDTO = loggedUser.toUserModel().toSummaryDTO();
-                MediaContentDTO mediaContentDTO = mediaType.equals("anime") ? new AnimeDTO(mediaId, mediaTitle) : new MangaDTO(mediaId, mediaTitle);
+
+                // Add the review and set the success flag
                 reviewService.addReview(new ReviewDTO(mediaContentDTO, userSummaryDTO, comment, rating));
                 jsonResponse.put("success", true);
+
             } catch (BusinessException e) {
                 jsonResponse.put("error", "Error occurred during review addition");
+
+            } catch (NotAuthorizedException e) {
+                jsonResponse.put("error", "User is not authorized to perform this operation");
             }
         }
 
@@ -333,6 +314,10 @@ public class MediaContentServlet extends HttpServlet {
         response.getWriter().write(jsonResponse.toString());
     }
 
+    // Handles the update review operation
+    // REQUESTED PARAMETERS:        reviewId, mediaId, mediaTitle, mediaType, comment, rating
+    // RESPONSE:                    JSON object with the success flag
+    //                              or an error message
     private void handleUpdateReview(HttpServletRequest request, HttpServletResponse response) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode jsonResponse = objectMapper.createObjectNode();
@@ -345,16 +330,25 @@ public class MediaContentServlet extends HttpServlet {
         Integer rating = StringUtils.isNotEmpty(request.getParameter("rating")) ? Integer.parseInt(request.getParameter("rating")) : null;
         LoggedUserDTO loggedUser = SecurityUtils.getAuthenticatedUser(request);
 
-        if (StringUtils.isBlank(reviewId) || (StringUtils.isBlank(comment) && (rating == null || rating < 1 || rating > 10))) {
+        if (StringUtils.isBlank(mediaType)) {
             jsonResponse.put("error", "Invalid request parameters");
+
         } else {
+            MediaContentDTO mediaContentDTO = mediaType.equals("anime") ? new AnimeDTO(mediaId, mediaTitle) : new MangaDTO(mediaId, mediaTitle);
+            ReviewDTO reviewDTO = new ReviewDTO(reviewId, null, comment, rating, mediaContentDTO, loggedUser.toUserModel().toSummaryDTO());
             try {
-                MediaContentDTO mediaContentDTO = mediaType.equals("anime") ? new AnimeDTO(mediaId, mediaTitle) : new MangaDTO(mediaId, mediaTitle);
-                ReviewDTO reviewDTO = new ReviewDTO(reviewId, null, comment, rating, mediaContentDTO, loggedUser.toUserModel().toSummaryDTO());
+                // Check if the user is authorized to perform the operation
+                SecurityUtils.isUserAuthorized(request, UserType.USER);
+
+                // Update the review and set the success flag
                 reviewService.updateReview(reviewDTO);
                 jsonResponse.put("success", true);
+
             } catch (BusinessException e) {
                 jsonResponse.put("error", "Error occurred during review update");
+
+            } catch (NotAuthorizedException e) {
+                jsonResponse.put("error", "User is not authorized to perform this operation");
             }
         }
 
@@ -364,7 +358,11 @@ public class MediaContentServlet extends HttpServlet {
         response.getWriter().write(jsonResponse.toString());
     }
 
-    private void handleDeleteReview(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    // Handles the delete review operation
+    // REQUESTED PARAMETERS:        reviewId, mediaId, mediaType, reviewsIds, latestReviewsIds
+    // RESPONSE:                    JSON object with the success flag
+    //                              or an error message
+    private void handleDeleteReview(HttpServletRequest request, HttpServletResponse response) throws IOException {
         JavaTimeModule javaTimeModule = new JavaTimeModule();
 
         ObjectMapper objectMapper = new ObjectMapper();
@@ -379,10 +377,18 @@ public class MediaContentServlet extends HttpServlet {
         List<String> latestReviewIds = Arrays.stream(objectMapper.readValue(request.getParameter("latestReviewsIds"), String[].class)).toList();
 
         try {
+            // Check if the user is authorized to perform the operation
+            SecurityUtils.isUserAuthorized(request, UserType.USER);
+
+            // Delete the review and set the success flag
             reviewService.deleteReview(reviewId, mediaId, mediaType, reviewsIds, latestReviewIds.contains(reviewId));
             jsonResponse.put("success", true);
+
         } catch (BusinessException e) {
             jsonResponse.put("error", "Error occurred during review deletion");
+
+        } catch (NotAuthorizedException e) {
+            jsonResponse.put("error", "User is not authorized to perform this operation");
         }
 
         // Set the content type and write the JSON response

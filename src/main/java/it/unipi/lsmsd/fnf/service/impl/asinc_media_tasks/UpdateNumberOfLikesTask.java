@@ -8,56 +8,56 @@ import it.unipi.lsmsd.fnf.dao.interfaces.MediaContentDAO;
 import it.unipi.lsmsd.fnf.model.enums.MediaContentType;
 import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
 import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
+import it.unipi.lsmsd.fnf.model.mediaContent.MediaContent;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 import it.unipi.lsmsd.fnf.service.exception.enums.BusinessExceptionType;
 import it.unipi.lsmsd.fnf.service.interfaces.Task;
 
 import java.util.Objects;
-import java.util.logging.Logger;
 
 /**
- * Task for updating the number of likes for media content.
+ * Asynchronous task for incrementing or decrementing the number of likes of a media content.
+ * Priority = 6
+ * @see Task
+ * @see MediaContentDAO
+ * @see MediaContent
  */
 public class UpdateNumberOfLikesTask extends Task {
     private final MediaContentDAO<Anime> animeDAOMongo;
-    private final MediaContentDAO<Anime> animeDAONeo4j;
     private final MediaContentDAO<Manga> mangaDAOMongo;
-    private final MediaContentDAO<Manga> mangaDAONeo4j;
     private final String mediaId;
     private final MediaContentType type;
+    private final int increment;
 
     /**
      * Constructs an UpdateNumberOfLikesTask.
      *
-     * @param recipeId The ID of the media content.
-     * @param type    The type of the media content.
+     * @param mediaId       The id of the media content.
+     * @param type          The type of the media content.
+     * @param increment     The increment to apply to the number of likes.
      */
-    public UpdateNumberOfLikesTask(String recipeId, MediaContentType type) {
-        super(5);
+    public UpdateNumberOfLikesTask(String mediaId, MediaContentType type, int increment) {
+        super(6);
         this.animeDAOMongo = DAOLocator.getAnimeDAO(DataRepositoryEnum.MONGODB);
-        this.animeDAONeo4j = DAOLocator.getAnimeDAO(DataRepositoryEnum.NEO4J);
         this.mangaDAOMongo = DAOLocator.getMangaDAO(DataRepositoryEnum.MONGODB);
-        this.mangaDAONeo4j = DAOLocator.getMangaDAO(DataRepositoryEnum.NEO4J);
-        this.mediaId = recipeId;
+        this.mediaId = mediaId;
         this.type = type;
-
+        this.increment = increment;
     }
 
     /**
-     * Executes the task to update the number of likes for media content.
+     * Executes the job of updating the number of likes of a media content.
      *
-     * @throws BusinessException If an error occurs during the operation.
+     * @throws BusinessException    if an error occurs during the update of the number of likes.
      */
     @Override
     public void executeJob() throws BusinessException {
         try {
-
+            // Update the number of likes
             if (type == MediaContentType.ANIME) {
-                Integer likes = animeDAONeo4j.getNumOfLikes(mediaId);
-                animeDAOMongo.updateNumOfLikes(mediaId, likes);
+                animeDAOMongo.updateNumOfLikes(mediaId, increment);
             } else {
-                Integer likes = mangaDAONeo4j.getNumOfLikes(mediaId);
-                mangaDAOMongo.updateNumOfLikes(mediaId, likes);
+                mangaDAOMongo.updateNumOfLikes(mediaId, increment);
             }
 
         } catch (DAOException e) {

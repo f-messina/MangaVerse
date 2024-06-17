@@ -95,7 +95,7 @@ public class LoggedUserDTO {
     /**
      * Converts a LoggedUserDTO object to a User object.
      *
-     * @return The User object.
+     * @return      The User object.
      */
     public User toUserModel() {
         if (this.type == UserType.MANAGER) {

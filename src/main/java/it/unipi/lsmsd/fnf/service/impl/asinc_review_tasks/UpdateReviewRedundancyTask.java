@@ -7,6 +7,7 @@ import it.unipi.lsmsd.fnf.dao.exception.enums.DAOExceptionType;
 import it.unipi.lsmsd.fnf.dao.interfaces.ReviewDAO;
 import it.unipi.lsmsd.fnf.dto.registeredUser.UserSummaryDTO;
 import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
+import it.unipi.lsmsd.fnf.dto.ReviewDTO;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 import it.unipi.lsmsd.fnf.service.exception.enums.BusinessExceptionType;
 import it.unipi.lsmsd.fnf.service.interfaces.Task;
@@ -14,7 +15,13 @@ import it.unipi.lsmsd.fnf.service.interfaces.Task;
 import java.util.List;
 
 /**
- * Task for updating review redundancy.
+ * Asynchronous task for updating the user or media redundancy of a review in the database.
+ * Priority = 5
+ * @see Task
+ * @see ReviewDAO
+ * @see MediaContentDTO
+ * @see UserSummaryDTO
+ * @see ReviewDTO
  */
 public class UpdateReviewRedundancyTask extends Task {
 
@@ -26,9 +33,9 @@ public class UpdateReviewRedundancyTask extends Task {
     /**
      * Constructs an UpdateReviewRedundancyTask.
      *
-     * @param mediaContentDTO The DTO representing the media content.
-     * @param userSummaryDTO  The DTO representing the user summary.
-     * @param reviewIds       The list of review IDs.
+     * @param mediaContentDTO   The DTO representing the media content.
+     * @param userSummaryDTO    The DTO representing the user summary.
+     * @param reviewIds         The list of review IDs.
      */
     public UpdateReviewRedundancyTask(MediaContentDTO mediaContentDTO, UserSummaryDTO userSummaryDTO, List<String> reviewIds) {
         super(5);
@@ -41,11 +48,12 @@ public class UpdateReviewRedundancyTask extends Task {
     /**
      * Executes the task to update review redundancy.
      *
-     * @throws BusinessException If an error occurs during the operation.
+     * @throws BusinessException    If an error occurs during the operation.
      */
     @Override
     public void executeJob() throws BusinessException {
         try{
+            // Update the user or media redundancy of the reviews
             if (userSummaryDTO != null)
                 reviewDAO.updateUserRedundancy(userSummaryDTO, reviewIds);
             if (mediaContentDTO != null)

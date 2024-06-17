@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/navbar.css"/>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/website.css"/>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/user_list.css"/>
+
     <title>Analytics</title>
 </head>
 

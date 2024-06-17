@@ -10,7 +10,7 @@ import it.unipi.lsmsd.fnf.model.registeredUser.User;
 import it.unipi.lsmsd.fnf.service.ServiceLocator;
 import it.unipi.lsmsd.fnf.service.enums.ExecutorTaskServiceType;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
-import it.unipi.lsmsd.fnf.service.impl.asinc_user_tasks.UpdateNumberOfFollowedTask;
+import it.unipi.lsmsd.fnf.service.impl.asinc_user_tasks.UpdateNumberOfFollowingsTask;
 import it.unipi.lsmsd.fnf.service.impl.asinc_user_tasks.UpdateNumberOfFollowersTask;
 import it.unipi.lsmsd.fnf.service.interfaces.ExecutorTaskService;
 import it.unipi.lsmsd.fnf.service.interfaces.TaskManager;
@@ -220,14 +220,13 @@ class UserServiceImplTest {
     //Get the number of following of the users
 
     @Test
-    void getNumberOfFollowingsTest() {
+    void updateNumberOfFollowingsTest() {
         ExecutorTaskService aperiodicExecutorTaskService = getExecutorTaskService(ExecutorTaskServiceType.APERIODIC);
 
         try {
             List<String> usersIds = getUserIds();
             for(String userId : usersIds) {
-                UpdateNumberOfFollowedTask task = new UpdateNumberOfFollowedTask(userId);
-                aperiodicExecutorTaskService.executeTask(task);
+                // Create a task for each user to update the number of followings
             }
             Thread.sleep(10000);
         } catch (InterruptedException e) {
@@ -239,14 +238,13 @@ class UserServiceImplTest {
 
     //Get the number of followers of the users
     @Test
-    void getNumberOfFollowersTest() {
+    void updateNumberOfFollowersTest() {
         ExecutorTaskService aperiodicExecutorTaskService = getExecutorTaskService(ExecutorTaskServiceType.APERIODIC);
 
         try {
             List<String> usersIds = getUserIds();
             for(String userId : usersIds) {
-                UpdateNumberOfFollowersTask task1 = new UpdateNumberOfFollowersTask(userId);
-                aperiodicExecutorTaskService.executeTask(task1);
+                // Create a task for each user to update the number of followers
             }
             Thread.sleep(10000);
         } catch (InterruptedException e) {

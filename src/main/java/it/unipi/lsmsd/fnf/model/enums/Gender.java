@@ -32,9 +32,9 @@ public enum Gender {
 
     /**
      * Returns the Gender enum value corresponding to the given string value.
-     * @param value The string value to convert to Gender enum.
-     * @return The Gender enum value corresponding to the given string value.
-     * @throws IllegalArgumentException if no enum constant is found for the given string value.
+     * @param value                         The string value to convert to Gender enum.
+     * @return                              The Gender enum value corresponding to the given string value.
+     * @throws IllegalArgumentException     If no enum constant is found for the given string value.
      */
     public static Gender fromString(String value) {
         return switch (value) {

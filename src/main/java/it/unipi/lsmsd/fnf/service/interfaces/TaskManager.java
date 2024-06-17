@@ -3,18 +3,24 @@ package it.unipi.lsmsd.fnf.service.interfaces;
 import java.util.Comparator;
 import java.util.concurrent.PriorityBlockingQueue;
 
-/*
-     This class is used to manage tasks  
+/**
+ * This abstract class provides the methods to manage tasks.
+ * It uses a PriorityBlockingQueue to store the tasks.
+ * The tasks are ordered based on their priority and, in case of equal priority, on their timestamp.
+ * @see PriorityBlockingQueue
+ * @see Task
  */
 public abstract class TaskManager {
 
     private final PriorityBlockingQueue<Task> taskQueue;
 
-    /*
-        Comparator used to compare tasks by priority
-        The creation Tasks have the highest priority, then the update tasks and finally the delete tasks
-        If two tasks have the same priority, the one that was created first is executed first
+    public TaskManager() {
+        this.taskQueue = new PriorityBlockingQueue<>(20, taskComparator);
+    }
 
+    /**
+     * Comparator to compare tasks based on their priority and,
+     * in case of equal priority, on their timestamp.
      */
     private static final Comparator<Task> taskComparator = (o1, o2) -> {
         if(o1.getPriority() > o2.getPriority())
@@ -22,29 +28,28 @@ public abstract class TaskManager {
         else if(o1.getPriority() < o2.getPriority())
             return -1;
         else
-            return Long.compare(o1.getTimestamp(), o2.getTimestamp()); //it is very unlikely that two tasks have the same timestamp
+            return Long.compare(o1.getTimestamp(), o2.getTimestamp());
     };
-
-    public TaskManager() {
-        this.taskQueue = new PriorityBlockingQueue<>(20, taskComparator);
-    }
 
     public PriorityBlockingQueue<Task> getTaskQueue() {
         return taskQueue;
     }
 
-    /*
-            Starts the task manager
-         */
+    /**
+     * Starts the task manager.
+     */
     public abstract void start();
 
-    /*
-        Stops the task manager
+    /**
+     * Stops the task manager.
      */
     public abstract void stop();
 
-    /*
-        Adds a task to the task queue
+    /**
+     * Adds a task to the task queue.
+     * The task is added to the queue based on its priority.
+     *
+     * @param task      The task to be added
      */
     public synchronized void addTask(Task task) {
         if (task == null) {
@@ -52,5 +57,4 @@ public abstract class TaskManager {
         }
         taskQueue.put(task);
     }
-
 }

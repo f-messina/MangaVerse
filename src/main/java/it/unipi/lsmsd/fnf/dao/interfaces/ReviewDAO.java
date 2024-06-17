@@ -15,6 +15,9 @@ import java.util.Map;
  * Provides methods to interact with the MongoDB database.
  * The methods provide crud operations and operations to maintain consistency between collections,
  * operations to get statistics and operations to get media content suggestions.
+ * @see ReviewDTO
+ * @see MediaContentDTO
+ * @see UserSummaryDTO
  */
 public interface ReviewDAO {
     void saveReview(ReviewDTO reviewDTO) throws DAOException;
@@ -29,8 +32,8 @@ public interface ReviewDAO {
     void deleteReviews(List<String> reviewsIds, String elementDeleted) throws DAOException;
     PageDTO<ReviewDTO> getReviewByIdsList(List<String> reviewIds, Integer page, String docExcluded) throws DAOException;
     ReviewDTO isReviewedByUser(String userId, List<String> reviewIds) throws DAOException;
-    Map<String, Double> getMediaContentRatingByYear(MediaContentType type, String mediaContentId, int startYear, int endYear) throws  DAOException; // MANAGER (CHART)
-    Map<String, Double> getMediaContentRatingByMonth (MediaContentType type, String mediaContentId, int year) throws DAOException; // MANAGER (CHART)
-    List<MediaContentDTO> suggestMediaContent(MediaContentType mediaContentType, String criteria, String type) throws DAOException;
+    Map<String, Double> getMediaContentRatingByYear(MediaContentType type, String mediaContentId, int startYear, int endYear) throws  DAOException;
+    Map<String, Double> getMediaContentRatingByMonth (MediaContentType type, String mediaContentId, int year) throws DAOException;
+    List<MediaContentDTO> suggestMediaContent(MediaContentType mediaContentType, String criteriaType, String criteriaValue) throws DAOException;
 
 }

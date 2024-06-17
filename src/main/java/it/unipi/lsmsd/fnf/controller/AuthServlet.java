@@ -1,34 +1,34 @@
 package it.unipi.lsmsd.fnf.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import it.unipi.lsmsd.fnf.dto.registeredUser.LoggedUserDTO;
 import it.unipi.lsmsd.fnf.dto.registeredUser.UserRegistrationDTO;
 import it.unipi.lsmsd.fnf.model.enums.UserType;
 import it.unipi.lsmsd.fnf.service.ServiceLocator;
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 import it.unipi.lsmsd.fnf.service.exception.enums.BusinessExceptionType;
+import it.unipi.lsmsd.fnf.service.interfaces.UserService;
 import it.unipi.lsmsd.fnf.utils.Constants;
 import it.unipi.lsmsd.fnf.utils.ConverterUtils;
 import it.unipi.lsmsd.fnf.utils.SecurityUtils;
-import it.unipi.lsmsd.fnf.service.interfaces.UserService;
-
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
 
 import java.io.IOException;
 
+/**
+ * Servlet for handling user authentication operations (login, signup, logout)
+ * and loading the auth page if the user is not authenticated.
+ */
 @WebServlet("/auth")
 public class AuthServlet extends HttpServlet {
     private static final UserService userService = ServiceLocator.getUserService();
-    private static final Logger logger = org.slf4j.LoggerFactory.getLogger(AuthServlet.class);
 
     @Override
     protected void doGet(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws ServletException, IOException {
@@ -41,33 +41,40 @@ public class AuthServlet extends HttpServlet {
     }
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String action = request.getParameter("action");
-        String targetJSP = "WEB-INF/jsp/auth.jsp";
-
-        switch (action) {
+        switch (request.getParameter("action")) {
             case "signup" -> handleSignUp(request, response);
             case "login" -> handleLogin(request, response);
-            case "logout" -> handleLogout(request, response);
-            case null, default -> {
-                LoggedUserDTO loggedUser = SecurityUtils.getAuthenticatedUser(request);
-                if (loggedUser != null) {
-                    String servlet = loggedUser.getType() == UserType.MANAGER ? "manager" : "profile";
-                    response.sendRedirect(servlet);
-                } else {
-                    request.getRequestDispatcher(targetJSP).forward(request, response);
-                }
-            }
+            case "logout" -> handleLogout(request);
+            case null, default -> handleLoadPage(request, response);
         }
     }
 
-    // Signup operation for the user and redirect to the target servlet
-    // REQUIRED: username, email, password
-    private void handleSignUp(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    // Load the auth page if the user is not authenticated, otherwise redirect to the profile or manager page
+    private void handleLoadPage (HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+        LoggedUserDTO loggedUser = SecurityUtils.getAuthenticatedUser(request);
+        if (loggedUser != null) {
+            String servlet = loggedUser.getType() == UserType.MANAGER ? "manager" : "profile";
+            response.sendRedirect(servlet);
+        } else {
+            request.getRequestDispatcher("WEB-INF/jsp/auth.jsp").forward(request, response);
+        }
+    }
+
+    // Sign up a new user
+    // REQUIRED PARAMETERS:     username, email, password
+    // CREATE:                  user session
+    // RESPONSE:                JSON object with success flag
+    //                          or error messages
+    private void handleSignUp(HttpServletRequest request, HttpServletResponse response) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode jsonResponse = objectMapper.createObjectNode();
         try {
             UserRegistrationDTO user = ConverterUtils.fromRequestToUserRegDTO(request);
+
+            // Create the user in the database
             userService.signup(user);
+
+            // Set the user in the session and set the default profile picture
             HttpSession session = request.getSession(true);
             String picture = request.getContextPath() + "/" + Constants.DEFAULT_PROFILE_PICTURE;
             LoggedUserDTO loggedUserDTO = user.toModel().toLoggedUserDTO();
@@ -79,8 +86,10 @@ public class AuthServlet extends HttpServlet {
             jsonResponse.put("redirect", "mainPage/manga");
 
         } catch (BusinessException e) {
-            // Handle the exception and set the error message in the JSON response
             switch (e.getType()) {
+                case EMPTY_FIELDS:
+                    jsonResponse.put("generalError", "Username, password and email cannot be empty");
+                    break;
                 case DUPLICATED_EMAIL:
                     jsonResponse.put("emailError", "Email already in use");
                     break;
@@ -103,13 +112,16 @@ public class AuthServlet extends HttpServlet {
         response.getWriter().write(jsonResponse.toString());
     }
 
-    // Login operation for the user and redirect to the target servlet
-    // REQUIRED: email, password
+    // Login a user
+    // REQUIRED PARAMETERS:     email, password
+    // CREATE:                  user session
+    // REDIRECT:                mainPage/manga if successful
     private void handleLogin(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         String email = request.getParameter("email");
         String password = request.getParameter("password");
         String targetJSP = "WEB-INF/jsp/auth.jsp";
 
+        // Validation checks for empty fields
         if (StringUtils.isEmpty(email))
             request.setAttribute("emailEmptyError", "Email is required");
         if (StringUtils.isEmpty(password))
@@ -120,7 +132,10 @@ public class AuthServlet extends HttpServlet {
         }
 
         try {
+            // Authenticate the user and set the user in the session
             LoggedUserDTO loggedUserDTO = userService.login(email, password);
+
+            // Set the user in the session and set the default profile picture
             loggedUserDTO.setProfilePicUrl(ConverterUtils.getProfilePictureUrlOrDefault(loggedUserDTO.getProfilePicUrl(), request));
             HttpSession session = request.getSession(true);
             session.setAttribute(Constants.AUTHENTICATED_USER_KEY, loggedUserDTO);
@@ -136,8 +151,10 @@ public class AuthServlet extends HttpServlet {
         }
     }
 
-    // Logout operation for the user and redirect to the target servlet
-    private void handleLogout(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    // Logout the user
+    // REMOVE:                  user session
+    private void handleLogout(HttpServletRequest request) {
+        // Remove the user from the session and invalidate the session if the user is authenticated
         if (SecurityUtils.getAuthenticatedUser(request) != null) {
             request.getSession().removeAttribute(Constants.AUTHENTICATED_USER_KEY);
             request.getSession().invalidate();
