@@ -1,32 +1,85 @@
 \chapter{Design}
-%% TODO: the databases are selected considering: big data, scalability and data flexibility, different functionalities
-The web application needs to handle a big amount of data, so we decided to use a combination of different databases to store and manage the data. 
-We will use a document database to store users, media contents and reviews data, and a graph database to store relationships between users and media content. 
-This will allow us to efficiently store and retrieve data, as well as handle complex relationships between data. 
+The system is designed to handle a substantial volume of data with varying attributes in both number and type. 
+There are several anime and manga entries that contains missing or incomplete information, and the system must be able to handle this,
+avoiding meaningless memory occupation. To accommodate this, a Document Database was chosen for its flexibility and schema-less nature,
+ease of use, and high-performance capabilities. This choice enables the execution of complex queries, 
+including advanced filtering across different attribute types.
+\\ \\
+In addition, the implementation of social networking functionalities necessitated the use of a Graph Database. 
+This allows for efficient traversal of relationships between entities and effectively manages connections between 
+different entities such as users, anime, and manga.
+
 
 \section{Document Database}
-For the document database, we will use MongoDB. MongoDB is a NoSQL database that stores data in flexible, 
-JSON-like documents. It is a popular choice for applications that require flexibility and scalability. 
-These documents are 
-flexible, meaning they can have different fields and structures. This makes MongoDB a good choice for 
-applications that require flexibility in their data model. MongoDB is also a scalable database, meaning 
-it can handle large amounts of data and traffic. It is designed to scale out, meaning you can add more 
-servers to handle more traffic.
-\newline
-\newline
-\textbf{Collections}
-The database will have the following collections:
-\begin{itemize}
-    \item Anime: This collection will store information about anime, such as titles, tags, and synopsis.
-    \item Manga: This collection will store information about manga, such as titles, genres, and authors.
-    \item Reviews: This collection will store user ratings and comments for media content.
-    \item Users: This collection will store user data, such as usernames, passwords, email addresses, gender and location.
 
+For the document database, we will use \textbf{MongoDB}. The decision to use a document database, 
+specifically MongoDB,  was driven by its \textbf{flexibility} and \textbf{schema-less nature}, 
+which allows for the storage of data with varying attributes in both number and type. 
+This adaptability makes MongoDB ideal for handling diverse and dynamic data models.
+
+\vspace{\baselineskip}
+
+MongoDB also provides a \textbf{high-performance environment} for executing complex queries, 
+reducing the need for joins and improving overall application performance by minimizing database 
+access. This is particularly beneficial for applications like MangaVerse that require fast response 
+times and can benefit from pre-computed relationships between entities. By storing embedded 
+relationships directly within documents, MongoDB enables quicker data retrieval, enhancing user experience.
+
+\vspace{\baselineskip}
+
+To avoid normalized data, \textbf{data redundancy} is used to define relationships between entities.
+Although this technique can lead to increased memory usage, it enables faster queries and fewer 
+database accesses. For applications with high query complexity and rapidly growing data, 
+such as MangaVerse, this is an optimal trade-off.
+
+\vspace{\baselineskip}
+
+To define \textbf{one-to-many relationships}, the documents linking pattern is used. 
+In this pattern, one entity stores a list of the IDs of related entities, allowing for 
+quick retrieval without multiple queries. This approach is used for retrieving reviews 
+written by a user or reviews associated with a specific anime or manga. Additionally, document 
+embedding is used for storing the latest reviews within the anime or manga documents, enabling 
+fast access to this information when a user views the anime or manga page.
+
+\vspace{\baselineskip}
+
+The document database also includes other redundancies between collections and between the document
+database and the graph database. For example, fields such as the number of likes for a manga or 
+anime, the number of followers and followings for a user, and the average rating of media content
+are stored redundantly. To maintain consistency without unnecessary database accesses, a flag 
+called \textbf{'avg\_rating\_last\_update'} is used to indicate whether the average rating is 
+up-to-date.
+
+\vspace{\baselineskip}
+
+MongoDB is also a \textbf{scalable database}, capable of handling large volumes of data and traffic. 
+It supports distribution, providing \textbf{high availability}, \textbf{fault tolerance}, and \textbf{data integrity}. 
+This means MongoDB can easily be scaled out to accommodate growth in both data and traffic, ensuring consistent 
+performance and reliability as the application grows.
+
+
+\vspace{\baselineskip}
+
+\subsection*{Collections}
+The database contains the following collections:
+\begin{itemize}
+    \item \textbf{Anime}: 
+    This collection stores information about anime, including a list of review IDs and the most recent reviews as nested documents.
+    
+    \item \textbf{Manga}: 
+    This collection stores information about manga, including a list of review IDs and the most recent reviews as nested documents.
+    
+    \item \textbf{Reviews}: 
+    This collection stores user ratings and comments for media content. To enhance performance and reduce multiple queries, it includes some user and media redundancies, especially for suggestions and analytics.
+    
+    \item \textbf{Users}: 
+    This collection stores user data along with a list of review IDs.
 \end{itemize}
+
 \newpage
+
 %% TODO: check the structure of the documents
-\textbf{MongoDB document example}
-\newline
+\subsection*{MongoDB document example}
 Anime:
 \begin{mdframed}[backgroundcolor=yellow!20, innerleftmargin=10pt, innerrightmargin=10pt]
     \begin{lstlisting}[language=java]
@@ -185,7 +238,7 @@ The field \texttt{"app\_rating"} is used to know the general satisfaction of the
 
 \newpage
 
-\subsection {CRUD operations}
+\subsection*{CRUD operations}
 \begin{itemize}
   %% TODO: specify all the crud operations
     \item Create: This operation will allow users to create new documents in the database. For example, users can create new reviews for anime and manga.

@@ -1,145 +1,110 @@
 \chapter{Analysis}
 
-\section {Actors}
+\section{Actors}
+
 \begin{itemize}
     \item \textbf{Unregistered User}: A visitor who has not logged in on the platform.
-    \item \textbf{Registered User}: A user who has created an account on the platform. 
-    \item \textbf{Manager}: A registered user with administrative privileges. 
+    
+    \item \textbf{Registered User}: A user who has created an account on the platform.
+    
+    \item \textbf{Manager}: A registered user with administrative privileges.
 \end{itemize}
 
-\section{Requirements}
-\textbf{Unregistered User}:
+\section{Functional Requirements}
+
+The system should provide the following features for each type of user:
 
 \begin{itemize}
-    \item Register/Login:
+    \item \textbf{Browse Media Contents}.
+    
+    \item \textbf{Search and Filter Media Contents}:
+    \begin{itemize}
+        \item Find specific manga or anime by title.
+        \item Utilize basic filtering options to refine the media content list.
+    \end{itemize}
+    
+    \item \textbf{View Media Content Trends}.
+    
+    \item \textbf{View Media Content}:
+    \begin{itemize}
+        \item View limited information about each media content.
+    \end{itemize} 
+    
+    \item \textbf{View Media Content Details}:
+    \begin{itemize}
+        \item View detailed information about each media content.
+        \item View reviews and ratings for each media content.
+        \item View number of likes for each media content.
+    \end{itemize}
+    
+    \item \textbf{Browse Users}.
+    
+    \item \textbf{Search Users by Username}.
+    
+    \item \textbf{View User}:
+    \begin{itemize}
+        \item View limited information about each user.
+    \end{itemize} 
+    
+    \item \textbf{View User Details}:
+    \begin{itemize}
+        \item View detailed information about each user.
+        \item View anime and manga liked by the user.
+        \item View followers and following of the user.
+    \end{itemize}
+\end{itemize}
+
+\subsection*{Unregistered User}
+
+\begin{itemize}
+    \item \textbf{Register/Login}:
     \begin{itemize}
         \item Create a new account to access additional features.
         \item Use valid credentials (email and password) to log into the account.
     \end{itemize}
-    \item Browse Media Contents.
-    \item Search and Filter Media Contents:
-    \begin{itemize}
-        \item Find specific manga or anime by title.
-        \item Utilize basic filtering options to refine the media content list.
-    \end{itemize}
-    \item View Media Content Trends.
-    \item View Media Content:
-    \begin{itemize}
-        \item View limited information about each media content.
-    \end{itemize} 
-    \item View Media Content Details:
-    \begin{itemize}
-        \item View detailed information about each media content.
-        \item View reviews and ratings for each media content.
-        \item View number of likes for each media content.
-    \end{itemize}
-    \item Browse Users.
-    \item Search Users by Username.
-    \item View User:
-    \begin{itemize}
-        \item View limited information about each user.
-    \end{itemize} 
-    \item View User Details:
-    \begin{itemize}
-        \item View detailed information about each user.
-        \item View anime and manga liked by the user.
-        \item View followers and following of the user.
-    \end{itemize}
 \end{itemize}
 
-\textbf{Registered User}:
+\subsection*{Registered User}
 
 \begin{itemize}
-    \item Logout.
-    \item Browse Media Contents.
-    \item Search and Filter Media Contents:
-    \begin{itemize}
-        \item Find specific manga or anime by title.
-        \item Utilize basic filtering options to refine the media content list.
-    \end{itemize}
-    \item View Media Content Trends.
-    \item View Media Content:
-    \begin{itemize}
-        \item View limited information about each media content.
-    \end{itemize} 
-    \item View Media Content Details:
-    \begin{itemize}
-        \item View detailed information about each media content.
-        \item View reviews and ratings for each media content.
-        \item View number of likes for each media content.
-    \end{itemize}
-    \item Browse Users.
-    \item Search Users by Username.
-    \item View User:
-    \begin{itemize}
-        \item View limited information about each user.
-    \end{itemize} 
-    \item View User Details:
-    \begin{itemize}
-        \item View detailed information about each user.
-        \item View anime and manga liked by the user.
-        \item View followers and following of the user.
-    \end{itemize}
-    \item Profile Management:
+    \item \textbf{Logout}.
+    
+    \item \textbf{Profile Management}:
     \begin{itemize}
         \item Edit and update personal information (e.g., profile picture, bio).
         \item Delete own profile.
     \end{itemize}
-    \item Like/Unlike Media Contents.
-    \item Follow/Unfollow Users.
-    \item Review Media Contents:
+    
+    \item \textbf{Like/Unlike Media Contents}.
+    
+    \item \textbf{Follow/Unfollow Users}.
+    
+    \item \textbf{Review Media Contents}:
     \begin{itemize}
         \item Add comment and rating to manga and anime.
         \item Edit/Delete own reviews.
     \end{itemize}
-    \item Advanced Recommendations:
+    
+    \item \textbf{Advanced Recommendations}:
     \begin{itemize}
         \item Receive media content suggestions based on user interactions and personal information.
         \item Receive users suggestions based on user interactions.
     \end{itemize}
 \end{itemize}
 
-\textbf{Manager}(Registered User with Administrative Features):
+\subsection*{Manager}
 
 \begin{itemize}
-    \item Logout.
-    \item Browse Media Contents.
-    \item Search and Filter Media Contents:
-    \begin{itemize}
-        \item Find specific manga or anime by title.
-        \item Utilize basic filtering options to refine the media content list.
-    \end{itemize}
-    \item View Media Content Trends.
-    \item View Media Content:
-    \begin{itemize}
-        \item View limited information about each media content.
-    \end{itemize} 
-    \item View Media Content Details:
-    \begin{itemize}
-        \item View detailed information about each media content.
-        \item View reviews and ratings for each media content.
-        \item View number of likes for each media content.
-    \end{itemize}
-    \item Browse Users.
-    \item Search Users by Username.
-    \item View User:
-    \begin{itemize}
-        \item View limited information about each user.
-    \end{itemize} 
-    \item View User Details:
-    \begin{itemize}
-        \item View detailed information about each user.
-        \item View anime and manga liked by the user.
-        \item View followers and following of the user.
-    \end{itemize}
-    \item Analytics Dashboard:
+    \item \textbf{Logout}.
+    
+    \item \textbf{Analytics Dashboard}:
     \begin{itemize}
         \item View user analytics (distribution and app rating).
         \item View manga analytics (trends and average rating).
         \item View anime analytics (trends and average rating).
     \end{itemize}
-   
-    \item Content Management:
+    
+    \item \textbf{Content Management}:
     \begin{itemize}
         \item Add new media content (manga and anime).
         \item Update/Remove existing media content.
@@ -148,72 +113,128 @@
 
 \section{Non Functional Requirements}
 
-\textbf{Performance}
+\subsection*{Performance}
 
 \begin{itemize}
-    \item Response Time: The system should have low latency, with pages loading within an acceptable timeframe.
-    \item Scalability: The system should be able to handle an increasing number of users and data without significant degradation in performance.
-    \item Concurrency: The application should support multiple users simultaneously without performance bottlenecks. For very high traffic scenarios, acceptable delays may be introduced.
-    \item Availability: The system should be available 24/7, with minimal downtime for maintenance.
-    \item Replication: The system should have data replication to ensure data availability and fault tolerance.
+    \item \textbf{Response Time}: The system should have low latency, with pages loading within an acceptable timeframe.
+    
+    \item \textbf{Scalability}: The system should be able to handle an increasing number of users and data without significant degradation in performance.
+    
+    \item \textbf{Concurrency}: The application should support multiple users simultaneously without performance bottlenecks. For very high traffic scenarios, acceptable delays may be introduced.
+    
+    \item \textbf{Availability}: The system should be available 24/7, with minimal downtime for maintenance.
+    
+    \item \textbf{Replication}: The system should have data replication to ensure data availability and fault tolerance.
 \end{itemize}
 
-\textbf{Security}
+\subsection*{Security}
+
 \begin{itemize}
-    \item Controlled User Operations: Users should only be able to perform operations that they are authorized to do.
+    \item \textbf{Controlled User Operations}: Users should only be able to perform operations that they are authorized to do.
 \end{itemize}
 
-\textbf{Data Integrity}
+\subsection*{Data Integrity}
 
 \begin{itemize}
-    \item Data Consistency: The system should maintain data consistency across all components and databases.
+    \item \textbf{Data Consistency}: The system should maintain data consistency across all components and databases.
 \end{itemize}
 
-\textbf{User Interface}
+\subsection*{User Interface}
+
 \begin{itemize}
-    \item Responsiveness: The user interface should be responsive, providing a consistent and seamless experience across various devices and screen sizes.
-    \item Intuitiveness: The interface should be user-friendly, with clear navigation and easily understandable features.
+    \item \textbf{Responsiveness}: The user interface should be responsive, providing a consistent and seamless experience across various devices and screen sizes.
+    
+    \item \textbf{Intuitiveness}: The interface should be user-friendly, with clear navigation and easily understandable features.
 \end{itemize}
+
+\section{UML class diagram}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\linewidth]{Media/Class Diagram.png}
+    \caption{UML Class Diagram}\label{uml class diagram}
+\end{figure}
 
 \newpage
 
 \section{UML use case diagram}
+
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.82\textwidth]{Media/useCase.png}
-    \caption{UML Use Case Diagram}
-    \label{uml use case diagram}
+    \caption{UML Use Case Diagram}\label{uml use case diagram}
 \end{figure}
 
 \newpage
-
-\section{UML class diagram}
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=\linewidth]{Media/Class Diagram.png}
-    \caption{UML Class Diagram}
-    \label{uml class diagram}
-\end{figure}
-
-\newpage
-
 
 \section{Data Modeling}
+
 \subsection{Data Collection}
-\textit{Sources:} https://www.kaggle.com/datasets/dbdmobile/myanimelist-dataset?select=users-score-2023.csv, MyAnimeList.net,	anilist.com,  kitsu.io,			  livechart.me,
-anime-planet.com,		nofity.moe,	   anisearch.com,		  anidb.net 	
 
-\textit{Description:} Manga, users and scores datasets were collected from MyAnimeList.net site using the official API and another unofficial API (Jikan). The anime datasets were collected from all the sources. 
+\textit{Sources:}
+\href{https://myanimelist.net/}{myAnimeList.net}, 
+\href{https://anilist.co/}{anilist.co},
+\href{https://kitsu.io/}{kitsu.io},
+\href{https://livechart.me/}{livechart.me}, \\
+\href{https://anime-planet.com/}{anime-planet.com},
+\href{https://notify.moe/}{notify.moe},
+\href{https://anisearch.com/}{anisearch.com},
+\href{https://anidb.net/}{anidb.net}.
 
-\textit{Variety:} The datasets contain a variety of data types, including text, numbers, and dates. Anime are collected from 8 different sources. All the information is collected in 4 different csv files.
+\vspace{\baselineskip}
 
-\textit{Volume:} The datasets contain a large volume of data, with thousands of entries for anime, manga, users, and scores. The total size of the datasets is around 3 GB.
+\textit{Description:} The datasets contain information about anime, manga, users, and scores. 
+Anime and reviews are stored in separate CSV files. The manga dataset is collected from myAnimeList.net, 
+scraped using the \href{https://myanimelist.net/apiconfig/references/api/v2}{Official API} and \href{https://docs.api.jikan.moe/}{Jikan API}.
+
+\vspace{\baselineskip}
+
+\textit{Variety:} Anime are collected from 8 different sources, manga from one source, 
+and users/reviews from the same sources (myAnimeList and Anime-Planet). 
+The data is structured across 4 CSV files and a JSON file.
+
+\vspace{\baselineskip}
+
+\textit{Volume:} $\sim$3 GB\@. The datasets contain approximately 10 million reviews, 40k anime entries, 70k manga entries, 
+and 200k users.
 
 \subsection{Data Cleaning and Preprocessing}
-Python scripts were used to clean and preprocess the data. The following steps were performed:
-reviews were created by merging the users and scores datasets, and creating comments about the media contents;
-the anime dataset was created by putting togethere the diffrerent sources;
-the manga dataset was created from MyAnimeList.net;
-the users dataset was cleaned and missing information, like email and password, was added.
 
-%add more details about the data cleaning and preprocessing steps
+The data cleaning and preprocessing involved several steps to ensure consistency and usability of the datasets:
+
+\begin{itemize}
+    \item \textbf{Data Integration and Reduction}: Integrating anime, reviews, and user data from various sources 
+    required dealing with non-unique IDs across datasets. To ensure proper integration, 
+    new unique IDs were generated for each entity. Due to issues with data quality, 
+    a significant number of users and their associated reviews were removed. This process resulted in a 
+    refined dataset containing 10,000 users and 600,000 reviews.
+ 
+    \item \textbf{Review Comment Generation}: Some sources lacked explicit comments for reviews. To address this, 
+    a script was employed to generate generic comments based on the review ratings, ensuring completeness of the review dataset.
+    
+    \item \textbf{Synthetic Data Generation}: Many users did not have sufficient reviews for meaningful analytics. 
+    Synthetic reviews were generated to supplement these users, enabling more robust analysis 
+    of user interactions and content preferences.
+    
+    \item \textbf{Data Pruning}: Extraneous information about users, anime, and manga that were 
+    not relevant to the project goals were removed to streamline the datasets.
+    
+    \item \textbf{Data Augmentation}: Essential user information such as email, password, and profile picture, 
+    which were necessary for user management features, were added to the dataset.
+    
+    \item \textbf{Consistency Checks}: Before insertion into the Document DB collections, rigorous data consistency checks were conducted to 
+    uphold accuracy and reliability. For instance, chronological consistency was enforced for fields such as the joined date, 
+    ensuring it fell after the user's birthdate and before any related review dates. Additionally, user locations were validated 
+    to ensure they mapped to valid countries. Upon insertion, Document DB's ids were utilized for entity linking and to maintain data integrity.
+
+    \item \textbf{Graph Database Population}: Fake relationships were created, such as follow relationships between users and like relationships 
+    between users and anime/manga, to populate the graph database.
+\end{itemize}
+
+These steps were crucial in preparing the datasets for effective utilization within the MangaVerse platform, 
+ensuring data quality and integrity across all components.
+
+\vspace{\baselineskip}
+
+Python was predominantly used for data preprocessing tasks, leveraging its flexibility and extensive libraries. 
+Additionally, Java was employed for specific tasks such as adding and updating redundancies in the document database.
