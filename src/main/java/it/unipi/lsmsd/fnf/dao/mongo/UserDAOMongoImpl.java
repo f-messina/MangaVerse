@@ -427,7 +427,9 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
             );
 
             List<Document> aggregationResult = usersCollection.aggregate(pipeline).into(new ArrayList<>());
-
+            for(Document doc : aggregationResult) {
+                System.out.println(doc);
+            }
             if (aggregationResult.isEmpty()) {
                 throw new MongoException("UserDAOMongoImpl: averageAppRatingByAgeRange: No data found");
             }

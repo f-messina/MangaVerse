@@ -3,6 +3,7 @@ package it.unipi.lsmsd.fnf.dao.mongo;
 import com.mongodb.DuplicateKeyException;
 import com.mongodb.MongoException;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Facet;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.UpdateOptions;
@@ -378,13 +379,23 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
         try {
             MongoCollection<Document> mangaCollection = getCollection(COLLECTION_NAME);
 
-            Manga manga = new Manga();
+            Map<ObjectId, List<String>> mangaIds = new HashMap<>();
 
-            List<ObjectId> mangaIds = mangaCollection.find().map(doc -> doc.getObjectId("_id")).into(new ArrayList<>());
-            List<String> reviewIds = manga.getReviewIds();
+            try (MongoCursor<Document> cursor = mangaCollection.find().projection(include("review_ids")).iterator()) {
+                while (cursor.hasNext()) {
+                    Document doc = cursor.next();
+                    ObjectId id = doc.getObjectId("_id");
+                    List<String> reviewIds = doc.getList("review_ids", String.class);
+                    mangaIds.put(id, reviewIds);
+                }
+            }
 
-            for (ObjectId mangaId : mangaIds) {
-                refreshLatestReviews(mangaId.toHexString(), reviewIds);
+
+
+            for (Map.Entry<ObjectId, List<String>> entry : mangaIds.entrySet()) {
+                ObjectId mangaId = entry.getKey();
+                List<String> reviewIdsForManga = entry.getValue();
+                refreshLatestReviews(mangaId.toHexString(), reviewIdsForManga);
             }
 
         } catch (MongoException e) {

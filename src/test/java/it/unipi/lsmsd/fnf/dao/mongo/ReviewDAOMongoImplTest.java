@@ -162,9 +162,7 @@ class ReviewDAOMongoImplTest {
    //Add a list of reviews id connected to the users: DONE
     @Test
     public void addReviewsIdToUsersTest() throws DAOException {
-        //Get list of users ids
-        UserDAOMongoImpl userDAO = new UserDAOMongoImpl();
-        //Anime collection
+        //Users collection
         MongoCollection<Document> userCollection = getCollection("users");
         //Reviews collection
         MongoCollection<Document> reviewsCollection = getCollection("reviews");
@@ -184,6 +182,57 @@ class ReviewDAOMongoImplTest {
             System.out.println("Error: " + e.getMessage());
         }
     }
+
+    //Add review ids to anime collection
+    @Test
+    public void addReviewsIdToAnimeTest() throws DAOException {
+        //Users collection
+        MongoCollection<Document> animeCollection = getCollection("anime");
+        //Reviews collection
+        MongoCollection<Document> reviewsCollection = getCollection("reviews");
+
+        try {
+            animeCollection.find().projection(include("_id")).forEach((Document anime) ->
+            {
+                List <String> reviewIds = new ArrayList<>();
+
+                ObjectId id = anime.getObjectId("_id");
+                reviewsCollection.find(eq("anime.id", id)).projection(include("_id")).forEach((Document review) -> reviewIds.add(review.getObjectId("_id").toHexString()));
+
+                animeCollection.updateOne(eq("_id", id), set("review_ids", reviewIds));
+
+            });
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    //Add review ids to manga collection
+    @Test
+    public void addReviewsIdToMangaTest() throws DAOException {
+        //Users collection
+        MongoCollection<Document> mangaCollection = getCollection("manga");
+        //Reviews collection
+        MongoCollection<Document> reviewsCollection = getCollection("reviews");
+
+        try {
+            mangaCollection.find().projection(include("_id")).forEach((Document user) ->
+            {
+                List <String> reviewIds = new ArrayList<>();
+
+                ObjectId id = user.getObjectId("_id");
+                reviewsCollection.find(eq("manga.id", id)).projection(include("_id")).forEach((Document review) -> reviewIds.add(review.getObjectId("_id").toHexString()));
+
+                mangaCollection.updateOne(eq("_id", id), set("review_ids", reviewIds));
+
+            });
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+
+
 
     // test 1: update average rating
     @Test

@@ -24,6 +24,7 @@ import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.mongodb.client.model.Accumulators.avg;
 import static com.mongodb.client.model.Aggregates.*;
@@ -375,12 +376,24 @@ public class AnimeDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
     void refreshAllLatestReviews() throws DAOException {
         try {
             MongoCollection<Document> animeCollection = getCollection(COLLECTION_NAME);
-            Anime anime = new Anime();
 
-            List<ObjectId> animeIds = animeCollection.find().map(doc -> doc.getObjectId("_id")).into(new ArrayList<>());
-            List<String> reviewIds = anime.getReviewIds();
-            for (ObjectId animeId : animeIds) {
-                refreshLatestReviews(animeId.toHexString(), reviewIds);
+            Map<ObjectId, List<String>> animeIds = new HashMap<>();
+
+            try (MongoCursor<Document> cursor = animeCollection.find().projection(include("review_ids")).iterator()) {
+                while (cursor.hasNext()) {
+                    Document doc = cursor.next();
+                    ObjectId id = doc.getObjectId("_id");
+                    List<String> reviewIds = doc.getList("review_ids", String.class);
+                    animeIds.put(id, reviewIds);
+                }
+            }
+
+
+
+            for (Map.Entry<ObjectId, List<String>> entry : animeIds.entrySet()) {
+                ObjectId animeId = entry.getKey();
+                List<String> reviewIdsForAnime = entry.getValue();
+                refreshLatestReviews(animeId.toHexString(), reviewIdsForAnime);
             }
 
         } catch (MongoException e) {
