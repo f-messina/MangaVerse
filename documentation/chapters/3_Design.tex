@@ -283,6 +283,7 @@ The database will have the following relationships:
 MangaVerse, as a social network, gives priority to the AP configuration of the CAP theorem, ensuring Availability and Partition Tolerance. This allows users to access the application and interact with other users and media content, even if the data is not always consistent (Eventual Consistency).
 
 \section{Redundancy}
+%what is there to add here?
 The performance of the application is critical, so we need to ensure that the system is highly available and fault-tolerant. To achieve this, we gave priority to fast responses, rather than reducing memory consumption.
 
 
@@ -315,8 +316,15 @@ In the user collection, there are fields containing the number of followers and 
 
 In the reviews collection, there's a field containing the user data, such as id, username, picture, and also location and birthday, which are used for suggestion porpouses.
 
+\textbf{Media Content field in Reviews}
+
+
+In the reviews collection, there's a field containg information about the anime or manga the reivew is about. This field has information about the media content id and title.
+
 
 \textbf{Review Ids}
+
+
 A list of review ids is stored in the anime, manga and users collections, this is used to quickly retrieve the reviews of a media content and of a user.
 
 \section{Replicas}
@@ -324,7 +332,12 @@ A cluster of three nodes is available for this project, allowing deployment of r
 We have 3 replicas for MongoDB and 1 for Neo4J.
 In MongoDB we have one primary and two secondary replicas, the primary is used for write operations and the secondaries are used for read operations. This will allow us to distribute the load and improve the performance of the application. In case of failure of the primary node, one of the secondary nodes will be promoted to primary, ensuring high availability of the system.
 
+\newpage
 \section{Sharding}
-Sharding is a method for distributing data across multiple machines to meet the demands of data growth. As the size of the data increases, a single machine may not be sufficient to store the data nor provide an acceptable read and write throughput. Sharding solves the problem with horizontal scaling. Even if not implemented, the database design is ready for sharding, as the data is distributed in a way that allows for easy sharding. The user, anime, manga, and reviews collections are sharded by the user id, anime id, manga id, and review id, respectively. This will allow us to distribute the data across multiple machines and improve the performance of the application.
-%TODO: talk about why we cannot implement sharding
+Sharding is a method for distributing data across multiple machines to meet the demands of data growth. As the size of the data increases, a single machine may not be sufficient to store the data nor provide an acceptable read and write throughput. Sharding typically solves the problem with horizontal scaling. However, in our application, sharding is not possible due to the nature of the collections and their interdependencies.
+
+Our database consists of four collections: anime, manga, users, and reviews and each collection stores different types of information.
+Sharding these collections would be complex due to their interrelated nature. The data in these collections is highly interconnected; for example, reviews reference both anime/manga and users, and each user can have multiple reviews linked to both anime and manga. Distributing such interdependent data across multiple shards would lead to significant overhead in maintaining relationships between documents, potentially causing performance degradation instead of improvement.
+
+Therefore, while the database design is ready for sharding in theory, the practical constraints of our application's structure and the interconnectedness of our collections make sharding infeasible. Implementing sharding would introduce complexity and overhead that could outweigh the benefits of horizontal scaling in this context.
 
