@@ -210,4 +210,107 @@ With the help of the use cases and real world scenarios, functional testing is c
 
 
 
+\section{Performance Testing}
 
+Performance testing is conducted to ensure that MangaVerse web application is able to handle the 
+a high volume of operations efficiently and provides a smooth experience for users. 
+It is important to test the application's performance to ensure that it 
+can handle the expected load. Performance testing is applied on MongoDB and Neo4j databases.
+Specifically, the aim of the performance testing is to see the impacts of indexing on CRUD operations
+and aggregation operations. 
+
+\subsection*{MongoDB Performance Testing}
+Indexes are used in MongoDB to improve the performance of queries. Indexes are used to quickly locate data without having to search every document in a collection.
+This limiting the search with indexes, results can get with faster response time.
+For the mongoDB performance testing, \textit{username} is used to indexing Users collection and \textit{title} is
+used to indexing Anime and Manga collections. The tests are conducted for creating new documents, searching for documents and aggregating documents.
+As it can be shown in the table below, there are significant improvement in operation times with indexing, especially for search and aggregation tasks
+
+\begin{longtable}{@{}llcccc@{}}
+\caption{MongoDB Performance Test Results} \\
+\toprule
+\textbf{Collection} & \textbf{Operation} & \textbf{Index} & \textbf{Time (ms)} & \textbf{Total Keys Examined} & \textbf{Total Docs Examined} \\ \midrule
+\endfirsthead
+
+\multicolumn{6}{c}%
+{{\tablename\ \thetable{} -- continued from previous page}} \\
+\toprule
+\textbf{Collection} & \textbf{Operation} & \textbf{Index} & \textbf{Time (ms)} & \textbf{Total Keys Examined} & \textbf{Total Docs Examined} \\ \midrule
+\endhead
+
+\midrule \multicolumn{6}{r}{{Continued on next page}} \\ \bottomrule
+\endfoot
+
+\bottomrule
+\endlastfoot
+
+\multirow{6}{*}{Users}
+ & Insert & No & 3 & - & - \\
+ & Search & No & 17 & 0 & 10007 \\
+ & Aggregate & No & 20 & 0 & 10007 \\
+ & Insert & Yes & 5 & - & - \\
+ & Search & Yes & 5 & 1 & 1 \\
+ & Aggregate & Yes & 18 & 1 & 0 \\ \midrule
+
+\multirow{6}{*}{Anime}
+ & Insert & No & 3 & - & - \\
+ & Search & No & 88 & 0 & 30113 \\
+ & Aggregate & No & 32 & 0 & 30113 \\
+ & Insert & Yes & 3 & - & - \\
+ & Search & Yes & 10 & 0 & 0 \\
+ & Aggregate & Yes & 9 & 0 & 0 \\ \midrule
+
+\multirow{6}{*}{Manga}
+ & Insert & No & 3 & - & - \\
+ & Search & No & 141 & 0 & 41677 \\
+ & Aggregate & No & 28 & 0 & 41677 \\
+ & Insert & Yes & 3 & - & - \\
+ & Search & Yes & 10 & 1 & 1 \\
+ & Aggregate & Yes & 12 & 1 & 0 \\
+
+\end{longtable}
+
+\subsection*{Neo4j Performance Testing}
+
+Similarly, also for Neo4j database, performance testing is conducted to see the impacts of indexing on CRUD operations.
+Indexing with ids is used for both anime, manga and users nodes. The tests are conducted for creating new nodes and searching for nodes.
+%%TODO: Neo4j performance test results table- fill with indexing part
+
+\begin{longtable}{@{}llllr@{}}
+    \caption{Neo4j Performance Test Results} \\
+    \toprule
+    \textbf{Collection} & \textbf{Operation} & \textbf{Index} & \textbf{Time (ms)} \\ \midrule
+    \endfirsthead
+    
+    \multicolumn{4}{c}%
+    {{\tablename\ \thetable{} -- continued from previous page}} \\
+    \toprule
+    \textbf{Collection} & \textbf{Operation} & \textbf{Index} & \textbf{Time (ms)} \\ \midrule
+    \endhead
+    
+    \midrule \multicolumn{4}{r}{{Continued on next page}} \\ \bottomrule
+    \endfoot
+    
+    \bottomrule
+    \endlastfoot
+    
+    \multirow{4}{*}{Anime}
+     & Insert & No  & 7 \\
+     & Insert & Yes &  \\
+     & Search & No  & 19 \\
+     & Search & Yes &  \\ \midrule
+    
+    \addlinespace
+    \multirow{4}{*}{Manga}
+     & Insert & No  & 4 \\
+     & Insert & Yes &  \\
+     & Search & No  & 54 \\
+    & Search & Yes &  \\ \midrule
+    
+    \addlinespace
+    \multirow{4}{*}{Users}
+     & Insert & No  & 131 \\
+     & Insert & Yes &  \\
+     & Search & No  & 7 \\
+     & Search & Yes &  \\
+    \end{longtable}
