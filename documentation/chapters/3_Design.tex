@@ -30,43 +30,42 @@ The database will have the following collections:
 Anime:
 \begin{mdframed}[backgroundcolor=yellow!20, innerleftmargin=10pt, innerrightmargin=10pt]
     \begin{lstlisting}[language=java]
-{
-  "_id": "65789bb52f5d29465d0abcfb",
-  "title": "0",
-  "type": "SPECIAL",
-  "episodes": 1,
-  "status": "FINISHED",
-  "picture": "https://cdn.myanimelist.net/images/anime/12/81160.jpg",
-  "tags": [
-    "drama",
-    "female protagonist",
-    "indefinite",
-    "music",
-    "present"
-  ],
-  "producers": "Sony Music Entertainment",
-  "studios": "Minakata Laboratory",
-  "synopsis": "This music video tells how a shy girl with a secret love and curiosity...",
-  "latest_reviews": [
-    {
-      "id": "657b301306c134f18884924c",
-      "date": "2023-10-03T22:00:00.000+00:00",
-      "rating": 4,
-      "user": {
-        "id": "6577877ce68376234760745c",
-        "username": "Tolstij_Trofim",
-        "picture": "https://thypix.com/wp-content/uploads/2021/10/manga-profile-picture-10..."
+      {
+        "_id": "65789bb52f5d29465d0abcfc",
+        "title": "\"Aesop\" no Ohanashi yori: Ushi to Kaeru, Yokubatta Inu",
+        "type": "MOVIE",
+        "episodes": 1,
+        "status": "FINISHED",
+        "picture": "https://cdn.myanimelist.net/images/anime/3/65151.jpg",
+        "tags": [
+          "family friendly",
+          "fantasy",
+          "frogs",
+          "kids"
+        ],
+        "synopsis": "Based on Aesop's Fables.",
+        "latest_reviews": [
+          {
+            "id": "657ed1b40481d3954cf8d69c",
+            "comment": "Struggles to maintain interest; fails to captivate.",
+            "date": "2022-04-11T22:00:00.000+00:00",
+            "user": {
+              "id": "6577877ce683762347607f42",
+              "username": "dreadstuff",
+              "picture": "https://imgbox.com/7MaTkBQR"
+            }
+          }
+        ],
+        "anime_season": {
+          "season": "WINTER",
+          "year": 1970,
+          "average_rating": 4.5,
+          "avg_rating_last_update": true
+        },
+        "review_ids": [],
+        "likes": 7
       }
-    },
-  ],
-  "anime_season": {
-    "season": "FALL",
-    "year": 2013
-  },
-  "average_rating": 6.7,
-  "avg_rating_last_update": true,
-  "likes": 4
-}
+      
     \end{lstlisting}
 \end{mdframed}
 
@@ -74,64 +73,50 @@ Anime:
 Manga:
 \begin{mdframed}[backgroundcolor=yellow!20, innerleftmargin=10pt, innerrightmargin=10pt]
     \begin{lstlisting}[language=java]
-{
-  "_id": "657ac61bb34f5514b91ea223",
-  "title": "Berserk",
-  "type": "MANGA",
-  "status": "ONGOING",
-  "genres": [
-    "Action",
-    "Adventure",
-    "Award Winning",
-    "Drama",
-    "Fantasy",
-    "Horror",
-    "Supernatural"
-  ],
-  "themes": [
-    "Gore",
-    "Military",
-    "Mythology",
-    "Psychological"
-  ],
-  "demographics": [
-    "SEINEN"
-  ],
-  "authors": [
-    {
-      "id": 1868,
-      "role": "Story & Art",
-      "name": "Kentarou Miura"
-    },
-    {
-      "serializations": "Young Animal"
-    }
-  ],
-  "synopsis": "Guts, a former mercenary now known as the \"Black Swordsman,\" is out fo...",
-  "title_english": "Berserk",
-  "start_date": "1989-08-25T00:00:00.000+00:00",
-  "picture": "https://cdn.myanimelist.net/images/manga/1/157897l.jpg",
-  "average_rating": 3.33,
-  "latest_reviews": [
-    {
-      "user": {
-        "id": "6577877be683762347605ce7",
-        "username": "calamity_razes",
-        "picture": "https://imgbox.com/7MaTkBQR"
-      },
-      "date": "2012-12-15T00:00:00.000+00:00",
-      "comment": "An insult to the art of manga; avoid at all costs.",
-      "id": "657b302206c134f18886f5ef"
-    },
-  ],
-  "anime_season": {
-    "season": "FALL",
-    "year": 2013
-  },
-  "average_rating": 6.7,
-  "avg_rating_last_update": true,
-  "likes": 4
-}
+      {
+        "_id": "657ac61cb34f5514b91eabc1",
+        "title": "H20",
+        "type": "MANHWA",
+        "status": "FINISHED",
+        "volumes": 7,
+        "chapters": 43,
+        "genres": [
+          "Romance",
+          "Slice of Life"
+        ],
+        "demographics": [
+          "SHOUJO"
+        ],
+        "authors": [
+          {
+            "serializations": "Wink"
+          }
+        ],
+        "synopsis": "Menga is simply known as the vice rep and is bullied. Hanako has moved...",
+        "title_english": "H20",
+        "picture": "https://cdn.myanimelist.net/images/manga/1/1053l.jpg",
+        "average_rating": 3.67,
+        "latest_reviews": [
+          {
+            "id": "66682d94bebc20d9557bba39",
+            "comment": "Beautiful artwork and engaging characters.",
+            "date": "2024-06-17T21:33:37.000+00:00",
+            "rating": 7,
+            "user": {
+              "id": "6577877be68376234760635b",
+              "username": "Sanji-kun",
+              "picture": "images/account-icon.png"
+            }
+          }
+        ],
+        "start_date": null,
+        "end_date": null,
+        "avg_rating_last_update": true,
+        "review_ids": [
+          "66682d94bebc20d9557bba39"
+        ]
+      }
+      
     \end{lstlisting}
 \end{mdframed}
 
@@ -139,44 +124,45 @@ Manga:
 Reviews:
 \begin{mdframed}[backgroundcolor=yellow!20, innerleftmargin=10pt, innerrightmargin=10pt]
     \begin{lstlisting}[language=java]
-{
-  "_id": "657b300806c134f18882f2f1",
-  "user": {
-    "id": "6577877be68376234760596d",
-    "username": "Dragon_Empress",
-    "picture": "images/account-icon.png",
-    "location": "Columbus, Georgia",
-    "birthday": "1987-07-29T00:00:00.000+00:00",
-    "rating": 7
-  },
-  "anime": {
-    "id": "65789bbc2f5d29465d0b18b7",
-    "title": "Slayers Revolution",
-    "date": "2023-07-23T06:27:54.000+00:00",
-    "comment": "Above-average quality in animation and soundtrack."
-  }
-}
+      {
+        "_id": "66682a4fbebc20d9557b7544",
+        "user": {
+          "id": "6577877ce683762347607e35",
+          "username": "velmodine",
+          "picture": "https://thypix.com/wp-content/uploads/2021/10/anime-avatar-profile-pic...",
+          "location": "Montenegro"
+        },
+        "manga": {
+          "id": "657ac61bb34f5514b91ea22a",
+          "title": "Kaguya-sama wa Kokurasetai: Tensai-tachi no Renai Zunousen",
+          "rating": 8,
+          "comment": null,
+          "date": "2022-07-30T00:00:00.000+00:00"
+        }
+      }
+      
     \end{lstlisting}
 \end{mdframed}
 
 Users:
 \begin{mdframed}[backgroundcolor=yellow!20, innerleftmargin=10pt, innerrightmargin=10pt]
     \begin{lstlisting}[language=java]
-{
-  "_id": "6577877be683762347605859",
-  "email": "xdavis@example.com",
-  "password": "290cb38a679d5eb68d11b9ea1e21f48234eba6de19f95612dbcb70ce0c7e4e78",
-  "description": "Liberating the mind from stress with the power of anime zen.",
-  "picture": "https://thypix.com/wp-content/uploads/2021/10/manga-profile-picture-44",
-  "username": "Xinil",
-  "gender": "Male",
-  "birthday": "1985-03-04T00:00:00.000+00:00",
-  "location": "Libya",
-  "joined_on": "2014-05-29T00:00:00.000+00:00",
-  "app_rating": 5,
-  "followed": 40,
-  "followers": 29
-}
+      {
+        "_id": "6577877be68376234760585b",
+        "email": "millerderek@example.com",
+        "password": "6ed60c305f7e923745ec6e3c010faaf8970c1fb8ea73987f9bf6d5ed053aa94c",
+        "description": "Embodied by the spirit of a thousand anime protagonists.",
+        "picture": "https://thypix.com/wp-content/uploads/2021/10/manga-profile-picture-82...",
+        "username": "Crystal",
+        "gender": "Female",
+        "location": "Ukraine",
+        "joined_on": "2017-06-06T00:00:00.000+00:00",
+        "app_rating": 2,
+        "followed": 35,
+        "followers": 39,
+        "review_ids": []
+      }
+      
     \end{lstlisting}
 \end{mdframed}
 
