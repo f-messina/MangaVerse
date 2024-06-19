@@ -136,5 +136,5 @@ public class AppServletContextListener implements ServletContextListener {
     }
 }
 
-// database: remove default images, update redundancies (user redundancy in review and media, media redundancy in review, neo4j num likes in anime/manga,
+// database: remove default images (delete images/account-icon.png), update redundancies (user redundancy in review and media, media redundancy in review, neo4j num likes in anime/manga,
 // neo4j num followers/followed in user, remove user/media in neo4j that doesn't exist in mongo)

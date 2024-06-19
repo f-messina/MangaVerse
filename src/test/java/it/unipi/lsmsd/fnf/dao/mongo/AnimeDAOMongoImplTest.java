@@ -1,31 +1,33 @@
 package it.unipi.lsmsd.fnf.dao.mongo;
 
-import com.mongodb.client.MongoCollection;
-import it.unipi.lsmsd.fnf.dao.exception.DAOException;
-import it.unipi.lsmsd.fnf.dto.PageDTO;
-import it.unipi.lsmsd.fnf.dto.ReviewDTO;
-import it.unipi.lsmsd.fnf.dto.registeredUser.UserSummaryDTO;
-import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
-import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
-import it.unipi.lsmsd.fnf.model.enums.AnimeStatus;
-import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
-import org.apache.commons.lang3.tuple.Pair;
-import org.bson.Document;
-import org.bson.types.ObjectId;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Projections.include;
-import static com.mongodb.client.model.Updates.set;
-import static it.unipi.lsmsd.fnf.dao.mongo.BaseMongoDBDAO.getCollection;
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.lang3.tuple.Pair;
+import org.bson.Document;
+import org.bson.types.ObjectId;
+import org.junit.jupiter.api.AfterEach;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import com.mongodb.client.MongoCollection;
+import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Projections.include;
+import static com.mongodb.client.model.Updates.set;
+
+import it.unipi.lsmsd.fnf.dao.exception.DAOException;
+import static it.unipi.lsmsd.fnf.dao.mongo.BaseMongoDBDAO.getCollection;
+import it.unipi.lsmsd.fnf.dto.PageDTO;
+import it.unipi.lsmsd.fnf.dto.ReviewDTO;
+import it.unipi.lsmsd.fnf.dto.mediaContent.AnimeDTO;
+import it.unipi.lsmsd.fnf.dto.mediaContent.MediaContentDTO;
+import it.unipi.lsmsd.fnf.dto.registeredUser.UserSummaryDTO;
+import it.unipi.lsmsd.fnf.model.enums.AnimeStatus;
+import it.unipi.lsmsd.fnf.model.mediaContent.Anime;
 
 class AnimeDAOMongoImplTest {
 
@@ -208,12 +210,12 @@ class AnimeDAOMongoImplTest {
     // ATTENTION: USE IT TO RESET THE LATEST REVIEWS
     // test 1 : refresh all latest reviews
     @Test
-    void refreshAllLatestReviewsTest(){
+    void refreshAllLatestReviewsTest() throws DAOException {
         AnimeDAOMongoImpl animeDAO = new AnimeDAOMongoImpl();
-        assertDoesNotThrow(() -> {
+
             animeDAO.refreshAllLatestReviews();
             System.out.println("All latest reviews refreshed");
-        });
+
     }
 
     @Test
