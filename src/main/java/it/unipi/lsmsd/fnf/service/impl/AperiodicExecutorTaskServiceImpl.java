@@ -1,16 +1,15 @@
 package it.unipi.lsmsd.fnf.service.impl;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import static java.util.concurrent.TimeUnit.MINUTES;
+import java.util.logging.Logger;
+
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 import it.unipi.lsmsd.fnf.service.exception.enums.BusinessExceptionType;
 import it.unipi.lsmsd.fnf.service.interfaces.ExecutorTaskService;
 import it.unipi.lsmsd.fnf.service.interfaces.Task;
 import it.unipi.lsmsd.fnf.service.interfaces.TaskManager;
-
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.logging.Logger;
-
-import static java.util.concurrent.TimeUnit.MINUTES;
 
 /**
  * Implementation of ExecutorTaskService that executes tasks in a separate thread without a fixed schedule.
@@ -22,34 +21,30 @@ import static java.util.concurrent.TimeUnit.MINUTES;
  * @see TaskManager
  */
 public class AperiodicExecutorTaskServiceImpl implements ExecutorTaskService {
-    private static volatile ExecutorTaskService instance = null;
     private final ExecutorService executorService;
     private final TaskManager taskManager;
-    Logger logger = Logger.getLogger(AperiodicExecutorTaskServiceImpl.class.getName());
+    private static final Logger logger = Logger.getLogger(AperiodicExecutorTaskServiceImpl.class.getName());
 
-    private AperiodicExecutorTaskServiceImpl(TaskManager taskManager) {
+    private AperiodicExecutorTaskServiceImpl() {
         executorService = Executors.newFixedThreadPool(10);
-        this.taskManager = taskManager;
+        this.taskManager = ErrorTaskManager.getInstance();
     }
 
     /**
      * Returns the singleton instance of AperiodicExecutorTaskServiceImpl.
-     * If the instance is null, it creates a new one.
      * This method is thread-safe.
      *
      * @param taskManager       The TaskManager to be used by the ExecutorTaskService.
      * @return                  The singleton instance of ExecutorTaskService.
      */
-    public static ExecutorTaskService getInstance(TaskManager taskManager) {
-        if (instance == null) {
-            synchronized (AperiodicExecutorTaskServiceImpl.class) {
-                if (instance == null) {
-                    instance = new AperiodicExecutorTaskServiceImpl(taskManager);
-                }
-            }
-        }
-        return instance;
+    public static ExecutorTaskService getInstance() {
+        return InstanceHolder.INSTANCE;
     }
+
+    private static class InstanceHolder {
+        private static final ExecutorTaskService INSTANCE = new AperiodicExecutorTaskServiceImpl();
+    }
+    
 
     /**
      * Starts the executor service.

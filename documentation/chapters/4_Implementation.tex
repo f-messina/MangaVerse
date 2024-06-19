@@ -1,36 +1,54 @@
 \chapter{Implementation}
 
 \section{Development Environment}
-To ensure efficient and successful Implementation of MangaVerse web application,
-choosing the appropriate development environment is one of the most important points of the project.
 
-\subsection*{Programming Languages}
+The implementation of the MangaVerse web application was carried out in a development environment
+chosen from the requirements and the design study precedently discussed. 
+That includes the following tools and technologies:
+
+\subsection{Programming Languages}
 \begin{itemize}
-    \item \textbf{Backend:} Java is the main programming language used in the project’s backend development.
-    \item \textbf{Frontend:} HTML, CSS, JavaScript are utilized for building user interface in the project.
-    \item \textbf{Data Preprocessing:} Python and java were used in the project to conduct data preprocessing task with the help of its powerful libraries and ease of use features. 
+    \item \textbf{Backend:} Java.
+    \item \textbf{Frontend:} HTML, CSS, JavaScript.
+    \item \textbf{Data Preprocessing:} Python and Java. 
 \end{itemize}
 
 \subsection*{Database}
 \begin{itemize}
-    \item \textbf{Document Database:} MongoDB is used in the project to store and manage document-based data with the help of its flexibility and scalability features.
-    \item \textbf{Graph Database:} Neo4j is used in the project to manage and query graph data and handle complex relationships and connections between user entities and media contents in an efficient way.
+    \item \textbf{Document Database:} MongoDB\@.
+    \item \textbf{Graph Database:} Neo4j.
 \end{itemize}
 
-\subsection*{Integrated Development Environment} Intellij IDEA was used as an primary IDE. It is powerful Java 
-integrated development environment for developing software in an efficient way.
+\subsection*{Integrated Development Environment} 
+\begin{itemize}
+    \item Intellij IDEA\@.
+\end{itemize}
 
-\subsection*{Version Control} Github was used to provide a collaborative development with its version control system.
+\subsection*{Collaborative Development Environment}
+\begin{itemize}
+    \item Git.
+    \item GitHub.
+\end{itemize}
 
-\subsection*{Web Server} Apache Tomcat was used as a web server to provide reliable environment for deploying and running the java based web application.
+\subsection*{Web Server} 
 
-\subsection*{Build Automation} Maven was used as a build automation tool. It is used to manage the project's build, reporting, and documentation from a central piece of information.
+\begin{itemize}
+    \item Apache Tomcat.
+\end{itemize}
 
-\subsection*{Testing} JUnit was used as a testing framework for Java code. It is used to write and run repeatable automated tests. This ensures the reliability and efficiency of the codebase throughout the development process.
+\subsection*{Build Automation}
 
+\begin{itemize}
+    \item Maven.
+\end{itemize}
 
+\subsection*{Testing}
 
+\begin{itemize}
+    \item JUnit.
+\end{itemize}
 
+\newpage
 
 \section{Main Modules}
 \begin{itemize}
@@ -41,68 +59,125 @@ integrated development environment for developing software in an efficient way.
     \item Model 
     \item Service
     \item Utils
-    \item User Interface
+    \item User Interface (JSP, CSS ans JS files)
 \end{itemize}
+
 \subsection*{Configuration}
-Configuration module contains a class named \textit{AppServletContextListener} which is responsible for 
-initializing and managing database connections for the web application. The configuration class 
-implements ServletContextListener interface. \textit{@WebListener} annotation is used to provide listening for 
-application lifecycle events. This annotation contains two methods, which are \textit{contextInitialized(ServletContextEvent sce)} and
-\textit{contextDestroyed(ServletContextEvent sce)}. The first method is called when the web application is started and the second method is called when the web application is shut down.\\ \\
-\textbf{Database Connection Management:} Database connection is provided with \textit{openConnection()} and \textit{closeConnection()} methods. They are both initialized for managing connection
-for MongoDB and Neo4j databases. Connections are managed with corresponding DAO classes which are BaseMongoDBDAO and BaseNeo4jDAO.\\ \\
-With using the configuration module for database connection, web application ensures robustness and reliability in its data access layer.
+
+The configuration module includes a class named \textit{AppServletContextListener}, which is responsible 
+for managing \textbf{database connections}, the \textbf{TaskManager} for handling asynchronous operations and their priorities, 
+and the \textbf{PeriodicExecutorTaskService} for handling periodic tasks. This configuration class implements 
+the \textit{ServletContextListener} interface.
+
+\vspace{\baselineskip}
+
+\sloppy
+The \textit{@WebListener} annotation is used to listen for application lifecycle events. 
+The \textit{ServletContextListener} interface contains two methods: \textit{contextInitialized(ServletContextEvent sce)} 
+and \textit{contextDestroyed(ServletContextEvent sce)}. 
+
+\vspace{\baselineskip}
+
+The \textit{contextInitialized} method is called when the web application starts. It opens the database 
+connections and initiates the TaskManager and PeriodicExecutorTaskService. The \textit{contextDestroyed} 
+method is invoked when the web application shuts down. It closes all database connections and stops the services.
+
+\vspace{\baselineskip}
+
+For MongoDB was used this configuration:
+
+\begin{mdframed}[backgroundcolor=yellow!20, innerleftmargin=10pt, innerrightmargin=10pt]
+    \begin{lstlisting}[language=java]
+    settings = MongoClientSettings.builder()
+                .applyConnectionString(connectionString)
+                .writeConcern(WriteConcern.W1)
+                .readPreference(ReadPreference.nearest())
+                .retryWrites(true)
+                .readConcern(ReadConcern.LOCAL)
+                .build();
+    \end{lstlisting}
+\end{mdframed}
+
+\begin{itemize}
+    \item \textbf{WriteConcern.W1}: Write concern describes the level of acknowledgment requested from MongoDB for write operations. 
+    WriteConcern.W1 means the write operation must be acknowledged by the primary server before the client proceeds. 
+    This ensures that the data is written to at least the primary replica set member but doesn't wait for 
+    acknowledgment from secondary members.
+    \item \textbf{ReadPreference.nearest()}: Read preference determines how MongoDB clients route read operations 
+    to members of a replica set. ReadPreference.nearest() means the client will read from the member of the replica 
+    set that has the least network latency, irrespective of whether it's a primary or secondary member. This can help 
+    reduce read latency.
+    \item \textbf{retryWrites(true)}: RetryWrites enables retryable writes. If a network error occurs during a write 
+    operation, MongoDB will automatically retry the write operation once. This can help to handle transient network 
+    errors more gracefully.
+    \item \textbf{ReadConcern.LOCAL}: Read concern specifies the level of isolation for read operations. 
+    ReadConcern.LOCAL ensures that a query returns the most recent data a node has locally, without waiting 
+    for data to be replicated to other nodes. This is the default level and it balances consistency and performance.
+\end{itemize}
 
 \subsection*{Controller}
-%%TODO: change the code when it is corrected 
-The controller modules plays a role as intermediary between the user requests and backend of the MangaVerse wab application as servlet classes.
-They receives the user requests, process them and returns with the corresponding response. The controller classes are implemented using HttpServlet to handle user requests and responses.
-Within the scope of their intermediary role, the controller classes are responsible of being a bridge between the user interface and backend logic. 
-When a user interacts with the web application, their actions are translated into a HTTP request and these requests are handled by the related servlet class in the controller module. 
-To be able to do do request translation in an efficient way each controller class extend 'HttpServlet' and has various methods to handle HTTP requests like GET and POST. 
-Each controller class utilized a switch-case structure to determine the action requested and invokes the appropriate handler method accordingly.
-This structure allows for clear and organized routing of request to their corresponding handler method. After processing the request, the servlet generates a requested response.\\
-\newline
+
+The controller module acts as an intermediary between user requests and the backend of the MangaVerse web application 
+through servlet classes. It receives user requests, processes them, and returns the corresponding responses. 
+The controller classes are implemented using \textit{HttpServlet} to handle user requests and responses.
+
+\vspace{\baselineskip}
+
+In their intermediary role, the controller classes serve as a bridge between the user interface and backend logic. 
+When a user interacts with the web application, their actions are translated into HTTP requests, which are handled 
+by the relevant servlet class in the controller module. Each controller class utilizes a switch-case structure to 
+determine the requested action and invokes the appropriate handler method accordingly. This structure allows for 
+clear and organized routing of requests to their corresponding handler methods. After processing the request, the 
+servlet generates the appropriate response.
+
+\vspace{\baselineskip}
+
 \textbf{Example code snippet from MediaContentServlet:}
 \begin{mdframed}[backgroundcolor=yellow!20, innerleftmargin=10pt, innerrightmargin=10pt]
     \begin{lstlisting}[language=java]
 {
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String action = request.getParameter("action");
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+        processRequest(request, response);
+    }
 
-        switch (action) {
-            case "toggleLike" -> handleToggleLike(request, response);
-            case "addReview" -> handleAddReview(request, response);
-            case "deleteReview" -> handleDeleteReview(request, response);
-            case "editReview" -> handleEditReview(request, response);
-            case "getMediaContent" -> handleGetMediaContentById(request,response);
-            case "getMediaContentByTitle" -> handleSearchMediaContentByTitle(request,response);
-            case null, default -> handleLoadPage(request,response);
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+        processRequest(request, response);
+    }
+
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+        switch (request.getParameter("action")) {
+            case "editProfile" -> handleUpdate(request, response);
+            case "deleteProfile" -> handleDelete(request, response);
+            case "getReviews" -> handleGetReviewsByUserId(request, response);
+            case "rateApp" -> handleRateApp(request, response);
+            case "suggestedMediaContent" -> handleSuggestedMediaContent(request, response);
+            case "suggestedUsers" -> handleSuggestedUsers(request, response);
+            case null, default -> handleLoadPage(request, response);
         }
     }
 }
     \end{lstlisting}
 \end{mdframed}
+
 The controller module contains the following classes:
+
 \begin{itemize}
-    \item Exception \\
-    NotAuthorizedException: This exception is thrown when the user is not authorized to access the requested resource.
-    \item AuthServlet \\
-    The AuthServlet class handles the user authentication and authorization processes. It includes login, logout and sign up functions
-    \item MainPageServlet \\
-    The MainPageServlet class is responsible for handling the main page of the web application. It includes the main page of the web application and the search functionality.
-    It provides request related to displaying main page and searching media contents.
-    \item ManagerServlet \\
-    The ManagerServlet class manages administrative requests in manager page. These request are primarily about manga, anime and user analytics such \textit{averageRatingByMonth(), trendMediaContentByYear(), getBestCriteria()...}
-    \item MediaContentServlet \\
-    The MediaContentServlet class is responsible for managing request related with media contents. These requests include like, adding,deleting or editing reviews and retrieving media content details. 
-    \item ProfileServlet \\
-    The ProfileServlet class is responsible for managing user profile related requests. These requests include updating user profile, following/unfollowing other users, getting user profile details such as liked anime and manga and user reviews.
-    \item UserServlet \\
-    The UserServlet class is responsible for managing user related requests and interactions. These requests include retrieving followers list, following list and user information. 
+    \item \textbf{Exception:}
+    \begin{itemize}
+        \item \textbf{NotAuthorizedException:} This exception is thrown when the user is not authorized to access the requested resource.
+    \end{itemize}
+    \item \textbf{AuthServlet:} to handle rquests on authentication page.
+    \item \textbf{MainPageServlet:} to handle requests on the mainPage.
+    \item \textbf{ManagerServlet:} to handle requests on the manager page.
+    \item \textbf{MediaContentServlet:} to handle requests on the media content page and retrieve or set media content releted info.
+    \item \textbf{ProfileServlet:} to handle requests on the profile page.
+    \item \textbf{UserServlet:} to handle requests related to user model.
 \end{itemize}
 
 \subsection*{DAO (Data Access Objects)}
+
 The DAO module includes the logic for accessing and managing data in the database and provides data retrieval, 
 storage and manipulation. This module includes classes with CRUD (create, read, update, delete) operations and query executions. 
 It provides a layer of abstraction between the database and the rest of the application and ensures the separation of concerns. The DAO module contains the following classes:
@@ -127,7 +202,9 @@ It provides a layer of abstraction between the database and the rest of the appl
     - UserDAONeo4jImpl 
     \item DAOLocator 
 \end{itemize}
+
 \newpage
+
 \textbf{Example code snippet from MangaDAOMongoImpl:}
 \begin{mdframed}[backgroundcolor=yellow!20, innerleftmargin=10pt, innerrightmargin=10pt]
     \begin{lstlisting}[language=java]
@@ -183,8 +260,8 @@ It provides a layer of abstraction between the database and the rest of the appl
     \end{lstlisting}
 \end{mdframed}
 
-
 \newpage
+
 \textbf{Example code snippet from UserDAONeo4jImpl:}
 \begin{mdframed}[backgroundcolor=yellow!20, innerleftmargin=10pt, innerrightmargin=10pt]
     \begin{lstlisting}[language=java]
@@ -263,10 +340,6 @@ It handles complex operations with guarantying that the application's core funct
 that are provided in the service module are: \textit{UserService, MediaContentService, ReviewService, TaskManager, ExecuterTaskService}. The 
 package structure of Service module is as follows:
 
-
-
-
-
 \begin{itemize}
     \item enums \\
     - ExecuterTaskService
@@ -311,7 +384,6 @@ package structure of Service module is as follows:
 \section{Adopted Patterns and Techniques}
 \subsection*{Patterns}
 
-
 \subsection*{Techniques}
 
 \textbf{Task Manager:}\\
@@ -335,34 +407,21 @@ Aperiodic executer task service class is implemented by using the interface of e
 \subsection*{Controller}
 \renewcommand{\arraystretch}{1.5}
 \begin{longtable}{|>{\arraybackslash}p{0.33\linewidth}|>{\arraybackslash}p{0.66\linewidth}|}
-    \hline
+    \cline{1-2}
     \textbf{Class} & \textbf{Description} \\
-    \hline
-    \endfirsthead
-
-    \hline
-    \textbf{Class} & \textbf{Description} \\
-    \hline
-    \endhead
-
-    \hline
-    \endfoot
-
-    \hline
-    \endlastfoot
-
-    AuthServlet & Handles business logic for authentication \\
-    \hline
-    MainPageServlet & Handles business logic for main page \\
-    \hline
-    ManagerServlet & Handles business logic for manager \\
-    \hline
-    MediaContentServlet & Handles business logic for media content \\
-    \hline
-    ProfileServlet & Handles business logic for profile \\
-    \hline
-    UserServlet & Handles business logic for user \\
-    \hline
+    \cline{1-2}
+    AuthServlet & Handles requests on authentication page \\
+    \cline{1-2}
+    MainPageServlet & Handles requests on the mainPage \\
+    \cline{1-2}
+    ManagerServlet & Handles business logic for manager \\    
+    \cline{1-2}
+    MediaContentServlet & handle requests on the media content page and retrieve or set media content releted info \\
+    \cline{1-2}
+    ProfileServlet & Handles requests on the profile page \\
+    \cline{1-2}
+    UserServlet & Handles requests related to user model \\
+    \cline{1-2}
 \end{longtable}
 
 \newpage
