@@ -40,7 +40,7 @@ public class ServiceLocator {
     }
     public static ExecutorTaskService getExecutorTaskService(ExecutorTaskServiceType type) {
         return switch (type) {
-            case APERIODIC -> AperiodicExecutorTaskServiceImpl.getInstance();
+            case APERIODIC -> AperiodicExecutorTaskServiceImpl.getInstance(getErrorsTaskManager());
             case PERIODIC -> PeriodicExecutorTaskServiceImpl.getInstance();
         };
     }
