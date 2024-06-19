@@ -1,61 +1,61 @@
 \chapter{Design}
-The system is designed to handle a substantial volume of data with varying attributes in both number and type.
-There are several anime and manga entries that contains missing or incomplete information,
-and the system must be able to handle this, avoiding meaningless memory occupation. To accommodate this,
-a Document Database was chosen for its flexibility and schema-less nature, ease of use, and high-performance
+The system is designed to handle a substantial volume of data with varying attributes in both number and type. 
+There are several anime and manga entries that contains missing or incomplete information, 
+and the system must be able to handle this, avoiding meaningless memory occupation. To accommodate this, 
+a Document Database was chosen for its flexibility and schema-less nature, ease of use, and high-performance 
 capabilities. This choice enables the execution of complex queries, including advanced filtering across different attribute types.
 
 \vspace{\baselineskip}
 
-In addition, the implementation of social networking functionalities necessitated the use of a Graph Database.
-This allows for efficient traversal of relationships between entities and effectively manages connections between
+In addition, the implementation of social networking functionalities necessitated the use of a Graph Database. 
+This allows for efficient traversal of relationships between entities and effectively manages connections between 
 different entities such as users, anime, and manga.
 
 
 \section{Document Database}
 
-The decision to use a document database, specifically MongoDB,  was driven by its \textbf{flexibility}
-and \textbf{schema-less nature}, which allows for the storage of data with varying attributes in both number and type.
+The decision to use a document database, specifically MongoDB,  was driven by its \textbf{flexibility} 
+and \textbf{schema-less nature}, which allows for the storage of data with varying attributes in both number and type. 
 This adaptability makes MongoDB ideal for handling diverse and dynamic data models.
 
 \vspace{\baselineskip}
 
-MongoDB also provides a \textbf{high-performance environment} for executing complex queries,
-reducing the need for joins and improving overall application performance by minimizing database
-access. This is particularly beneficial for applications like MangaVerse that require fast response
-times and can benefit from pre-computed relationships between entities. By storing embedded
+MongoDB also provides a \textbf{high-performance environment} for executing complex queries, 
+reducing the need for joins and improving overall application performance by minimizing database 
+access. This is particularly beneficial for applications like MangaVerse that require fast response 
+times and can benefit from pre-computed relationships between entities. By storing embedded 
 relationships directly within documents, MongoDB enables quicker data retrieval, enhancing user experience.
 
 \vspace{\baselineskip}
 
 To avoid normalized data, \textbf{data redundancy} is used to define relationships between entities.
-Although this technique can lead to increased memory usage, it enables faster queries and fewer
-database accesses. For applications with high query complexity and rapidly growing data,
+Although this technique can lead to increased memory usage, it enables faster queries and fewer 
+database accesses. For applications with high query complexity and rapidly growing data, 
 such as MangaVerse, this is an optimal trade-off.
 
 \vspace{\baselineskip}
 
-To define \textbf{one-to-many relationships}, the documents linking pattern is used.
-In this pattern, one entity stores a list of the IDs of related entities, allowing for
-quick retrieval without multiple queries. This approach is used for retrieving reviews
-written by a user or reviews associated with a specific anime or manga. Additionally, document
-embedding is used for storing the latest reviews within the anime or manga documents, enabling
+To define \textbf{one-to-many relationships}, the documents linking pattern is used. 
+In this pattern, one entity stores a list of the IDs of related entities, allowing for 
+quick retrieval without multiple queries. This approach is used for retrieving reviews 
+written by a user or reviews associated with a specific anime or manga. Additionally, document 
+embedding is used for storing the latest reviews within the anime or manga documents, enabling 
 fast access to this information when a user views the anime or manga page.
 
 \vspace{\baselineskip}
 
 The document database also includes other redundancies between collections and between the document
-database and the graph database. For example, fields such as the number of likes for a manga or
+database and the graph database. For example, fields such as the number of likes for a manga or 
 anime, the number of followers and followings for a user, and the average rating of media content
-are stored redundantly. To maintain consistency without unnecessary database accesses, a flag
-called \textbf{'avg\_rating\_last\_update'} is used to indicate whether the average rating is
+are stored redundantly. To maintain consistency without unnecessary database accesses, a flag 
+called \textbf{'avg\_rating\_last\_update'} is used to indicate whether the average rating is 
 up-to-date.
 
 \vspace{\baselineskip}
 
-MongoDB is also a \textbf{scalable database}, capable of handling large volumes of data and traffic.
-It supports distribution, providing \textbf{high availability}, \textbf{fault tolerance}, and \textbf{data integrity}.
-This means MongoDB can easily be scaled out to accommodate growth in both data and traffic, ensuring consistent
+MongoDB is also a \textbf{scalable database}, capable of handling large volumes of data and traffic. 
+It supports distribution, providing \textbf{high availability}, \textbf{fault tolerance}, and \textbf{data integrity}. 
+This means MongoDB can easily be scaled out to accommodate growth in both data and traffic, ensuring consistent 
 performance and reliability as the application grows.
 
 
@@ -64,25 +64,25 @@ performance and reliability as the application grows.
 \subsection*{Collections}
 The database contains the following collections:
 \begin{itemize}
-    \item \textbf{Anime}:
+    \item \textbf{Anime}: 
     This collection stores information about anime, including a list of review IDs and the most recent reviews as nested documents.
-
-    \item \textbf{Manga}:
+    
+    \item \textbf{Manga}: 
     This collection stores information about manga, including a list of review IDs and the most recent reviews as nested documents.
-
-    \item \textbf{Reviews}:
-    This collection stores user ratings and comments for media content. To enhance performance and reduce multiple queries, it
+    
+    \item \textbf{Reviews}: 
+    This collection stores user ratings and comments for media content. To enhance performance and reduce multiple queries, it 
     includes some user and media redundancies, especially for suggestions and analytics.
-
-    \item \textbf{Users}:
+    
+    \item \textbf{Users}: 
     This collection stores user data along with a list of review IDs.
 \end{itemize}
 
 \subsection*{Analytics and Suggestions}
 
-The application performs various analytics on users, manga, and anime to provide the manager with valuable information
-regarding user distribution and the average rating of the application or media content. These analytics are grouped
-by different criteria such as genre, season, and year. Additionally, the application offers personalized
+The application performs various analytics on users, manga, and anime to provide the manager with valuable information 
+regarding user distribution and the average rating of the application or media content. These analytics are grouped 
+by different criteria such as genre, season, and year. Additionally, the application offers personalized 
 media content suggestions to users.
 
 \vspace{\baselineskip}
@@ -97,20 +97,57 @@ The following is a comprehensive list of all the queries that the application sh
         \item Retrieve the distribution of users grouped by gender, joined\_on date, birthday, and country;
         \item Retrieve the average rating of the application grouped by gender, joined\_on date, birthday, and country;
     \end{itemize}
-
+    
     \item \textbf{Media Content Analytics}:
     \begin{itemize}
         \item Retrieve the average rating of the media content grouped by various criteria (e.g., genre, type, demographics, author, etc.);
         \item Retrieve the average rating of a media content per month or year;
     \end{itemize}
-
+    
     \item \textbf{Suggestions}:
-    \begin{itemize}
+    \begin{itemize} 
         \item Retrieve the top media content suggestions for a user based on the user's location or birthday.
     \end{itemize}
 \end{itemize}
+    
+\subsection*{CRUD operations}
+\begin{itemize}
+  \item \textbf{CREATE}
+  \begin{itemize}
+      \item Create a user
+      \item Create an anime
+      \item Create a manga
+      \item Create a review
+  \end{itemize}
 
-\newpage
+  \item \textbf{UPDATE}
+  \begin{itemize}
+      \item Update user's information
+      \item Update media content details
+      \item Update a review
+  \end{itemize}
+
+  \item \textbf{DELETE}
+  \begin{itemize}
+      \item Delete a user
+      \item Delete a media content
+      \item Delete a review by its ID
+      \item Delete reviews of a user
+      \item Delete reviews of a media content
+      \item Delete reviews not related to any media content
+      \item Delete a review not related to any user
+  \end{itemize}
+
+  \item \textbf{READ}
+  \begin{itemize}
+      \item Read a user by the ID
+      \item Read the first N users by username
+      \item Read a media content by its ID
+      \item Read a page of media contents by filters
+      \item Read reviews of a specified user
+      \item Read reviews of a specified media content
+  \end{itemize}
+\end{itemize}
 
 \subsection*{JSON document example}
 Anime:
@@ -296,8 +333,6 @@ Reviews:
     \end{lstlisting}
 \end{mdframed}
 
-\newpage
-
 Users:
 \begin{mdframed}[backgroundcolor=yellow!20, innerleftmargin=10pt, innerrightmargin=10pt]
     \begin{lstlisting}[language=java]
@@ -331,64 +366,78 @@ Users:
     \end{lstlisting}
 \end{mdframed}
 
-\newpage
+\subsection*{Redundancy}
 
-\subsection*{CRUD operations}
+In a document database, data redundancy can be leveraged to enhance application performance and reduce the
+number of database accesses. However, the application must manage the consistency between the original data
+and their redundant copies. This consistency maintenance can impact performance and availability. Therefore,
+optimal strategies are necessary to ensure data consistency while preserving application performance and availability.
+
+\vspace{\baselineskip}
+
+The following redundancies are implemented in the database:
+
+\vspace{\baselineskip}
+
 \begin{itemize}
-  \item \textbf{CREATE}
-  \begin{itemize}
-      \item Create a user
-      \item Create an anime
-      \item Create a manga
-      \item Create a review
-  \end{itemize}
+    \item \textbf{Latest Reviews}: \\
+    In the anime and manga collections, a field contains the latest 5 reviews for that specific media content. This approach ensures fast retrieval.
 
-  \item{UPDATE}
-  \begin{itemize}
-      \item Update user's information
-      \item Update media content details
-      \item Update a review
-  \end{itemize}
+    \vspace{\baselineskip}
 
-  \item{DELETE}
-  \begin{itemize}
-      \item Delete a user
-      \item Delete a media content
-      \item Delete a review by its ID
-      \item Delete reviews of a user
-      \item Delete reviews of a media content
-      \item Delete reviews not related to any media content
-      \item Delete a review not related to any user
-  \end{itemize}
+    \item \textbf{Average Rating}: \\
+    In the anime and manga collections, a field contains the average rating of the media content. This field is updated every time a new review is written.
 
-  \item{READ}
-  \begin{itemize}
-      \item Read a user by the ID
-      \item Read the first N users by username
-      \item Read a media content by its ID
-      \item Read a page of media contents by filters
-      \item Read reviews of a specified user
-      \item Read reviews of a specified media content
-  \end{itemize}
+    \vspace{\baselineskip}
+
+    \item \textbf{Number of Likes}: \\
+    In the anime and manga collections, a field contains the number of likes. This field is updated every time a new like relationship is created or deleted.
+
+    \vspace{\baselineskip}
+
+    \item \textbf{Followers and Followings}: \\
+    In the user collection, fields contain the number of followers and followings. These fields are updated every time a new follow relationship is created or deleted.
+
+    \vspace{\baselineskip}
+
+    \item \textbf{User Field in Reviews}: \\
+    In the reviews collection, a field contains user data, such as id, username, picture, location, and birthday. This data is used for suggestion purposes.
+
+    \vspace{\baselineskip}
+
+    \item \textbf{Media Content Field in Reviews}: \\
+    In the reviews collection, a field contains information about the anime or manga the review pertains to, including the media content id and title.
+
+    \vspace{\baselineskip}
+
+    \item \textbf{Review Ids}: \\
+    A list of review ids is stored in the anime, manga, and user collections. This list is used to quickly retrieve the reviews of media content and users.
 \end{itemize}
 
 \newpage
 
 \section*{Graph Database}
 
-The inclusion of social networking functionalities, such as user interactions, likes, and follows, necessitated the
-integration of a graph database to efficiently manage relationships between entities. A graph database operates on
-the concepts of nodes and relationships, which are ideal for this purpose. Unlike traditional databases that rely on
-join tables—often resulting in higher memory usage and slower execution times due to multiple database accesses—a graph
-database optimizes traversal for relationships. This makes it particularly well-suited for managing complex connections
+The inclusion of social networking functionalities, such as user interactions, likes, and follows, necessitated the 
+integration of a graph database to efficiently manage relationships between entities. A graph database operates on 
+the concepts of nodes and relationships, which are ideal for this purpose. Unlike traditional databases that rely on 
+join tables—often resulting in higher memory usage and slower execution times due to multiple database accesses—a graph 
+database optimizes traversal for relationships. This makes it particularly well-suited for managing complex connections 
 between users, anime, and manga, ensuring faster and more efficient data retrieval and manipulation.
 
 \vspace{\baselineskip}
 
-Additionally, graph databases provide enhanced flexibility and scalability, allowing for easier implementation of
-new features and relationships as the application grows. They support advanced queries that can traverse multiple
-relationships in a single operation, offering a significant performance boost for social networking applications
+Additionally, graph databases provide enhanced flexibility and scalability, allowing for easier implementation of 
+new features and relationships as the application grows. They support advanced queries that can traverse multiple 
+relationships in a single operation, offering a significant performance boost for social networking applications 
 where interconnected data is prevalent.
+
+\begin{figure}[htbp]\label{fig:GraphDB}
+  \centering
+  \includegraphics[width=0.9\textwidth]{Media/graph.pdf}
+\end{figure}
+
+\newpage
 
 \subsection*{Nodes}
 
@@ -404,78 +453,78 @@ The database will have the following nodes:
 The database will have the following relationships:
 \begin{itemize}
     \item LIKE\@: This relationship will connect users to anime and manga nodes. It will store the date when the user liked the media content.
-    \item FOLLOW\@: This relationship will connect users to other users.
+    \item FOLLOW\@: This relationship will connect users to other users. 
 \end{itemize}
 
-\begin{figure}[htbp]\label{fig:GraphDB}
-    \centering
-    \includegraphics[width=\textwidth]{Media/graph.pdf}
-\end{figure}
+\subsection*{CRUD operations}
+\begin{itemize}
+  \item \textbf{CREATE}
+  \begin{itemize}
+      \item Create a user node
+      \item Create an anime node
+      \item Create a manga node
+      \item Create a LIKE edge between a user and an anime or manga
+      \item Create a FOLLOW edge between two users
+  \end{itemize}
 
-\newpage
+  \item{UPDATE}
+  \begin{itemize}
+      \item Update user's picture and/or username
+      \item Update media content picture and/or title
+  \end{itemize}
 
-\subsection{CRUD operations}
-  %% TODO: specify all the crud operations
+  \item{DELETE}
+  \begin{itemize}
+      \item Delete a user node and all edge connected to it
+      \item Delete a media content node and all edge connected to it
+      \item Delete a LIKE edge between a user and an anime or manga
+      \item Delete a FOLLOW edge between two users
+  \end{itemize}
 
-\section{Availability and Partition Tolerance}
-MangaVerse, as a social network, gives priority to the AP configuration of the CAP theorem, ensuring Availability and Partition Tolerance. This allows users to access the application and interact with other users and media content, even if the data is not always consistent (Eventual Consistency).
+  \item{READ}
+  \begin{itemize}
+    \item Read the numer of FOLLOW edges outcoming from a user
+    \item Read the number of FOLLOW edges incoming to a user
+    \item Read the number of LIKE edges incoming to an anime or manga
+    \item Read the list of followers of a user
+    \item Read the list of followings of a user
+  \end{itemize}
+\end{itemize}
 
-\section{Redundancy}
-%what is there to add here?
-The performance of the application is critical, so we need to ensure that the system is highly available and fault-tolerant. To achieve this, we gave priority to fast responses, rather than reducing memory consumption.
+\section*{Availability and Partition Tolerance}
 
+MangaVerse, as a social network, adopts the AP configuration of the CAP theorem, emphasizing Availability
+and Partition Tolerance. This ensures users can reliably access the application, interact with others,
+and engage with media content, even though data consistency may vary (Eventual Consistency).
+This approach enhances user experience by prioritizing uninterrupted service over strict data consistency.
 
-\textbf{Latest reviews}
+\section*{Replicas}
 
+For MangaVerse, three MongoDB replicas were deployed to ensure high availability, partition tolerance,
+and rapid response times. This configuration allows the system to remain accessible and responsive even
+during network partitions or node failures. However, managing data consistency across multiple replicas
+requires careful handling to achieve eventual consistency without compromising availability.
 
-In the anime and manga collections, there's a field containing the latest 5 reviews written for that specific media content, in this way it's fast to retrieve. 
+\section*{Sharding}
 
+Even though sharding is not currently implemented in MangaVerse, it's crucial to consider its implications.
+Sharding is a method used to distribute data across multiple machines, essential for managing data growth.
+As datasets expand, a single machine may become inadequate for storing and managing data with acceptable
+read and write speeds. Document databases like MongoDB support sharding, which facilitates horizontal scaling.
 
-\textbf{Average rating}
+\vspace{\baselineskip}
 
+Choosing the right shard key for each collection is critical for effective sharding in MongoDB\@.
+The shard key determines how data is distributed across shards. Factors such as the types of queries performed,
+document relationships, and document structure must be carefully evaluated when selecting a shard key to ensure
+optimal performance and scalability.
 
-In the anime and manga collections, there's a field containing the average rating of the media content, this field is updated every time a new review is written.
+\vspace{\baselineskip}
 
-
-\textbf{Number of likes}
-
-
-In the anime and manga collections, there's a field containing the number of likes, this field is updated every time a new like relationship is created or deleted.
-
-
-\textbf{Followers and Followings}
-
-
-In the user collection, there are fields containing the number of followers and followings, this field is updated every time a new follow relationship is created or deleted.
-
-
-\textbf{User field in Reviews}
-
-
-In the reviews collection, there's a field containing the user data, such as id, username, picture, and also location and birthday, which are used for suggestion porpouses.
-
-\textbf{Media Content field in Reviews}
-
-
-In the reviews collection, there's a field containg information about the anime or manga the reivew is about. This field has information about the media content id and title.
-
-
-\textbf{Review Ids}
-
-
-A list of review ids is stored in the anime, manga and users collections, this is used to quickly retrieve the reviews of a media content and of a user.
-
-\section{Replicas}
-A cluster of three nodes is available for this project, allowing deployment of replicas: however, replicas were only implemented in MongoDB, as Neo4j required the Enterprise version for it.
-We have 3 replicas for MongoDB and 1 for Neo4J.
-In MongoDB we have one primary and two secondary replicas, the primary is used for write operations and the secondaries are used for read operations. This will allow us to distribute the load and improve the performance of the application. In case of failure of the primary node, one of the secondary nodes will be promoted to primary, ensuring high availability of the system.
-
-\newpage
-\section{Sharding}
-Sharding is a method for distributing data across multiple machines to meet the demands of data growth. As the size of the data increases, a single machine may not be sufficient to store the data nor provide an acceptable read and write throughput. Sharding typically solves the problem with horizontal scaling. However, in our application, sharding is not possible due to the nature of the collections and their interdependencies.
-
-Our database consists of four collections: anime, manga, users, and reviews and each collection stores different types of information.
-Sharding these collections would be complex due to their interrelated nature. The data in these collections is highly interconnected; for example, reviews reference both anime/manga and users, and each user can have multiple reviews linked to both anime and manga. Distributing such interdependent data across multiple shards would lead to significant overhead in maintaining relationships between documents, potentially causing performance degradation instead of improvement.
-
-Therefore, while the database design is ready for sharding in theory, the practical constraints of our application's structure and the interconnectedness of our collections make sharding infeasible. Implementing sharding would introduce complexity and overhead that could outweigh the benefits of horizontal scaling in this context.
-
+In its current implementation, MangaVerse does not support sharding. A potential approach could involve sharding
+anime and manga data by unique identifiers like id or title, and reviews by media content id or title to keep
+related data together on the same shard. However, this strategy may lead to performance challenges. Queries
+involving reviews related to a specific user or media content suggestions based on user location and birthday
+could require accessing multiple shards, potentially reducing application performance. Similarly, analytical
+tasks like computing average ratings across anime and manga collections would necessitate querying all shards,
+which can be inefficient.
