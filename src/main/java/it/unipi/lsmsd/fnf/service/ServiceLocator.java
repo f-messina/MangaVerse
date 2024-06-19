@@ -1,8 +1,17 @@
 package it.unipi.lsmsd.fnf.service;
 
 import it.unipi.lsmsd.fnf.service.enums.ExecutorTaskServiceType;
-import it.unipi.lsmsd.fnf.service.impl.*;
-import it.unipi.lsmsd.fnf.service.interfaces.*;
+import it.unipi.lsmsd.fnf.service.impl.AperiodicExecutorTaskServiceImpl;
+import it.unipi.lsmsd.fnf.service.impl.ErrorTaskManager;
+import it.unipi.lsmsd.fnf.service.impl.MediaContentServiceImpl;
+import it.unipi.lsmsd.fnf.service.impl.PeriodicExecutorTaskServiceImpl;
+import it.unipi.lsmsd.fnf.service.impl.ReviewServiceImpl;
+import it.unipi.lsmsd.fnf.service.impl.UserServiceImpl;
+import it.unipi.lsmsd.fnf.service.interfaces.ExecutorTaskService;
+import it.unipi.lsmsd.fnf.service.interfaces.MediaContentService;
+import it.unipi.lsmsd.fnf.service.interfaces.ReviewService;
+import it.unipi.lsmsd.fnf.service.interfaces.TaskManager;
+import it.unipi.lsmsd.fnf.service.interfaces.UserService;
 
 /**
  * This class is a service locator that provides the services to the application.
@@ -31,7 +40,7 @@ public class ServiceLocator {
     }
     public static ExecutorTaskService getExecutorTaskService(ExecutorTaskServiceType type) {
         return switch (type) {
-            case APERIODIC -> AperiodicExecutorTaskServiceImpl.getInstance(getErrorsTaskManager());
+            case APERIODIC -> AperiodicExecutorTaskServiceImpl.getInstance();
             case PERIODIC -> PeriodicExecutorTaskServiceImpl.getInstance();
         };
     }

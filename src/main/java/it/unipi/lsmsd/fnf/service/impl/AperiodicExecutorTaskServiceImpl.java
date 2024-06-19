@@ -37,7 +37,7 @@ public class AperiodicExecutorTaskServiceImpl implements ExecutorTaskService {
      * @param taskManager       The TaskManager to be used by the ExecutorTaskService.
      * @return                  The singleton instance of ExecutorTaskService.
      */
-    public static ExecutorTaskService getInstance(TaskManager taskManager) {
+    public static ExecutorTaskService getInstance() {
         return InstanceHolder.INSTANCE;
     }
 
