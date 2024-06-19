@@ -272,9 +272,10 @@ As it can be shown in the table below, there are significant improvement in oper
 
 \subsection*{Neo4j Performance Testing}
 
-Similarly, also for Neo4j database, performance testing is conducted to see the impacts of indexing on CRUD operations.
+Similarly, also for Neo4j database, performance testing is conducted to observe the impacts of indexing on some CRUD operations.
 Indexing with ids is used for both anime, manga and users nodes. The tests are conducted for creating new nodes and searching for nodes.
-%%TODO: Neo4j performance test results table- fill with indexing part
+The test result in the table below shows that indexing has a significant impact on operations in Neo4j database especially for search.
+Indexing time decreases with using indexes for search tasks because it prevents to check all the nodes in the database.
 
 \begin{longtable}{@{}llllr@{}}
     \caption{Neo4j Performance Test Results} \\
@@ -295,22 +296,22 @@ Indexing with ids is used for both anime, manga and users nodes. The tests are c
     \endlastfoot
     
     \multirow{4}{*}{Anime}
-     & Insert & No  & 7 \\
-     & Insert & Yes &  \\
-     & Search & No  & 19 \\
-     & Search & Yes &  \\ \midrule
+     & Insert & No  & 5 \\
+     & Insert & Yes & 5\\
+     & Search & No  & 45 \\
+     & Search & Yes & 2\\ \midrule
     
     \addlinespace
     \multirow{4}{*}{Manga}
-     & Insert & No  & 4 \\
-     & Insert & Yes &  \\
-     & Search & No  & 54 \\
-    & Search & Yes &  \\ \midrule
+     & Insert & No  & 7 \\
+     & Insert & Yes & 5 \\
+     & Search & No  & 46 \\
+    & Search & Yes & 9 \\ \midrule
     
     \addlinespace
     \multirow{4}{*}{Users}
-     & Insert & No  & 131 \\
-     & Insert & Yes &  \\
-     & Search & No  & 7 \\
-     & Search & Yes &  \\
+     & Insert & No  & 56 \\
+     & Insert & Yes & 9\\
+     & Search & No  & 40 \\
+     & Search & Yes & 3 \\
     \end{longtable}
