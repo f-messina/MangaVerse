@@ -70,15 +70,46 @@ The database contains the following collections:
     This collection stores information about manga, including a list of review IDs and the most recent reviews as nested documents.
     
     \item \textbf{Reviews}: 
-    This collection stores user ratings and comments for media content. To enhance performance and reduce multiple queries, it includes some user and media redundancies, especially for suggestions and analytics.
+    This collection stores user ratings and comments for media content. To enhance performance and reduce multiple queries, it 
+    includes some user and media redundancies, especially for suggestions and analytics.
     
     \item \textbf{Users}: 
     This collection stores user data along with a list of review IDs.
 \end{itemize}
 
+\subsection*{Analytics and Suggestions}
+
+The application performs some analytics on user, manga and anime in order to provide to the manager information
+about the distribution of the user and the average rating of the application or media 
+content grouped by some criteria (e.g.\ genre, season, year). It also provides media content suggestions to the user.
+
+\vspace{\baselineskip}
+
+The following is a list of all the queries that the application should be able to perform:
+
+\vspace{\baselineskip}
+
+\begin{itemize}
+    \item \textbf{User Analytics}:
+    \begin{itemize}
+        \item Get the distribution of users grouped by gender, joined\_on date, birthday and country;
+        \item Get the average rating of the application grouped by gender, joined\_on date, birthday and country;
+    \end{itemize}
+    
+    \item \textbf{Media Content Analytics}:
+    \begin{itemize}
+        \item Get the average rating of the media content grouped by some criteria (e.g.\ genre, type, demographics, author, etc);
+        \item Get the average rating of a media content per month or year;
+    \end{itemize}
+    
+    \item \textbf{Suggestions}:
+    \begin{itemize} 
+        \item Get the top media content suggestions for a user based on the user's location or birthday.
+    \end{itemize}
+\end{itemize}
+    
 \newpage
 
-%% TODO: check the structure of the documents
 \subsection*{MongoDB document example}
 Anime:
 \begin{mdframed}[backgroundcolor=yellow!20, innerleftmargin=10pt, innerrightmargin=10pt]
@@ -240,11 +271,41 @@ The field \texttt{"app\_rating"} is used to know the general satisfaction of the
 
 \subsection*{CRUD operations}
 \begin{itemize}
-  %% TODO: specify all the crud operations
-    \item Create: This operation will allow users to create new documents in the database. For example, users can create new reviews for anime and manga.
-    \item Read: This operation will allow users to read documents from the database. For example, users can read information about anime and manga and about other users.
-    \item Update: This operation will allow users to update documents in the database. For example, users can update their reviews for anime and manga, they can also update their own profile, the manager can update media contents.
-    \item Delete: This operation will allow users to delete documents from the database. For example, users can delete their reviews for anime and manga, the manager can delete media contents.
+  \item \textbf{CREATE}
+  \begin{itemize}
+      \item Create a user
+      \item Create an anime
+      \item Create a manga
+      \item Create a review
+  \end{itemize}
+
+  \item{UPDATE}
+  \begin{itemize}
+      \item Update user's information
+      \item Update media content details
+      \item Update a review
+  \end{itemize}
+
+  \item{DELETE}
+  \begin{itemize}
+      \item Delete a user
+      \item Delete a media content
+      \item Delete a review by its ID 
+      \item Delete reviews of a user
+      \item Delete reviews of a media content
+      \item Delete reviews not related to any media content
+      \item Delete a review not related to any user
+  \end{itemize}
+
+  \item{READ}
+  \begin{itemize}
+      \item Read a user by the ID
+      \item Read the first N users by username
+      \item Read a media content by its ID
+      \item Read a page of media contents by filters
+      \item Read reviews of a specified user
+      \item Read reviews of a specified media content
+  \end{itemize}
 \end{itemize}
 
 \newpage
