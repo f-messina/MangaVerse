@@ -154,7 +154,7 @@ With the help of the use cases and real world scenarios, functional testing is c
 
 
 
-\begin{longtable}{|c|>{\RaggedRight}p{2cm}|>{\RaggedRight}p{3.5cm}|>{\RaggedRight}p{3cm}|>{\RaggedRight}p{2cm}|>{\RaggedRight}p{2cm}|}
+\begin{longtable}{|c|>{\RaggedRight}p{2cm}|>{\RaggedRight}p{3.5cm}|>{\RaggedRight}p{3cm}|>{\RaggedRight}p{3cm}|>{\RaggedRight}p{1.5 cm}|}
     \caption{Functional Test Cases} \\
     \hline
     \textbf{Id} & \textbf{Description} & \textbf{Input} & \textbf{Expected Output} & \textbf{Output} & \textbf{Outcome} \\
@@ -172,39 +172,51 @@ With the help of the use cases and real world scenarios, functional testing is c
     \hline
     \endlastfoot
 
-    User\_01 & Login with correct information & email: nmiller@example.com, password: f6d6b3ffecb44a... & The user logs in successfully &  &  \\
+    User\_01 & Login with correct information & email: nmiller@example.com, password: f6d6b3ffecb44a... & The user logs in successfully & The user logs in successfully  & PASS \\
     \hline
-    User\_02 & Login with wrong information  & email: wrong@example.com, password: wrong  & The user is not able to log in successfully &  &  \\
+    User\_02 & Login with wrong information  & email: wrong@example.com, password: wrong  & The user is not able to log in successfully & The user is not able to log in successfully  & PASS  \\
     \hline
-    User\_03  & Signup with all the mandatory info are filled &  &  &  &  \\
+    User\_03  & Signup with all the mandatory info filled & username: mikasa, email: mikasa@example.com, password:AttackOn..., gender:female  & The user is registered successfully and logs in  & The user is registered successfully and logs in  & PASS  \\
     \hline
-    User\_04  & Signup with missing info &  &  &  &  \\
+    User\_04  & Signup with missing info & username: eren, password:AttackOn...  & The user is not able to register successfully  & The user is not able to register successfully  & PASS  \\
     \hline
-    User\_05 & Update user information & description: manga lover & User profile is updated with new info.  &  &  \\
+    %signup with already used username or email
+    User\_05 & Signup with already used username or email & username:Crystal, email: millerderek@example. com & The user is not able to register successfully & The user is not able to register successfully & PASS \\
     \hline
-    User\_06 & Follow another user & - & User is followed.  &  &  \\
+    User\_06 & Update user information & description: manga lover & User profile is updated with new info.  & User profile is updated with new info.  & PASS  \\
     \hline
-    User\_07 & Unfollow another user & - & User is unfollowed. &  &  \\
+    User\_07 & Follow another user & - & User is followed.  & User is followed.  & PASS  \\
     \hline
-    User\_08 & Search manga by title & title: "Slam Dunk"  & The list of manga which includes the words of "Slam Dunk" is shown.  &  &  \\
+    %follow a user you already follow
+    User\_08 & Follow a user you already follow & - & User is already followed.  & User is already followed.  & PASS  \\
     \hline
-    User\_09 & Search manga by detailed filtering &  &  &  &  \\
+    User\_09 & Unfollow another user & - & User is unfollowed. & User is unfollowed.  & PASS  \\
     \hline
-    User\_10 & Like anime & - & The anime is liked &  &  \\
+    User\_10 & Search manga by title & title: "Slam Dunk"  & The list of manga which includes the words of "Slam Dunk" is shown.  & The list of manga which includes the words of "Slam Dunk" is shown. & PASS  \\
     \hline
-    User\_11 & Add review to anime & review:"I like the anime"  & The review is added to the anime and displayed in the anime page  &  &  \\
+    User\_11 & Search manga by detailed filtering & Genres:adventure, comedy, fantasy. Year:2018. Demographics:Josei. Publication Status:finished  & The list of manga including the filtering details is shown  & The list of manga including the filtering details is shown  & PASS  \\
     \hline
-    User\_12 & Update review & review: "I dont like this anime anymore" & The review is updated with the new one. &  &  \\
+    User\_12 & Like anime & - & The anime is liked & The anime is liked  & PASS \\
+    %unlike anime
+    User\_13 & Unlike anime & - & The like is removed from the anime & The like is removed from the anime  & PASS \\
     \hline
-    Admin\_01 & See users distribution analytics   & - &  &  &  \\
+    User\_14 & Add review to anime & review:"I like the anime"  & The review is added to the anime and displayed in the anime page  & The review is added to the anime and displayed in the anime page  & PASS \\
     \hline
-    Admin\_02 & See manga analytics for get average rating by month & Year:2020 & Average rating for each month in 2020 is displayed in the page &  &  \\
+    User\_15 & Update review & review: "I dont like this anime anymore" & The review is updated with the new one. & The review is updated with the new one.  & PASS \\
     \hline
-    Admin\_03 & See anime analytics for get trend media content by year &  &  &  &  \\
+    %update review without comment and rating
+    User\_16 & Update review without comment and rating & review: "" & The review is not updated. & The review is not updated.  & PASS \\
     \hline
-    Admin\_04 &  &  &  &  &  \\
+    %delete review
+    User\_17 & Delete review & - & The review is deleted. & The review is deleted.  & PASS \\
     \hline
-    Admin\_05 &  &  &  &  &  \\
+    Admin\_01 & See users distribution analytics   & Distribution type:gender,location, birthday,joined on & The distribution is shown  & The distribution is shown  & PASS  \\
+    \hline
+    Admin\_02 & See manga analytics to get average rating by month & Year:2020 & Average rating for each month in 2020 is displayed in the page & Average rating for each month in 2020 is displayed in the page  & PASS  \\
+    \hline
+    Admin\_03 & See anime analytics to get trend media content by year & Year:2023 & List of anime with a larger amount of likes is displayed & List of anime with a larger amount of likes is displayed  & PASS  \\
+    \hline
+    Admin\_04 & See anime analytics by criteria  & Analytics Type:tags  & The highest average ratings for the tags are shown  & The highest average ratings for the tags are shown & PASS \\
     \hline
 \end{longtable}
 

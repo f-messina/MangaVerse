@@ -204,17 +204,60 @@ class MediaContentServiceImplTest {
         try {
             UserService userService = ServiceLocator.getUserService();
 
-            String userId = userService.searchFirstNUsers("Mad", 1, null).getFirst().getId();
+            String userId = userService.searchFirstNUsers("Crystal", 1, null).getFirst().getId();
             System.out.println("User id: " + userId);
 
-            String animeId = mediaContentService.searchByTitle("\"Ai\" wo Taberu", 1, MediaContentType.ANIME).getEntries().getFirst().getId();
+            String animeId = mediaContentService.searchByTitle("\"Aesop\" no Ohanashi yori: Ushi to Kaeru, Yokubatta Inu", 1, MediaContentType.ANIME).getEntries().getFirst().getId();
             System.out.println("Anime id: " + animeId);
             mediaContentService.addLike(userId, animeId, MediaContentType.ANIME);
             System.out.println("Like added to anime");
 
-            String mangaId = mediaContentService.searchByTitle("Jujutsu Kaisen", 1, MediaContentType.MANGA).getEntries().getFirst().getId();
+            String mangaId = mediaContentService.searchByTitle("Kaguya-sama wa Kokurasetai: Tensai-tachi no Renai Zunousen", 1, MediaContentType.MANGA).getEntries().getFirst().getId();
             System.out.println("Manga id: " + mangaId);
             mediaContentService.addLike(userId, mangaId, MediaContentType.MANGA);
+            System.out.println("Like added to manga");
+
+            String userId1 = userService.searchFirstNUsers("Crystal", 1, null).getFirst().getId();
+
+            String animeId1 = mediaContentService.searchByTitle("18X", 1, MediaContentType.ANIME).getEntries().getFirst().getId();
+            mediaContentService.addLike(userId1, animeId1, MediaContentType.ANIME);
+            System.out.println("Like added to anime");
+
+            String mangaId1 = mediaContentService.searchByTitle("Neon Genesis Evangelion", 1, MediaContentType.MANGA).getEntries().getFirst().getId();
+            mediaContentService.addLike(userId1, mangaId1, MediaContentType.MANGA);
+            System.out.println("Like added to manga");
+
+            String animeId2 = mediaContentService.searchByTitle("Angel Beats! Stairway to Heaven", 1, MediaContentType.ANIME).getEntries().getFirst().getId();
+            mediaContentService.addLike(userId1, animeId2, MediaContentType.ANIME);
+            System.out.println("Like added to anime");
+
+            String mangaId2 = mediaContentService.searchByTitle("Given", 1, MediaContentType.MANGA).getEntries().getFirst().getId();
+            mediaContentService.addLike(userId1, mangaId2, MediaContentType.MANGA);
+            System.out.println("Like added to manga");
+
+
+            String animeId3 = mediaContentService.searchByTitle("AKB0048", 1, MediaContentType.ANIME).getEntries().getFirst().getId();
+            mediaContentService.addLike(userId1, animeId3, MediaContentType.ANIME);
+            System.out.println("Like added to anime");
+
+            String mangaId3 = mediaContentService.searchByTitle("Azumanga Daioh", 1, MediaContentType.MANGA).getEntries().getFirst().getId();
+            mediaContentService.addLike(userId1, mangaId3, MediaContentType.MANGA);
+            System.out.println("Like added to manga");
+
+            String animeId4 = mediaContentService.searchByTitle("Ai Yori Aoshi: Yumegatari", 1, MediaContentType.ANIME).getEntries().getFirst().getId();
+            mediaContentService.addLike(userId1, animeId4, MediaContentType.ANIME);
+            System.out.println("Like added to anime");
+
+            String mangaId4 = mediaContentService.searchByTitle("Natsume Yuujinchou", 1, MediaContentType.MANGA).getEntries().getFirst().getId();
+            mediaContentService.addLike(userId1, mangaId4, MediaContentType.MANGA);
+            System.out.println("Like added to manga");
+
+            String animeId5 = mediaContentService.searchByTitle("Aerover: Pinigseuui Buhwal", 1, MediaContentType.ANIME).getEntries().getFirst().getId();
+            mediaContentService.addLike(userId1, animeId5, MediaContentType.ANIME);
+            System.out.println("Like added to anime");
+
+            String mangaId5 = mediaContentService.searchByTitle("Kusuriya no Hitorigoto", 1, MediaContentType.MANGA).getEntries().getFirst().getId();
+            mediaContentService.addLike(userId1, mangaId5, MediaContentType.MANGA);
             System.out.println("Like added to manga");
 
             Thread.sleep(1000);
@@ -379,12 +422,17 @@ class MediaContentServiceImplTest {
 
             for(String animeId : animeIds) {
                 // Create a task which updates the number of likes in MongoDB
+                UpdateNumberOfLikesTask task = new UpdateNumberOfLikesTask(animeId, MediaContentType.ANIME, 1);
+                aperiodicExecutorTaskService.executeTask(task);
             }
 
             // Create a task which updates the number of likes in MongoDB
             for(String mangaId : mangaIds) {
                 // Create a task which updates the number of likes in MongoDB
+                UpdateNumberOfLikesTask task = new UpdateNumberOfLikesTask(mangaId, MediaContentType.MANGA, 1);
+                aperiodicExecutorTaskService.executeTask(task);
             }
+
 
             Thread.sleep(60000);
 
