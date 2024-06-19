@@ -1,9 +1,11 @@
 package it.unipi.lsmsd.fnf.config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import it.unipi.lsmsd.fnf.dao.exception.DAOException;
 import it.unipi.lsmsd.fnf.dao.mongo.BaseMongoDBDAO;
 import it.unipi.lsmsd.fnf.dao.neo4j.BaseNeo4JDAO;
-import it.unipi.lsmsd.fnf.dao.exception.DAOException;
-
 import it.unipi.lsmsd.fnf.service.ServiceLocator;
 import it.unipi.lsmsd.fnf.service.enums.ExecutorTaskServiceType;
 import it.unipi.lsmsd.fnf.service.interfaces.ExecutorTaskService;
@@ -11,9 +13,6 @@ import it.unipi.lsmsd.fnf.service.interfaces.TaskManager;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
 import jakarta.servlet.annotation.WebListener;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This class is used to initialize and destroy the application context.
@@ -46,6 +45,7 @@ public class AppServletContextListener implements ServletContextListener {
      *
      * @param sce       The ServletContextEvent
      */
+    @Override
     public void contextDestroyed(ServletContextEvent sce) {
         System.out.println("Application shutdown - Closing database connections.");
         closeConnections();

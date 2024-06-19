@@ -1,15 +1,14 @@
 package it.unipi.lsmsd.fnf.service.impl;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import java.util.logging.Logger;
+
 import it.unipi.lsmsd.fnf.service.exception.BusinessException;
 import it.unipi.lsmsd.fnf.service.exception.enums.BusinessExceptionType;
 import it.unipi.lsmsd.fnf.service.interfaces.Task;
 import it.unipi.lsmsd.fnf.service.interfaces.TaskManager;
-
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.logging.Logger;
-
-import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
  * Task manager that processes tasks from the task queue in a separate thread.
@@ -21,7 +20,6 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  */
 public class ErrorTaskManager extends TaskManager {
     private static final Logger logger = Logger.getLogger(ErrorTaskManager.class.getName());
-    private static volatile ErrorTaskManager instance = null;
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private Boolean isRunning;
 
@@ -32,20 +30,16 @@ public class ErrorTaskManager extends TaskManager {
 
     /**
      * Returns the singleton instance of ErrorTaskManager.
-     * If the instance is null, it is created in a thread-safe manner using double-checked locking.
+     * This method is thread-safe.
      *
      * @return      the singleton instance of ErrorTaskManager
      */
-    public static ErrorTaskManager getInstance() {
-        if (instance == null) {
-            synchronized (ErrorTaskManager.class) {
-                if (instance == null) {
-                    instance = new ErrorTaskManager();
-                }
-            }
-        }
-
-        return instance;
+    public static TaskManager getInstance() {
+        return ErrorTaskManagerHolder.INSTANCE;
+    }
+    
+    private static class ErrorTaskManagerHolder {
+        private static final ErrorTaskManager INSTANCE = new ErrorTaskManager();
     }
 
     /**
