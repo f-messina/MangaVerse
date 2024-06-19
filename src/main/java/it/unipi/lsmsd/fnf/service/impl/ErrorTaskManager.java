@@ -20,6 +20,7 @@ import it.unipi.lsmsd.fnf.service.interfaces.TaskManager;
  */
 public class ErrorTaskManager extends TaskManager {
     private static final Logger logger = Logger.getLogger(ErrorTaskManager.class.getName());
+    private static volatile ErrorTaskManager instance = null;
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private Boolean isRunning;
 
@@ -30,16 +31,20 @@ public class ErrorTaskManager extends TaskManager {
 
     /**
      * Returns the singleton instance of ErrorTaskManager.
-     * This method is thread-safe.
+     * If the instance is null, it is created in a thread-safe manner using double-checked locking.
      *
      * @return      the singleton instance of ErrorTaskManager
      */
-    public static TaskManager getInstance() {
-        return ErrorTaskManagerHolder.INSTANCE;
-    }
-    
-    private static class ErrorTaskManagerHolder {
-        private static final ErrorTaskManager INSTANCE = new ErrorTaskManager();
+    public static ErrorTaskManager getInstance() {
+        if (instance == null) {
+            synchronized (ErrorTaskManager.class) {
+                if (instance == null) {
+                    instance = new ErrorTaskManager();
+                }
+            }
+        }
+
+        return instance;
     }
 
     /**

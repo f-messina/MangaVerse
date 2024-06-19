@@ -384,6 +384,38 @@ package structure of Service module is as follows:
 \section{Adopted Patterns and Techniques}
 \subsection*{Patterns}
 
+\textbf{MVC Pattern}
+
+The MVC (\textit{Model-View-Controller}) pattern is a prevalent architectural pattern in software development, 
+especially in web applications. It divides the application into three interconnected components:
+
+\begin{itemize}
+  \item \textbf{Model:} Represents the core data and business logic of the application. It interfaces with 
+  databases and processes data manipulation and business rules.
+  
+  \item \textbf{View:} Handles the presentation layer of the application. It's responsible for rendering data 
+  to users and transmitting user interactions to the controller.
+  
+  \item \textbf{Controller:} Acts as an intermediary between the model and view components. It receives user 
+  input, processes requests, and updates the model state accordingly. It then triggers updates to the view to reflect these changes.
+\end{itemize}
+
+The MVC pattern emphasizes separation of concerns, enhancing modularity, maintainability, and testability of the 
+application. It supports diverse views for the same data and facilitates independent development of different 
+application components by separate teams.
+
+\textbf{Locator Pattern}
+
+The Locator design pattern manages dependencies and interactions between modules in software applications. It 
+decouples operations by enabling clients to request implementations from a locator, rather than directly instantiating 
+implementation classes. This promotes flexibility and modularity in the application's architecture.
+
+\textbf{Singleton Pattern}
+
+The Singleton pattern ensures that a class has a single instance and provides a global point of access to it. It's 
+employed in scenarios where multiple components require access to a shared resource, such as database connections, 
+while preventing redundant object creation and optimizing resource usage.
+
 \subsection*{Techniques}
 
 \textbf{Task Manager:}\\

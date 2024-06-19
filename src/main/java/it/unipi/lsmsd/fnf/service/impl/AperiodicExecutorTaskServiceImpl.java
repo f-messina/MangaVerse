@@ -21,30 +21,34 @@ import it.unipi.lsmsd.fnf.service.interfaces.TaskManager;
  * @see TaskManager
  */
 public class AperiodicExecutorTaskServiceImpl implements ExecutorTaskService {
+    private static volatile ExecutorTaskService instance = null;
     private final ExecutorService executorService;
     private final TaskManager taskManager;
-    private static final Logger logger = Logger.getLogger(AperiodicExecutorTaskServiceImpl.class.getName());
+    Logger logger = Logger.getLogger(AperiodicExecutorTaskServiceImpl.class.getName());
 
-    private AperiodicExecutorTaskServiceImpl() {
+    private AperiodicExecutorTaskServiceImpl(TaskManager taskManager) {
         executorService = Executors.newFixedThreadPool(10);
-        this.taskManager = ErrorTaskManager.getInstance();
+        this.taskManager = taskManager;
     }
 
     /**
      * Returns the singleton instance of AperiodicExecutorTaskServiceImpl.
+     * If the instance is null, it creates a new one.
      * This method is thread-safe.
      *
      * @param taskManager       The TaskManager to be used by the ExecutorTaskService.
      * @return                  The singleton instance of ExecutorTaskService.
      */
-    public static ExecutorTaskService getInstance() {
-        return InstanceHolder.INSTANCE;
+    public static ExecutorTaskService getInstance(TaskManager taskManager) {
+        if (instance == null) {
+            synchronized (AperiodicExecutorTaskServiceImpl.class) {
+                if (instance == null) {
+                    instance = new AperiodicExecutorTaskServiceImpl(taskManager);
+                }
+            }
+        }
+        return instance;
     }
-
-    private static class InstanceHolder {
-        private static final ExecutorTaskService INSTANCE = new AperiodicExecutorTaskServiceImpl();
-    }
-    
 
     /**
      * Starts the executor service.
