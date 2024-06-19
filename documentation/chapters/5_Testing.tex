@@ -9,20 +9,141 @@ guarantees that the methods are working as expected.JUnit testing framework is u
 different modules of the application such as DAOs and services. With that process each methods efficiency and correctness is guaranteed. 
 Some examples of JUnit testing are shown below.\\ \\
 
-%%TODO: change the pictures with better ones
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=\linewidth]{Media/test_example_1.png}
-    \caption{MangaDAOMongoImpl Class Test Example}
-    \label{MangaDAOMongoImpl Class Test Example}
-\end{figure}
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=\linewidth]{Media/test_example_2.png}
-    \caption{UserServiceImpl Class Test Example}
-    \label{UserServiceImpl Class Test Example}
-\end{figure}
+\textbf{Example code snippet from AnimeDAOMongoImplTest:}
+\begin{mdframed}[backgroundcolor=yellow!20, innerleftmargin=10pt, innerrightmargin=10pt]
+    \begin{lstlisting}[language=java]
+class AnimeDAOMongoImplTest {
+
+@BeforeEach
+public void setUp() throws Exception {
+    BaseMongoDBDAO.openConnection();
+}
+
+@AfterEach
+public void tearDown() throws Exception {
+    BaseMongoDBDAO.closeConnection();
+}
+// test 1 : search for an anime by name
+// test 2 : search for an anime by filters
+@Test
+void searchTest() {
+    AnimeDAOMongoImpl animeDAO = new AnimeDAOMongoImpl();
+
+    // test 1
+    System.out.println("Search by title");
+    assertDoesNotThrow(() -> {
+        List<MediaContentDTO> animeList = animeDAO.search(List.of(Pair.of("title", "Attack on Titan")), Map.of("title", 1), 1, false).getEntries();
+        for (MediaContentDTO anime : animeList) {
+            System.out.println("Id: " + anime.getId() + ", Title: " + anime.getTitle());
+        }
+    });
+
+    // test 2
+    System.out.println("Search by filters");
+    assertDoesNotThrow(() -> {
+        for (int i = 1; i < 5; i++) {
+            PageDTO<MediaContentDTO> animePage = animeDAO.search(List.of(Pair.of("$in",Map.of("tags", List.of("school clubs", "manwha")))), Map.of("title", 1), i, false);
+            if (!animePage.getEntries().isEmpty()) {
+                for (MediaContentDTO anime : animePage.getEntries()) {
+                    System.out.println("Id: " + anime.getId() + ", Title: " + anime.getTitle());
+                }
+            }
+
+        }
+    });
+}
+}
+    \end{lstlisting}
+\end{mdframed}
+
+\textbf{Example code snippet from Neo4jDAOImplTest:}
+\begin{mdframed}[backgroundcolor=yellow!20, innerleftmargin=10pt, innerrightmargin=10pt]
+    \begin{lstlisting}[language=java]
+public class Neo4JDAOImplTest{
+
+@BeforeEach
+public void setUp() throws Exception {
+    BaseMongoDBDAO.openConnection();
+    BaseNeo4JDAO.openConnection();
+}
+
+@AfterEach
+public void tearDown() throws DAOException {
+    BaseMongoDBDAO.closeConnection();
+    BaseNeo4JDAO.closeConnection();
+}
+@Test
+public void testFollowUser() throws DAOException {
+    try {
+        UserDAONeo4JImpl neo4JDAO = new UserDAONeo4JImpl();
+        neo4JDAO.follow("6577877be68376234760585a", "6577877be683762347605859");
+    } catch (DAOException e) {
+        fail("Exception not expected: " + e.getMessage());
+    }
+
+}
+
+@Test
+public void testUnlikeAnime() throws DAOException {
+    try {
+        AnimeDAONeo4JImpl dao = new AnimeDAONeo4JImpl();
+        dao.unlike("6577877be68376234760585f","65789bb52f5d29465d0abd09");
+    } catch (DAOException e) {
+        fail("Exception not expected: " + e.getMessage());
+    }
+
+}
+}
+    \end{lstlisting}
+\end{mdframed}
+
+
+\textbf{Example code snippet from ReviewServiceImpl:}
+\begin{mdframed}[backgroundcolor=yellow!20, innerleftmargin=10pt, innerrightmargin=10pt]
+    \begin{lstlisting}[language=java]
+class ReviewServiceImplTest {
+    private static final ExecutorTaskService aperiodicTaskService = ServiceLocator.getExecutorTaskService(ExecutorTaskServiceType.APERIODIC);
+    private static final TaskManager errorTaskManager = ServiceLocator.getErrorsTaskManager();
+    @BeforeEach
+    public void setUp() throws Exception {
+        BaseMongoDBDAO.openConnection();
+        BaseNeo4JDAO.openConnection();
+        aperiodicTaskService.start();
+        errorTaskManager.start();
+    }
+
+    @AfterEach
+    public void tearDown() throws Exception {
+        BaseMongoDBDAO.closeConnection();
+        BaseNeo4JDAO.closeConnection();
+        aperiodicTaskService.stop();
+        errorTaskManager.stop();
+    }
+    @Test
+    void updateReview() {
+        ReviewServiceImpl reviewService = new ReviewServiceImpl();
+        try {
+            ReviewDTO reviewAnime = createSampleAnimeReview();
+            assertDoesNotThrow(() -> reviewService.addReview(reviewAnime));
+            reviewAnime.setComment("This is an updated test review");
+            reviewAnime.setRating(4);
+            assertDoesNotThrow(() -> reviewService.updateReview(reviewAnime));
+            System.out.println("Anime review updated: " + reviewAnime);
+
+            ReviewDTO reviewManga = createSampleMangaReview();
+            assertDoesNotThrow(() -> reviewService.addReview(reviewManga));
+            reviewManga.setComment("This is an updated test review");
+            reviewManga.setRating(4);
+            assertDoesNotThrow(() -> reviewService.updateReview(reviewManga));
+            System.out.println("Manga review updated: " + reviewManga);
+        } catch (BusinessException e) {
+            fail(e);
+        }
+    }
+}
+    \end{lstlisting}
+\end{mdframed}
 
 \newpage
 
@@ -31,50 +152,166 @@ Functional testing also with other name black-box testing is based on testing th
 perspective. It ensures that specified requirements are provided efficiently by the web application and expected is outcome is created. 
 With the help of the use cases and real world scenarios, functional testing is conducted. Some examples of functional testing are shown below.
 
-\begin{table}[ht!]
-    \centering
-    \caption{Admin Test case}
-    \begin{tabularx}{\textwidth}{|c|>{\RaggedRight}p{2.2cm}|>{\RaggedRight}X|>{\RaggedRight}p{2.7cm}|>{\RaggedRight}p{1.98cm}|>{\RaggedRight}p{1.5cm}|}
-        \hline
-        \textbf{Id} & \textbf{Description} & \textbf{Input} & \textbf{Expected Output} & \textbf{Output} & \textbf{Outcome} \\
-        \hline
-        User\_01 & Login with correct information & email: nmiller@example.com, password: f6d6b3ffecb44a... & The user logs in successfully &  &  \\
-        \hline
-        User\_02 & Login with wrong information  & email: wrong@example.com, password: wrong  & The user is not able to log in successfully &  &  \\
-        \hline
-        User\_03  & Signup with all the mandatory info are filled &  &  &  &  \\
-        \hline
-        User\_04  & Signup with missing info &  &  &  &  \\
-        \hline
-        User\_05 & Update user information & description: manga lover & User profile is updated with new info.  &  &  \\
-        \hline
-        User\_06 & Follow another user & - & User is followed.  &  &  \\
-        \hline
-        User\_07 & Unfollow another user & - & User is unfollowed. &  &  \\
-        \hline
-        User\_08 & Search manga by title & title: "Slam Dunk"  & The list of manga which includes the words of "Slam Dunk" is shown.  &  &  \\
-        \hline
-        User\_09 & Search manga by detailed filtering &  &  &  &  \\
-        \hline
-        User\_10 & Like anime & - & The anime is liked &  &  \\
-        \hline
-        User\_11 & Add review to anime & review:"I like the anime"  & The review is added to the anime and displayed in the anime page  &  &  \\
-        \hline
-        User\_12 & Update review & review: "I dont like this anime anymore" & The review is updaated with the new one. &  &  \\
-        \hline
-        Admin\_01 & See users distribution analytics   & - &  &  &  \\
-        \hline
-        Admin\_02 & See manga analytics for get average rating by month & Year:2020 & Average rating for each month in 2020 is displayed in the page &  &  \\
-        \hline
-        Admin\_03 & See anime analytics for get trend media content by year &  &  &  &  \\
-        \hline
-        Admin\_04 &  &  &  &  &  \\
-        \hline
-        Admin\_05 &  &  &  &  &  \\
-        \hline
-        %\multirow{2}{*}{A\_T\_07} & \multirow{2}{2.2cm}{Search } & Write  & \multirow{2}{\linewidth}{Show the list} & List  & Passed \\
-        %\hline
-        %\multirow{2}{*}{A\_T\_08} & \multirow{2}{2.2cm}{Search } & Write & \multirow{2}{\linewidth}{Show the list } & List   & Passed \\
-        %\hline
-    \end{tabularx}
-\end{table}
+
+
+\begin{longtable}{|c|>{\RaggedRight}p{2cm}|>{\RaggedRight}p{3.5cm}|>{\RaggedRight}p{3cm}|>{\RaggedRight}p{2cm}|>{\RaggedRight}p{2cm}|}
+    \caption{Functional Test Cases} \\
+    \hline
+    \textbf{Id} & \textbf{Description} & \textbf{Input} & \textbf{Expected Output} & \textbf{Output} & \textbf{Outcome} \\
+    \hline
+    \endfirsthead
+
+    \hline
+    \textbf{Id} & \textbf{Description} & \textbf{Input} & \textbf{Expected Output} & \textbf{Output} & \textbf{Outcome} \\
+    \hline
+    \endhead
+
+    \hline
+    \endfoot
+
+    \hline
+    \endlastfoot
+
+    User\_01 & Login with correct information & email: nmiller@example.com, password: f6d6b3ffecb44a... & The user logs in successfully &  &  \\
+    \hline
+    User\_02 & Login with wrong information  & email: wrong@example.com, password: wrong  & The user is not able to log in successfully &  &  \\
+    \hline
+    User\_03  & Signup with all the mandatory info are filled &  &  &  &  \\
+    \hline
+    User\_04  & Signup with missing info &  &  &  &  \\
+    \hline
+    User\_05 & Update user information & description: manga lover & User profile is updated with new info.  &  &  \\
+    \hline
+    User\_06 & Follow another user & - & User is followed.  &  &  \\
+    \hline
+    User\_07 & Unfollow another user & - & User is unfollowed. &  &  \\
+    \hline
+    User\_08 & Search manga by title & title: "Slam Dunk"  & The list of manga which includes the words of "Slam Dunk" is shown.  &  &  \\
+    \hline
+    User\_09 & Search manga by detailed filtering &  &  &  &  \\
+    \hline
+    User\_10 & Like anime & - & The anime is liked &  &  \\
+    \hline
+    User\_11 & Add review to anime & review:"I like the anime"  & The review is added to the anime and displayed in the anime page  &  &  \\
+    \hline
+    User\_12 & Update review & review: "I dont like this anime anymore" & The review is updated with the new one. &  &  \\
+    \hline
+    Admin\_01 & See users distribution analytics   & - &  &  &  \\
+    \hline
+    Admin\_02 & See manga analytics for get average rating by month & Year:2020 & Average rating for each month in 2020 is displayed in the page &  &  \\
+    \hline
+    Admin\_03 & See anime analytics for get trend media content by year &  &  &  &  \\
+    \hline
+    Admin\_04 &  &  &  &  &  \\
+    \hline
+    Admin\_05 &  &  &  &  &  \\
+    \hline
+\end{longtable}
+
+
+
+\section{Performance Testing}
+
+Performance testing is conducted to ensure that MangaVerse web application is able to handle the 
+a high volume of operations efficiently and provides a smooth experience for users. 
+It is important to test the application's performance to ensure that it 
+can handle the expected load. Performance testing is applied on MongoDB and Neo4j databases.
+Specifically, the aim of the performance testing is to see the impacts of indexing on CRUD operations
+and aggregation operations. 
+
+\subsection*{MongoDB Performance Testing}
+Indexes are used in MongoDB to improve the performance of queries. Indexes are used to quickly locate data without having to search every document in a collection.
+This limiting the search with indexes, results can get with faster response time.
+For the mongoDB performance testing, \textit{username} is used to indexing Users collection and \textit{title} is
+used to indexing Anime and Manga collections. The tests are conducted for creating new documents, searching for documents and aggregating documents.
+As it can be shown in the table below, there are significant improvement in operation times with indexing, especially for search and aggregation tasks
+
+\begin{longtable}{@{}llcccc@{}}
+\caption{MongoDB Performance Test Results} \\
+\toprule
+\textbf{Collection} & \textbf{Operation} & \textbf{Index} & \textbf{Time (ms)} & \textbf{Total Keys Examined} & \textbf{Total Docs Examined} \\ \midrule
+\endfirsthead
+
+\multicolumn{6}{c}%
+{{\tablename\ \thetable{} -- continued from previous page}} \\
+\toprule
+\textbf{Collection} & \textbf{Operation} & \textbf{Index} & \textbf{Time (ms)} & \textbf{Total Keys Examined} & \textbf{Total Docs Examined} \\ \midrule
+\endhead
+
+\midrule \multicolumn{6}{r}{{Continued on next page}} \\ \bottomrule
+\endfoot
+
+\bottomrule
+\endlastfoot
+
+\multirow{6}{*}{Users}
+ & Insert & No & 3 & - & - \\
+ & Search & No & 17 & 0 & 10007 \\
+ & Aggregate & No & 20 & 0 & 10007 \\
+ & Insert & Yes & 5 & - & - \\
+ & Search & Yes & 5 & 1 & 1 \\
+ & Aggregate & Yes & 18 & 1 & 0 \\ \midrule
+
+\multirow{6}{*}{Anime}
+ & Insert & No & 3 & - & - \\
+ & Search & No & 88 & 0 & 30113 \\
+ & Aggregate & No & 32 & 0 & 30113 \\
+ & Insert & Yes & 3 & - & - \\
+ & Search & Yes & 10 & 0 & 0 \\
+ & Aggregate & Yes & 9 & 0 & 0 \\ \midrule
+
+\multirow{6}{*}{Manga}
+ & Insert & No & 3 & - & - \\
+ & Search & No & 141 & 0 & 41677 \\
+ & Aggregate & No & 28 & 0 & 41677 \\
+ & Insert & Yes & 3 & - & - \\
+ & Search & Yes & 10 & 1 & 1 \\
+ & Aggregate & Yes & 12 & 1 & 0 \\
+
+\end{longtable}
+
+\subsection*{Neo4j Performance Testing}
+
+Similarly, also for Neo4j database, performance testing is conducted to observe the impacts of indexing on some CRUD operations.
+Indexing with ids is used for both anime, manga and users nodes. The tests are conducted for creating new nodes and searching for nodes.
+The test result in the table below shows that indexing has a significant impact on operations in Neo4j database especially for search.
+Indexing time decreases with using indexes for search tasks because it prevents to check all the nodes in the database.
+
+\begin{longtable}{@{}llllr@{}}
+    \caption{Neo4j Performance Test Results} \\
+    \toprule
+    \textbf{Collection} & \textbf{Operation} & \textbf{Index} & \textbf{Time (ms)} \\ \midrule
+    \endfirsthead
+    
+    \multicolumn{4}{c}%
+    {{\tablename\ \thetable{} -- continued from previous page}} \\
+    \toprule
+    \textbf{Collection} & \textbf{Operation} & \textbf{Index} & \textbf{Time (ms)} \\ \midrule
+    \endhead
+    
+    \midrule \multicolumn{4}{r}{{Continued on next page}} \\ \bottomrule
+    \endfoot
+    
+    \bottomrule
+    \endlastfoot
+    
+    \multirow{4}{*}{Anime}
+     & Insert & No  & 5 \\
+     & Insert & Yes & 5\\
+     & Search & No  & 45 \\
+     & Search & Yes & 2\\ \midrule
+    
+    \addlinespace
+    \multirow{4}{*}{Manga}
+     & Insert & No  & 7 \\
+     & Insert & Yes & 5 \\
+     & Search & No  & 46 \\
+    & Search & Yes & 9 \\ \midrule
+    
+    \addlinespace
+    \multirow{4}{*}{Users}
+     & Insert & No  & 56 \\
+     & Insert & Yes & 9\\
+     & Search & No  & 40 \\
+     & Search & Yes & 3 \\
+    \end{longtable}
