@@ -634,9 +634,9 @@ public Map<String, Integer> getDistribution(String criteria) throws DAOException
     \item Mongo Shell Query:
 \end{itemize}
 \begin{lstlisting}[language=JavaScript]
-    // Match stage to filter documents where 'criteriaOfSearch' exists
     db.collection.aggregate([
         {
+            // Match stage to filter documents where 'criteriaOfSearch' exists
             $match: {
                 [criteriaOfSearch]: { $exists: true }
             }
@@ -707,6 +707,8 @@ Calculates the average application rating based on the specified search criteria
     \begin{lstlisting}[language=JavaScript]
 db.getCollection.aggregate([
     { 
+        // Match stage: Filters documents to include only those that 
+        // have both the specified 'criteria' field and 'app_rating' field.
         $match: { 
                 $and: [
                 { [criteria]: { $exists: true } },
@@ -715,12 +717,15 @@ db.getCollection.aggregate([
         } 
     },
     { 
+        // Group stage: Groups the filtered documents by the 'criteria' field.
+        // Calculates the average value of 'app_rating' for each group.
         $group: { 
             _id: "$" + criteria, 
             averageAppRating: { $avg: "$app_rating" }
         } 
     },
     { 
+        // Sort stage: Sorts the groups in descending order by 'averageAppRating'.
         $sort: { 
             averageAppRating: -1 
         } 
@@ -795,6 +800,8 @@ public Map<String, Double> averageAppRatingByAgeRange() throws DAOException {
 \begin{lstlisting}[language=JavaScript]
 db.getCollection('COLLECTION_NAME').aggregate([
     { 
+        // Match stage: Filters documents to include only those that 
+        // have both the 'birthday' field and 'app_rating' field.
         $match: { 
             $and: [
                 { birthday: { $exists: true } }, 
@@ -803,6 +810,10 @@ db.getCollection('COLLECTION_NAME').aggregate([
         } 
     },
     { 
+        // Project stage: Adds a new field 'age' calculated by subtracting 
+        // the 'birthday' from the current date, converting the difference 
+        // from milliseconds to years, and taking the floor of the result.
+        // Also includes the 'app_rating' field.
         $project: { 
             age: { 
                 $floor: { 
@@ -816,6 +827,10 @@ db.getCollection('COLLECTION_NAME').aggregate([
         } 
     },
     { 
+        // Bucket stage: Groups the documents into buckets based on the 'age' field.
+        // Specifies boundaries for the buckets and assigns documents with an age 
+        // outside these boundaries to the default bucket (50+ years).
+        // For each bucket, calculates the average value of 'app_rating'.
         $bucket: {
             groupBy: "$age",
             boundaries: [0, 13, 20, 30, 40, 50],
@@ -900,29 +915,35 @@ public Map<String, Double> getMediaContentRatingByYear(MediaContentType type, St
 // Match stage to filter documents based on specified conditions
 db.collection.aggregate([
     {
+        // Filters documents to include only those where:
+        // 1. The nested 'id' field under 'nodeType' matches the specified 'mediaContentId'.
+        // 2. The 'rating' field exists.
+        // 3. The 'date' field is within the specified date range (startDate to endDate).
         $match: {
             [`${nodeType}.id`]: new ObjectId(mediaContentId),
             rating: { $exists: true },
             date: { $gte: startDate, $lt: endDate }
         }
     },
-    // Group stage to group documents by year and calculate the average rating
     {
+        // Groups the filtered documents by year extracted from the 'date' field.
+        // Calculates the average value of 'rating' for each year.
         $group: {
             _id: { $year: "$date" },
             average_rating: { $avg: "$rating" }
         }
     },
-    // Project stage to shape the output documents
     {
+        // Projects the result to include the 'year' and 'average_rating' fields,
+        // excluding the '_id' field.
         $project: {
             _id: 0,
             year: "$_id",
             average_rating: 1
         }
     },
-    // Sort stage to sort documents by year in ascending order
     {
+        // Sort stage to sort documents by year in ascending order
         $sort: { year: 1 }
     }
 ]);
@@ -993,22 +1014,31 @@ public Map<String, Double> getMediaContentRatingByMonth(MediaContentType type, S
 \begin{lstlisting}[language=JavaScript]
 db.getCollection.aggregate([
     { 
+        // Match stage: Filters documents to include only those that meet the specified conditions.
         $match: { 
             $and: [
+                // Includes documents where the nested 'id' field under 'nodeType' matches 'mediaContentId'.
                 { [nodeType + ".id"]: mediaContentId },
+                // Includes documents where the 'rating' field exists.
                 { rating: { $exists: true } },
+                // Includes documents where the 'date' field is greater than or equal to 'startDate'.
                 { date: { $gte: startDate } },
+                // Includes documents where the 'date' field is less than 'endDate'.
                 { date: { $lt: endDate } }
             ]
         } 
     },
     { 
+        // Group stage: Groups the filtered documents by the month extracted from the 'date' field.
+        // Calculates the average value of 'rating' for each month.
         $group: { 
             _id: { $month: "$date" },
             average_rating: { $avg: "$rating" }
         } 
     },
     { 
+        // Project stage: Shapes the output documents to include 'month' and 'average_rating' fields.
+        // Excludes the '_id' field.
         $project: { 
             _id: 0,
             month: "$_id",
@@ -1016,6 +1046,7 @@ db.getCollection.aggregate([
         } 
     },
     { 
+        // Sort stage: Sorts the documents by 'month' in ascending order.
         $sort: { 
             month: 1 
         } 
@@ -1098,12 +1129,15 @@ public List<MediaContentDTO> suggestMediaContent(MediaContentType mediaContentTy
 db.collection.aggregate([
     {
         // Match documents based on a dynamic user criteria
+        // It dynamically matches documents where a field in the 'user' object 
+        // (specified by 'criteriaType') has the value 'criteriaValue'.
         $match: {
         ["user." + criteriaType]: criteriaValue
         }
     },
     {
-        // Group documents by node type ID and calculate the first title and average rating
+        // Group stage: Groups documents by the node type's ID.
+        // For each group, it retrieves the first title and calculates the average rating.
         $group: {
         _id: "$" + nodeType + ".id", // Group by the node type's ID
         title: { $first: "$" + nodeType + ".title" }, // Get the first title in the group
@@ -1111,11 +1145,11 @@ db.collection.aggregate([
         }
     },
     {
-        // Sort the grouped documents by average rating in descending order
+        // Sort stage: Sorts the grouped documents by average rating in descending order.
         $sort: { average_rating: -1 }
     },
     {
-        // Limit the number of results to the page size constant
+        // Limit stage: Limits the number of results to a constant defined by 'Constants.PAGE_SIZE'.
         $limit: Constants.PAGE_SIZE
     }
     ]);
@@ -1189,7 +1223,9 @@ db.collection.aggregate([
     // Group stage to calculate the average rating for each criteria
     {
         $group: {
+            // Group by each individual 'criteria' element
             _id: "$" + criteria,
+            // Calculate the average rating for each 'criteria'
             criteria_average_rating: { $avg: "$average_rating" }
         }
     },
@@ -1319,12 +1355,19 @@ public List<UserSummaryDTO> suggestUsersByCommonLikes(String userId, Integer lim
     \item Neo4j Query:
 \end{itemize}
 \begin{lstlisting}[language=Cypher]
+// Match the user with the given userId who has liked media of type Manga
 MATCH (u:User {id: $userId})-[r:LIKE]->(media:Manga)<-[:LIKE]-(suggested:User) 
+// Filter out the original user from the suggested users and only consider likes after the specified date
 WHERE u <> suggested AND r.date >= $date
+// Pass the suggested users and count of distinct media liked by both users to the next stage
 WITH suggested, COUNT(DISTINCT media) AS commonLikes
+// Filter out users with common likes less than or equal to the minimum threshold
 WHERE commonLikes > $min
+// Return the suggested users and the count of common likes
 RETURN suggested AS user, commonLikes
+// Order the results by the count of common likes in descending order
 ORDER BY commonLikes DESC
+// Limit the number of results to the specified maximum
 LIMIT $n
 \end{lstlisting}
 \textbf{Suggest Users By Common Followings}\\
@@ -1423,12 +1466,19 @@ public List<UserSummaryDTO> suggestUsersByCommonFollowings(String userId, Intege
     \item Neo4j Query:
 \end{itemize}
 \begin{lstlisting}[language=Cypher]
+// Match the user with the given userId who follows other users
 MATCH (u:User {id: $userId})-[:FOLLOWS]->(following:User)<-[:FOLLOWS]-(suggested:User) 
+// Ensure that the suggested user is not already followed by the original user and they are not the same user
 WHERE NOT (u)-[:FOLLOWS]->(suggested) AND u <> suggested 
+// Calculate the count of distinct users that both the original user and suggested user follow
 WITH suggested, COUNT(DISTINCT following) AS commonFollowers 
+// Filter out suggested users who have less than or equal to 5 common followers
 WHERE commonFollowers > 5 
+// Return the suggested users along with the count of common followers
 RETURN suggested as user, commonFollowers 
+// Order the results by the count of common followers in descending order
 ORDER BY commonFollowers DESC 
+// Limit the number of results to the specified maximum
 LIMIT $n
 \end{lstlisting}
 
@@ -1480,12 +1530,16 @@ public Map<MediaContentDTO, Integer> getTrendMediaContentByYear(int year, Intege
     \item Neo4j Query:
 \end{itemize}
 \begin{lstlisting}[language=Cypher]
+// Match Anime nodes that are liked by Users, with a LIKE relationship and a date constraint
 MATCH (a:Anime)<-[r:LIKE]-(u:User)
 WHERE r.date >= $startDate AND r.date < $endDate
+// Aggregate the results to count the number of likes for each Anime node
 WITH a, count(r) AS numLikes
+// Order the Anime nodes by the number of likes in descending order
 ORDER BY numLikes DESC
+// Return the Anime node and the number of likes, limiting the results to the specified maximum
 RETURN a AS anime, numLikes
-LIMIT $n
+LIMIT $n    
 \end{lstlisting}
 \textbf{Get Media Content Trend By Likes}\\
 Retrieves a list of trending MangaDTO objects by likes from the Neo4j database.
@@ -1575,10 +1629,14 @@ public List<MediaContentDTO> getMediaContentTrendByLikes(Integer limit) throws D
     \item Neo4j Query:
 \end{itemize}
 \begin{lstlisting}[language=Cypher]
+// Match User nodes who have liked Anime nodes with a LIKE relationship and date constraint
 MATCH (u:User)-[r:LIKE]->(a:Anime)
 WHERE r.date >= $startDate
+// Aggregate the results to count the number of LIKE relationships for each Anime node
 WITH a, COUNT(r) AS numLikes
+// Order the Anime nodes by the number of likes in descending order
 ORDER BY numLikes DESC
+// Return the Anime node and the number of likes, limiting the results to the specified maximum
 RETURN a AS anime, numLikes
 LIMIT $n
 \end{lstlisting}
@@ -1669,12 +1727,18 @@ public List<MediaContentDTO> getSuggestedByFollowings(String userId, Integer lim
     \item Neo4j Query:
 \end{itemize}
 \begin{lstlisting}[language=Cypher]
+// Match the User node with the specified userId who follows other User nodes,
+// and those followed Users who have liked Anime nodes with a LIKE relationship and date constraint.
 MATCH (u:User {id: $userId})-[:FOLLOWS]->(f:User)-[r:LIKE]->(a:Anime)
+// Ensure that the User does not directly like the Anime and that the LIKE relationship's date is within the specified range.
 WHERE NOT (u)-[:LIKE]->(a) AND r.date >= $startDate
+// Aggregate the results to count the number of distinct Users who have liked each Anime node.
 WITH a, COUNT(DISTINCT f) AS num_likes
+// Return the Anime node, ordered by the number of likes in descending order.
 RETURN a AS anime
 ORDER BY num_likes DESC
-LIMIT $n
+// Limit the number of results returned to the specified maximum.
+LIMIT $n    
 \end{lstlisting}
 \textbf{Get Suggested By Likes}\\
 Retrieves a list of suggested MangaDTO objects for a user from the Neo4j database.
@@ -1771,17 +1835,25 @@ public List<MediaContentDTO> getSuggestedByLikes(String userId, Integer limit) t
     \item Neo4j Query:
 \end{itemize}
 \begin{lstlisting}[language=Cypher]
+// Match the User node with the specified userId who likes Anime nodes (r1) and those Anime nodes are liked by other Users (f).
 MATCH (u:User {id: $userId})-[r1:LIKE]->(a:Anime)<-[:LIKE]-(f:User)
+// Ensure that the User's LIKE relationship's date is within the specified range.
 WHERE r1.date >= $startDate
+// Aggregate the results to count the number of common Anime nodes liked by both the User (u) and other Users (f).
 WITH u, f, COUNT(a) AS common_likes
+// Order the results by the number of common likes in descending order and limit to 20 results.
 ORDER BY common_likes DESC
 LIMIT 20
+// Match Users (f) who like Anime nodes (a2) that are not liked by the User (u).
 MATCH (f)-[:LIKE]->(a2:Anime)
 WHERE NOT (u)-[:LIKE]->(a2)
+// Aggregate the results to count the number of distinct Users (f) who like each Anime node (a2).
 WITH a2, COUNT(DISTINCT f) AS num_likes
+// Return the Anime node (a2) ordered by the number of likes by distinct Users (num_likes) in descending order.
 RETURN a2 AS anime
 ORDER BY num_likes DESC
-LIMIT $n
+// Limit the number of Anime nodes returned to the specified maximum ($n).
+LIMIT $n    
 \end{lstlisting}
 
 
