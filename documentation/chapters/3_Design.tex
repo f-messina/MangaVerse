@@ -30,42 +30,69 @@ The database will have the following collections:
 Anime:
 \begin{mdframed}[backgroundcolor=yellow!20, innerleftmargin=10pt, innerrightmargin=10pt]
     \begin{lstlisting}[language=java]
-      {
-        "_id": "65789bb52f5d29465d0abcfc",
-        "title": "\"Aesop\" no Ohanashi yori: Ushi to Kaeru, Yokubatta Inu",
-        "type": "MOVIE",
-        "episodes": 1,
-        "status": "FINISHED",
-        "picture": "https://cdn.myanimelist.net/images/anime/3/65151.jpg",
-        "tags": [
-          "family friendly",
-          "fantasy",
-          "frogs",
-          "kids"
-        ],
-        "synopsis": "Based on Aesop's Fables.",
-        "latest_reviews": [
-          {
-            "id": "657ed1b40481d3954cf8d69c",
-            "comment": "Struggles to maintain interest; fails to captivate.",
-            "date": "2022-04-11T22:00:00.000+00:00",
-            "user": {
-              "id": "6577877ce683762347607f42",
-              "username": "dreadstuff",
-              "picture": "https://imgbox.com/7MaTkBQR"
-            }
-          }
-        ],
-        "anime_season": {
-          "season": "WINTER",
-          "year": 1970,
-          "average_rating": 4.5,
-          "avg_rating_last_update": true
+  {
+  "_id": {
+    "$oid": "65789bb52f5d29465d0abcfc"
+  },
+  "title": "\"Aesop\" no Ohanashi yori: Ushi to Kaeru, Yokubatta Inu",
+  "type": "MOVIE",
+  "episodes": 1,
+  "status": "FINISHED",
+  "picture": "https://cdn.myanimelist.net/images/anime/3/65151.jpg",
+  "tags": [
+    "family friendly",
+    "fantasy",
+    "frogs",
+    "kids"
+  ],
+  "synopsis": "Based on Aesop's Fables.",
+  "latest_reviews": [
+    {
+      "id": {
+        "$oid": "657ed1b40481d3954cf8d69c"
+      },
+      "comment": "Struggles to maintain interest; fails to captivate.",
+      "date": {
+        "$date": "2022-04-11T22:00:00.000Z"
+      },
+      "user": {
+        "id": {
+          "$oid": "6577877ce683762347607f42"
         },
-        "review_ids": [],
-        "likes": 7
+        "username": "dreadstuff",
+        "picture": "https://imgbox.com/7MaTkBQR"
       }
-      
+    },
+    {
+      "id": {
+        "$oid": "657ebc340481d3954cf842e5"
+      },
+      "comment": "Wouldn't recommend to even the most forgiving viewers.",
+      "date": {
+        "$date": "2021-03-19T23:00:00.000Z"
+      },
+      "user": {
+        "id": {
+          "$oid": "6577877ce683762347606bc6"
+        },
+        "username": "Yoma_Yuki",
+        "picture": "https://imgbox.com/7MaTkBQR"
+      }
+    }
+  ],
+  "anime_season": {
+    "season": "WINTER",
+    "year": 1970
+  },
+  "average_rating": 4.5,
+  "avg_rating_last_update": true,
+  "review_ids": [
+    "66695c50222b3184dbb7d990",
+    "66695c50222b3184dbb7d991",
+    "66695c50222b3184dbb7d992"
+  ],
+  "likes": 7
+}
     \end{lstlisting}
 \end{mdframed}
 
@@ -73,74 +100,112 @@ Anime:
 Manga:
 \begin{mdframed}[backgroundcolor=yellow!20, innerleftmargin=10pt, innerrightmargin=10pt]
     \begin{lstlisting}[language=java]
-      {
-        "_id": "657ac61cb34f5514b91eabc1",
-        "title": "H20",
-        "type": "MANHWA",
-        "status": "FINISHED",
-        "volumes": 7,
-        "chapters": 43,
-        "genres": [
-          "Romance",
-          "Slice of Life"
-        ],
-        "demographics": [
-          "SHOUJO"
-        ],
-        "authors": [
-          {
-            "serializations": "Wink"
-          }
-        ],
-        "synopsis": "Menga is simply known as the vice rep and is bullied. Hanako has moved...",
-        "title_english": "H20",
-        "picture": "https://cdn.myanimelist.net/images/manga/1/1053l.jpg",
-        "average_rating": 3.67,
-        "latest_reviews": [
-          {
-            "id": "66682d94bebc20d9557bba39",
-            "comment": "Beautiful artwork and engaging characters.",
-            "date": "2024-06-17T21:33:37.000+00:00",
-            "rating": 7,
-            "user": {
-              "id": "6577877be68376234760635b",
-              "username": "Sanji-kun",
-              "picture": "images/account-icon.png"
-            }
-          }
-        ],
-        "start_date": null,
-        "end_date": null,
-        "avg_rating_last_update": true,
-        "review_ids": [
-          "66682d94bebc20d9557bba39"
-        ]
+  {
+    "_id": {
+      "$oid": "657ac61cb34f5514b91eabc1"
+    },
+  "title": "H20",
+  "type": "MANHWA",
+  "status": "FINISHED",
+  "volumes": 7,
+  "chapters": 43,
+  "genres": [
+    "Romance",
+    "Slice of Life"
+  ],
+  "demographics": [
+    "SHOUJO"
+  ],
+  "authors": [
+    {
+      "id": 4354,
+      "role": "Story & Art",
+      "name": "Sook Ji Hwang"
+    }
+  ],
+  "serializations": "Wink",
+  "synopsis": "Menga is simply known as the vice rep and is bullied. Hanako has moved to Korea but was robbed the first day and has nothing. Na Hong Soo is known as a troublemaker and is in constant trouble. And Eechan is the student body president, very popular and known as Bacchus. It seems they have nothing in common but this will change soon. \n\n(Source: mangaupdates.com)",
+  "title_english": "H20",
+  "picture": "https://cdn.myanimelist.net/images/manga/1/1053l.jpg",
+  "average_rating": 3.67,
+  "latest_reviews": [
+    {
+      "id": {
+        "$oid": "66682d94bebc20d9557bba39"
+      },
+      "comment": "Beautiful artwork and engaging characters.",
+      "date": {
+        "$date": "2024-06-17T21:33:37.000Z"
+      },
+      "rating": 7,
+      "user": {
+        "id": {
+          "$oid": "6577877be68376234760635b"
+        },
+        "username": "Sanji-kun",
+        "picture": "images/account-icon.png"
       }
-      
+    },
+    {
+      "id": {
+        "$oid": "66682d94bebc20d9557bba35"
+      },
+      "comment": "An average manga with a few standout moments.",
+      "date": {
+        "$date": "2024-02-10T20:53:52.000Z"
+      },
+      "rating": 7,
+      "user": {
+        "id": {
+          "$oid": "6577877ce6837623476065f0"
+        },
+        "username": "MangoSlushie",
+        "picture": "https://thypix.com/wp-content/uploads/2021/10/manga-profile-picture-92.jpg"
+      }
+    }
+  ],
+  "start_date": null,
+  "end_date": null,
+  "avg_rating_last_update": true,
+  "review_ids": [
+    "66682d94bebc20d9557bba35",
+    "66682d94bebc20d9557bba36",
+    "66682d94bebc20d9557bba3b"
+  ]
+}
     \end{lstlisting}
 \end{mdframed}
 
-\newpage
+
 Reviews:
 \begin{mdframed}[backgroundcolor=yellow!20, innerleftmargin=10pt, innerrightmargin=10pt]
     \begin{lstlisting}[language=java]
-      {
-        "_id": "66682a4fbebc20d9557b7544",
-        "user": {
-          "id": "6577877ce683762347607e35",
-          "username": "velmodine",
-          "picture": "https://thypix.com/wp-content/uploads/2021/10/anime-avatar-profile-pic...",
-          "location": "Montenegro"
-        },
-        "manga": {
-          "id": "657ac61bb34f5514b91ea22a",
-          "title": "Kaguya-sama wa Kokurasetai: Tensai-tachi no Renai Zunousen",
-          "rating": 8,
-          "comment": null,
-          "date": "2022-07-30T00:00:00.000+00:00"
-        }
-      }
-      
+  {
+  "_id": {
+    "$oid": "66682a4fbebc20d9557b7542"
+  },
+  "user": {
+    "id": {
+      "$oid": "6577877ce683762347607b2f"
+    },
+    "username": "dagdffsfgf",
+    "location": "Singapore",
+    "birthday": {
+      "$date": "1991-02-12T00:00:00.000Z"
+    }
+  },
+  "manga": {
+    "id": {
+      "$oid": "657ac61bb34f5514b91ea22a"
+    },
+    "title": "Kaguya-sama wa Kokurasetai: Tensai-tachi no Renai Zunousen"
+  },
+  "rating": 9,
+  "comment": "Rich in emotion and excitement.",
+  "date": {
+    "$date": "2022-07-18T07:18:21.000Z"
+  }
+} 
     \end{lstlisting}
 \end{mdframed}
 
@@ -148,21 +213,32 @@ Users:
 \begin{mdframed}[backgroundcolor=yellow!20, innerleftmargin=10pt, innerrightmargin=10pt]
     \begin{lstlisting}[language=java]
       {
-        "_id": "6577877be68376234760585b",
-        "email": "millerderek@example.com",
-        "password": "6ed60c305f7e923745ec6e3c010faaf8970c1fb8ea73987f9bf6d5ed053aa94c",
-        "description": "Embodied by the spirit of a thousand anime protagonists.",
-        "picture": "https://thypix.com/wp-content/uploads/2021/10/manga-profile-picture-82...",
-        "username": "Crystal",
-        "gender": "Female",
-        "location": "Ukraine",
-        "joined_on": "2017-06-06T00:00:00.000+00:00",
-        "app_rating": 2,
-        "followed": 35,
-        "followers": 39,
-        "review_ids": []
-      }
-      
+  "_id": {
+    "$oid": "6577877be683762347605859"
+  },
+  "email": "xdavis@example.com",
+  "password": "290cb38a679d5eb68d11b9ea1e21f48234eba6de19f95612dbcb70ce0c7e4e78",
+  "description": "Liberating the mind from stress with the power of anime zen.",
+  "picture": "https://thypix.com/wp-content/uploads/2021/10/manga-profile-picture-44.jpg",
+  "username": "Xinil",
+  "gender": "Male",
+  "birthday": {
+    "$date": "1985-03-04T00:00:00.000Z"
+  },
+  "location": "South Africa",
+  "joined_on": {
+    "$date": "2016-11-30T00:00:00.000Z"
+  },
+  "app_rating": 1,
+  "followed": 40,
+  "followers": 29,
+  "review_ids": [
+    "66682a5cbebc20d9557b76b5",
+    "66682b31bebc20d9557b8886",
+    "66682e66bebc20d9557bcb29",
+    "66683301bebc20d9557bf017"
+  ]
+}
     \end{lstlisting}
 \end{mdframed}
 
