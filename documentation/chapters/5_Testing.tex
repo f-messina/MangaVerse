@@ -223,8 +223,8 @@ and aggregation operations.
 Indexes are used in MongoDB to improve the performance of queries. Indexes are used to quickly locate data without having to search every document in a collection.
 This limiting the search with indexes, results can get with faster response time.
 For the mongoDB performance testing, \textit{username} is used to indexing Users collection and \textit{title} is
-used to indexing Anime and Manga collections. The tests are conducted for creating new documents, searching for documents and aggregating documents.
-As it can be shown in the table below, there are significant improvement in operation times with indexing, especially for search and aggregation tasks
+used to indexing Anime and Manga collections. The tests are conducted for creating new documents and searching for documents.
+As it can be shown in the table below, there are significant improvement in operation times with indexing, especially for search tasks
 
 \begin{longtable}{@{}llcccc@{}}
 \caption{MongoDB Performance Test Results} \\
@@ -247,26 +247,20 @@ As it can be shown in the table below, there are significant improvement in oper
 \multirow{6}{*}{Users}
  & Insert & No & 3 & - & - \\
  & Search & No & 17 & 0 & 10007 \\
- & Aggregate & No & 20 & 0 & 10007 \\
  & Insert & Yes & 5 & - & - \\
- & Search & Yes & 5 & 1 & 1 \\
- & Aggregate & Yes & 18 & 1 & 0 \\ \midrule
+ & Search & Yes & 5 & 1 & 1 \\ \midrule
 
 \multirow{6}{*}{Anime}
  & Insert & No & 3 & - & - \\
  & Search & No & 88 & 0 & 30113 \\
- & Aggregate & No & 32 & 0 & 30113 \\
  & Insert & Yes & 3 & - & - \\
- & Search & Yes & 10 & 0 & 0 \\
- & Aggregate & Yes & 9 & 0 & 0 \\ \midrule
+ & Search & Yes & 10 & 0 & 1 \\\midrule
 
 \multirow{6}{*}{Manga}
  & Insert & No & 3 & - & - \\
  & Search & No & 141 & 0 & 41677 \\
- & Aggregate & No & 28 & 0 & 41677 \\
  & Insert & Yes & 3 & - & - \\
  & Search & Yes & 10 & 1 & 1 \\
- & Aggregate & Yes & 12 & 1 & 0 \\
 
 \end{longtable}
 
