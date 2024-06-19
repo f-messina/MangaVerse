@@ -154,8 +154,8 @@ class AnimeDAOMongoImplTest {
         }
 
         // test 2
-        //assertThrows(DAOException.class, () -> animeDAO.readMediaContent("65789bb52f5d29465d0abd00"));
-        //System.out.println("Non-existent anime not found");
+        assertThrows(DAOException.class, () -> animeDAO.readMediaContent("65789bb52f5d29465d0abd00"));
+        System.out.println("Non-existent anime not found");
     }
 
     // test 1 : upsert a new review (before that, I try to find an anime by title)
