@@ -381,10 +381,10 @@ package structure of Service module is as follows:
     \item ServiceLocator
 \end{itemize}
 
-\section{Adopted Patterns and Techniques}
+\section{Implemented Strategies and Practices}
 \subsection*{Patterns}
 
-\textbf{MVC Pattern}
+\subsubsection*{MVC Pattern}
 
 The MVC (\textit{Model-View-Controller}) pattern is a prevalent architectural pattern in software development, especially in web 
 applications. It divides the application into three interconnected components:
@@ -423,18 +423,19 @@ separation of concerns, modularity, maintainability, and testability in software
 development of different components by separate teams, support diverse views of the same data, and ensure efficient data 
 transfer across the application.
 
-\vspace{\baselineskip}
+\subsubsection*{Session Management}
 
-\textbf{Locator Pattern}
+Session management in the application optimizes user state using the HttpSession interface. Storing crucial user information in session variables 
+reduces the need for frequent database accesses, thereby enhancing performance and user experience.
+
+\subsubsection*{Locator Pattern}
 
 The Locator design pattern effectively manages dependencies and interactions among modules in software applications.
 By allowing clients to request implementations from a locator instead of directly instantiating implementation 
 classes, it decouples operations. This approach enhances flexibility and modularity within the application's 
 architecture, making it well-suited for integration with the MVC Pattern.
 
-\newpage
-
-\textbf{Singleton Pattern}
+\subsubsection*{Singleton Pattern}
 
 The Singleton pattern ensures that a class has a single instance and provides a global point of access to it. It is 
 particularly valuable in scenarios where multiple components need consistent access to a shared resource, such as 
@@ -443,24 +444,13 @@ it finds application in classes that manage thread execution, such as \textit{Er
 \textit{AperiodicExecutorTaskServiceImpl}, and \textit{PeriodicExecutorTaskServiceImpl}. This pattern ensures that 
 these classes maintain singular control over their respective tasks, enhancing efficiency and coordination within the application.
 
-\subsection*{Techniques}
-
-\textbf{Session Management}
-
-Session management in the application optimizes user state using the HttpSession interface. Storing crucial user information in session variables 
-reduces the need for frequent database accesses, thereby enhancing performance and user experience.
-
-\vspace{\baselineskip}
-
-\textbf{Task Abstraction}
+\subsubsection*{Task Abstraction}
 
 The class Task represents individual asynchronous operations within the application. Each task is defined by its priority and timestamp 
 and implements the abstract method executeJob to initiate task execution. Various Task implementations manage data redundancy across different 
 MongoDB collections and ensure synchronization between MongoDB and Neo4j databases, leveraging Data Access Objects (DAOs) for efficient data management.
 
-\vspace{\baselineskip}
-
-\textbf{Task Manager}
+\subsubsection*{Task Manager}
 
 The Task Manager defines methods for managing a task queue capable of handling up to 30 tasks. Tasks are added based on priority 
 or timestamp in case of equal priority. The concrete implementation, ErrorTaskManager, specifically manages tasks encountering transient errors during execution.
@@ -471,9 +461,7 @@ Execution of tasks is handled by a dedicated thread, which continuously retrieve
 thread waits for new tasks. Tasks encountering RETRYABLE errors during execution are rescheduled in the queue for future retries, ensuring eventual
 data consistency across the application. Additionally, tasks failing consecutively five times generate a warning log message to prevent indefinite looping.
 
-\vspace{\baselineskip}
-
-\textbf{Executor Service}
+\subsubsection*{Executor Service}
 
 The ExecutorService, implemented through the Java interface, manages two types of tasks: Runnable for asynchronous operations 
 without immediate result retrieval, and Callable using the Future type for retrieving data in the main thread upon task completion. 

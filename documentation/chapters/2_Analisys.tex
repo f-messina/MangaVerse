@@ -5,10 +5,14 @@
 \begin{itemize}
     \item \textbf{Unregistered User}: A visitor who has not logged in on the platform.
     
-    \item \textbf{Registered User}: A user who has created an account on the platform.
+    \item \textbf{User}: A user who has created an account on the platform.
     
     \item \textbf{Manager}: A registered user with administrative privileges.
 \end{itemize}
+
+\vspace{\baselineskip}
+
+Both User and Manager are Registered Users.
 
 \section{Functional Requirements}
 
@@ -64,7 +68,7 @@ The system should provide the following features for each type of user:
     \end{itemize}
 \end{itemize}
 
-\subsection*{Registered User}
+\subsection*{User}
 
 \begin{itemize}
     \item \textbf{Logout}.
@@ -198,7 +202,7 @@ The system should provide the following features for each type of user:
     \rowcolor{lightblue}
     \textbf{Use Case} & \textbf{Log In} \\
     \hline
-    Primary Actor &Registered User\\
+    Primary Actor &Unregistered User\\
     \hline
     Description & Allows user to login \\
     \hline
@@ -231,7 +235,7 @@ The system should provide the following features for each type of user:
     Main Event Steps & The system starts the logout process \\
     \hline
     Post-conditions &The user is logged out. \\
-    & The user is directed to the main page \\
+    & The user is directed to one of the pages accessible by an unregistered user \\
     \hline
     Correlated Use Cases &-\\
     \hline
@@ -267,7 +271,7 @@ The system should provide the following features for each type of user:
     \hline
     Primary Actor & Registered User, Unregistered User\\
     \hline
-    Description & Allows users to search for specific anime or manga. \\
+    Description & Allows users to search for specific anime or manga \\
     \hline
     Pre-conditions & - \\
     \hline
@@ -279,7 +283,7 @@ The system should provide the following features for each type of user:
     Post-conditions & The system displays a result of the search \\
     & The user views a list of anime/manga matching with the used criteria\\
     \hline
-    Correlated Use Cases &View Anime/Manga \\
+    Correlated Use Cases &View Anime/Manga, Browse Anime/Manga \\
     \hline
 \end{longtable}
 
@@ -290,7 +294,7 @@ The system should provide the following features for each type of user:
     \hline
     Primary Actor & Registered User, Unregistered User\\
     \hline
-    Description &Allows users to view details of a specific anime or manga \\
+    Description &Allows users to view limited information a specific anime or manga \\
     \hline
     Pre-conditions & -\\
     \hline
@@ -299,7 +303,7 @@ The system should provide the following features for each type of user:
     \hline
     Post-conditions & The user views pre information about the selected anime/manga\\
     \hline
-    Correlated Use Cases & -\\
+    Correlated Use Cases & Find Anime/Manga, View Anime/Manga Details\\
     \hline
 \end{longtable}
 
@@ -321,7 +325,7 @@ The system should provide the following features for each type of user:
     \hline
     Post-conditions & \\
     \hline
-    Correlated Use Cases & -\\
+    Correlated Use Cases &View Anime/Manga\\
     \hline
 \end{longtable}
 
@@ -376,7 +380,7 @@ The system should provide the following features for each type of user:
     \rowcolor{lightblue}
     \textbf{Use Case} & \textbf{Browse Anime/Manga Trend} \\
     \hline
-    Primary Actor & Registered USer, Unregistered User\\
+    Primary Actor & Registered User, Unregistered User\\
     \hline
     Description &Allows users to browse trending anime or manga\\
     \hline
@@ -405,40 +409,131 @@ The system should provide the following features for each type of user:
     Pre-conditions &User must be logged in \\
     \hline
     Main Event Steps & 1. The user clicks the like or unlike button. \\
-    & 2. The system updates the like status. \\\\
+    & 2. The system updates the like status. \\
     \hline
-    Post-conditions &1. The anime or manga is liked or liked by the user and added to the liked anime/manga list\\
-    &2. The appearance of like button is changed to filled version of the button\\
+    Post-conditions &1. The anime/manga is added to the user's like list\\
+    &2. The like button become unavailable, the unlike button become available \\
     \hline
     Correlated Use Cases &- \\
     \hline
 \end{longtable}
 
+\begin{longtable}{|p{0.25\textwidth}|p{0.75\textwidth}|}
+    \hline
+    \rowcolor{lightblue}
+    \textbf{Use Case} & \textbf{Unlike Anime/Manga} \\
+    \hline
+    Primary Actor & User\\
+    \hline
+    Description &Allows users to unlike an anime or manga\\
+    \hline
+    Pre-conditions &User must be logged in \\
+    \hline
+    Main Event Steps & 1. The user clicks the unlike button. \\
+    & 2. The system updates the like status. \\
+    \hline
+    Post-conditions &1. The anime/manga is removed from the user's like list\\
+    &2. The unlike button become available, the like button become available \\
+    \hline
+    Correlated Use Cases &- \\
+    \hline
+\end{longtable}
+
+\newpage
 
 \begin{longtable}{|p{0.25\textwidth}|p{0.75\textwidth}|}
     \hline
     \rowcolor{lightblue}
     \textbf{Use Case} & \textbf{Add Review to Anime/Manga} \\
     \hline
-    Primary Actor & User\\
+    \textbf{Primary Actor} & User \\
     \hline
-    Description &Allows user to make comment or rating for specific anime/manga\\
+    \textbf{Description} & Allows user to make a comment or rating for a specific anime/manga. \\
     \hline
-    Pre-conditions & User must be logged in\\
+    \textbf{Pre-conditions} & User must be logged in. \\
     \hline
-    Main Event Steps &  1. The user selects an anime or manga. \\
+    \textbf{Main Event Steps} &  1. The user selects an anime or manga. \\
     & 2. The user navigates to the review section. \\
-    & 3. The user adds a review that can be either comment or rating the anime/manga\\
-    & 4. The system ensures that at least one of the comment or rate value is filled\\
-    & 5. The system saves the review and updates the latest reviews \\
+    & 3. The user adds a review that can be either a comment or rating for the anime/manga. \\
+    & 4. The system ensures that at least one of the comment or rate value is filled. \\
+    & 5. The system saves the review and updates the latest reviews. \\
     \hline
-    Post-conditions & The review is added to the specific anime/manga and visible on the page\\
+    \textbf{Post-conditions} & The review is added to the specific anime/manga and is visible on the page. \\
     \hline
-    Correlated Use Cases & - \\
+    \textbf{Correlated Use Cases} & - \\
+    \hline
+\end{longtable}
+
+\begin{longtable}{|p{0.25\textwidth}|p{0.75\textwidth}|}
+    \hline
+    \rowcolor{lightblue}
+    \textbf{Use Case} & \textbf{Update Review for Anime/Manga} \\
+    \hline
+    \textbf{Primary Actor} & User \\
+    \hline
+    \textbf{Description} & Allows user to modify an existing review (comment or rating) for a specific anime/manga. \\
+    \hline
+    \textbf{Pre-conditions} & - User must be logged in. \\
+    & - User must have previously added a review for the anime/manga. \\
+    \hline
+    \textbf{Main Event Steps} & 1. The user selects the anime or manga for which they want to update the review. \\
+    & 2. The user navigates to their own review within the review section. \\
+    & 3. The user edits the review content (comment and/or rating). \\
+    & 4. The system ensures that at least one of the comment or rating values is filled. \\
+    & 5. The system saves the updated review and refreshes the display of reviews. \\
+    \hline
+    \textbf{Post-conditions} & The review for the specific anime/manga is updated with the new content and is visible on the page. \\
+    \hline
+    \textbf{Correlated Use Cases} & - \\
     \hline
 \end{longtable}
 
 \newpage
+
+\begin{longtable}{|p{0.25\textwidth}|p{0.75\textwidth}|}
+    \hline
+    \rowcolor{lightblue}
+    \textbf{Use Case} & \textbf{Remove Review from Anime/Manga} \\
+    \hline
+    \textbf{Primary Actor} & User \\
+    \hline
+    \textbf{Description} & Allows user to delete their own review (comment or rating) for a specific anime/manga. \\
+    \hline
+    \textbf{Pre-conditions} & - User must be logged in. \\
+    & - User must have previously added a review for the anime/manga. \\
+    \hline
+    \textbf{Main Event Steps} & 1. The user selects the anime or manga for which they want to remove the review. \\
+    & 2. The user navigates to their own review within the review section. \\
+    & 3. The user chooses to delete the review. \\
+    & 4. The system confirms the deletion action. \\
+    & 5. The system removes the review from the database and updates the display of reviews. \\
+    \hline
+    \textbf{Post-conditions} & The review for the specific anime/manga is removed and no longer visible on the page. \\
+    \hline
+    \textbf{Correlated Use Cases} & -\\
+    \hline
+\end{longtable}
+
+\begin{longtable}{|p{0.25\textwidth}|p{0.75\textwidth}|}
+    \hline
+    \rowcolor{lightblue}
+    \textbf{Use Case} & \textbf{Browse User} \\
+    \hline
+    Primary Actor &Unregistered User, Registered User \\
+    \hline
+    Description &Allows users to browse all users\\
+    \hline
+    Pre-conditions & -\\
+    \hline
+    Main Event Steps &1. The user navigates to the user section\\
+    &3. The system displays a list of users\\
+    \hline
+    Post-conditions & - The user views the list of users.\\
+    & - The user can find a user by username.\\
+    \hline
+    Correlated Use Cases & View User\\
+    \hline
+\end{longtable}
 
 \begin{longtable}{|p{0.25\textwidth}|p{0.75\textwidth}|}
     \hline
@@ -610,36 +705,21 @@ and 200k users.
 
 \subsection{Data Cleaning and Preprocessing}
 
-The data cleaning and preprocessing involved several steps to ensure consistency and usability of the datasets:
+The initial data was distributed across multiple CSV and JSON files, requiring thorough cleaning and integration efforts.
+Duplicate entries of anime and manga titles were removed, alongside reviews associated with non-existent anime/manga or 
+users. Where comments were absent from a dataset, placeholder comments were generated based on the corresponding 
+ratings. To enhance the dataset's completeness, pseudo reviews were added for users who had insufficient review data for meaningful analytics.
 
-\begin{itemize}
-    \item \textbf{Data Integration and Reduction}: Integrating anime, reviews, and user data from various sources 
-    required dealing with non-unique IDs across datasets. To ensure proper integration, 
-    new unique IDs were generated for each entity. Due to issues with data quality, 
-    a significant number of users and their associated reviews were removed. This process resulted in a 
-    refined dataset containing 10,000 users and 600,000 reviews.
- 
-    \item \textbf{Review Comment Generation}: Some sources lacked explicit comments for reviews. To address this, 
-    a script was employed to generate generic comments based on the review ratings, ensuring completeness of the review dataset.
-    
-    \item \textbf{Synthetic Data Generation}: Many users did not have sufficient reviews for meaningful analytics. 
-    Synthetic reviews were generated to supplement these users, enabling more robust analysis 
-    of user interactions and content preferences.
-    
-    \item \textbf{Data Pruning}: Extraneous information about users, anime, and manga that were 
-    not relevant to the project goals were removed to streamline the datasets.
-    
-    \item \textbf{Data Augmentation}: Essential user information such as email, password, and profile picture, 
-    which were necessary for user management features, were added to the dataset.
-    
-    \item \textbf{Consistency Checks}: Before insertion into the Document DB collections, rigorous data consistency checks were conducted to 
-    uphold accuracy and reliability. For instance, chronological consistency was enforced for fields such as the joined date, 
-    ensuring it fell after the user's birthdate and before any related review dates. Additionally, user locations were validated 
-    to ensure they mapped to valid countries. Upon insertion, Document DB's ids were utilized for entity linking and to maintain data integrity.
+\vspace{\baselineskip}
 
-    \item \textbf{Graph Database Population}: Fake relationships were created, such as follow relationships between users and like relationships 
-    between users and anime/manga, to populate the graph database.
-\end{itemize}
+Extraneous details of users, anime, and manga were pruned, focusing instead on essential information such as email 
+addresses, passwords, and profile pictures, which were integrated into user profiles. Artificial relationships such as follower 
+connections and likes between users and anime/manga were introduced to enrich the graph database.
+
+\vspace{\baselineskip}
+
+Following database insertion, outdated ID references within reviews were updated with newly generated IDs. Within anime, manga, 
+and user data, lists of associated review IDs were incorporated.
 
 \vspace{\baselineskip}
 
