@@ -272,7 +272,9 @@ Indexing with ids is used for both anime, manga and users nodes. The tests are c
 The test result in the table below shows that indexing has a significant impact on operations in Neo4j database especially for search.
 Indexing time decreases with using indexes for search tasks because it prevents to check all the nodes in the database.
 
-\begin{longtable}{@{}cccc@{}}    
+\setlength{\tabcolsep}{4.5em} 
+
+\begin{longtable}{@{\extracolsep{\fill}}cccc@{}}    
     \caption{Neo4j Performance Test Results} \\
     \toprule
     \textbf{Collection} & \textbf{Operation} & \textbf{Index} & \textbf{Time (ms)} \\ \midrule
@@ -282,22 +284,23 @@ Indexing time decreases with using indexes for search tasks because it prevents 
     \endlastfoot
     
     \multirow{4}{*}{Anime}
-     & Insert & No  & 5 \\
-     & Insert & Yes & 5\\
-     & Search & No  & 45 \\
-     & Search & Yes & 2\\ \midrule
+        & Insert & No  & 5 \\
+        & Insert & Yes & 5\\
+        & Search & No  & 45 \\
+        & Search & Yes & 2\\ \midrule
     
     \addlinespace
     \multirow{4}{*}{Manga}
-     & Insert & No  & 7 \\
-     & Insert & Yes & 5 \\
-     & Search & No  & 46 \\
+        & Insert & No  & 7 \\
+        & Insert & Yes & 5 \\
+        & Search & No  & 46 \\
     & Search & Yes & 9 \\ \midrule
     
     \addlinespace
     \multirow{4}{*}{Users}
-     & Insert & No  & 56 \\
-     & Insert & Yes & 9\\
-     & Search & No  & 40 \\
-     & Search & Yes & 3 \\
-    \end{longtable}
+        & Insert & No  & 56 \\
+        & Insert & Yes & 9\\
+        & Search & No  & 40 \\
+        & Search & Yes & 3 \\
+\end{longtable}
+    
