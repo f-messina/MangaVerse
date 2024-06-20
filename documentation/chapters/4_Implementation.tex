@@ -129,7 +129,7 @@ servlet generates the appropriate response.
 
 \vspace{\baselineskip}
 
-\textbf{Example code snippet from MediaContentServlet:}
+\subsubsection*{Example code snippet from MediaContentServlet:}
 \begin{mdframed}[style=customstyle]
     \begin{lstlisting}[language=java]
 {
@@ -201,7 +201,7 @@ It provides a layer of abstraction between the database and the rest of the appl
 
 \vspace{\baselineskip}
 
-\textbf{Example code snippet from MangaDAOMongoImpl:}
+\subsubsection*{Example code snippet from MangaDAOMongoImpl:}
 \begin{mdframed}[style=customstyle]
     \begin{lstlisting}[language=java]
 {
@@ -257,7 +257,7 @@ It provides a layer of abstraction between the database and the rest of the appl
 
 \vspace{\baselineskip}
 
-\textbf{Example code snippet from UserDAONeo4jImpl:}
+\subsubsection*{Example code snippet from UserDAONeo4jImpl:}
 \begin{mdframed}[style=customstyle]
     \begin{lstlisting}[language=java]
 {
@@ -474,7 +474,7 @@ are utilized in controllers to handle multiple accesses for retrieving necessary
 
 \subsection*{Controller}
 \renewcommand{\arraystretch}{1.5}
-\begin{longtable}{|>{\arraybackslash}p{0.3\linewidth}|>{\arraybackslash}p{0.73\linewidth}|}
+\begin{longtable}{|>{\arraybackslash}m{0.3\linewidth}|>{\arraybackslash}m{0.73\linewidth}|}
     \cline{1-2}
     \textbf{Class} & \textbf{Description} \\
     \cline{1-2}
@@ -494,7 +494,7 @@ are utilized in controllers to handle multiple accesses for retrieving necessary
 
 \subsection*{DAO}
 \renewcommand{\arraystretch}{1.5}
-\begin{longtable}{|>{\raggedright\arraybackslash}p{0.3\linewidth}|>{\raggedright\arraybackslash}p{0.1\linewidth}|>{\raggedright\arraybackslash}p{0.6\linewidth}|}
+\begin{longtable}{|>{\raggedright\arraybackslash}m{0.3\linewidth}|>{\raggedright\arraybackslash}m{0.1\linewidth}|>{\raggedright\arraybackslash}m{0.6\linewidth}|}
     \hline
     \textbf{Class} & \textbf{Sub-package} & \textbf{Description} \\
     \hline
@@ -513,7 +513,7 @@ are utilized in controllers to handle multiple accesses for retrieving necessary
 
     MediaContentDAO & interfaces & Collection of methods for media content database related entities on mongoDB \\
     \hline
-    ReviewDAO B & interfaces & Collection of methods for review database related entities on mongoDB \\
+    ReviewDAO & interfaces & Collection of methods for review database related entities on mongoDB \\
     \hline
     UserDAO & interfaces & Collection of methods for user database related entities on mongoDB \\
     \hline
@@ -543,7 +543,7 @@ are utilized in controllers to handle multiple accesses for retrieving necessary
 
 \subsection*{DTO}
 \renewcommand{\arraystretch}{1.5}
-\begin{longtable}{|>{\raggedright\arraybackslash}p{0.25\linewidth}|>{\raggedright\arraybackslash}p{0.15\linewidth}|>{\raggedright\arraybackslash}p{0.6\linewidth}|}
+\begin{longtable}{|>{\raggedright\arraybackslash}m{0.25\linewidth}|>{\raggedright\arraybackslash}m{0.15\linewidth}|>{\raggedright\arraybackslash}m{0.6\linewidth}|}
     \hline
     \textbf{Class} & \textbf{Sub-package} & \textbf{Description} \\
     \hline
@@ -585,7 +585,7 @@ are utilized in controllers to handle multiple accesses for retrieving necessary
 
 \subsection*{Model}
 \renewcommand{\arraystretch}{1.5}
-\begin{longtable}{|>{\raggedright\arraybackslash}p{0.25\linewidth}|>{\raggedright\arraybackslash}p{0.15\linewidth}|>{\raggedright\arraybackslash}p{0.6\linewidth}|}
+\begin{longtable}{|>{\raggedright\arraybackslash}m{0.25\linewidth}|>{\raggedright\arraybackslash}m{0.15\linewidth}|>{\raggedright\arraybackslash}m{0.6\linewidth}|}
     \hline
     \textbf{Class} & \textbf{Sub-package} & \textbf{Description} \\
     \hline
@@ -624,7 +624,7 @@ are utilized in controllers to handle multiple accesses for retrieving necessary
 
 \subsection*{Service}
 \renewcommand{\arraystretch}{1.5} % Adjusts the row height
-\begin{longtable}{|>{\raggedright\arraybackslash}p{0.3\linewidth}|>{\raggedright\arraybackslash}p{0.2\linewidth}|>{\raggedright\arraybackslash}p{0.5\linewidth}|}
+\begin{longtable}{|>{\raggedright\arraybackslash}m{0.3\linewidth}|>{\raggedright\arraybackslash}m{0.2\linewidth}|>{\raggedright\arraybackslash}m{0.5\linewidth}|}
    
     \hline
     \textbf{Class} & \textbf{Sub-package} & \textbf{Description} \\
@@ -644,7 +644,7 @@ are utilized in controllers to handle multiple accesses for retrieving necessary
 
     CreateMediaTask & impl/ asinc\_media\_tasks & Implementation of methods for media task creation for MediaContentService \\
     \hline
-    DeleteMediaTask B & impl/ asinc\_media\_tasks & Implementation of methods for media task deletion for MediaContentService \\
+    DeleteMediaTask & impl/ asinc\_media\_tasks & Implementation of methods for media task deletion for MediaContentService \\
     \hline
     RefreshLatestReviewsTasks & impl/ asinc\_media\_tasks & Implementation of methods for refreshing latest reviews for MediaContentService \\
     \hline
@@ -666,7 +666,7 @@ are utilized in controllers to handle multiple accesses for retrieving necessary
     \hline
     DeleteUserTask & impl/ asinc\_user\_tasks & Implementation of methods for user deletion for UserService \\
     \hline
-    UpdateNumberOfFollowedTask B & impl/ asinc\_user\_tasks & Implementation of methods for updating number of followed for UserService \\
+    UpdateNumberOfFollowedTask & impl/ asinc\_user\_tasks & Implementation of methods for updating number of followed for UserService \\
     \hline
     UpdateNumberOfFollowersTask & impl/ asinc\_user\_tasks & Implementation of methods for updating number of followers for UserService \\
     \hline
@@ -706,7 +706,9 @@ Some of the most important MongoDB queries for analytic and suggestion purposes.
 \subsection*{USER:}
 \subsubsection*{Get Distribution}
 
-GetDistribution query to get the user's location, birthday year that gave the highest rating to the application
+Aggregation to get the number of user registrations grouped by birthday year, location,
+gender, and joined on year.
+
 \begin{itemize}
     \item Java Implementation:
 \end{itemize}
@@ -793,7 +795,8 @@ public Map<String, Integer> getDistribution(String criteria) throws DAOException
 
 \subsubsection*{Average App Rating}
 
-Calculates the average application rating based on the specified search criteria
+Aggregation to evaluate the average application rating for users grouped by a location,
+gender, and joined on year.
 \begin{itemize}
     \item Java Implementation:
 \end{itemize}
@@ -868,7 +871,7 @@ db.getCollection.aggregate([
 
 \subsubsection*{Average App Rating By Age}
 
-Calculates the average app rating for users grouped by age ranges.
+Aggregation to evaluate the average app rating for users grouped by age ranges.
 The age ranges are defined as follows:\\
 - 0-13 years\\
 - 13-20 years\\
@@ -1316,7 +1319,7 @@ db.collection.aggregate([
 \subsection*{MANGA/ANIME:}
 \subsubsection*{Get Best Criteria}
 
-Retrieves the best criteria based on the average rating of the Anime objects in the MongoDB database.
+Retrieves the best criteria based on the average rating of the anime / manga objects in the MongoDB database.
 \begin{itemize}
     \item Java Implementation:
 \end{itemize}
@@ -1633,8 +1636,6 @@ public List<UserSummaryDTO> suggestUsersByCommonFollowings(String userId, Intege
 }\end{lstlisting}
 \end{mdframed}
 
-\newpage
-
 \begin{itemize}
     \item Neo4j Query:
 \end{itemize}
@@ -1660,7 +1661,7 @@ LIMIT $n\end{lstlisting}
 \subsection*{ANIME/MANGA:}
 \subsubsection*{Get Trend Media Content By Year}
 
-Retrieves a list of trending MangaDTO objects for a specific year from the Neo4j database.
+Retrieves a list of trending media content for a specific year from the Neo4j database.
 \begin{itemize}
     \item Java Implementation:
 \end{itemize}
@@ -1724,7 +1725,7 @@ LIMIT $n\end{lstlisting}
 
 \subsubsection*{Get Media Content Trend By Likes}
 
-Retrieves a list of trending MangaDTO objects by likes from the Neo4j database.
+Retrieves a list of trending media content in the last period from the Neo4j database.
 The method performs the following steps:\\
 1. Retrieve the trending Manga by likes in the last 6 months.\\
 2. If there are not enough trending Manga, retrieve more results from the last year.\\
@@ -1832,7 +1833,8 @@ LIMIT $n\end{lstlisting}
 
 \subsubsection*{Get Suggested By Followings}
 
-Retrieves a list of suggested MangaDTO objects for a user from the Neo4j database.
+Retrieves a list of suggested media content for a user based on common followings
+or that are followed by the user's following.
 The method performs the following steps:\\
 1. Retrieve Manga that the user's followings have liked in the last 6 months.\\
 2. If there are not enough suggestions, retrieve Manga that the user's followings have liked in the last 2 years.\\
@@ -1939,7 +1941,7 @@ LIMIT $n\end{lstlisting}
 
 \subsubsection*{Get Suggested By Likes}
 
-Retrieves a list of suggested MangaDTO objects for a user from the Neo4j database.
+Retrieves a list of suggested media content for a user by user's liked anime or manga.
 The method performs the following steps:\\
 1. Retrieve Manga that other users with similar taste have liked in the last 6 months.\\
 2. If there are not enough suggestions, retrieve Manga that other users with similar taste have liked in the last 2 years.\\
