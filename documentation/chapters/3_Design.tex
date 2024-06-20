@@ -352,9 +352,11 @@ Users:
   ]
 }\end{lstlisting}
 
+\vspace{\baselineskip}
+
 \subsection*{Redundancy}
 
-In a document database, data redundancy can be leveraged to enhance application performance and reduce the
+In a document database, adding data redundancy can be an optimal solution to enhance application performance and reduce the
 number of database accesses. However, the application must manage the consistency between the original data
 and their redundant copies. This consistency maintenance can impact performance and availability. Therefore,
 optimal strategies are necessary to ensure data consistency while preserving application performance and availability.
@@ -367,40 +369,43 @@ The following redundancies are implemented in the database:
 
 \begin{itemize}
     \item \textbf{Latest Reviews}: \\
-    In the anime and manga collections, a field contains the latest 5 reviews for that specific media content. This approach ensures fast retrieval.
+    A list of the latest reviews was inserted in the anime and manga documents to obtain them each time the user reads
+    the anime or manga document, ensuring fast retrieval of them and reducing the number of accesses to the database.
 
     \vspace{\baselineskip}
 
     \item \textbf{Average Rating}: \\
-    In the anime and manga collections, a field contains the average rating of the media content. This field is updated every time a new review is written.
+    A field containing the average rating of an anime/manga was inserted so that the application can quickly retrieve it
+    without performing complex queries to evaluate it each time.
 
     \vspace{\baselineskip}
 
     \item \textbf{Number of Likes}: \\
-    In the anime and manga collections, a field contains the number of likes. This field is updated every time a new like relationship is created or deleted.
+    Inside the anime and manga collection was inserted a field that rapresent the number of likes of that specific media content.
+    The value is updated each time a new like is added or removed, so that it is not needed to access to the graph database to
+    count the number of likes.
 
     \vspace{\baselineskip}
 
     \item \textbf{Followers and Followings}: \\
-    In the user collection, fields contain the number of followers and followings. These fields are updated every time a new follow relationship is created or deleted.
+    Inside the user collection was inserted a field that rapresent the number of followers and another for the number of followings
+    of that specific media content. The followers number is updated each time the user obtains or loses a follower, while the followings
+    number is updated each time the user follows or unfollows an user.
 
     \vspace{\baselineskip}
 
-    \item \textbf{User Field in Reviews}: \\
-    In the reviews collection, a field contains user data, such as id, username, picture, location, and birthday. This data is used for suggestion purposes.
-
-    \vspace{\baselineskip}
-
-    \item \textbf{Media Content Field in Reviews}: \\
-    In the reviews collection, a field contains information about the anime or manga the review pertains to, including the media content id and title.
+    \item \textbf{User and Media Content Fields in Reviews}: \\
+    In the reviews collection, the user and media content fields were inserted to avoid unnecessary database accesses when retrieving
+    information that are needed to display with the review or needed to perform analytics or suggestions.
 
     \vspace{\baselineskip}
 
     \item \textbf{Review Ids}: \\
-    A list of review ids is stored in the anime, manga, and user collections. This list is used to quickly retrieve the reviews of media content and users.
+    A list of review ids is stored in the anime, manga, and user collections. This list is used to 
+    quickly retrieve the reviews of media content and users.
 \end{itemize}
 
-\newpage
+\vspace{\baselineskip}
 
 \section{Graph Database}
 
@@ -476,6 +481,8 @@ The database will have the following relationships:
     \item Read the list of followings of a user
   \end{itemize}
 \end{itemize}
+
+\newpage
 
 \section{Availability and Partition Tolerance (AP)}
 

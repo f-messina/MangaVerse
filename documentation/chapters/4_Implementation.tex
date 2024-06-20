@@ -86,7 +86,7 @@ method is invoked when the web application shuts down. It closes all database co
 
 For MongoDB was used this configuration:
 
-\begin{mdframed}[backgroundcolor=yellow!20, innerleftmargin=10pt, innerrightmargin=10pt]
+\begin{mdframed}[style=customstyle]
     \begin{lstlisting}[language=java]
     settings = MongoClientSettings.builder()
                 .applyConnectionString(connectionString)
@@ -94,8 +94,7 @@ For MongoDB was used this configuration:
                 .readPreference(ReadPreference.nearest())
                 .retryWrites(true)
                 .readConcern(ReadConcern.LOCAL)
-                .build();
-    \end{lstlisting}
+                .build();\end{lstlisting}
 \end{mdframed}
 
 \begin{itemize}
@@ -133,7 +132,7 @@ servlet generates the appropriate response.
 \vspace{\baselineskip}
 
 \textbf{Example code snippet from MediaContentServlet:}
-\begin{mdframed}[backgroundcolor=yellow!20, innerleftmargin=10pt, innerrightmargin=10pt]
+\begin{mdframed}[style=customstyle]
     \begin{lstlisting}[language=java]
 {
     @Override
@@ -157,8 +156,7 @@ servlet generates the appropriate response.
             case null, default -> handleLoadPage(request, response);
         }
     }
-}
-    \end{lstlisting}
+}\end{lstlisting}
 \end{mdframed}
 
 The controller module contains the following classes:
@@ -206,7 +204,7 @@ It provides a layer of abstraction between the database and the rest of the appl
 \newpage
 
 \textbf{Example code snippet from MangaDAOMongoImpl:}
-\begin{mdframed}[backgroundcolor=yellow!20, innerleftmargin=10pt, innerrightmargin=10pt]
+\begin{mdframed}[style=customstyle]
     \begin{lstlisting}[language=java]
 {
     //MongoDB queries
@@ -256,14 +254,13 @@ It provides a layer of abstraction between the database and the rest of the appl
             throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
-}
-    \end{lstlisting}
+}\end{lstlisting}
 \end{mdframed}
 
 \newpage
 
 \textbf{Example code snippet from UserDAONeo4jImpl:}
-\begin{mdframed}[backgroundcolor=yellow!20, innerleftmargin=10pt, innerrightmargin=10pt]
+\begin{mdframed}[style=customstyle]
     \begin{lstlisting}[language=java]
 {
     /**
@@ -307,8 +304,7 @@ It provides a layer of abstraction between the database and the rest of the appl
            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
        }
    }
-}
-    \end{lstlisting}
+}\end{lstlisting}
 \end{mdframed}
 \newpage
 
@@ -714,7 +710,8 @@ GetDistribution query to get the user's location, birthday year that gave the hi
 \begin{itemize}
     \item Java Implementation:
 \end{itemize}
-\begin{lstlisting}[language=JavaScript]
+\begin{mdframed}[style=customstyle]
+\begin{lstlisting}[language=java]
 public Map<String, Integer> getDistribution(String criteria) throws DAOException {
     try {
         MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
@@ -756,13 +753,14 @@ public Map<String, Integer> getDistribution(String criteria) throws DAOException
     } catch (Exception e){
         throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
     }
-}
-\end{lstlisting}
+}\end{lstlisting}
+\end{mdframed}
 
 \begin{itemize}
     \item Mongo Shell Query:
 \end{itemize}
-\begin{lstlisting}[language=JavaScript]
+\begin{mdframed}[style=customstyle]
+\begin{lstlisting}[language=java]
     db.collection.aggregate([
         {
             // Match stage to filter documents where 'criteriaOfSearch' exists
@@ -790,16 +788,17 @@ public Map<String, Integer> getDistribution(String criteria) throws DAOException
                 count: -1
             }
         }
-    ]);     
+    ]);\end{lstlisting}
+\end{mdframed} 
 
-
-\end{lstlisting} 
 \textbf{Average App Rating}\\
 Calculates the average application rating based on the specified search criteria
 \begin{itemize}
     \item Java Implementation:
 \end{itemize}
-\begin{lstlisting}[language=JavaScript]
+
+\begin{mdframed}[style=customstyle]
+\begin{lstlisting}[language=java]
     public Map<String, Double> averageAppRating(String criteria) throws DAOException {
     try {
         MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
@@ -827,13 +826,15 @@ Calculates the average application rating based on the specified search criteria
     catch (Exception e){
         throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
     }
-}
-\end{lstlisting}
+}\end{lstlisting}
+\end{mdframed}
         
     \begin{itemize}
         \item Mongo Shell Query:
     \end{itemize}
-    \begin{lstlisting}[language=JavaScript]
+
+\begin{mdframed}[style=customstyle]
+\begin{lstlisting}[language=java]
 db.getCollection.aggregate([
     { 
         // Match stage: Filters documents to include only those that 
@@ -859,9 +860,9 @@ db.getCollection.aggregate([
             averageAppRating: -1 
         } 
     }
-]).toArray();      
-        
-\end{lstlisting}
+]).toArray();\end{lstlisting}
+\end{mdframed}
+
 \textbf{Average App Rating By Age}\\
 Calculates the average app rating for users grouped by age ranges.
 The age ranges are defined as follows:\\
@@ -874,7 +875,9 @@ The age ranges are defined as follows:\\
 \begin{itemize}
     \item Java Implementation:
 \end{itemize}
-\begin{lstlisting}[language=JavaScript]
+
+\begin{mdframed}[style=customstyle]
+\begin{lstlisting}[language=java]
 public Map<String, Double> averageAppRatingByAgeRange() throws DAOException {
     try {
         MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
@@ -920,13 +923,15 @@ public Map<String, Double> averageAppRatingByAgeRange() throws DAOException {
     } catch (Exception e){
         throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
     }
-}
-\end{lstlisting}
+}\end{lstlisting}
+\end{mdframed}
     
 \begin{itemize}
     \item Mongo Shell Query:
 \end{itemize}
-\begin{lstlisting}[language=JavaScript]
+
+\begin{mdframed}[style=customstyle]
+\begin{lstlisting}[language=java]
 db.getCollection('COLLECTION_NAME').aggregate([
     { 
         // Match stage: Filters documents to include only those that 
@@ -969,16 +974,11 @@ db.getCollection('COLLECTION_NAME').aggregate([
             }
         }
     }
-]).toArray();
-       
-    
-\end{lstlisting}
-
-
-
-
+]).toArray();\end{lstlisting}
+\end{mdframed}
 
 \subsection*{REVIEW:}
+
 \textbf{Get Media Content Rating By Year}\\
 Retrieves the average ratings for a specific media content (anime or manga) by year within a specified range.
 The aggregation pipeline performs the following steps:\\
@@ -989,7 +989,9 @@ The aggregation pipeline performs the following steps:\\
 \begin{itemize}
     \item Java Implementation:
 \end{itemize}
-\begin{lstlisting}[language=JavaScript]
+
+\begin{mdframed}[style=customstyle]
+\begin{lstlisting}[language=java]
 public Map<String, Double> getMediaContentRatingByYear(MediaContentType type, String mediaContentId, int startYear, int endYear) throws  DAOException {
     try  {
         // Get media content rating by year
@@ -1034,13 +1036,15 @@ public Map<String, Double> getMediaContentRatingByYear(MediaContentType type, St
     } catch (Exception e) {
         throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
     }
-}
-\end{lstlisting}
+}\end{lstlisting}
+\end{mdframed}
     
 \begin{itemize}
     \item Mongo Shell Query:
 \end{itemize}
-\begin{lstlisting}[language=JavaScript]
+
+\begin{mdframed}[style=customstyle]
+\begin{lstlisting}[language=java]
 // Match stage to filter documents based on specified conditions
 db.collection.aggregate([
     {
@@ -1075,8 +1079,9 @@ db.collection.aggregate([
         // Sort stage to sort documents by year in ascending order
         $sort: { year: 1 }
     }
-]);
-\end{lstlisting}
+]);\end{lstlisting}
+\end{mdframed}
+
 \textbf{Get Media Content Rating By Month}\\
 Retrieves the average ratings for a specific media content (anime or manga) by month for a specified year.
 The aggregation pipeline performs the following steps:\\
@@ -1087,7 +1092,9 @@ The aggregation pipeline performs the following steps:\\
 \begin{itemize}
     \item Java Implementation:
 \end{itemize}
-\begin{lstlisting}[language=JavaScript]
+
+\begin{mdframed}[style=customstyle]
+\begin{lstlisting}[language=java]
 public Map<String, Double> getMediaContentRatingByMonth(MediaContentType type, String mediaContentId, int year) throws DAOException {
     try  {
         // Get media content rating by month
@@ -1135,12 +1142,15 @@ public Map<String, Double> getMediaContentRatingByMonth(MediaContentType type, S
     } catch (Exception e) {
         throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
     }
-}
-\end{lstlisting}
+}\end{lstlisting}
+\end{mdframed}
+
 \begin{itemize}
     \item Mongo Shell Query:
 \end{itemize}
-\begin{lstlisting}[language=JavaScript]
+
+\begin{mdframed}[style=customstyle]
+\begin{lstlisting}[language=java]
 db.getCollection.aggregate([
     { 
         // Match stage: Filters documents to include only those that meet the specified conditions.
@@ -1180,8 +1190,9 @@ db.getCollection.aggregate([
             month: 1 
         } 
     }
-]).toArray();
-\end{lstlisting}
+]).toArray();\end{lstlisting}
+\end{mdframed}
+
 \textbf{Suggest Media Content}\\
 Suggests media content (anime or manga) based on user criteria (location or birthday year).
 The aggregation pipeline performs the following steps:\\
@@ -1193,7 +1204,9 @@ The aggregation pipeline performs the following steps:\\
 \begin{itemize}
     \item Java Implementation:
 \end{itemize}
-\begin{lstlisting}[language=JavaScript]
+
+\begin{mdframed}[style=customstyle]
+\begin{lstlisting}[language=java]
 public List<MediaContentDTO> suggestMediaContent(MediaContentType mediaContentType, String criteriaType, String criteriaValue) throws DAOException {
     try  {
         // Suggest media content based on user criteria
@@ -1249,12 +1262,15 @@ public List<MediaContentDTO> suggestMediaContent(MediaContentType mediaContentTy
     } catch (Exception e) {
         throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
     }
-}
-\end{lstlisting}
+}\end{lstlisting}
+\end{mdframed}
+
 \begin{itemize}
     \item Mongo Shell Query:
 \end{itemize}
-\begin{lstlisting}[language=JavaScript]
+
+\begin{mdframed}[style=customstyle]
+\begin{lstlisting}[language=java]
 db.collection.aggregate([
     {
         // Match documents based on a dynamic user criteria
@@ -1281,9 +1297,8 @@ db.collection.aggregate([
         // Limit stage: Limits the number of results to a constant defined by 'Constants.PAGE_SIZE'.
         $limit: Constants.PAGE_SIZE
     }
-    ]);
-\end{lstlisting}
-
+]);\end{lstlisting}
+\end{mdframed}
 
 \subsection*{MANGA/ANIME:}
 \textbf{Get Best Criteria}\\
@@ -1291,7 +1306,9 @@ Retrieves the best criteria based on the average rating of the Anime objects in 
 \begin{itemize}
     \item Java Implementation:
 \end{itemize}
-\begin{lstlisting}[language=JavaScript]
+
+\begin{mdframed}[style=customstyle]
+\begin{lstlisting}[language=java]
 public Map<String, Double> getBestCriteria (String criteria, boolean isArray, int page) throws DAOException {
     try {
         MongoCollection<Document> animeCollection = getCollection(COLLECTION_NAME);
@@ -1331,12 +1348,15 @@ public Map<String, Double> getBestCriteria (String criteria, boolean isArray, in
     } catch (Exception e) {
         throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
     }
-}
-\end{lstlisting}
+}\end{lstlisting}
+\end{mdframed}
+
 \begin{itemize}
     \item Mongo Shell Query:
 \end{itemize}
-\begin{lstlisting}[language=JavaScript]
+
+\begin{mdframed}[style=customstyle]
+\begin{lstlisting}[language=java]
 db.collection.aggregate([
     // Match stage to filter documents where 'criteria' exists and 'average_rating' is not null
     {
@@ -1374,13 +1394,9 @@ db.collection.aggregate([
     }
 ]);
 \end{lstlisting}
-
-
-
+\end{mdframed}
 
 \newpage
-
-
   
 \section{GraphDB queries}
 Some of the most important Neo4j queries for analytic and suggestion purposes.
@@ -1394,7 +1410,9 @@ The method performs the following steps:\\
 \begin{itemize}
     \item Java Implementation:
 \end{itemize}
-\begin{lstlisting}[language=JavaScript]
+
+\begin{mdframed}[style=customstyle]
+\begin{lstlisting}[language=java]
 public List<UserSummaryDTO> suggestUsersByCommonLikes(String userId, Integer limit, MediaContentType type) throws DAOException {
 
     try (Session session = getSession()) {
@@ -1480,9 +1498,13 @@ public List<UserSummaryDTO> suggestUsersByCommonLikes(String userId, Integer lim
     }
 }
 \end{lstlisting}
+\end{mdframed}
+    
 \begin{itemize}
     \item Neo4j Query:
 \end{itemize}
+
+\begin{mdframed}[style=customstyle]
 \begin{lstlisting}[language=Cypher]
 // Match the user with the given userId who has liked media of type Manga
 MATCH (u:User {id: $userId})-[r:LIKE]->(media:Manga)<-[:LIKE]-(suggested:User) 
@@ -1497,8 +1519,9 @@ RETURN suggested AS user, commonLikes
 // Order the results by the count of common likes in descending order
 ORDER BY commonLikes DESC
 // Limit the number of results to the specified maximum
-LIMIT $n
-\end{lstlisting}
+LIMIT $n\end{lstlisting}
+\end{mdframed}
+
 \textbf{Suggest Users By Common Followings}\\
 Retrieves a list of suggested users for a specific user based on common followings from the Neo4j database.
 The method performs the following steps:\\
@@ -1508,7 +1531,9 @@ The method performs the following steps:\\
 \begin{itemize}
     \item Java Implementation:
 \end{itemize}
-\begin{lstlisting}[language=JavaScript]
+
+\begin{mdframed}[style=customstyle]
+\begin{lstlisting}[language=java]
 public List<UserSummaryDTO> suggestUsersByCommonFollowings(String userId, Integer limit) throws DAOException {
     try (Session session = getSession()) {
         int n = limit == null ? 5 : limit;
@@ -1589,11 +1614,14 @@ public List<UserSummaryDTO> suggestUsersByCommonFollowings(String userId, Intege
     } catch (Exception e) {
         throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
     }
-}
-\end{lstlisting}
+}\end{lstlisting}
+\end{mdframed}
+
 \begin{itemize}
     \item Neo4j Query:
 \end{itemize}
+
+\begin{mdframed}[style=customstyle]
 \begin{lstlisting}[language=Cypher]
 // Match the user with the given userId who follows other users
 MATCH (u:User {id: $userId})-[:FOLLOWS]->(following:User)<-[:FOLLOWS]-(suggested:User) 
@@ -1608,9 +1636,8 @@ RETURN suggested as user, commonFollowers
 // Order the results by the count of common followers in descending order
 ORDER BY commonFollowers DESC 
 // Limit the number of results to the specified maximum
-LIMIT $n
-\end{lstlisting}
-
+LIMIT $n\end{lstlisting}
+\end{mdframed}
 
 \subsection*{ANIME/MANGA:}
 \textbf{Get Trend Media Content By Year}\\
@@ -1618,7 +1645,9 @@ Retrieves a list of trending MangaDTO objects for a specific year from the Neo4j
 \begin{itemize}
     \item Java Implementation:
 \end{itemize}
-\begin{lstlisting}[language=JavaScript]
+
+\begin{mdframed}[style=customstyle]
+\begin{lstlisting}[language=java]
 public Map<MediaContentDTO, Integer> getTrendMediaContentByYear(int year, Integer limit) throws DAOException {
     int n = limit == null ? 5 : limit;
     try (Session session = getSession()) {
@@ -1653,11 +1682,14 @@ public Map<MediaContentDTO, Integer> getTrendMediaContentByYear(int year, Intege
     } catch (Exception e) {
         throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
     }
-}
-\end{lstlisting}
+}\end{lstlisting}
+\end{mdframed}
+
 \begin{itemize}
     \item Neo4j Query:
 \end{itemize}
+
+\begin{mdframed}[style=customstyle]
 \begin{lstlisting}[language=Cypher]
 // Match Anime nodes that are liked by Users, with a LIKE relationship and a date constraint
 MATCH (a:Anime)<-[r:LIKE]-(u:User)
@@ -1668,8 +1700,9 @@ WITH a, count(r) AS numLikes
 ORDER BY numLikes DESC
 // Return the Anime node and the number of likes, limiting the results to the specified maximum
 RETURN a AS anime, numLikes
-LIMIT $n    
-\end{lstlisting}
+LIMIT $n\end{lstlisting}
+\end{mdframed}
+
 \textbf{Get Media Content Trend By Likes}\\
 Retrieves a list of trending MangaDTO objects by likes from the Neo4j database.
 The method performs the following steps:\\
@@ -1679,7 +1712,9 @@ The method performs the following steps:\\
 \begin{itemize}
     \item Java Implementation:
 \end{itemize}
-\begin{lstlisting}[language=JavaScript]
+
+\begin{mdframed}[style=customstyle]
+\begin{lstlisting}[language=java]
 public List<MediaContentDTO> getMediaContentTrendByLikes(Integer limit) throws DAOException {
     try (Session session = getSession()) {
         int n = limit == null ? 5 : limit;
@@ -1752,11 +1787,14 @@ public List<MediaContentDTO> getMediaContentTrendByLikes(Integer limit) throws D
     } catch (Exception e) {
         throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
     }
-}
-\end{lstlisting}
+}\end{lstlisting}
+\end{mdframed}
+
 \begin{itemize}
     \item Neo4j Query:
 \end{itemize}
+
+\begin{mdframed}[style=customstyle]
 \begin{lstlisting}[language=Cypher]
 // Match User nodes who have liked Anime nodes with a LIKE relationship and date constraint
 MATCH (u:User)-[r:LIKE]->(a:Anime)
@@ -1767,8 +1805,9 @@ WITH a, COUNT(r) AS numLikes
 ORDER BY numLikes DESC
 // Return the Anime node and the number of likes, limiting the results to the specified maximum
 RETURN a AS anime, numLikes
-LIMIT $n
-\end{lstlisting}
+LIMIT $n\end{lstlisting}
+\end{mdframed}
+
 \textbf{Get Suggested By Followings}\\
 Retrieves a list of suggested MangaDTO objects for a user from the Neo4j database.
 The method performs the following steps:\\
@@ -1778,7 +1817,9 @@ The method performs the following steps:\\
 \begin{itemize}
     \item Java Implementation:
 \end{itemize}
-\begin{lstlisting}[language=JavaScript]
+
+\begin{mdframed}[style=customstyle]
+\begin{lstlisting}[language=java]
 public List<MediaContentDTO> getSuggestedByFollowings(String userId, Integer limit) throws DAOException {
     try (Session session = getSession()) {
         int n = limit == null ? 5 : limit;
@@ -1850,11 +1891,14 @@ public List<MediaContentDTO> getSuggestedByFollowings(String userId, Integer lim
     } catch (Exception e) {
         throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
     }
-}
-\end{lstlisting}
+}\end{lstlisting}
+\end{mdframed}
+
 \begin{itemize}
     \item Neo4j Query:
 \end{itemize}
+
+\begin{mdframed}[style=customstyle]
 \begin{lstlisting}[language=Cypher]
 // Match the User node with the specified userId who follows other User nodes,
 // and those followed Users who have liked Anime nodes with a LIKE relationship and date constraint.
@@ -1867,8 +1911,9 @@ WITH a, COUNT(DISTINCT f) AS num_likes
 RETURN a AS anime
 ORDER BY num_likes DESC
 // Limit the number of results returned to the specified maximum.
-LIMIT $n    
-\end{lstlisting}
+LIMIT $n\end{lstlisting}
+\end{mdframed}
+
 \textbf{Get Suggested By Likes}\\
 Retrieves a list of suggested MangaDTO objects for a user from the Neo4j database.
 The method performs the following steps:\\
@@ -1878,7 +1923,9 @@ The method performs the following steps:\\
 \begin{itemize}
     \item Java Implementation:
 \end{itemize}
-\begin{lstlisting}[language=JavaScript]
+
+\begin{mdframed}[style=customstyle]
+\begin{lstlisting}[language=java]
 public List<MediaContentDTO> getSuggestedByLikes(String userId, Integer limit) throws DAOException {
     try (Session session = getSession()) {
         int n = limit == null ? 5 : limit;
@@ -1958,11 +2005,14 @@ public List<MediaContentDTO> getSuggestedByLikes(String userId, Integer limit) t
     } catch (Exception e) {
         throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
     }
-}
-\end{lstlisting}
+}\end{lstlisting}
+\end{mdframed}
+
 \begin{itemize}
     \item Neo4j Query:
 \end{itemize}
+
+\begin{mdframed}[style=customstyle]
 \begin{lstlisting}[language=Cypher]
 // Match the User node with the specified userId who likes Anime nodes (r1) and those Anime nodes are liked by other Users (f).
 MATCH (u:User {id: $userId})-[r1:LIKE]->(a:Anime)<-[:LIKE]-(f:User)
@@ -1982,10 +2032,5 @@ WITH a2, COUNT(DISTINCT f) AS num_likes
 RETURN a2 AS anime
 ORDER BY num_likes DESC
 // Limit the number of Anime nodes returned to the specified maximum ($n).
-LIMIT $n    
-\end{lstlisting}
-
-
-
-
-
+LIMIT $n\end{lstlisting}
+\end{mdframed}

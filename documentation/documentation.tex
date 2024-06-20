@@ -16,6 +16,7 @@
 \usepackage{ragged2e}
 \usepackage{mdframed}
 \usepackage{tikz}
+\usepackage{svg}
 
 % Packages for math and tables
 \usepackage{amsmath}
@@ -25,7 +26,6 @@
 \usepackage{multirow}
 \usepackage{array}
 \usepackage{longtable}
-\usepackage{svg}
 
 % Packages for references and the table of contents
 \usepackage{hyperref} % For links in the table of contents
@@ -34,6 +34,8 @@
 % Packages for code
 \usepackage{listings}
 \usepackage{courier} % Font for code
+\usepackage{fancyvrb}
+\usepackage{lipsum} % For dummy text
 
 % Remove paragraph indentation and add space between paragraphs
 \usepackage{parskip}  
@@ -52,6 +54,9 @@
 \definecolor{darkgreen}{rgb}{0,0.5,0}
 \definecolor{java_keyword}{HTML}{BF9B30}
 \definecolor{java_comment}{HTML}{0000FF}
+\definecolor{mybackgroundcolor}{RGB}{240, 240, 240} % Light gray background
+\definecolor{black}{RGB}{0, 0, 0} % Define black color
+
 
 % Configuration for hyperref to remove red margins and color the links
 \hypersetup{
@@ -75,12 +80,18 @@
 
 % Style for code
 \lstdefinestyle{mystyle}{
-    backgroundcolor=\color{white},   
+    language=Java,
+    backgroundcolor=\color{mybackgroundcolor}, % Background color
     commentstyle=\color{darkgreen},
     keywordstyle=\color{blue},
     numberstyle=\tiny\color{gray},
     stringstyle=\color{orange},
     basicstyle=\ttfamily\footnotesize,
+    framesep=10pt, % padding between frame and text
+    xleftmargin=10pt, % left margin
+    xrightmargin=10pt, % right margin
+    aboveskip=10pt, % Top padding
+    belowskip=10pt, % Bottom padding
     breakatwhitespace=false,         
     breaklines=true,                 
     captionpos=b,                    
@@ -91,6 +102,21 @@
     showstringspaces=false,
     showtabs=false,                  
     tabsize=2
+}
+
+% Define a custom style for mdframed
+\mdfdefinestyle{customstyle}{
+    linecolor=myBlue, % Border color
+    linewidth=2pt, % Border width
+    roundcorner=10pt, % Rounded corners
+    backgroundcolor=mybackgroundcolor, % Background color
+    innertopmargin=10pt, % Top padding
+    innerbottommargin=10pt, % Bottom padding
+    innerrightmargin=10pt, % Right padding
+    innerleftmargin=10pt, % Left padding
+    skipabove=20pt, % Space above the frame
+    skipbelow=20pt, % Space below the frame
+    fontcolor=black, % Text color
 }
 
 % Languages for code
@@ -148,7 +174,9 @@
 }
 
 % Set the base style for code
-\lstset{style=mystyle}
+\lstset{
+  style=mystyle
+}
 
 \begin{document}
 
