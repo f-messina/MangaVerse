@@ -48,8 +48,6 @@ That includes the following tools and technologies:
     \item JUnit.
 \end{itemize}
 
-\newpage
-
 \section{Main Modules}
 \begin{itemize}
     \item Configuration
@@ -86,7 +84,7 @@ method is invoked when the web application shuts down. It closes all database co
 
 For MongoDB was used this configuration:
 
-\begin{mdframed}[backgroundcolor=yellow!20, innerleftmargin=10pt, innerrightmargin=10pt]
+\begin{mdframed}[style=customstyle]
     \begin{lstlisting}[language=java]
     settings = MongoClientSettings.builder()
                 .applyConnectionString(connectionString)
@@ -94,8 +92,7 @@ For MongoDB was used this configuration:
                 .readPreference(ReadPreference.nearest())
                 .retryWrites(true)
                 .readConcern(ReadConcern.LOCAL)
-                .build();
-    \end{lstlisting}
+                .build();\end{lstlisting}
 \end{mdframed}
 
 \begin{itemize}
@@ -133,7 +130,7 @@ servlet generates the appropriate response.
 \vspace{\baselineskip}
 
 \textbf{Example code snippet from MediaContentServlet:}
-\begin{mdframed}[backgroundcolor=yellow!20, innerleftmargin=10pt, innerrightmargin=10pt]
+\begin{mdframed}[style=customstyle]
     \begin{lstlisting}[language=java]
 {
     @Override
@@ -157,8 +154,7 @@ servlet generates the appropriate response.
             case null, default -> handleLoadPage(request, response);
         }
     }
-}
-    \end{lstlisting}
+}\end{lstlisting}
 \end{mdframed}
 
 The controller module contains the following classes:
@@ -203,10 +199,10 @@ It provides a layer of abstraction between the database and the rest of the appl
     \item DAOLocator 
 \end{itemize}
 
-\newpage
+\vspace{\baselineskip}
 
 \textbf{Example code snippet from MangaDAOMongoImpl:}
-\begin{mdframed}[backgroundcolor=yellow!20, innerleftmargin=10pt, innerrightmargin=10pt]
+\begin{mdframed}[style=customstyle]
     \begin{lstlisting}[language=java]
 {
     //MongoDB queries
@@ -256,14 +252,13 @@ It provides a layer of abstraction between the database and the rest of the appl
             throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
         }
     }
-}
-    \end{lstlisting}
+}\end{lstlisting}
 \end{mdframed}
 
-\newpage
+\vspace{\baselineskip}
 
 \textbf{Example code snippet from UserDAONeo4jImpl:}
-\begin{mdframed}[backgroundcolor=yellow!20, innerleftmargin=10pt, innerrightmargin=10pt]
+\begin{mdframed}[style=customstyle]
     \begin{lstlisting}[language=java]
 {
     /**
@@ -307,16 +302,14 @@ It provides a layer of abstraction between the database and the rest of the appl
            throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
        }
    }
-}
-    \end{lstlisting}
+}\end{lstlisting}
 \end{mdframed}
-\newpage
 
+\vspace{\baselineskip}
 
 \subsection*{DTO (Data Transfer Objects)}
 The DTO modules are the intermediary class between presentation layer and the DAO module in the web application.
 They transfer data structures between different layers and components of the application in a more standardized way.
-
 
 \subsection*{Model}
 \begin{itemize}
@@ -381,64 +374,107 @@ package structure of Service module is as follows:
     \item ServiceLocator
 \end{itemize}
 
-\section{Adopted Patterns and Techniques}
+\vspace{\baselineskip}
+
+\section{Implemented Strategies and Practices}
 \subsection*{Patterns}
 
-\textbf{MVC Pattern}
+\subsubsection*{MVC Pattern}
 
-The MVC (\textit{Model-View-Controller}) pattern is a prevalent architectural pattern in software development, 
-especially in web applications. It divides the application into three interconnected components:
+The MVC (\textit{Model-View-Controller}) pattern is a prevalent architectural pattern in software development, especially in web 
+applications. It divides the application into three interconnected components:
 
 \begin{itemize}
-  \item \textbf{Model:} Represents the core data and business logic of the application. It interfaces with 
-  databases and processes data manipulation and business rules.
-  
-  \item \textbf{View:} Handles the presentation layer of the application. It's responsible for rendering data 
-  to users and transmitting user interactions to the controller.
-  
-  \item \textbf{Controller:} Acts as an intermediary between the model and view components. It receives user 
-  input, processes requests, and updates the model state accordingly. It then triggers updates to the view to reflect these changes.
+\item \textbf{Model:} Represents the core data and business logic of the application. It interfaces with databases and processes 
+data manipulation and business rules.
+
+\item \textbf{View:} Handles the presentation layer of the application. It's responsible for rendering data to users and 
+transmitting user interactions to the controller.
+
+\item \textbf{Controller:} Acts as an intermediary between the model and view components. It receives user input, 
+processes requests, and updates the model state accordingly. It then triggers updates to the view to reflect these changes.
 \end{itemize}
 
-The MVC pattern emphasizes separation of concerns, enhancing modularity, maintainability, and testability of the 
-application. It supports diverse views for the same data and facilitates independent development of different 
-application components by separate teams.
+\vspace{\baselineskip}
 
-\textbf{Locator Pattern}
+In addition to the MVC components, modern applications often integrate several additional modules to enhance organization and maintainability:
 
-The Locator design pattern manages dependencies and interactions between modules in software applications. It 
-decouples operations by enabling clients to request implementations from a locator, rather than directly instantiating 
-implementation classes. This promotes flexibility and modularity in the application's architecture.
+\begin{itemize}
+\item \textbf{DAO (Data Access Object):} Handles access to different databases in an organized manner. It abstracts the data
+access layer from the rest of the application, providing standardized methods for querying and manipulating data.
 
-\textbf{Singleton Pattern}
+\item \textbf{Service:} Manages the application's business logic and acts as an intermediary between the controller and the 
+DAO module. It encapsulates complex business rules and orchestrates multiple DAO accesses to execute operations requested by users.
 
-The Singleton pattern ensures that a class has a single instance and provides a global point of access to it. It's 
-employed in scenarios where multiple components require access to a shared resource, such as database connections, 
-while preventing redundant object creation and optimizing resource usage.
+\item \textbf{DTO (Data Transfer Object):} Facilitates the transfer of data between layers and modules of the application. 
+DTOs are lightweight objects that carry data between the client and server, or between different layers of the application. 
+They streamline communication and reduce the amount of data transmitted over the network.
+\end{itemize}
 
-\subsection*{Techniques}
+\vspace{\baselineskip}
 
-\textbf{Task Manager:}\\
-Task Manager class which is located in the service module of the system provides asynchronous task execution with using 
-\textit{PriorityBlockingQueue}. It helps to order the tasks according to their prioritizes. 
-After that prioritization, it ensures that higher priority tasks will be executed first and if two tasks have the 
-same priority the one which is created before will be executed first. While Task Manager class is able to start and stop the tasks within the functions inside,
-it can also take tasks to the queue in a thread-safe way. By using taskComparator for ordering the tasks,
-the system provides also effective scheduling and execution. \\ \\
-\textbf{Aperiodic Executor Task Service:}\\
-Executor Task Service class which is located inside the service module of the system is an important part for providing the eventual consistency. Executing tasks in asynchronous way with threads guarantees
-eventual consistency across different collections, mongoDB and neo4j and different replicas. 
-With the help of the Executor Task Service, tasks that are needed to be executed in an asynchronous way are handled by ensuring that changes propagate correctly across different part of the system.
-While using multiple databases and data replicas for this web application, it is important for maintain data integrity and eventual consistency.
-Executing the tasks in an asynchronous way using threads allows to perform operations without blocking the main execution flow.
-Aperiodic executer task service class is implemented by using the interface of executor service. 
+Together, these components (Model, View, Controller, DAO, Service, and DTO) form a cohesive architecture that promotes 
+separation of concerns, modularity, maintainability, and testability in software applications. They enable parallel 
+development of different components by separate teams, support diverse views of the same data, and ensure efficient data 
+transfer across the application.
 
+\subsubsection*{Session Management}
+
+Session management in the application optimizes user state using the HttpSession interface. Storing crucial user information in session variables 
+reduces the need for frequent database accesses, thereby enhancing performance and user experience.
+
+\subsubsection*{Locator Pattern}
+
+The Locator design pattern effectively manages dependencies and interactions among modules in software applications.
+By allowing clients to request implementations from a locator instead of directly instantiating implementation 
+classes, it decouples operations. This approach enhances flexibility and modularity within the application's 
+architecture, making it well-suited for integration with the MVC Pattern.
+
+\subsubsection*{Singleton Pattern}
+
+The Singleton pattern ensures that a class has a single instance and provides a global point of access to it. It is 
+particularly valuable in scenarios where multiple components need consistent access to a shared resource, such as 
+database connections, thereby preventing redundant object creation and optimizing resource utilization. Moreover, 
+it finds application in classes that manage thread execution, such as \textit{ErrorTaskManager}, 
+\textit{AperiodicExecutorTaskServiceImpl}, and \textit{PeriodicExecutorTaskServiceImpl}. This pattern ensures that 
+these classes maintain singular control over their respective tasks, enhancing efficiency and coordination within the application.
+
+\subsubsection*{Task Abstraction}
+
+The class Task represents individual asynchronous operations within the application. Each task is defined by its priority and timestamp 
+and implements the abstract method executeJob to initiate task execution. Various Task implementations manage data redundancy across different 
+MongoDB collections and ensure synchronization between MongoDB and Neo4j databases, leveraging Data Access Objects (DAOs) for efficient data management.
+
+\subsubsection*{Task Manager}
+
+The Task Manager defines methods for managing a task queue capable of handling up to 30 tasks. Tasks are added based on priority 
+or timestamp in case of equal priority. The concrete implementation, ErrorTaskManager, specifically manages tasks encountering transient errors during execution.
+
+\vspace{\baselineskip}
+
+Execution of tasks is handled by a dedicated thread, which continuously retrieves and processes tasks from the queue. When the queue is empty, the 
+thread waits for new tasks. Tasks encountering RETRYABLE errors during execution are rescheduled in the queue for future retries, ensuring eventual
+data consistency across the application. Additionally, tasks failing consecutively five times generate a warning log message to prevent indefinite looping.
+
+\subsubsection*{Executor Service}
+
+The ExecutorService, implemented through the Java interface, manages two types of tasks: Runnable for asynchronous operations 
+without immediate result retrieval, and Callable using the Future type for retrieving data in the main thread upon task completion. 
+This concurrency model significantly boosts application efficiency by parallelizing operations.
+
+\vspace{\baselineskip}
+
+Within the application, Runnable tasks manage redundancy and ensure eventual consistency across both MongoDB and 
+Neo4j databases, thereby minimizing performance impacts and enhancing application responsiveness. Callable tasks 
+are utilized in controllers to handle multiple accesses for retrieving necessary information to load pages efficiently.
+
+\newpage
 
 \section{Description of Main Classes}
 
 \subsection*{Controller}
 \renewcommand{\arraystretch}{1.5}
-\begin{longtable}{|>{\arraybackslash}p{0.33\linewidth}|>{\arraybackslash}p{0.66\linewidth}|}
+\begin{longtable}{|>{\arraybackslash}p{0.3\linewidth}|>{\arraybackslash}p{0.73\linewidth}|}
     \cline{1-2}
     \textbf{Class} & \textbf{Description} \\
     \cline{1-2}
@@ -455,8 +491,6 @@ Aperiodic executer task service class is implemented by using the interface of e
     UserServlet & Handles requests related to user model \\
     \cline{1-2}
 \end{longtable}
-
-\newpage
 
 \subsection*{DAO}
 \renewcommand{\arraystretch}{1.5}
@@ -504,6 +538,8 @@ Aperiodic executer task service class is implemented by using the interface of e
     DAOLocator & & Implements the locator pattern for accessing DAOs based on the specified data repository \\
     \hline
 \end{longtable}
+
+\newpage
 
 \subsection*{DTO}
 \renewcommand{\arraystretch}{1.5}
@@ -584,7 +620,7 @@ Aperiodic executer task service class is implemented by using the interface of e
     \hline
 \end{longtable}
 
-
+\newpage
 
 \subsection*{Service}
 \renewcommand{\arraystretch}{1.5} % Adjusts the row height
@@ -664,19 +700,18 @@ Aperiodic executer task service class is implemented by using the interface of e
     \hline
 \end{longtable}
 
-
-
-\newpage
 \section {MongoDB queries}
 Some of the most important MongoDB queries for analytic and suggestion purposes. 
 
 \subsection*{USER:}
-\textbf{Get Distribution}\\
+\subsubsection*{Get Distribution}
+
 GetDistribution query to get the user's location, birthday year that gave the highest rating to the application
 \begin{itemize}
     \item Java Implementation:
 \end{itemize}
-\begin{lstlisting}[language=JavaScript]
+\begin{mdframed}[style=customstyle]
+\begin{lstlisting}[language=java]
 public Map<String, Integer> getDistribution(String criteria) throws DAOException {
     try {
         MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
@@ -718,16 +753,17 @@ public Map<String, Integer> getDistribution(String criteria) throws DAOException
     } catch (Exception e){
         throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
     }
-}
-\end{lstlisting}
+}\end{lstlisting}
+\end{mdframed}
 
 \begin{itemize}
     \item Mongo Shell Query:
 \end{itemize}
-\begin{lstlisting}[language=JavaScript]
-    // Match stage to filter documents where 'criteriaOfSearch' exists
+\begin{mdframed}[style=customstyle]
+\begin{lstlisting}[language=java]
     db.collection.aggregate([
         {
+            // Match stage to filter documents where 'criteriaOfSearch' exists
             $match: {
                 [criteriaOfSearch]: { $exists: true }
             }
@@ -752,16 +788,18 @@ public Map<String, Integer> getDistribution(String criteria) throws DAOException
                 count: -1
             }
         }
-    ]);     
+    ]);\end{lstlisting}
+\end{mdframed} 
 
+\subsubsection*{Average App Rating}
 
-\end{lstlisting} 
-\textbf{Average App Rating}\\
 Calculates the average application rating based on the specified search criteria
 \begin{itemize}
     \item Java Implementation:
 \end{itemize}
-\begin{lstlisting}[language=JavaScript]
+
+\begin{mdframed}[style=customstyle]
+\begin{lstlisting}[language=java]
     public Map<String, Double> averageAppRating(String criteria) throws DAOException {
     try {
         MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
@@ -789,15 +827,19 @@ Calculates the average application rating based on the specified search criteria
     catch (Exception e){
         throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
     }
-}
-\end{lstlisting}
+}\end{lstlisting}
+\end{mdframed}
         
     \begin{itemize}
         \item Mongo Shell Query:
     \end{itemize}
-    \begin{lstlisting}[language=JavaScript]
+
+\begin{mdframed}[style=customstyle]
+\begin{lstlisting}[language=java]
 db.getCollection.aggregate([
     { 
+        // Match stage: Filters documents to include only those that 
+        // have both the specified 'criteria' field and 'app_rating' field.
         $match: { 
                 $and: [
                 { [criteria]: { $exists: true } },
@@ -806,20 +848,26 @@ db.getCollection.aggregate([
         } 
     },
     { 
+        // Group stage: Groups the filtered documents by the 'criteria' field.
+        // Calculates the average value of 'app_rating' for each group.
         $group: { 
             _id: "$" + criteria, 
             averageAppRating: { $avg: "$app_rating" }
         } 
     },
     { 
+        // Sort stage: Sorts the groups in descending order by 'averageAppRating'.
         $sort: { 
             averageAppRating: -1 
         } 
     }
-]).toArray();      
-        
-\end{lstlisting}
-\textbf{Average App Rating By Age}\\
+]).toArray();\end{lstlisting}
+\end{mdframed}
+
+\newpage
+
+\subsubsection*{Average App Rating By Age}
+
 Calculates the average app rating for users grouped by age ranges.
 The age ranges are defined as follows:\\
 - 0-13 years\\
@@ -831,7 +879,9 @@ The age ranges are defined as follows:\\
 \begin{itemize}
     \item Java Implementation:
 \end{itemize}
-\begin{lstlisting}[language=JavaScript]
+
+\begin{mdframed}[style=customstyle]
+\begin{lstlisting}[language=java]
 public Map<String, Double> averageAppRatingByAgeRange() throws DAOException {
     try {
         MongoCollection<Document> usersCollection = getCollection(COLLECTION_NAME);
@@ -877,15 +927,21 @@ public Map<String, Double> averageAppRatingByAgeRange() throws DAOException {
     } catch (Exception e){
         throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
     }
-}
-\end{lstlisting}
+}\end{lstlisting}
+\end{mdframed}
     
+\newpage
+
 \begin{itemize}
     \item Mongo Shell Query:
 \end{itemize}
-\begin{lstlisting}[language=JavaScript]
+
+\begin{mdframed}[style=customstyle]
+\begin{lstlisting}[language=java]
 db.getCollection('COLLECTION_NAME').aggregate([
     { 
+        // Match stage: Filters documents to include only those that 
+        // have both the 'birthday' field and 'app_rating' field.
         $match: { 
             $and: [
                 { birthday: { $exists: true } }, 
@@ -894,6 +950,10 @@ db.getCollection('COLLECTION_NAME').aggregate([
         } 
     },
     { 
+        // Project stage: Adds a new field 'age' calculated by subtracting 
+        // the 'birthday' from the current date, converting the difference 
+        // from milliseconds to years, and taking the floor of the result.
+        // Also includes the 'app_rating' field.
         $project: { 
             age: { 
                 $floor: { 
@@ -907,6 +967,10 @@ db.getCollection('COLLECTION_NAME').aggregate([
         } 
     },
     { 
+        // Bucket stage: Groups the documents into buckets based on the 'age' field.
+        // Specifies boundaries for the buckets and assigns documents with an age 
+        // outside these boundaries to the default bucket (50+ years).
+        // For each bucket, calculates the average value of 'app_rating'.
         $bucket: {
             groupBy: "$age",
             boundaries: [0, 13, 20, 30, 40, 50],
@@ -916,17 +980,15 @@ db.getCollection('COLLECTION_NAME').aggregate([
             }
         }
     }
-]).toArray();
-       
-    
-\end{lstlisting}
+]).toArray();\end{lstlisting}
+\end{mdframed}
 
-
-
-
+\newpage
 
 \subsection*{REVIEW:}
-\textbf{Get Media Content Rating By Year}\\
+
+\subsubsection*{Get Media Content Rating By Year}
+
 Retrieves the average ratings for a specific media content (anime or manga) by year within a specified range.
 The aggregation pipeline performs the following steps:\\
 1. Matches the reviews for the specified media content ID and date range, ensuring the reviews have a rating.\\
@@ -936,7 +998,9 @@ The aggregation pipeline performs the following steps:\\
 \begin{itemize}
     \item Java Implementation:
 \end{itemize}
-\begin{lstlisting}[language=JavaScript]
+
+\begin{mdframed}[style=customstyle]
+\begin{lstlisting}[language=java]
 public Map<String, Double> getMediaContentRatingByYear(MediaContentType type, String mediaContentId, int startYear, int endYear) throws  DAOException {
     try  {
         // Get media content rating by year
@@ -981,44 +1045,56 @@ public Map<String, Double> getMediaContentRatingByYear(MediaContentType type, St
     } catch (Exception e) {
         throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
     }
-}
-\end{lstlisting}
+}\end{lstlisting}
+\end{mdframed}
     
+\newpage
+
 \begin{itemize}
     \item Mongo Shell Query:
 \end{itemize}
-\begin{lstlisting}[language=JavaScript]
+
+\begin{mdframed}[style=customstyle]
+\begin{lstlisting}[language=java]
 // Match stage to filter documents based on specified conditions
 db.collection.aggregate([
     {
+        // Filters documents to include only those where:
+        // 1. The nested 'id' field under 'nodeType' matches the specified 'mediaContentId'.
+        // 2. The 'rating' field exists.
+        // 3. The 'date' field is within the specified date range (startDate to endDate).
         $match: {
             [`${nodeType}.id`]: new ObjectId(mediaContentId),
             rating: { $exists: true },
             date: { $gte: startDate, $lt: endDate }
         }
     },
-    // Group stage to group documents by year and calculate the average rating
     {
+        // Groups the filtered documents by year extracted from the 'date' field.
+        // Calculates the average value of 'rating' for each year.
         $group: {
             _id: { $year: "$date" },
             average_rating: { $avg: "$rating" }
         }
     },
-    // Project stage to shape the output documents
     {
+        // Projects the result to include the 'year' and 'average_rating' fields,
+        // excluding the '_id' field.
         $project: {
             _id: 0,
             year: "$_id",
             average_rating: 1
         }
     },
-    // Sort stage to sort documents by year in ascending order
     {
+        // Sort stage to sort documents by year in ascending order
         $sort: { year: 1 }
     }
-]);
-\end{lstlisting}
-\textbf{Get Media Content Rating By Month}\\
+]);\end{lstlisting}
+\end{mdframed}
+
+\subsubsection*{Get Media Content Rating By Month}
+
 Retrieves the average ratings for a specific media content (anime or manga) by month for a specified year.
 The aggregation pipeline performs the following steps:\\
 1. Matches the reviews for the specified media content ID and year, ensuring the reviews have a rating.\\
@@ -1028,7 +1104,9 @@ The aggregation pipeline performs the following steps:\\
 \begin{itemize}
     \item Java Implementation:
 \end{itemize}
-\begin{lstlisting}[language=JavaScript]
+
+\begin{mdframed}[style=customstyle]
+\begin{lstlisting}[language=java]
 public Map<String, Double> getMediaContentRatingByMonth(MediaContentType type, String mediaContentId, int year) throws DAOException {
     try  {
         // Get media content rating by month
@@ -1076,30 +1154,42 @@ public Map<String, Double> getMediaContentRatingByMonth(MediaContentType type, S
     } catch (Exception e) {
         throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
     }
-}
-\end{lstlisting}
+}\end{lstlisting}
+\end{mdframed}
+
 \begin{itemize}
     \item Mongo Shell Query:
 \end{itemize}
-\begin{lstlisting}[language=JavaScript]
+
+\begin{mdframed}[style=customstyle]
+\begin{lstlisting}[language=java]
 db.getCollection.aggregate([
     { 
+        // Match stage: Filters documents to include only those that meet the specified conditions.
         $match: { 
             $and: [
+                // Includes documents where the nested 'id' field under 'nodeType' matches 'mediaContentId'.
                 { [nodeType + ".id"]: mediaContentId },
+                // Includes documents where the 'rating' field exists.
                 { rating: { $exists: true } },
+                // Includes documents where the 'date' field is greater than or equal to 'startDate'.
                 { date: { $gte: startDate } },
+                // Includes documents where the 'date' field is less than 'endDate'.
                 { date: { $lt: endDate } }
             ]
         } 
     },
     { 
+        // Group stage: Groups the filtered documents by the month extracted from the 'date' field.
+        // Calculates the average value of 'rating' for each month.
         $group: { 
             _id: { $month: "$date" },
             average_rating: { $avg: "$rating" }
         } 
     },
     { 
+        // Project stage: Shapes the output documents to include 'month' and 'average_rating' fields.
+        // Excludes the '_id' field.
         $project: { 
             _id: 0,
             month: "$_id",
@@ -1107,13 +1197,16 @@ db.getCollection.aggregate([
         } 
     },
     { 
+        // Sort stage: Sorts the documents by 'month' in ascending order.
         $sort: { 
             month: 1 
         } 
     }
-]).toArray();
-\end{lstlisting}
-\textbf{Suggest Media Content}\\
+]).toArray();\end{lstlisting}
+\end{mdframed}
+
+\subsubsection*{Suggest Media Content}
+
 Suggests media content (anime or manga) based on user criteria (location or birthday year).
 The aggregation pipeline performs the following steps:\\
 1. Matches the reviews with a rating, the specified media content type and the user criteria.\\
@@ -1124,7 +1217,9 @@ The aggregation pipeline performs the following steps:\\
 \begin{itemize}
     \item Java Implementation:
 \end{itemize}
-\begin{lstlisting}[language=JavaScript]
+
+\begin{mdframed}[style=customstyle]
+\begin{lstlisting}[language=java]
 public List<MediaContentDTO> suggestMediaContent(MediaContentType mediaContentType, String criteriaType, String criteriaValue) throws DAOException {
     try  {
         // Suggest media content based on user criteria
@@ -1180,21 +1275,27 @@ public List<MediaContentDTO> suggestMediaContent(MediaContentType mediaContentTy
     } catch (Exception e) {
         throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
     }
-}
-\end{lstlisting}
+}\end{lstlisting}
+\end{mdframed}
+
 \begin{itemize}
     \item Mongo Shell Query:
 \end{itemize}
-\begin{lstlisting}[language=JavaScript]
+
+\begin{mdframed}[style=customstyle]
+\begin{lstlisting}[language=java]
 db.collection.aggregate([
     {
         // Match documents based on a dynamic user criteria
+        // It dynamically matches documents where a field in the 'user' object 
+        // (specified by 'criteriaType') has the value 'criteriaValue'.
         $match: {
         ["user." + criteriaType]: criteriaValue
         }
     },
     {
-        // Group documents by node type ID and calculate the first title and average rating
+        // Group stage: Groups documents by the node type's ID.
+        // For each group, it retrieves the first title and calculates the average rating.
         $group: {
         _id: "$" + nodeType + ".id", // Group by the node type's ID
         title: { $first: "$" + nodeType + ".title" }, // Get the first title in the group
@@ -1202,24 +1303,26 @@ db.collection.aggregate([
         }
     },
     {
-        // Sort the grouped documents by average rating in descending order
+        // Sort stage: Sorts the grouped documents by average rating in descending order.
         $sort: { average_rating: -1 }
     },
     {
-        // Limit the number of results to the page size constant
+        // Limit stage: Limits the number of results to a constant defined by 'Constants.PAGE_SIZE'.
         $limit: Constants.PAGE_SIZE
     }
-    ]);
-\end{lstlisting}
-
+]);\end{lstlisting}
+\end{mdframed}
 
 \subsection*{MANGA/ANIME:}
-\textbf{Get Best Criteria}\\
+\subsubsection*{Get Best Criteria}
+
 Retrieves the best criteria based on the average rating of the Anime objects in the MongoDB database.
 \begin{itemize}
     \item Java Implementation:
 \end{itemize}
-\begin{lstlisting}[language=JavaScript]
+
+\begin{mdframed}[style=customstyle]
+\begin{lstlisting}[language=java]
 public Map<String, Double> getBestCriteria (String criteria, boolean isArray, int page) throws DAOException {
     try {
         MongoCollection<Document> animeCollection = getCollection(COLLECTION_NAME);
@@ -1259,12 +1362,15 @@ public Map<String, Double> getBestCriteria (String criteria, boolean isArray, in
     } catch (Exception e) {
         throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
     }
-}
-\end{lstlisting}
+}\end{lstlisting}
+\end{mdframed}
+
 \begin{itemize}
     \item Mongo Shell Query:
 \end{itemize}
-\begin{lstlisting}[language=JavaScript]
+
+\begin{mdframed}[style=customstyle]
+\begin{lstlisting}[language=java]
 db.collection.aggregate([
     // Match stage to filter documents where 'criteria' exists and 'average_rating' is not null
     {
@@ -1280,7 +1386,9 @@ db.collection.aggregate([
     // Group stage to calculate the average rating for each criteria
     {
         $group: {
+            // Group by each individual 'criteria' element
             _id: "$" + criteria,
+            // Calculate the average rating for each 'criteria'
             criteria_average_rating: { $avg: "$average_rating" }
         }
     },
@@ -1300,18 +1408,15 @@ db.collection.aggregate([
     }
 ]);
 \end{lstlisting}
-
-
-
-
-\newpage
-
-
+\end{mdframed}
   
+\vspace{\baselineskip}
+
 \section{GraphDB queries}
 Some of the most important Neo4j queries for analytic and suggestion purposes.
 \subsection*{USERS:}
-\textbf{Suggest User By Common Likes}\\
+\subsubsection*{Suggest User By Common Likes}
+
 Retrieves a list of suggested users for a specific user based on common likes from the Neo4j database.
 The method performs the following steps:\\
 1. Retrieve users who like the same media content as the specified user in the last 6 month.\\
@@ -1320,7 +1425,9 @@ The method performs the following steps:\\
 \begin{itemize}
     \item Java Implementation:
 \end{itemize}
-\begin{lstlisting}[language=JavaScript]
+
+\begin{mdframed}[style=customstyle]
+\begin{lstlisting}[language=java]
 public List<UserSummaryDTO> suggestUsersByCommonLikes(String userId, Integer limit, MediaContentType type) throws DAOException {
 
     try (Session session = getSession()) {
@@ -1406,19 +1513,32 @@ public List<UserSummaryDTO> suggestUsersByCommonLikes(String userId, Integer lim
     }
 }
 \end{lstlisting}
+\end{mdframed}
+    
 \begin{itemize}
     \item Neo4j Query:
 \end{itemize}
+
+\begin{mdframed}[style=customstyle]
 \begin{lstlisting}[language=Cypher]
+// Match the user with the given userId who has liked media of type Manga
 MATCH (u:User {id: $userId})-[r:LIKE]->(media:Manga)<-[:LIKE]-(suggested:User) 
+// Filter out the original user from the suggested users and only consider likes after the specified date
 WHERE u <> suggested AND r.date >= $date
+// Pass the suggested users and count of distinct media liked by both users to the next stage
 WITH suggested, COUNT(DISTINCT media) AS commonLikes
+// Filter out users with common likes less than or equal to the minimum threshold
 WHERE commonLikes > $min
+// Return the suggested users and the count of common likes
 RETURN suggested AS user, commonLikes
+// Order the results by the count of common likes in descending order
 ORDER BY commonLikes DESC
-LIMIT $n
-\end{lstlisting}
-\textbf{Suggest Users By Common Followings}\\
+// Limit the number of results to the specified maximum
+LIMIT $n\end{lstlisting}
+\end{mdframed}
+
+\subsubsection*{Suggest Users By Common Followings}
+
 Retrieves a list of suggested users for a specific user based on common followings from the Neo4j database.
 The method performs the following steps:\\
 1. Retrieve users that follow user's followings and have more than 5 common followings.\\
@@ -1427,7 +1547,9 @@ The method performs the following steps:\\
 \begin{itemize}
     \item Java Implementation:
 \end{itemize}
-\begin{lstlisting}[language=JavaScript]
+
+\begin{mdframed}[style=customstyle]
+\begin{lstlisting}[language=java]
 public List<UserSummaryDTO> suggestUsersByCommonFollowings(String userId, Integer limit) throws DAOException {
     try (Session session = getSession()) {
         int n = limit == null ? 5 : limit;
@@ -1508,29 +1630,43 @@ public List<UserSummaryDTO> suggestUsersByCommonFollowings(String userId, Intege
     } catch (Exception e) {
         throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
     }
-}
-\end{lstlisting}
+}\end{lstlisting}
+\end{mdframed}
+
+\newpage
+
 \begin{itemize}
     \item Neo4j Query:
 \end{itemize}
-\begin{lstlisting}[language=Cypher]
-MATCH (u:User {id: $userId})-[:FOLLOWS]->(following:User)<-[:FOLLOWS]-(suggested:User) 
-WHERE NOT (u)-[:FOLLOWS]->(suggested) AND u <> suggested 
-WITH suggested, COUNT(DISTINCT following) AS commonFollowers 
-WHERE commonFollowers > 5 
-RETURN suggested as user, commonFollowers 
-ORDER BY commonFollowers DESC 
-LIMIT $n
-\end{lstlisting}
 
+\begin{mdframed}[style=customstyle]
+\begin{lstlisting}[language=Cypher]
+// Match the user with the given userId who follows other users
+MATCH (u:User {id: $userId})-[:FOLLOWS]->(following:User)<-[:FOLLOWS]-(suggested:User) 
+// Ensure that the suggested user is not already followed by the original user and they are not the same user
+WHERE NOT (u)-[:FOLLOWS]->(suggested) AND u <> suggested 
+// Calculate the count of distinct users that both the original user and suggested user follow
+WITH suggested, COUNT(DISTINCT following) AS commonFollowers 
+// Filter out suggested users who have less than or equal to 5 common followers
+WHERE commonFollowers > 5 
+// Return the suggested users along with the count of common followers
+RETURN suggested as user, commonFollowers 
+// Order the results by the count of common followers in descending order
+ORDER BY commonFollowers DESC 
+// Limit the number of results to the specified maximum
+LIMIT $n\end{lstlisting}
+\end{mdframed}
 
 \subsection*{ANIME/MANGA:}
-\textbf{Get Trend Media Content By Year}\\
+\subsubsection*{Get Trend Media Content By Year}
+
 Retrieves a list of trending MangaDTO objects for a specific year from the Neo4j database.
 \begin{itemize}
     \item Java Implementation:
 \end{itemize}
-\begin{lstlisting}[language=JavaScript]
+
+\begin{mdframed}[style=customstyle]
+\begin{lstlisting}[language=java]
 public Map<MediaContentDTO, Integer> getTrendMediaContentByYear(int year, Integer limit) throws DAOException {
     int n = limit == null ? 5 : limit;
     try (Session session = getSession()) {
@@ -1565,20 +1701,29 @@ public Map<MediaContentDTO, Integer> getTrendMediaContentByYear(int year, Intege
     } catch (Exception e) {
         throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
     }
-}
-\end{lstlisting}
+}\end{lstlisting}
+\end{mdframed}
+
 \begin{itemize}
     \item Neo4j Query:
 \end{itemize}
+
+\begin{mdframed}[style=customstyle]
 \begin{lstlisting}[language=Cypher]
+// Match Anime nodes that are liked by Users, with a LIKE relationship and a date constraint
 MATCH (a:Anime)<-[r:LIKE]-(u:User)
 WHERE r.date >= $startDate AND r.date < $endDate
+// Aggregate the results to count the number of likes for each Anime node
 WITH a, count(r) AS numLikes
+// Order the Anime nodes by the number of likes in descending order
 ORDER BY numLikes DESC
+// Return the Anime node and the number of likes, limiting the results to the specified maximum
 RETURN a AS anime, numLikes
-LIMIT $n
-\end{lstlisting}
-\textbf{Get Media Content Trend By Likes}\\
+LIMIT $n\end{lstlisting}
+\end{mdframed}
+
+\subsubsection*{Get Media Content Trend By Likes}
+
 Retrieves a list of trending MangaDTO objects by likes from the Neo4j database.
 The method performs the following steps:\\
 1. Retrieve the trending Manga by likes in the last 6 months.\\
@@ -1587,7 +1732,9 @@ The method performs the following steps:\\
 \begin{itemize}
     \item Java Implementation:
 \end{itemize}
-\begin{lstlisting}[language=JavaScript]
+
+\begin{mdframed}[style=customstyle]
+\begin{lstlisting}[language=java]
 public List<MediaContentDTO> getMediaContentTrendByLikes(Integer limit) throws DAOException {
     try (Session session = getSession()) {
         int n = limit == null ? 5 : limit;
@@ -1660,20 +1807,31 @@ public List<MediaContentDTO> getMediaContentTrendByLikes(Integer limit) throws D
     } catch (Exception e) {
         throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
     }
-}
-\end{lstlisting}
+}\end{lstlisting}
+\end{mdframed}
+
 \begin{itemize}
     \item Neo4j Query:
 \end{itemize}
+
+\begin{mdframed}[style=customstyle]
 \begin{lstlisting}[language=Cypher]
+// Match User nodes who have liked Anime nodes with a LIKE relationship and date constraint
 MATCH (u:User)-[r:LIKE]->(a:Anime)
 WHERE r.date >= $startDate
+// Aggregate the results to count the number of LIKE relationships for each Anime node
 WITH a, COUNT(r) AS numLikes
+// Order the Anime nodes by the number of likes in descending order
 ORDER BY numLikes DESC
+// Return the Anime node and the number of likes, limiting the results to the specified maximum
 RETURN a AS anime, numLikes
-LIMIT $n
-\end{lstlisting}
-\textbf{Get Suggested By Followings}\\
+LIMIT $n\end{lstlisting}
+\end{mdframed}
+
+\newpage
+
+\subsubsection*{Get Suggested By Followings}
+
 Retrieves a list of suggested MangaDTO objects for a user from the Neo4j database.
 The method performs the following steps:\\
 1. Retrieve Manga that the user's followings have liked in the last 6 months.\\
@@ -1682,7 +1840,9 @@ The method performs the following steps:\\
 \begin{itemize}
     \item Java Implementation:
 \end{itemize}
-\begin{lstlisting}[language=JavaScript]
+
+\begin{mdframed}[style=customstyle]
+\begin{lstlisting}[language=java]
 public List<MediaContentDTO> getSuggestedByFollowings(String userId, Integer limit) throws DAOException {
     try (Session session = getSession()) {
         int n = limit == null ? 5 : limit;
@@ -1754,20 +1914,31 @@ public List<MediaContentDTO> getSuggestedByFollowings(String userId, Integer lim
     } catch (Exception e) {
         throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
     }
-}
-\end{lstlisting}
+}\end{lstlisting}
+\end{mdframed}
+
 \begin{itemize}
     \item Neo4j Query:
 \end{itemize}
+
+\begin{mdframed}[style=customstyle]
 \begin{lstlisting}[language=Cypher]
+// Match the User node with the specified userId who follows other User nodes,
+// and those followed Users who have liked Anime nodes with a LIKE relationship and date constraint.
 MATCH (u:User {id: $userId})-[:FOLLOWS]->(f:User)-[r:LIKE]->(a:Anime)
+// Ensure that the User does not directly like the Anime and that the LIKE relationship's date is within the specified range.
 WHERE NOT (u)-[:LIKE]->(a) AND r.date >= $startDate
+// Aggregate the results to count the number of distinct Users who have liked each Anime node.
 WITH a, COUNT(DISTINCT f) AS num_likes
+// Return the Anime node, ordered by the number of likes in descending order.
 RETURN a AS anime
 ORDER BY num_likes DESC
-LIMIT $n
-\end{lstlisting}
-\textbf{Get Suggested By Likes}\\
+// Limit the number of results returned to the specified maximum.
+LIMIT $n\end{lstlisting}
+\end{mdframed}
+
+\subsubsection*{Get Suggested By Likes}
+
 Retrieves a list of suggested MangaDTO objects for a user from the Neo4j database.
 The method performs the following steps:\\
 1. Retrieve Manga that other users with similar taste have liked in the last 6 months.\\
@@ -1776,7 +1947,9 @@ The method performs the following steps:\\
 \begin{itemize}
     \item Java Implementation:
 \end{itemize}
-\begin{lstlisting}[language=JavaScript]
+
+\begin{mdframed}[style=customstyle]
+\begin{lstlisting}[language=java]
 public List<MediaContentDTO> getSuggestedByLikes(String userId, Integer limit) throws DAOException {
     try (Session session = getSession()) {
         int n = limit == null ? 5 : limit;
@@ -1856,26 +2029,32 @@ public List<MediaContentDTO> getSuggestedByLikes(String userId, Integer limit) t
     } catch (Exception e) {
         throw new DAOException(DAOExceptionType.GENERIC_ERROR, e.getMessage());
     }
-}
-\end{lstlisting}
+}\end{lstlisting}
+\end{mdframed}
+
 \begin{itemize}
     \item Neo4j Query:
 \end{itemize}
+
+\begin{mdframed}[style=customstyle]
 \begin{lstlisting}[language=Cypher]
+// Match the User node with the specified userId who likes Anime nodes (r1) and those Anime nodes are liked by other Users (f).
 MATCH (u:User {id: $userId})-[r1:LIKE]->(a:Anime)<-[:LIKE]-(f:User)
+// Ensure that the User's LIKE relationship's date is within the specified range.
 WHERE r1.date >= $startDate
+// Aggregate the results to count the number of common Anime nodes liked by both the User (u) and other Users (f).
 WITH u, f, COUNT(a) AS common_likes
+// Order the results by the number of common likes in descending order and limit to 20 results.
 ORDER BY common_likes DESC
 LIMIT 20
+// Match Users (f) who like Anime nodes (a2) that are not liked by the User (u).
 MATCH (f)-[:LIKE]->(a2:Anime)
 WHERE NOT (u)-[:LIKE]->(a2)
+// Aggregate the results to count the number of distinct Users (f) who like each Anime node (a2).
 WITH a2, COUNT(DISTINCT f) AS num_likes
+// Return the Anime node (a2) ordered by the number of likes by distinct Users (num_likes) in descending order.
 RETURN a2 AS anime
 ORDER BY num_likes DESC
-LIMIT $n
-\end{lstlisting}
-
-
-
-
-
+// Limit the number of Anime nodes returned to the specified maximum ($n).
+LIMIT $n\end{lstlisting}
+\end{mdframed}

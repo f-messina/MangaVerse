@@ -1,38 +1,50 @@
 \documentclass[a4paper,titlepage]{report}
 
+% Packages for encoding and language
+\usepackage[utf8]{inputenc} % This allows UTF-8 encoding
+\usepackage[T1]{fontenc}    % This ensures that fonts support special characters
 \usepackage[english]{babel}
-\usepackage[utf8]{inputenc}
+
+% Packages for graphics and layout
 \usepackage{graphicx}
 \usepackage[a4paper, margin=1in]{geometry}
 \usepackage{titlesec}
 \usepackage[dvipsnames]{xcolor}
-\usepackage{amsmath}
-\usepackage{booktabs}
-\usepackage{cellspace}
-\usepackage{tabularx}
+\usepackage{colortbl}
 \usepackage{caption}
 \usepackage{calc}
 \usepackage{ragged2e}
-\usepackage{multirow}
-\usepackage{hyperref} % Per i link nell'indice
-\usepackage{tocbibind} % Per includere l'indice nel sommario
-\usepackage{tikz}
-\usepackage{listings}
 \usepackage{mdframed}
-\usepackage[utf8]{inputenc} % This allows UTF-8 encoding
-\usepackage[T1]{fontenc} % This ensures that fonts support special characters
-\usepackage{courier}
+\usepackage{tikz}
+\usepackage{svg}
+
+% Packages for math and tables
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{cellspace} % For adding padding in table cells
+\usepackage{tabularx}
+\usepackage{multirow}
 \usepackage{array}
-\usepackage{cellspace} % Package for adding padding in table cells
 \usepackage{longtable}
-\usepackage{parskip}  % to remove paragraph indentation and add space between paragraphs
 
+% Packages for references and the table of contents
+\usepackage{hyperref} % For links in the table of contents
+\usepackage{tocbibind} % To include the table of contents in the table of contents
 
+% Packages for code
+\usepackage{listings}
+\usepackage{courier} % Font for code
+\usepackage{fancyvrb}
+\usepackage{lipsum} % For dummy text
 
+% Remove paragraph indentation and add space between paragraphs
+\usepackage{parskip}  
 
-
+% Define custom colors
 \definecolor{myBlue}{rgb}{0.0745, 0.2157, 0.4118}
 \definecolor{myLightBlue}{rgb}{0, 0.5647, 0.5843}
+\definecolor{myGray}{RGB}{192,197,206}
+\definecolor{jsonString}{RGB}{3,183,228}
 \definecolor{numb}{RGB}{255,0,0}
 \definecolor{punct}{RGB}{0,0,255}
 \definecolor{delim}{RGB}{20,105,176}
@@ -40,19 +52,46 @@
 \definecolor{string}{RGB}{163,21,21}
 \definecolor{keyword}{RGB}{0,0,255}
 \definecolor{darkgreen}{rgb}{0,0.5,0}
+\definecolor{java_keyword}{HTML}{BF9B30}
+\definecolor{java_comment}{HTML}{0000FF}
+\definecolor{mybackgroundcolor}{RGB}{240, 240, 240} % Light gray background
+\definecolor{black}{RGB}{0, 0, 0} % Define black color
 
+
+% Configuration for hyperref to remove red margins and color the links
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    filecolor=magenta,
+    urlcolor=myBlue,
+    linkbordercolor={0 0 0} % Set link border color to black (invisible)
+}
+
+% Configuration for section titles
 \titleformat{\section}[hang]{\Large\bfseries\color{myBlue}}{}{0px}{}[\titlerule]
 \titleformat{\subsection}[hang]{\large\bfseries\color{myLightBlue}}{}{0em}{}
 \titleformat{\subsubsection}[hang]{\bfseries\color{myBlue}}{}{0em}{}
 
+% Configuration for chapter titles
+\titleformat{\chapter}[display]
+  {\normalfont\Large\bfseries\color{myBlue}}{}{-80pt}{\LARGE}
+\renewcommand{\chaptername}{} % Remove the word "Chapter" and the number from the title
+\setcounter{tocdepth}{1} % Include only chapters and sections in the table of contents
 
+% Style for code
 \lstdefinestyle{mystyle}{
-    backgroundcolor=\color{white},   
+    language=Java,
+    backgroundcolor=\color{mybackgroundcolor}, % Background color
     commentstyle=\color{darkgreen},
     keywordstyle=\color{blue},
     numberstyle=\tiny\color{gray},
     stringstyle=\color{orange},
     basicstyle=\ttfamily\footnotesize,
+    framesep=10pt, % padding between frame and text
+    xleftmargin=10pt, % left margin
+    xrightmargin=10pt, % right margin
+    aboveskip=10pt, % Top padding
+    belowskip=10pt, % Bottom padding
     breakatwhitespace=false,         
     breaklines=true,                 
     captionpos=b,                    
@@ -65,6 +104,22 @@
     tabsize=2
 }
 
+% Define a custom style for mdframed
+\mdfdefinestyle{customstyle}{
+    linecolor=myBlue, % Border color
+    linewidth=2pt, % Border width
+    roundcorner=10pt, % Rounded corners
+    backgroundcolor=mybackgroundcolor, % Background color
+    innertopmargin=10pt, % Top padding
+    innerbottommargin=10pt, % Bottom padding
+    innerrightmargin=10pt, % Right padding
+    innerleftmargin=10pt, % Left padding
+    skipabove=20pt, % Space above the frame
+    skipbelow=20pt, % Space below the frame
+    fontcolor=black, % Text color
+}
+
+% Languages for code
 \lstdefinelanguage{JavaScript}{
   keywords={break, case, catch, continue, debugger, default, delete, do, else, finally, for, function, if, in, instanceof, new, return, switch, this, throw, try, typeof, var, void, while, with},
   morecomment=[l]{//},
@@ -72,27 +127,9 @@
   morestring=[b]',
   morestring=[b]"
 }
-\lstset{style=mystyle}
-
-% Colori per il codice Java
-\definecolor{java_keyword}{HTML}{BF9B30}
-\definecolor{java_comment}{HTML}{0000FF}
-
-\lstset{
-    basicstyle=\ttfamily\small,
-    breaklines=true,
-    showstringspaces=false,
-}
-
-% Impostazioni per il codice Java
-\lstdefinestyle{java}{
-    language=Java,
-    keywordstyle=\color{java_keyword},
-    commentstyle=\color{java_comment},
-}
 
 \lstdefinelanguage{Cypher}{
-  keywords={MATCH, WHERE, NOT, CREATE, RETURN, WITH, ORDER, BY , LIMIT},
+  keywords={MATCH, WHERE, NOT, CREATE, RETURN, WITH, ORDER, BY, LIMIT},
   keywordstyle=\color{blue}\bfseries,
   ndkeywords={id, date},
   ndkeywordstyle=\color{orange}\bfseries,
@@ -101,24 +138,44 @@
   morestring=[b]"
 }
 
-\lstset{style=mystyle}
+\lstdefinestyle{java}{
+    language=Java,
+    keywordstyle=\color{java_keyword},
+    commentstyle=\color{java_comment},
+}
 
-% Set the dimension of titles of chapters to \LARGE and 
-\titleformat{\chapter}[display]
-  {\normalfont\Large\bfseries\color{myBlue}}{}{-80pt}{\LARGE}
+\lstdefinelanguage{json}{
+    basicstyle=\ttfamily\small\color{myGray},
+    upquote=true,
+    morestring=[b]",
+    stringstyle=\color{jsonString},
+    backgroundcolor=\color{myBlue},
+    numbers=none,
+    literate=
+     *{0}{{{\color{numb}0}}}{1}
+      {1}{{{\color{numb}1}}}{1}
+      {2}{{{\color{numb}2}}}{1}
+      {3}{{{\color{numb}3}}}{1}
+      {4}{{{\color{numb}4}}}{1}
+      {5}{{{\color{numb}5}}}{1}
+      {6}{{{\color{numb}6}}}{1}
+      {7}{{{\color{numb}7}}}{1}
+      {8}{{{\color{numb}8}}}{1}
+      {9}{{{\color{numb}9}}}{1}
+      {:}{{{\color{myGray}:}}}{1}
+      {,}{{{\color{myGray},}}}{1}
+      {\{}{{{\color{myGray}{\{}}}}{1}
+      {\}}{{{\color{myGray}{\}}}}}{1}
+      {[}{{{\color{myGray}{[}}}}{1}
+      {]}{{{\color{myGray}{]}}}}{1}
+      {true}{{{\color{numb}true}}}{4}
+      {false}{{{\color{numb}false}}}{5}
+      {null}{{{\color{numb}null}}}{4}
+}
 
-% remove the word "Chapter" and the number from the title
-\renewcommand{\chaptername}{}
-
-\setcounter{tocdepth}{1} % Include only chapter and section in the table of contents
-
-% Configurazione di hyperref per rimuovere i margini rossi
-\hypersetup{
-    colorlinks=true,
-    linkcolor=black,
-    filecolor=magenta,
-    urlcolor=cyan,
-    linkbordercolor={0 0 0} % Imposta il colore del bordo del link su nero (invisibile)
+% Set the base style for code
+\lstset{
+  style=mystyle
 }
 
 \begin{document}

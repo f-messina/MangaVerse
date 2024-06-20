@@ -15,7 +15,8 @@ import java.io.Serializable;
 public abstract class Task implements Serializable {
 
     private static final int DEFAULT_PRIORITY = 5;
-    private static final int MAX_RETRIES = 3;
+    private static final int MAX_RETRIES = 5;
+    
     private int priority;
     private long timestamp;
     private int retries;

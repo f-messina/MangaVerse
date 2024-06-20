@@ -20,6 +20,7 @@ import it.unipi.lsmsd.fnf.service.interfaces.Task;
  * @see UpdateAverageRatingTask
  */
 public class PeriodicExecutorTaskServiceImpl implements ExecutorTaskService {
+    private static volatile ExecutorTaskService instance = null;
     private final ScheduledExecutorService scheduledExecutorService;
 
     private PeriodicExecutorTaskServiceImpl() {
@@ -28,18 +29,20 @@ public class PeriodicExecutorTaskServiceImpl implements ExecutorTaskService {
 
     /**
      * Method to get the singleton instance of PeriodicExecutorTaskServiceImpl.
-     * This method is thread-safe.
+     * It uses double-checked locking to ensure thread safety.
      *
      * @return          The singleton instance of PeriodicExecutorTaskServiceImpl
      */
     public static ExecutorTaskService getInstance() {
-        return InstanceHolder.INSTANCE;
+        if (instance == null) {
+            synchronized (PeriodicExecutorTaskServiceImpl.class) {
+                if (instance == null) {
+                    instance = new PeriodicExecutorTaskServiceImpl();
+                }
+            }
+        }
+        return instance;
     }
-
-    private static class InstanceHolder {
-        private static final ExecutorTaskService INSTANCE = new PeriodicExecutorTaskServiceImpl();
-    }
-    
 
     /**
      * Executes the given task.

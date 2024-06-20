@@ -1,0 +1,178 @@
+%% Creator: Inkscape 1.3.2 (091e20e, 2023-11-25, custom), www.inkscape.org
+%% PDF/EPS/PS + LaTeX output extension by Johan Engelen, 2010
+%% Accompanies image file 'use_case_svg-tex.pdf' (pdf, eps, ps)
+%%
+%% To include the image in your LaTeX document, write
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics{<filename>.pdf}
+%% To scale the image, write
+%%   \def\svgwidth{<desired width>}
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics[width=<desired width>]{<filename>.pdf}
+%%
+%% Images with a different path to the parent latex file can
+%% be accessed with the `import' package (which may need to be
+%% installed) using
+%%   \usepackage{import}
+%% in the preamble, and then including the image with
+%%   \import{<path to file>}{<filename>.pdf_tex}
+%% Alternatively, one can specify
+%%   \graphicspath{{<path to file>/}}
+%% 
+%% For more information, please see info/svg-inkscape on CTAN:
+%%   http://tug.ctan.org/tex-archive/info/svg-inkscape
+%%
+\begingroup%
+  \makeatletter%
+  \providecommand\color[2][]{%
+    \errmessage{(Inkscape) Color is used for the text in Inkscape, but the package 'color.sty' is not loaded}%
+    \renewcommand\color[2][]{}%
+  }%
+  \providecommand\transparent[1]{%
+    \errmessage{(Inkscape) Transparency is used (non-zero) for the text in Inkscape, but the package 'transparent.sty' is not loaded}%
+    \renewcommand\transparent[1]{}%
+  }%
+  \providecommand\rotatebox[2]{#2}%
+  \newcommand*\fsize{\dimexpr\f@size pt\relax}%
+  \newcommand*\lineheight[1]{\fontsize{\fsize}{#1\fsize}\selectfont}%
+  \ifx\svgwidth\undefined%
+    \setlength{\unitlength}{612.75bp}%
+    \ifx\svgscale\undefined%
+      \relax%
+    \else%
+      \setlength{\unitlength}{\unitlength * \real{\svgscale}}%
+    \fi%
+  \else%
+    \setlength{\unitlength}{\svgwidth}%
+  \fi%
+  \global\let\svgwidth\undefined%
+  \global\let\svgscale\undefined%
+  \makeatother%
+  \begin{picture}(1,1.40942472)%
+    \lineheight{1}%
+    \setlength\tabcolsep{0pt}%
+    \put(0,0){\includegraphics[width=\unitlength,page=1]{use_case_svg-tex.pdf}}%
+    \put(0.05324357,1.19155447){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}User\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=2]{use_case_svg-tex.pdf}}%
+    \put(0.94063647,0.64075887){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}Unregi...\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=3]{use_case_svg-tex.pdf}}%
+    \put(0.05324357,0.08996328){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}Manager\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=4]{use_case_svg-tex.pdf}}%
+    \put(0.05324357,0.64075887){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}Regist...\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=5]{use_case_svg-tex.pdf}}%
+    \put(0.23194614,1.38616891){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}MangaVerse System\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=6]{use_case_svg-tex.pdf}}%
+    \put(0.749694,0.60893513){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}log in\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=7]{use_case_svg-tex.pdf}}%
+    \put(0.749694,0.55997552){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}sign up\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=8]{use_case_svg-tex.pdf}}%
+    \put(0.30416157,0.60281518){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}log out\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=9]{use_case_svg-tex.pdf}}%
+    \put(0.43635251,0.80477356){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}browse manga/an...\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=10]{use_case_svg-tex.pdf}}%
+    \put(0.58567931,0.71909425){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}browse manga/an...\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=11]{use_case_svg-tex.pdf}}%
+    \put(0.2625459,0.07160343){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}view user an...\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=12]{use_case_svg-tex.pdf}}%
+    \put(0.37392901,0.15116279){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}view manga/anime...\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=13]{use_case_svg-tex.pdf}}%
+    \put(0.30416157,0.24785802){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}add manga/anime\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=14]{use_case_svg-tex.pdf}}%
+    \put(0.49755202,0.61505508){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}browse user\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=15]{use_case_svg-tex.pdf}}%
+    \put(0.2380661,1.09853121){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}show anime/manga...\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=16]{use_case_svg-tex.pdf}}%
+    \put(0.21970624,0.82925337){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}show user sugg...\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=17]{use_case_svg-tex.pdf}}%
+    \put(0.23684211,1.31884945){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}update app rat...\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=18]{use_case_svg-tex.pdf}}%
+    \put(0.33353733,0.95165239){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}find manga/anime\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=19]{use_case_svg-tex.pdf}}%
+    \put(0.39228886,0.88433293){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}<<include>>\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=20]{use_case_svg-tex.pdf}}%
+    \put(0.48653611,1.0373317){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}view manga/anime\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=21]{use_case_svg-tex.pdf}}%
+    \put(0.41921665,0.999388){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}<<include>>\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=22]{use_case_svg-tex.pdf}}%
+    \put(0.70318237,1.13525092){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}view manga/anime...\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=23]{use_case_svg-tex.pdf}}%
+    \put(0.58200734,1.10097919){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}<<extend>>\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=24]{use_case_svg-tex.pdf}}%
+    \put(0.38861689,1.14749082){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}like manga/ani...\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=25]{use_case_svg-tex.pdf}}%
+    \put(0.54283966,1.14749082){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}<<extend>>\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=26]{use_case_svg-tex.pdf}}%
+    \put(0.79008568,1.34332925){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}add review to man...\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=27]{use_case_svg-tex.pdf}}%
+    \put(0.74847001,1.250306){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}<<extend>>\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=28]{use_case_svg-tex.pdf}}%
+    \put(0.80110159,1.000612){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}view manga/anime...\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=29]{use_case_svg-tex.pdf}}%
+    \put(0.76070991,1.08017136){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}<<extend>>\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=30]{use_case_svg-tex.pdf}}%
+    \put(0.61872705,0.97613219){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}update manga/an...\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=31]{use_case_svg-tex.pdf}}%
+    \put(0.66646267,1.0630355){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}<<extend>>\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=32]{use_case_svg-tex.pdf}}%
+    \put(0.55140759,0.8880049){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}<<include>>\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=33]{use_case_svg-tex.pdf}}%
+    \put(0.37882497,1.0875153){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}<<include>>\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=34]{use_case_svg-tex.pdf}}%
+    \put(0.36168911,0.47429621){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}find user\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=35]{use_case_svg-tex.pdf}}%
+    \put(0.61872705,0.49265606){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}browse followers/fol...\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=36]{use_case_svg-tex.pdf}}%
+    \put(0.44369645,0.55385557){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}<<include>>\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=37]{use_case_svg-tex.pdf}}%
+    \put(0.48041616,0.48898409){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}<<include>>\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=38]{use_case_svg-tex.pdf}}%
+    \put(0.46083231,0.32129743){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}view user in...\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=39]{use_case_svg-tex.pdf}}%
+    \put(0.53304774,0.40697674){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}<<extend>>\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=40]{use_case_svg-tex.pdf}}%
+    \put(0.23072215,0.34577723){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}view user\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=41]{use_case_svg-tex.pdf}}%
+    \put(0.29314565,0.42288862){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}<<include>>\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=42]{use_case_svg-tex.pdf}}%
+    \put(0.34822521,0.34700122){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}<<extend>>\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=43]{use_case_svg-tex.pdf}}%
+    \put(0.75214198,0.34577723){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}follow user\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=44]{use_case_svg-tex.pdf}}%
+    \put(0.63219094,0.34088127){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}<<extend>>\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=45]{use_case_svg-tex.pdf}}%
+    \put(0.68604651,0.125459){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}update\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=46]{use_case_svg-tex.pdf}}%
+    \put(0.56976744,0.23194614){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}<<extend>>\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=47]{use_case_svg-tex.pdf}}%
+    \put(0.22215422,0.58812729){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}<<include>>\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=48]{use_case_svg-tex.pdf}}%
+    \put(0.65422277,1.34332925){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}update review to...\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=49]{use_case_svg-tex.pdf}}%
+    \put(0.49755202,1.31884945){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}delete review to...\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=50]{use_case_svg-tex.pdf}}%
+    \put(0.68115055,1.24663403){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}<<extend>>\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=51]{use_case_svg-tex.pdf}}%
+    \put(0.59547124,1.23317013){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}<<extend>>\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=52]{use_case_svg-tex.pdf}}%
+    \put(0.2380661,1.22093023){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}add app rati...\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=53]{use_case_svg-tex.pdf}}%
+    \put(0.53549572,0.11321909){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}delete\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=54]{use_case_svg-tex.pdf}}%
+    \put(0.4877601,0.22582619){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}<<extend>>\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=55]{use_case_svg-tex.pdf}}%
+    \put(0.7252142,0.89045288){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}remove manga/an...\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=56]{use_case_svg-tex.pdf}}%
+    \put(0.71542228,1.01897185){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}<<extend>>\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=57]{use_case_svg-tex.pdf}}%
+    \put(0.38004896,1.24541004){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}unlike manga/a...\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=58]{use_case_svg-tex.pdf}}%
+    \put(0.54039168,1.19889841){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}<<extend>>\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=59]{use_case_svg-tex.pdf}}%
+    \put(0.749694,0.24785802){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}unfollow user\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=60]{use_case_svg-tex.pdf}}%
+    \put(0.62607099,0.2747858){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}<<extend>>\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=61]{use_case_svg-tex.pdf}}%
+  \end{picture}%
+\endgroup%

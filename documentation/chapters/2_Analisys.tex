@@ -5,10 +5,14 @@
 \begin{itemize}
     \item \textbf{Unregistered User}: A visitor who has not logged in on the platform.
     
-    \item \textbf{Registered User}: A user who has created an account on the platform.
+    \item \textbf{User}: A user who has created an account on the platform.
     
     \item \textbf{Manager}: A registered user with administrative privileges.
 \end{itemize}
+
+\vspace{\baselineskip}
+
+Both User and Manager are Registered Users.
 
 \section{Functional Requirements}
 
@@ -64,7 +68,7 @@ The system should provide the following features for each type of user:
     \end{itemize}
 \end{itemize}
 
-\subsection*{Registered User}
+\subsection*{User}
 
 \begin{itemize}
     \item \textbf{Logout}.
@@ -151,7 +155,7 @@ The system should provide the following features for each type of user:
 
 \begin{figure}[h]\label{uml class diagram}
     \centering
-    \includegraphics[width=\linewidth]{Media/Class Diagram.png}
+    \includegraphics[width=1\textwidth]{Media/Class Diagram.png}
 \end{figure}
 
 \newpage
@@ -160,10 +164,512 @@ The system should provide the following features for each type of user:
 
 \begin{figure}[h]\label{uml use case diagram}
     \centering
-    \includegraphics[width=0.85\textwidth]{Media/useCase.png}
+    \includegraphics[width=0.85\textwidth]{Media/use_case.png}
 \end{figure}
 
 \newpage
+
+\section{Scenarios}
+
+\definecolor{lightblue}{rgb}{0.86, 0.92, 1.0}
+\renewcommand{\arraystretch}{1.5}
+\setlength{\arrayrulewidth}{1pt} % Adjusts the thickness of \hline
+
+\begin{longtable}{|p{0.25\textwidth}|p{0.70\textwidth}|}
+    \hline
+    \rowcolor{lightblue}
+    \textbf{Use Case} & \textbf{Register Account} \\
+    \hline
+    Primary Actor & Unregistered User\\
+    \hline
+    Description & Allows user to sign up\\
+    \hline
+    Pre-conditions & The account must not be already exist\\
+    \hline
+    Main Event Steps &   1. The user navigates to the registration page. \\
+    & 2. The user fills out the registration form with valid information. \\
+    & 3. The system validates the entered information. \\
+    & 4. After successful validation, the system created a new user account \\
+    \hline
+    Post-conditions &The user is registered to the system \\
+    \hline
+    Correlated Use Cases & -\\
+    \hline
+\end{longtable}
+
+\begin{longtable}{|p{0.25\textwidth}|p{0.70\textwidth}|}
+    \hline
+    \rowcolor{lightblue}
+    \textbf{Use Case} & \textbf{Log In} \\
+    \hline
+    Primary Actor &Unregistered User\\
+    \hline
+    Description & Allows user to login \\
+    \hline
+    Pre-conditions & The user must not be already logged in\\
+    \hline
+    Main Event Steps & 1. The user navigates to the login page. \\
+    & 2. The system shows the login form to the user and asks for email and password \\
+    & 3. The user enters valid login credentials. \\
+    & 4. The system validates the entered credentials \\
+    & 5. After successful validation, the system logs the user. \\
+    \hline
+    Post-conditions & 1. The user is authenticated and logged in \\
+    & 2. The user is redirected to the main page for registered user. \\
+    \hline
+    Correlated Use Cases & -\\
+    \hline
+\end{longtable}
+
+\begin{longtable}{|p{0.25\textwidth}|p{0.70\textwidth}|}
+    \hline
+    \rowcolor{lightblue}
+    \textbf{Use Case} & \textbf{Log Out} \\
+    \hline
+    Primary Actor &Registered User\\
+    \hline
+    Description & Allows user to logged out\\
+    \hline
+    Pre-conditions & The user must be logged in\\
+    \hline
+    Main Event Steps & The system starts the logout process \\
+    \hline
+    Post-conditions &The user is logged out. \\
+    & The user is directed to one of the pages accessible by an unregistered user \\
+    \hline
+    Correlated Use Cases &-\\
+    \hline
+\end{longtable}
+
+\newpage
+
+\begin{longtable}{|p{0.25\textwidth}|p{0.70\textwidth}|}
+    \hline
+    \rowcolor{lightblue}
+    \textbf{Use Case} & \textbf{Browse Anime/Manga} \\
+    \hline
+    Primary Actor & Registered User, Unregistered User\\
+    \hline
+    Description & Allows both registered and unregistered users to browse anime and manga\\
+    \hline
+    Pre-conditions & - \\
+    \hline
+    Main Event Steps & 1. The user navigates to the browse section. \\
+    & 2. The system displays a list of available anime and manga. \\
+    \hline
+    Post-conditions & 1. The user will view the list of anime or manga\\
+    & 2. The user can filter or sort the list based on various criteria. \\
+    \hline
+    Correlated Use Cases & Find Anime/Manga\\
+    \hline
+\end{longtable}
+
+\begin{longtable}{|p{0.25\textwidth}|p{0.70\textwidth}|}
+    \hline
+    \rowcolor{lightblue}
+    \textbf{Use Case} & \textbf{Find Anime/Manga} \\
+    \hline
+    Primary Actor & Registered User, Unregistered User\\
+    \hline
+    Description & Allows users to search for specific anime or manga \\
+    \hline
+    Pre-conditions & - \\
+    \hline
+    Main Event Steps &  1. The user navigates to the search section of anime/manga. \\
+    & 2. The user enters search criteria (e.g., title). \\
+    & 3. The system retrieves a list of available anime/manga. \\
+    & 4. The user can apply filters or sort the list. \\
+    \hline
+    Post-conditions & The system displays a result of the search \\
+    & The user views a list of anime/manga matching with the used criteria\\
+    \hline
+    Correlated Use Cases &View Anime/Manga, Browse Anime/Manga \\
+    \hline
+\end{longtable}
+
+\begin{longtable}{|p{0.25\textwidth}|p{0.70\textwidth}|}
+    \hline
+    \rowcolor{lightblue}
+    \textbf{Use Case} & \textbf{View Anime/Manga} \\
+    \hline
+    Primary Actor & Registered User, Unregistered User\\
+    \hline
+    Description &Allows users to view limited information a specific anime or manga \\
+    \hline
+    Pre-conditions & -\\
+    \hline
+    Main Event Steps & 1. The user selects an anime or manga from the list or search results.\\
+    & 2. The system displays pre information about the selected anime/manga. \\
+    \hline
+    Post-conditions & The user views pre information about the selected anime/manga\\
+    \hline
+    Correlated Use Cases & Find Anime/Manga, View Anime/Manga Details\\
+    \hline
+\end{longtable}
+
+\newpage
+
+\begin{longtable}{|p{0.25\textwidth}|p{0.70\textwidth}|}
+    \hline
+    \rowcolor{lightblue}
+    \textbf{Use Case} & \textbf{View Anime/Manga Details} \\
+    \hline
+    Primary Actor & Registered User, Unregistered User\\
+    \hline
+    Description & Allows users to view all the information about the specific anime or manga including reviews\\
+    \hline
+    Pre-conditions & -\\
+    \hline
+    Main Event Steps & 1. The user selects an anime or manga. \\
+    & 2. The system retrieves detailed information, including reviews. \\
+    \hline
+    Post-conditions & \\
+    \hline
+    Correlated Use Cases &View Anime/Manga\\
+    \hline
+\end{longtable}
+
+
+\begin{longtable}{|p{0.25\textwidth}|p{0.70\textwidth}|}
+    \hline
+    \rowcolor{lightblue}
+    \textbf{Use Case} & \textbf{View Anime/Manga Reviews} \\
+    \hline
+    Primary Actor & Registered User, Unregistered User\\
+    \hline
+    Description &Allows users to view reviews of a specific anime or manga\\
+    \hline
+    Pre-conditions & - \\
+    \hline
+    Main Event Steps & 1. The user navigates to the reviews section of a specific anime or manga.\\
+    & 2. The system retrieves the reviews. \\
+    & 3. The system displays the reviews to the user. \\
+    \hline
+    Post-conditions & The user views the reviews of the specific anime or manga\\
+    \hline
+    Correlated Use Cases & - \\
+    \hline
+\end{longtable}
+
+
+\begin{longtable}{|p{0.25\textwidth}|p{0.70\textwidth}|}
+    \hline
+    \rowcolor{lightblue}
+    \textbf{Use Case} & \textbf{Show Anime/Manga Suggestions} \\
+    \hline
+    Primary Actor &User \\
+    \hline
+    Description & Allows users to view anime or manga suggestions based on their likes or followings\\
+    \hline
+    Pre-conditions & User must be logged in\\
+    \hline
+    Main Event Steps & 1. The user navigates to the suggestions part of the main page. \\
+    & 2. The system retrieves suggestions based on user preferences and followings. \\
+    & 3. The system displays the suggestions to the user. \\
+    \hline
+    Post-conditions & The user views the suggested anime or manga\\
+    \hline
+    Correlated Use Cases & View Manga/Anime\\
+    \hline
+\end{longtable}
+
+\newpage
+
+\begin{longtable}{|p{0.25\textwidth}|p{0.70\textwidth}|}
+    \hline
+    \rowcolor{lightblue}
+    \textbf{Use Case} & \textbf{Browse Anime/Manga Trend} \\
+    \hline
+    Primary Actor & Registered User, Unregistered User\\
+    \hline
+    Description &Allows users to browse trending anime or manga\\
+    \hline
+    Pre-conditions & User must be logged in\\
+    \hline
+    Main Event Steps & 1. The user navigates to the trending section of the main page. \\
+    & 2. The system retrieves trending anime or manga. \\
+    & 3. The system displays the trending items to the user. \\
+    \hline
+    Post-conditions &-\\
+    \hline
+    Correlated Use Cases &View Anime/Manga \\
+    \hline
+\end{longtable}
+
+
+\begin{longtable}{|p{0.25\textwidth}|p{0.70\textwidth}|}
+    \hline
+    \rowcolor{lightblue}
+    \textbf{Use Case} & \textbf{Like Anime/Manga} \\
+    \hline
+    Primary Actor & User\\
+    \hline
+    Description &Allows users to like an anime or manga\\
+    \hline
+    Pre-conditions &User must be logged in \\
+    \hline
+    Main Event Steps & 1. The user clicks the like or unlike button. \\
+    & 2. The system updates the like status. \\
+    \hline
+    Post-conditions &1. The anime/manga is added to the user's like list\\
+    &2. The like button become unavailable, the unlike button become available \\
+    \hline
+    Correlated Use Cases &- \\
+    \hline
+\end{longtable}
+
+\begin{longtable}{|p{0.25\textwidth}|p{0.70\textwidth}|}
+    \hline
+    \rowcolor{lightblue}
+    \textbf{Use Case} & \textbf{Unlike Anime/Manga} \\
+    \hline
+    Primary Actor & User\\
+    \hline
+    Description &Allows users to unlike an anime or manga\\
+    \hline
+    Pre-conditions &User must be logged in \\
+    \hline
+    Main Event Steps & 1. The user clicks the unlike button. \\
+    & 2. The system updates the like status. \\
+    \hline
+    Post-conditions &1. The anime/manga is removed from the user's like list\\
+    &2. The unlike button become available, the like button become available \\
+    \hline
+    Correlated Use Cases &- \\
+    \hline
+\end{longtable}
+
+\newpage
+
+\begin{longtable}{|p{0.25\textwidth}|p{0.70\textwidth}|}
+    \hline
+    \rowcolor{lightblue}
+    \textbf{Use Case} & \textbf{Add Review to Anime/Manga} \\
+    \hline
+    \textbf{Primary Actor} & User \\
+    \hline
+    \textbf{Description} & Allows user to make a comment or rating for a specific anime/manga. \\
+    \hline
+    \textbf{Pre-conditions} & User must be logged in. \\
+    \hline
+    \textbf{Main Event Steps} &  1. The user selects an anime or manga. \\
+    & 2. The user navigates to the review section. \\
+    & 3. The user adds a review that can be either a comment or rating for the anime/manga. \\
+    & 4. The system ensures that at least one of the comment or rate value is filled. \\
+    & 5. The system saves the review and updates the latest reviews. \\
+    \hline
+    \textbf{Post-conditions} & The review is added to the specific anime/manga and is visible on the page. \\
+    \hline
+    \textbf{Correlated Use Cases} & - \\
+    \hline
+\end{longtable}
+
+\begin{longtable}{|p{0.25\textwidth}|p{0.70\textwidth}|}
+    \hline
+    \rowcolor{lightblue}
+    \textbf{Use Case} & \textbf{Update Review for Anime/Manga} \\
+    \hline
+    \textbf{Primary Actor} & User \\
+    \hline
+    \textbf{Description} & Allows user to modify an existing review (comment or rating) for a specific anime/manga. \\
+    \hline
+    \textbf{Pre-conditions} & - User must be logged in. \\
+    & - User must have previously added a review for the anime/manga. \\
+    \hline
+    \textbf{Main Event Steps} & 1. The user selects the anime or manga for which they want to update the review. \\
+    & 2. The user navigates to their own review within the review section. \\
+    & 3. The user edits the review content (comment and/or rating). \\
+    & 4. The system ensures that at least one of the comment or rating values is filled. \\
+    & 5. The system saves the updated review and refreshes the display of reviews. \\
+    \hline
+    \textbf{Post-conditions} & The review for the specific anime/manga is updated with the new content and is visible on the page. \\
+    \hline
+    \textbf{Correlated Use Cases} & - \\
+    \hline
+\end{longtable}
+
+\newpage
+
+\begin{longtable}{|p{0.25\textwidth}|p{0.70\textwidth}|}
+    \hline
+    \rowcolor{lightblue}
+    \textbf{Use Case} & \textbf{Remove Review from Anime/Manga} \\
+    \hline
+    \textbf{Primary Actor} & User \\
+    \hline
+    \textbf{Description} & Allows user to delete their own review (comment or rating) for a specific anime/manga. \\
+    \hline
+    \textbf{Pre-conditions} & - User must be logged in. \\
+    & - User must have previously added a review for the anime/manga. \\
+    \hline
+    \textbf{Main Event Steps} & 1. The user selects the anime or manga for which they want to remove the review. \\
+    & 2. The user navigates to their own review within the review section. \\
+    & 3. The user chooses to delete the review. \\
+    & 4. The system confirms the deletion action. \\
+    & 5. The system removes the review from the database and updates the display of reviews. \\
+    \hline
+    \textbf{Post-conditions} & The review for the specific anime/manga is removed and no longer visible on the page. \\
+    \hline
+    \textbf{Correlated Use Cases} & -\\
+    \hline
+\end{longtable}
+
+\begin{longtable}{|p{0.25\textwidth}|p{0.70\textwidth}|}
+    \hline
+    \rowcolor{lightblue}
+    \textbf{Use Case} & \textbf{Browse User} \\
+    \hline
+    Primary Actor &Unregistered User, Registered User \\
+    \hline
+    Description &Allows users to browse all users\\
+    \hline
+    Pre-conditions & -\\
+    \hline
+    Main Event Steps &1. The user navigates to the user section\\
+    &3. The system displays a list of users\\
+    \hline
+    Post-conditions & - The user views the list of users.\\
+    & - The user can find a user by username.\\
+    \hline
+    Correlated Use Cases & View User\\
+    \hline
+\end{longtable}
+
+\begin{longtable}{|p{0.25\textwidth}|p{0.70\textwidth}|}
+    \hline
+    \rowcolor{lightblue}
+    \textbf{Use Case} & \textbf{Show User Suggestions} \\
+    \hline
+    Primary Actor &User \\
+    \hline
+    Description &Allows users to view suggested users based on similar tastes or may know\\
+    \hline
+    Pre-conditions & User must be logged in\\
+    \hline
+    Main Event Steps &1. The user navigates to the profile page's suggested users section\\
+    &2. The system retrieves suggested users based on user preferences and followings\\
+    &3. The system displays the suggested users to the user\\
+    \hline
+    Post-conditions & The user views the suggested users.\\
+    \hline
+    Correlated Use Cases & View User\\
+    \hline
+\end{longtable}
+
+
+\begin{longtable}{|p{0.25\textwidth}|p{0.70\textwidth}|}
+    \hline
+    \rowcolor{lightblue}
+    \textbf{Use Case} & \textbf{Find User} \\
+    \hline
+    Primary Actor & Registered User, Unregistered User\\
+    \hline
+    Description & Allows users to search for specific users according to their usernames\\
+    \hline
+    Pre-conditions &- \\
+    \hline
+    Main Event Steps & 1. The user navigates to the user user search section of the page. \\
+    & 2. The user enters search criteria. \\
+    & 3. The system retrieves matching users based on criteria. \\
+    & 4. The system displays the search results to the user. \\
+    \hline
+    Post-conditions & The user views the search results. \\
+    \hline
+    Correlated Use Cases & View User\\
+    \hline
+\end{longtable}
+
+\begin{longtable}{|p{0.25\textwidth}|p{0.70\textwidth}|}
+    \hline
+    \rowcolor{lightblue}
+    \textbf{Use Case} & \textbf{Browse Followings/Followers} \\
+    \hline
+    Primary Actor & Registered User, Unregistered User\\
+    \hline
+    Description & Allows users to browse their or others followers and followings\\
+    \hline
+    Pre-conditions & - \\
+    \hline
+    Main Event Steps & 1. The user navigates to the profile page.\\
+    & 2. The user selects the followers or followings section. \\
+    & 3. The system retrieves the list of followers or followings. \\
+    & 4. The system displays the list to the user. \\
+    \hline
+    Post-conditions & The user views their followers and followings.\\
+    \hline
+    Correlated Use Cases &Find User,View User Info \\
+    \hline
+\end{longtable}
+
+\begin{longtable}{|p{0.25\textwidth}|p{0.70\textwidth}|}
+    \hline
+    \rowcolor{lightblue}
+    \textbf{Use Case} & \textbf{Follow User} \\
+    \hline
+    Primary Actor & Registered User\\
+    \hline
+    Description & Allows users to follow another user\\
+    \hline
+    Pre-conditions & User must be logged in\\
+    \hline
+    Main Event Steps &  1. The user selects a user to follow \\
+    & 2. The user navigates to that user's profile page. \\
+    & 3. The systems displays the profile of other user. \\
+    & 4. The user clicks the follow button. \\
+    & 5. The system add the user to the following list of the other user and updates the count on the profile \\
+    & 6. The system updates the follow/unfollow status. \\
+    \hline
+    Post-conditions &The user starts to follow the other user \\
+    \hline
+    Correlated Use Cases & -\\
+    \hline
+\end{longtable}
+
+\newpage
+
+\begin{longtable}{|p{0.25\textwidth}|p{0.70\textwidth}|}
+    \hline
+    \rowcolor{lightblue}
+    \textbf{Use Case} & \textbf{View User Information} \\
+    \hline
+    Primary Actor & Registered User, Unregistered User\\
+    \hline
+    Description & Allows users to view detailed information about another user\\
+    \hline
+    Pre-conditions & -\\
+    \hline
+    Main Event Steps& 1. The user selects a user from the list or search results or browse \\
+    & 2. The system retrieves detailed information about the selected user. \\
+    & 3. The system displays the detailed information to the user. \\
+    \hline
+    Post-conditions &The user views detailed information about the selected user.  \\
+    \hline
+    Correlated Use Cases & - \\
+    \hline
+\end{longtable}
+
+\begin{longtable}{|p{0.25\textwidth}|p{0.70\textwidth}|}
+    \hline
+    \rowcolor{lightblue}
+    \textbf{Use Case} & \textbf{View Analytics} \\
+    \hline
+    Primary Actor & Manager \\
+    \hline
+    Description & Allows managers to view analytics related to users and anime/manga\\
+    \hline
+    Pre-conditions & The user must be logged in with manager credentials\\
+    \hline
+    Main Event Steps & 1. The manager navigates to the analytics section of their page \\
+    & 2. The system retrieves analytics data. \\
+    & 3. The system displays the analytics data to the manager. \\
+    \hline
+    Post-conditions & The manager views the analytics data.\\
+    \hline
+    Correlated Use Cases & -\\
+    \hline
+\end{longtable}
+
+\vspace{\baselineskip}
 
 \section{Data Modeling}
 
@@ -198,36 +704,21 @@ and 200k users.
 
 \subsection{Data Cleaning and Preprocessing}
 
-The data cleaning and preprocessing involved several steps to ensure consistency and usability of the datasets:
+The initial data was distributed across multiple CSV and JSON files, requiring thorough cleaning and integration efforts.
+Duplicate entries of anime and manga titles were removed, alongside reviews associated with non-existent anime/manga or 
+users. Where comments were absent from a dataset, placeholder comments were generated based on the corresponding 
+ratings. To enhance the dataset's completeness, pseudo reviews were added for users who had insufficient review data for meaningful analytics.
 
-\begin{itemize}
-    \item \textbf{Data Integration and Reduction}: Integrating anime, reviews, and user data from various sources 
-    required dealing with non-unique IDs across datasets. To ensure proper integration, 
-    new unique IDs were generated for each entity. Due to issues with data quality, 
-    a significant number of users and their associated reviews were removed. This process resulted in a 
-    refined dataset containing 10,000 users and 600,000 reviews.
- 
-    \item \textbf{Review Comment Generation}: Some sources lacked explicit comments for reviews. To address this, 
-    a script was employed to generate generic comments based on the review ratings, ensuring completeness of the review dataset.
-    
-    \item \textbf{Synthetic Data Generation}: Many users did not have sufficient reviews for meaningful analytics. 
-    Synthetic reviews were generated to supplement these users, enabling more robust analysis 
-    of user interactions and content preferences.
-    
-    \item \textbf{Data Pruning}: Extraneous information about users, anime, and manga that were 
-    not relevant to the project goals were removed to streamline the datasets.
-    
-    \item \textbf{Data Augmentation}: Essential user information such as email, password, and profile picture, 
-    which were necessary for user management features, were added to the dataset.
-    
-    \item \textbf{Consistency Checks}: Before insertion into the Document DB collections, rigorous data consistency checks were conducted to 
-    uphold accuracy and reliability. For instance, chronological consistency was enforced for fields such as the joined date, 
-    ensuring it fell after the user's birthdate and before any related review dates. Additionally, user locations were validated 
-    to ensure they mapped to valid countries. Upon insertion, Document DB's ids were utilized for entity linking and to maintain data integrity.
+\vspace{\baselineskip}
 
-    \item \textbf{Graph Database Population}: Fake relationships were created, such as follow relationships between users and like relationships 
-    between users and anime/manga, to populate the graph database.
-\end{itemize}
+Extraneous details of users, anime, and manga were pruned, focusing instead on essential information such as email 
+addresses, passwords, and profile pictures, which were integrated into user profiles. Artificial relationships such as follower 
+connections and likes between users and anime/manga were introduced to enrich the graph database.
+
+\vspace{\baselineskip}
+
+Following database insertion, outdated ID references within reviews were updated with newly generated IDs. Within anime, manga, 
+and user data, lists of associated review IDs were incorporated.
 
 \vspace{\baselineskip}
 

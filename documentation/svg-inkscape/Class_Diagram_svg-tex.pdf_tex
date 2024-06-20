@@ -1,0 +1,133 @@
+%% Creator: Inkscape 1.3.2 (091e20e, 2023-11-25, custom), www.inkscape.org
+%% PDF/EPS/PS + LaTeX output extension by Johan Engelen, 2010
+%% Accompanies image file 'Class_Diagram_svg-tex.pdf' (pdf, eps, ps)
+%%
+%% To include the image in your LaTeX document, write
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics{<filename>.pdf}
+%% To scale the image, write
+%%   \def\svgwidth{<desired width>}
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics[width=<desired width>]{<filename>.pdf}
+%%
+%% Images with a different path to the parent latex file can
+%% be accessed with the `import' package (which may need to be
+%% installed) using
+%%   \usepackage{import}
+%% in the preamble, and then including the image with
+%%   \import{<path to file>}{<filename>.pdf_tex}
+%% Alternatively, one can specify
+%%   \graphicspath{{<path to file>/}}
+%% 
+%% For more information, please see info/svg-inkscape on CTAN:
+%%   http://tug.ctan.org/tex-archive/info/svg-inkscape
+%%
+\begingroup%
+  \makeatletter%
+  \providecommand\color[2][]{%
+    \errmessage{(Inkscape) Color is used for the text in Inkscape, but the package 'color.sty' is not loaded}%
+    \renewcommand\color[2][]{}%
+  }%
+  \providecommand\transparent[1]{%
+    \errmessage{(Inkscape) Transparency is used (non-zero) for the text in Inkscape, but the package 'transparent.sty' is not loaded}%
+    \renewcommand\transparent[1]{}%
+  }%
+  \providecommand\rotatebox[2]{#2}%
+  \newcommand*\fsize{\dimexpr\f@size pt\relax}%
+  \newcommand*\lineheight[1]{\fontsize{\fsize}{#1\fsize}\selectfont}%
+  \ifx\svgwidth\undefined%
+    \setlength{\unitlength}{742.875bp}%
+    \ifx\svgscale\undefined%
+      \relax%
+    \else%
+      \setlength{\unitlength}{\unitlength * \real{\svgscale}}%
+    \fi%
+  \else%
+    \setlength{\unitlength}{\svgwidth}%
+  \fi%
+  \global\let\svgwidth\undefined%
+  \global\let\svgscale\undefined%
+  \makeatother%
+  \begin{picture}(1,0.66077739)%
+    \lineheight{1}%
+    \setlength\tabcolsep{0pt}%
+    \put(0,0){\includegraphics[width=\unitlength,page=1]{Class_Diagram_svg-tex.pdf}}%
+    \put(0.1817264,0.64260475){\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}Registered User\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=2]{Class_Diagram_svg-tex.pdf}}%
+    \put(0.10701666,0.61534578){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}id\end{tabular}}}}%
+    \put(0.10701666,0.59919233){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}password\end{tabular}}}}%
+    \put(0.10701666,0.58303887){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}email\end{tabular}}}}%
+    \put(0.10701666,0.56688541){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}fullName\end{tabular}}}}%
+    \put(0.10701666,0.55073195){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}profilePicUrl\end{tabular}}}}%
+    \put(0.10701666,0.5345785){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}joinedDate\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=3]{Class_Diagram_svg-tex.pdf}}%
+    \put(0.08076729,0.39020697){\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}User\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=4]{Class_Diagram_svg-tex.pdf}}%
+    \put(0.00605755,0.36294801){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}username\end{tabular}}}}%
+    \put(0.00605755,0.34679455){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}birthday\end{tabular}}}}%
+    \put(0.00605755,0.33064109){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}description\end{tabular}}}}%
+    \put(0.00605755,0.31448763){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}gender\end{tabular}}}}%
+    \put(0.00605755,0.29833417){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}location\end{tabular}}}}%
+    \put(0.00605755,0.28218072){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}reviews\end{tabular}}}}%
+    \put(0.00605755,0.26602726){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}followers\end{tabular}}}}%
+    \put(0.00605755,0.2498738){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}followed\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=5]{Class_Diagram_svg-tex.pdf}}%
+    \put(0.29681979,0.39020697){\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}Manager\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=6]{Class_Diagram_svg-tex.pdf}}%
+    \put(0.21251893,0.13780919){\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}Review\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=7]{Class_Diagram_svg-tex.pdf}}%
+    \put(0.13831398,0.11600204){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}id\end{tabular}}}}%
+    \put(0.13831398,0.09984859){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}date\end{tabular}}}}%
+    \put(0.13831398,0.08369513){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}comment\end{tabular}}}}%
+    \put(0.13831398,0.06754167){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}rating\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=8]{Class_Diagram_svg-tex.pdf}}%
+    \put(0.49469965,0.28924785){\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}MediaContent\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=9]{Class_Diagram_svg-tex.pdf}}%
+    \put(0.4199899,0.26198889){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}id\end{tabular}}}}%
+    \put(0.4199899,0.24583544){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}title\end{tabular}}}}%
+    \put(0.4199899,0.22968198){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}imageUrl\end{tabular}}}}%
+    \put(0.4199899,0.21352852){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}averageRating\end{tabular}}}}%
+    \put(0.4199899,0.19737506){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}synopsis\end{tabular}}}}%
+    \put(0.4199899,0.18122161){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}liked\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=10]{Class_Diagram_svg-tex.pdf}}%
+    \put(0.7269056,0.54164563){\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}Manga\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=11]{Class_Diagram_svg-tex.pdf}}%
+    \put(0.65219586,0.51438667){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}genres\end{tabular}}}}%
+    \put(0.65219586,0.49823322){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}themes\end{tabular}}}}%
+    \put(0.65219586,0.48207976){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}demographics\end{tabular}}}}%
+    \put(0.65219586,0.4659263){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}authors\end{tabular}}}}%
+    \put(0.65219586,0.44977284){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}serilizations\end{tabular}}}}%
+    \put(0.65219586,0.43361938){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}background\end{tabular}}}}%
+    \put(0.65219586,0.41746593){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}titleEnglish \end{tabular}}}}%
+    \put(0.65219586,0.40131247){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}titleJapanese\end{tabular}}}}%
+    \put(0.65219586,0.38515901){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}startDate\end{tabular}}}}%
+    \put(0.65219586,0.36900555){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}endDate\end{tabular}}}}%
+    \put(0.65219586,0.35285209){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}volumes\end{tabular}}}}%
+    \put(0.65219586,0.33669864){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}chapters\end{tabular}}}}%
+    \put(0.65219586,0.32054518){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}reviews\end{tabular}}}}%
+    \put(0.65219586,0.30439172){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}type\end{tabular}}}}%
+    \put(0.65219586,0.28823826){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}status\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=12]{Class_Diagram_svg-tex.pdf}}%
+    \put(0.7269056,0.18828874){\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}Anime\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=13]{Class_Diagram_svg-tex.pdf}}%
+    \put(0.65219586,0.16102978){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}year\end{tabular}}}}%
+    \put(0.65219586,0.14487633){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}season\end{tabular}}}}%
+    \put(0.65219586,0.12872287){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}episodeCount\end{tabular}}}}%
+    \put(0.65219586,0.11256941){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}tags\end{tabular}}}}%
+    \put(0.65219586,0.09641595){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}relatedAnime\end{tabular}}}}%
+    \put(0.65219586,0.08026249){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}reviews\end{tabular}}}}%
+    \put(0.65219586,0.06410904){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}producers\end{tabular}}}}%
+    \put(0.65219586,0.04795558){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}studios\end{tabular}}}}%
+    \put(0.65219586,0.03180212){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}type\end{tabular}}}}%
+    \put(0.65219586,0.01564866){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}status\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=14]{Class_Diagram_svg-tex.pdf}}%
+    \put(0.91771832,0.63957597){\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}MangaAuthor\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=15]{Class_Diagram_svg-tex.pdf}}%
+    \put(0.84300858,0.61231701){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}id\end{tabular}}}}%
+    \put(0.84300858,0.59616355){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}name\end{tabular}}}}%
+    \put(0.84300858,0.5800101){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}role\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=16]{Class_Diagram_svg-tex.pdf}}%
+  \end{picture}%
+\endgroup%

@@ -15,7 +15,7 @@ public abstract class TaskManager {
     private final PriorityBlockingQueue<Task> taskQueue;
 
     public TaskManager() {
-        this.taskQueue = new PriorityBlockingQueue<>(20, taskComparator);
+        this.taskQueue = new PriorityBlockingQueue<>(30, taskComparator);
     }
 
     /**
