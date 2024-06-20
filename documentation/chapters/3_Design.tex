@@ -402,7 +402,7 @@ The following redundancies are implemented in the database:
 
 \newpage
 
-\section*{Graph Database}
+\section{Graph Database}
 
 The inclusion of social networking functionalities, such as user interactions, likes, and follows, necessitated the 
 integration of a graph database to efficiently manage relationships between entities. A graph database operates on 
@@ -477,21 +477,21 @@ The database will have the following relationships:
   \end{itemize}
 \end{itemize}
 
-\section*{Availability and Partition Tolerance (AP)}
+\section{Availability and Partition Tolerance (AP)}
 
 MangaVerse, as a social network, adopts the AP configuration of the CAP theorem, emphasizing Availability
 and Partition Tolerance. This ensures users can reliably access the application, interact with others,
 and engage with media content, even though data consistency may vary (Eventual Consistency).
 This approach enhances user experience by prioritizing uninterrupted service over strict data consistency.
 
-\section*{Replicas}
+\section{Replicas}
 
 For MangaVerse, three MongoDB replicas were deployed to ensure high availability, partition tolerance,
 and rapid response times. This configuration allows the system to remain accessible and responsive even
 during network partitions or node failures. However, managing data consistency across multiple replicas
 requires careful handling to achieve eventual consistency without compromising availability.
 
-\section*{Sharding}
+\section{Sharding}
 
 Even though sharding is not currently implemented in MangaVerse, it's crucial to consider its implications.
 Sharding is a method used to distribute data across multiple machines, essential for managing data growth.
