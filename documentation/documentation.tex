@@ -60,6 +60,8 @@
 \definecolor{black}{RGB}{0, 0, 0} % Define black color
 \definecolor{jsondoc}{HTML}{C4E3E8}
 \definecolor{red}{HTML}{8F1D39}
+\definecolor{white}{RGB}{255,255,255} % Define white color
+
 
 
 % Configuration for hyperref to remove red margins and color the links
@@ -123,6 +125,23 @@
     fontcolor=black, % Text color
 }
 
+% Define a custom style for mdframed
+\mdfdefinestyle{customstyle2}{
+    linecolor=myBlue, % Border color
+    linewidth=2pt, % Border width
+    roundcorner=10pt, % Rounded corners
+    backgroundcolor=white, % Background color
+    innertopmargin=10pt, % Top padding
+    innerbottommargin=10pt, % Bottom padding
+    innerrightmargin=10pt, % Right padding
+    innerleftmargin=10pt, % Left padding
+    skipabove=20pt, % Space above the frame
+    skipbelow=20pt, % Space below the frame
+    fontcolor=black, % Text color
+}
+
+
+
 % Languages for code
 \lstdefinelanguage{JavaScript}{
   keywords={break, case, catch, continue, debugger, default, delete, do, else, finally, for, function, if, in, instanceof, new, return, switch, this, throw, try, typeof, var, void, while, with},
@@ -147,6 +166,9 @@
     keywordstyle=\color{java_keyword},
     commentstyle=\color{java_comment},
 }
+
+
+
 
 \lstdefinelanguage{json}{
     basicstyle=\ttfamily\small\color{red},
