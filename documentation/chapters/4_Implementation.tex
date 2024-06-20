@@ -706,7 +706,9 @@ Some of the most important MongoDB queries for analytic and suggestion purposes.
 \subsection*{USER:}
 \subsubsection*{Get Distribution}
 
-GetDistribution query to get the user's location, birthday year that gave the highest rating to the application
+Aggregation to get the number of user registrations grouped by birthday year, location,
+gender, and joined on year.
+
 \begin{itemize}
     \item Java Implementation:
 \end{itemize}
@@ -793,7 +795,8 @@ public Map<String, Integer> getDistribution(String criteria) throws DAOException
 
 \subsubsection*{Average App Rating}
 
-Calculates the average application rating based on the specified search criteria
+Aggregation to evaluate the average application rating for users grouped by a location,
+gender, and joined on year.
 \begin{itemize}
     \item Java Implementation:
 \end{itemize}
@@ -868,7 +871,7 @@ db.getCollection.aggregate([
 
 \subsubsection*{Average App Rating By Age}
 
-Calculates the average app rating for users grouped by age ranges.
+Aggregation to evaluate the average app rating for users grouped by age ranges.
 The age ranges are defined as follows:\\
 - 0-13 years\\
 - 13-20 years\\
@@ -1316,7 +1319,7 @@ db.collection.aggregate([
 \subsection*{MANGA/ANIME:}
 \subsubsection*{Get Best Criteria}
 
-Retrieves the best criteria based on the average rating of the Anime objects in the MongoDB database.
+Retrieves the best criteria based on the average rating of the anime / manga objects in the MongoDB database.
 \begin{itemize}
     \item Java Implementation:
 \end{itemize}
@@ -1658,7 +1661,7 @@ LIMIT $n\end{lstlisting}
 \subsection*{ANIME/MANGA:}
 \subsubsection*{Get Trend Media Content By Year}
 
-Retrieves a list of trending MangaDTO objects for a specific year from the Neo4j database.
+Retrieves a list of trending media content for a specific year from the Neo4j database.
 \begin{itemize}
     \item Java Implementation:
 \end{itemize}
@@ -1722,7 +1725,7 @@ LIMIT $n\end{lstlisting}
 
 \subsubsection*{Get Media Content Trend By Likes}
 
-Retrieves a list of trending MangaDTO objects by likes from the Neo4j database.
+Retrieves a list of trending media content in the last period from the Neo4j database.
 The method performs the following steps:\\
 1. Retrieve the trending Manga by likes in the last 6 months.\\
 2. If there are not enough trending Manga, retrieve more results from the last year.\\
@@ -1830,7 +1833,8 @@ LIMIT $n\end{lstlisting}
 
 \subsubsection*{Get Suggested By Followings}
 
-Retrieves a list of suggested MangaDTO objects for a user from the Neo4j database.
+Retrieves a list of suggested media content for a user based on common followings
+or that are followed by the user's following.
 The method performs the following steps:\\
 1. Retrieve Manga that the user's followings have liked in the last 6 months.\\
 2. If there are not enough suggestions, retrieve Manga that the user's followings have liked in the last 2 years.\\
@@ -1937,7 +1941,7 @@ LIMIT $n\end{lstlisting}
 
 \subsubsection*{Get Suggested By Likes}
 
-Retrieves a list of suggested MangaDTO objects for a user from the Neo4j database.
+Retrieves a list of suggested media content for a user by user's liked anime or manga.
 The method performs the following steps:\\
 1. Retrieve Manga that other users with similar taste have liked in the last 6 months.\\
 2. If there are not enough suggestions, retrieve Manga that other users with similar taste have liked in the last 2 years.\\
