@@ -764,7 +764,7 @@ public Map<String, Integer> getDistribution(String criteria) throws DAOException
 \end{itemize}
 \begin{mdframed}[style=customstyle2]
 \begin{lstlisting}[language=java, backgroundcolor=\color{white}]
-    db.collection.aggregate([
+    db.users.aggregate([
         {
             // Match stage to filter documents where 'criteriaOfSearch' exists
             $match: {
@@ -840,7 +840,7 @@ gender, and joined on year.
 
 \begin{mdframed}[style=customstyle2]
 \begin{lstlisting}[language=java, backgroundcolor=\color{white}]
-db.getCollection.aggregate([
+db.users.aggregate([
     { 
         // Match stage: Filters documents to include only those that 
         // have both the specified 'criteria' field and 'app_rating' field.
@@ -942,7 +942,7 @@ public Map<String, Double> averageAppRatingByAgeRange() throws DAOException {
 
 \begin{mdframed}[style=customstyle2]
 \begin{lstlisting}[language=java, backgroundcolor=\color{white}]
-db.getCollection('COLLECTION_NAME').aggregate([
+db.users.aggregate([
     { 
         // Match stage: Filters documents to include only those that 
         // have both the 'birthday' field and 'app_rating' field.
@@ -1061,7 +1061,7 @@ public Map<String, Double> getMediaContentRatingByYear(MediaContentType type, St
 \begin{mdframed}[style=customstyle2]
 \begin{lstlisting}[language=java, backgroundcolor=\color{white}]
 // Match stage to filter documents based on specified conditions
-db.collection.aggregate([
+db.reviews.aggregate([
     {
         // Filters documents to include only those where:
         // 1. The nested 'id' field under 'nodeType' matches the specified 'mediaContentId'.
@@ -1167,7 +1167,7 @@ public Map<String, Double> getMediaContentRatingByMonth(MediaContentType type, S
 
 \begin{mdframed}[style=customstyle2]
 \begin{lstlisting}[language=java, backgroundcolor=\color{white}]
-db.getCollection.aggregate([
+db.reviews.aggregate([
     { 
         // Match stage: Filters documents to include only those that meet the specified conditions.
         $match: { 
@@ -1288,7 +1288,7 @@ public List<MediaContentDTO> suggestMediaContent(MediaContentType mediaContentTy
 
 \begin{mdframed}[style=customstyle2]
 \begin{lstlisting}[language=java, backgroundcolor=\color{white}]
-db.collection.aggregate([
+db.reviews.aggregate([
     {
         // Match documents based on a dynamic user criteria
         // It dynamically matches documents where a field in the 'user' object 
@@ -1377,7 +1377,7 @@ public Map<String, Double> getBestCriteria (String criteria, boolean isArray, in
 
 \begin{mdframed}[style=customstyle2]
 \begin{lstlisting}[language=java, backgroundcolor=\color{white}]
-db.collection.aggregate([
+db.manga.aggregate([
     // Match stage to filter documents where 'criteria' exists and 'average_rating' is not null
     {
         $match: {
@@ -1531,7 +1531,7 @@ public List<UserSummaryDTO> suggestUsersByCommonLikes(String userId, Integer lim
 // Match the user with the given userId who has liked media of type Manga
 MATCH (u:User {id: $userId})-[r:LIKE]->(media:Manga)<-[:LIKE]-(suggested:User) 
 // Filter out the original user from the suggested users and only consider likes after the specified date
-WHERE u <> suggested AND r.date >= $date
+WHERE u <> suggested AND r.date >= date($date)
 // Pass the suggested users and count of distinct media liked by both users to the next stage
 WITH suggested, COUNT(DISTINCT media) AS commonLikes
 // Filter out users with common likes less than or equal to the minimum threshold
@@ -1721,7 +1721,7 @@ public Map<MediaContentDTO, Integer> getTrendMediaContentByYear(int year, Intege
 \begin{lstlisting}[language=Cypher, backgroundcolor=\color{white}]
 // Match Anime nodes that are liked by Users, with a LIKE relationship and a date constraint
 MATCH (a:Anime)<-[r:LIKE]-(u:User)
-WHERE r.date >= $startDate AND r.date < $endDate
+WHERE r.date >= date($startDate) AND r.date < date($endDate)
 // Aggregate the results to count the number of likes for each Anime node
 WITH a, count(r) AS numLikes
 // Order the Anime nodes by the number of likes in descending order
@@ -1827,7 +1827,7 @@ public List<MediaContentDTO> getMediaContentTrendByLikes(Integer limit) throws D
 \begin{lstlisting}[language=Cypher, backgroundcolor=\color{white}]
 // Match User nodes who have liked Anime nodes with a LIKE relationship and date constraint
 MATCH (u:User)-[r:LIKE]->(a:Anime)
-WHERE r.date >= $startDate
+WHERE r.date >= date($startDate)
 // Aggregate the results to count the number of LIKE relationships for each Anime node
 WITH a, COUNT(r) AS numLikes
 // Order the Anime nodes by the number of likes in descending order
@@ -1938,7 +1938,7 @@ public List<MediaContentDTO> getSuggestedByFollowings(String userId, Integer lim
 // and those followed Users who have liked Anime nodes with a LIKE relationship and date constraint.
 MATCH (u:User {id: $userId})-[:FOLLOWS]->(f:User)-[r:LIKE]->(a:Anime)
 // Ensure that the User does not directly like the Anime and that the LIKE relationship's date is within the specified range.
-WHERE NOT (u)-[:LIKE]->(a) AND r.date >= $startDate
+WHERE NOT (u)-[:LIKE]->(a) AND r.date >= date($startDate)
 // Aggregate the results to count the number of distinct Users who have liked each Anime node.
 WITH a, COUNT(DISTINCT f) AS num_likes
 // Return the Anime node, ordered by the number of likes in descending order.
@@ -2054,7 +2054,7 @@ public List<MediaContentDTO> getSuggestedByLikes(String userId, Integer limit) t
 // Match the User node with the specified userId who likes Anime nodes (r1) and those Anime nodes are liked by other Users (f).
 MATCH (u:User {id: $userId})-[r1:LIKE]->(a:Anime)<-[:LIKE]-(f:User)
 // Ensure that the User's LIKE relationship's date is within the specified range.
-WHERE r1.date >= $startDate
+WHERE r1.date >= date($startDate)
 // Aggregate the results to count the number of common Anime nodes liked by both the User (u) and other Users (f).
 WITH u, f, COUNT(a) AS common_likes
 // Order the results by the number of common likes in descending order and limit to 20 results.
