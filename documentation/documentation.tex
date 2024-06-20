@@ -46,7 +46,7 @@
 \definecolor{myBlue}{rgb}{0.0745, 0.2157, 0.4118}
 \definecolor{myLightBlue}{rgb}{0, 0.5647, 0.5843}
 \definecolor{myGray}{RGB}{192,197,206}
-\definecolor{jsonString}{RGB}{3,183,228}
+\definecolor{jsonString}{HTML}{111258}
 \definecolor{numb}{RGB}{255,0,0}
 \definecolor{punct}{RGB}{0,0,255}
 \definecolor{delim}{RGB}{20,105,176}
@@ -58,6 +58,8 @@
 \definecolor{java_comment}{HTML}{0000FF}
 \definecolor{mybackgroundcolor}{RGB}{240, 240, 240} % Light gray background
 \definecolor{black}{RGB}{0, 0, 0} % Define black color
+\definecolor{jsondoc}{HTML}{C4E3E8}
+\definecolor{red}{HTML}{8F1D39}
 
 
 % Configuration for hyperref to remove red margins and color the links
@@ -147,11 +149,11 @@
 }
 
 \lstdefinelanguage{json}{
-    basicstyle=\ttfamily\small\color{myGray},
+    basicstyle=\ttfamily\small\color{red},
     upquote=true,
     morestring=[b]",
     stringstyle=\color{jsonString},
-    backgroundcolor=\color{myBlue},
+    backgroundcolor=\color{jsondoc},
     numbers=none,
     literate=
      *{0}{{{\color{numb}0}}}{1}
@@ -164,12 +166,12 @@
       {7}{{{\color{numb}7}}}{1}
       {8}{{{\color{numb}8}}}{1}
       {9}{{{\color{numb}9}}}{1}
-      {:}{{{\color{myGray}:}}}{1}
-      {,}{{{\color{myGray},}}}{1}
-      {\{}{{{\color{myGray}{\{}}}}{1}
-      {\}}{{{\color{myGray}{\}}}}}{1}
-      {[}{{{\color{myGray}{[}}}}{1}
-      {]}{{{\color{myGray}{]}}}}{1}
+      {:}{{{\color{red}:}}}{1}
+      {,}{{{\color{red},}}}{1}
+      {\{}{{{\color{red}{\{}}}}{1}
+      {\}}{{{\color{red}{\}}}}}{1}
+      {[}{{{\color{red}{[}}}}{1}
+      {]}{{{\color{red}{]}}}}{1}
       {true}{{{\color{numb}true}}}{4}
       {false}{{{\color{numb}false}}}{5}
       {null}{{{\color{numb}null}}}{4}
