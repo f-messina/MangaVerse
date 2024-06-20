@@ -48,8 +48,6 @@ That includes the following tools and technologies:
     \item JUnit.
 \end{itemize}
 
-\newpage
-
 \section{Main Modules}
 \begin{itemize}
     \item Configuration
@@ -201,7 +199,7 @@ It provides a layer of abstraction between the database and the rest of the appl
     \item DAOLocator 
 \end{itemize}
 
-\newpage
+\vspace{\baselineskip}
 
 \textbf{Example code snippet from MangaDAOMongoImpl:}
 \begin{mdframed}[style=customstyle]
@@ -257,7 +255,7 @@ It provides a layer of abstraction between the database and the rest of the appl
 }\end{lstlisting}
 \end{mdframed}
 
-\newpage
+\vspace{\baselineskip}
 
 \textbf{Example code snippet from UserDAONeo4jImpl:}
 \begin{mdframed}[style=customstyle]
@@ -306,13 +304,12 @@ It provides a layer of abstraction between the database and the rest of the appl
    }
 }\end{lstlisting}
 \end{mdframed}
-\newpage
 
+\vspace{\baselineskip}
 
 \subsection*{DTO (Data Transfer Objects)}
 The DTO modules are the intermediary class between presentation layer and the DAO module in the web application.
 They transfer data structures between different layers and components of the application in a more standardized way.
-
 
 \subsection*{Model}
 \begin{itemize}
@@ -376,6 +373,8 @@ package structure of Service module is as follows:
     ----- UserService
     \item ServiceLocator
 \end{itemize}
+
+\vspace{\baselineskip}
 
 \section{Implemented Strategies and Practices}
 \subsection*{Patterns}
@@ -705,7 +704,8 @@ are utilized in controllers to handle multiple accesses for retrieving necessary
 Some of the most important MongoDB queries for analytic and suggestion purposes. 
 
 \subsection*{USER:}
-\textbf{Get Distribution}\\
+\subsubsection*{Get Distribution}
+
 GetDistribution query to get the user's location, birthday year that gave the highest rating to the application
 \begin{itemize}
     \item Java Implementation:
@@ -791,7 +791,8 @@ public Map<String, Integer> getDistribution(String criteria) throws DAOException
     ]);\end{lstlisting}
 \end{mdframed} 
 
-\textbf{Average App Rating}\\
+\subsubsection*{Average App Rating}
+
 Calculates the average application rating based on the specified search criteria
 \begin{itemize}
     \item Java Implementation:
@@ -863,7 +864,10 @@ db.getCollection.aggregate([
 ]).toArray();\end{lstlisting}
 \end{mdframed}
 
-\textbf{Average App Rating By Age}\\
+\newpage
+
+\subsubsection*{Average App Rating By Age}
+
 Calculates the average app rating for users grouped by age ranges.
 The age ranges are defined as follows:\\
 - 0-13 years\\
@@ -926,6 +930,8 @@ public Map<String, Double> averageAppRatingByAgeRange() throws DAOException {
 }\end{lstlisting}
 \end{mdframed}
     
+\newpage
+
 \begin{itemize}
     \item Mongo Shell Query:
 \end{itemize}
@@ -977,9 +983,12 @@ db.getCollection('COLLECTION_NAME').aggregate([
 ]).toArray();\end{lstlisting}
 \end{mdframed}
 
+\newpage
+
 \subsection*{REVIEW:}
 
-\textbf{Get Media Content Rating By Year}\\
+\subsubsection*{Get Media Content Rating By Year}
+
 Retrieves the average ratings for a specific media content (anime or manga) by year within a specified range.
 The aggregation pipeline performs the following steps:\\
 1. Matches the reviews for the specified media content ID and date range, ensuring the reviews have a rating.\\
@@ -1039,6 +1048,8 @@ public Map<String, Double> getMediaContentRatingByYear(MediaContentType type, St
 }\end{lstlisting}
 \end{mdframed}
     
+\newpage
+
 \begin{itemize}
     \item Mongo Shell Query:
 \end{itemize}
@@ -1082,7 +1093,8 @@ db.collection.aggregate([
 ]);\end{lstlisting}
 \end{mdframed}
 
-\textbf{Get Media Content Rating By Month}\\
+\subsubsection*{Get Media Content Rating By Month}
+
 Retrieves the average ratings for a specific media content (anime or manga) by month for a specified year.
 The aggregation pipeline performs the following steps:\\
 1. Matches the reviews for the specified media content ID and year, ensuring the reviews have a rating.\\
@@ -1193,7 +1205,8 @@ db.getCollection.aggregate([
 ]).toArray();\end{lstlisting}
 \end{mdframed}
 
-\textbf{Suggest Media Content}\\
+\subsubsection*{Suggest Media Content}
+
 Suggests media content (anime or manga) based on user criteria (location or birthday year).
 The aggregation pipeline performs the following steps:\\
 1. Matches the reviews with a rating, the specified media content type and the user criteria.\\
@@ -1301,7 +1314,8 @@ db.collection.aggregate([
 \end{mdframed}
 
 \subsection*{MANGA/ANIME:}
-\textbf{Get Best Criteria}\\
+\subsubsection*{Get Best Criteria}
+
 Retrieves the best criteria based on the average rating of the Anime objects in the MongoDB database.
 \begin{itemize}
     \item Java Implementation:
@@ -1395,13 +1409,14 @@ db.collection.aggregate([
 ]);
 \end{lstlisting}
 \end{mdframed}
-
-\newpage
   
+\vspace{\baselineskip}
+
 \section{GraphDB queries}
 Some of the most important Neo4j queries for analytic and suggestion purposes.
 \subsection*{USERS:}
-\textbf{Suggest User By Common Likes}\\
+\subsubsection*{Suggest User By Common Likes}
+
 Retrieves a list of suggested users for a specific user based on common likes from the Neo4j database.
 The method performs the following steps:\\
 1. Retrieve users who like the same media content as the specified user in the last 6 month.\\
@@ -1522,7 +1537,8 @@ ORDER BY commonLikes DESC
 LIMIT $n\end{lstlisting}
 \end{mdframed}
 
-\textbf{Suggest Users By Common Followings}\\
+\subsubsection*{Suggest Users By Common Followings}
+
 Retrieves a list of suggested users for a specific user based on common followings from the Neo4j database.
 The method performs the following steps:\\
 1. Retrieve users that follow user's followings and have more than 5 common followings.\\
@@ -1617,6 +1633,8 @@ public List<UserSummaryDTO> suggestUsersByCommonFollowings(String userId, Intege
 }\end{lstlisting}
 \end{mdframed}
 
+\newpage
+
 \begin{itemize}
     \item Neo4j Query:
 \end{itemize}
@@ -1640,7 +1658,8 @@ LIMIT $n\end{lstlisting}
 \end{mdframed}
 
 \subsection*{ANIME/MANGA:}
-\textbf{Get Trend Media Content By Year}\\
+\subsubsection*{Get Trend Media Content By Year}
+
 Retrieves a list of trending MangaDTO objects for a specific year from the Neo4j database.
 \begin{itemize}
     \item Java Implementation:
@@ -1703,7 +1722,8 @@ RETURN a AS anime, numLikes
 LIMIT $n\end{lstlisting}
 \end{mdframed}
 
-\textbf{Get Media Content Trend By Likes}\\
+\subsubsection*{Get Media Content Trend By Likes}
+
 Retrieves a list of trending MangaDTO objects by likes from the Neo4j database.
 The method performs the following steps:\\
 1. Retrieve the trending Manga by likes in the last 6 months.\\
@@ -1808,7 +1828,10 @@ RETURN a AS anime, numLikes
 LIMIT $n\end{lstlisting}
 \end{mdframed}
 
-\textbf{Get Suggested By Followings}\\
+\newpage
+
+\subsubsection*{Get Suggested By Followings}
+
 Retrieves a list of suggested MangaDTO objects for a user from the Neo4j database.
 The method performs the following steps:\\
 1. Retrieve Manga that the user's followings have liked in the last 6 months.\\
@@ -1914,7 +1937,8 @@ ORDER BY num_likes DESC
 LIMIT $n\end{lstlisting}
 \end{mdframed}
 
-\textbf{Get Suggested By Likes}\\
+\subsubsection*{Get Suggested By Likes}
+
 Retrieves a list of suggested MangaDTO objects for a user from the Neo4j database.
 The method performs the following steps:\\
 1. Retrieve Manga that other users with similar taste have liked in the last 6 months.\\

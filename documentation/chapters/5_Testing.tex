@@ -243,19 +243,19 @@ As it can be shown in the table below, there are significant improvement in oper
 \bottomrule
 \endlastfoot
 
-\multirow{6}{*}{Users}
+\multirow{4}{*}{Users}
  & Insert & No & 3 & - & - \\
  & Search & No & 17 & 0 & 10007 \\
  & Insert & Yes & 5 & - & - \\
  & Search & Yes & 5 & 1 & 1 \\ \midrule
 
-\multirow{6}{*}{Anime}
+\multirow{4}{*}{Anime}
  & Insert & No & 3 & - & - \\
  & Search & No & 88 & 0 & 30113 \\
  & Insert & Yes & 3 & - & - \\
  & Search & Yes & 10 & 0 & 1 \\\midrule
 
-\multirow{6}{*}{Manga}
+\multirow{4}{*}{Manga}
  & Insert & No & 3 & - & - \\
  & Search & No & 141 & 0 & 41677 \\
  & Insert & Yes & 3 & - & - \\
@@ -272,7 +272,9 @@ Indexing with ids is used for both anime, manga and users nodes. The tests are c
 The test result in the table below shows that indexing has a significant impact on operations in Neo4j database especially for search.
 Indexing time decreases with using indexes for search tasks because it prevents to check all the nodes in the database.
 
-\begin{longtable}{@{}cccc@{}}    
+\setlength{\tabcolsep}{4.5em} 
+
+\begin{longtable}{@{\extracolsep{\fill}}cccc@{}}  
     \caption{Neo4j Performance Test Results} \\
     \toprule
     \textbf{Collection} & \textbf{Operation} & \textbf{Index} & \textbf{Time (ms)} \\ \midrule
