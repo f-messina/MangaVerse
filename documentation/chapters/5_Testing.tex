@@ -1,12 +1,12 @@
 \chapter{Testing}
-Testing is a substantial part of the MangaVerse web application project. Testing helps to ensure application's 
+Testing is a substantial part of the MangaVerse web application project. Testing helps to ensure application's
 reliability, performance and correctness. To be able to conduct efficient testing process, two kind of tests are preformed.
 They are JUnit testing as a structural testing and functional testing.
 
 \section{Structural Testing}
-Structural testing also with other name white-box testing is based on testing the internal structure of the working application and it 
-guarantees that the methods are working as expected.JUnit testing framework is used to conduct structural testing. JUnit testing is performed by testing 
-different modules of the application such as DAOs and services. With that process each methods efficiency and correctness is guaranteed. 
+Structural testing also with other name white-box testing is based on testing the internal structure of the working application and it
+guarantees that the methods are working as expected.JUnit testing framework is used to conduct structural testing. JUnit testing is performed by testing
+different modules of the application such as DAOs and services. With that process each methods efficiency and correctness is guaranteed.
 Some examples of JUnit testing are shown below.\\ \\
 
 
@@ -146,8 +146,8 @@ class ReviewServiceImplTest {
 \end{mdframed}
 
 \section{Functional Testing}
-Functional testing also with other name black-box testing is based on testing the application's external functionalities. It checks the application from end-user's 
-perspective. It ensures that specified requirements are provided efficiently by the web application and expected is outcome is created. 
+Functional testing also with other name black-box testing is based on testing the application's external functionalities. It checks the application from end-user's
+perspective. It ensures that specified requirements are provided efficiently by the web application and expected is outcome is created.
 With the help of the use cases and real world scenarios, functional testing is conducted. Some examples of functional testing are shown below.
 
 
@@ -214,12 +214,12 @@ With the help of the use cases and real world scenarios, functional testing is c
 
 \section{Performance Testing}
 
-Performance testing is conducted to ensure that MangaVerse web application is able to handle the 
-a high volume of operations efficiently and provides a smooth experience for users. 
-It is important to test the application's performance to ensure that it 
+Performance testing is conducted to ensure that MangaVerse web application is able to handle the
+a high volume of operations efficiently and provides a smooth experience for users.
+It is important to test the application's performance to ensure that it
 can handle the expected load. Performance testing is applied on MongoDB and Neo4j databases.
 Specifically, the aim of the performance testing is to see the impacts of indexing on CRUD operations
-and aggregation operations. 
+and aggregation operations.
 
 \vspace{\baselineskip}
 
@@ -266,34 +266,35 @@ Indexing with ids is used for both anime, manga and users nodes. The tests are c
 The test result in the table below shows that indexing has a significant impact on operations in Neo4j database especially for search.
 Indexing time decreases with using indexes for search tasks because it prevents to check all the nodes in the database.
 
-\setlength{\tabcolsep}{4.5em} 
+\setlength{\tabcolsep}{4.5em}
 
-\begin{longtable}{@{\extracolsep{\fill}}cccc@{}}  
+\begin{longtable}{@{\extracolsep{\fill}}cccc@{}}
     \caption{Neo4j Performance Test Results} \\
     \toprule
     \textbf{Collection} & \textbf{Operation} & \textbf{Index} & \textbf{Time (ms)} \\ \midrule
     \endfirsthead
-    
+
     \bottomrule
     \endlastfoot
-    
+
     \multirow{4}{*}{Anime}
-     & Insert & No  & 5 \\
-     & Insert & Yes & 5\\
-     & Search & No  & 45 \\
-     & Search & Yes & 2\\ \midrule
-    
+        & Insert & No  & 5 \\
+        & Insert & Yes & 5\\
+        & Search & No  & 45 \\
+        & Search & Yes & 2\\ \midrule
+
     \addlinespace
     \multirow{4}{*}{Manga}
-     & Insert & No  & 7 \\
-     & Insert & Yes & 5 \\
-     & Search & No  & 46 \\
+        & Insert & No  & 7 \\
+        & Insert & Yes & 5 \\
+        & Search & No  & 46 \\
     & Search & Yes & 9 \\ \midrule
-    
+
     \addlinespace
     \multirow{4}{*}{Users}
-     & Insert & No  & 56 \\
-     & Insert & Yes & 9\\
-     & Search & No  & 40 \\
-     & Search & Yes & 3 \\
-    \end{longtable}
+        & Insert & No  & 56 \\
+        & Insert & Yes & 9\\
+        & Search & No  & 40 \\
+        & Search & Yes & 3 \\
+\end{longtable}
+
