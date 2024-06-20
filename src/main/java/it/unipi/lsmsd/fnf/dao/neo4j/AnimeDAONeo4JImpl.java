@@ -516,7 +516,7 @@ public class AnimeDAONeo4JImpl extends BaseNeo4JDAO implements MediaContentDAO<A
         int n = limit == null ? 5 : limit;
         try (Session session = getSession()) {
             LocalDate startDate = LocalDate.of(year, 1, 1);
-            LocalDate endDate = LocalDate.of(year, 12, 31);
+            LocalDate endDate = LocalDate.of(year+1, 1, 1);
 
             String query = """
             MATCH (a:Anime)<-[r:LIKE]-(u:User)
