@@ -117,7 +117,7 @@
     </div>
 
     <script src="https://code.jquery.com/jquery-3.6.4.min.js" defer></script>
-    <script src="${pageContext.request.contextPath}/js/auth_test.js" defer></script>
+    <script src="${pageContext.request.contextPath}/js/auth.js" defer></script>
     <script src="${pageContext.request.contextPath}/js/country_dropdown.js" defer></script>
     <script src="${pageContext.request.contextPath}/js/navbar.js" defer></script>
     <script>

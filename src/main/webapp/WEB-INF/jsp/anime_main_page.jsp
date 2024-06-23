@@ -120,10 +120,10 @@
                 <div class="results">
                     <c:forEach items="${requestScope.suggestionsByLikes}" var="anime">
                         <div class="media-card" >
-                            <a href="${pageContext.request.contextPath}/manga?mediaId=${anime.getId()}" class="cover">
+                            <a href="${pageContext.request.contextPath}/anime?mediaId=${anime.getId()}" class="cover">
                                 <img src="${anime.getImageUrl()}" class="image loaded">
                             </a>
-                            <a href="${pageContext.request.contextPath}/manga?mediaId=${anime.getId()}" class="title">${anime.getTitle()}</a>
+                            <a href="${pageContext.request.contextPath}/anime?mediaId=${anime.getId()}" class="title">${anime.getTitle()}</a>
                         </div>
                     </c:forEach>
                 </div>

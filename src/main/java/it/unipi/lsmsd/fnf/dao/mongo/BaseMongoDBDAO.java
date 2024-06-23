@@ -17,7 +17,6 @@ public abstract class BaseMongoDBDAO {
     private static final Logger logger = LoggerFactory.getLogger(BaseMongoDBDAO.class);
     private static final String PROTOCOL = "mongodb://";
     private static final String MONGO_HOST = "localhost";
-    //private static final String MONGO_PORT = "27017";
     private static final String MONGO_PORT1 = "27018";
     private static final String MONGO_PORT2 = "27019";
     private static final String MONGO_PORT3 = "27020";
@@ -27,7 +26,6 @@ public abstract class BaseMongoDBDAO {
 
     static {
         ConnectionString connectionString = new ConnectionString(String.format("%s%s:%s,%s:%s,%s:%s/%s", PROTOCOL, MONGO_HOST, MONGO_PORT1, MONGO_HOST, MONGO_PORT2, MONGO_HOST, MONGO_PORT3, MONGO_DB));
-        //ConnectionString connectionString = new ConnectionString(String.format("%s%s:%s/%s", PROTOCOL, MONGO_HOST, MONGO_PORT, MONGO_DB));
         settings = MongoClientSettings.builder()
                 .applyConnectionString(connectionString)
                 .writeConcern(WriteConcern.W1)

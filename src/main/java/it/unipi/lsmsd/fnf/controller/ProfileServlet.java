@@ -98,7 +98,6 @@ public class ProfileServlet extends HttpServlet {
                 // Get the user by id showing private information if it's the current user
                 user = userService.getUserById(userId, isCurrentUser);
 
-
                 // Check if the logged user is following the user if it's not the same user and set the attribute
                 if (!isCurrentUser) {
                     isFollowed = userService.isFollowing(authUser.getId(), userId);

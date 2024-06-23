@@ -86,7 +86,7 @@ function showSignUpForm() {
     signupDiv.find("span.error").text("");
     const genderInput = $("#gender");
     genderInput.val("I prefer not to answer");
-    genderInput.attr("data-value", "unknown");
+    genderInput.attr("data-value", "UNKNOWN");
     signupDiv.show();
     overlay.click(hideSignUpForm);
 
@@ -101,6 +101,7 @@ function hideSignUpForm() {
 signUpButton.click(function(event) {
     event.preventDefault();
     const genderInput = $("#gender");
+    const oldGender = genderInput.val();
     genderInput.val(genderInput.attr("data-value"));
     const signupForm = $("#register-form");
 
@@ -115,6 +116,7 @@ signUpButton.click(function(event) {
     }).fail(function() {
         $("#general-error").text("An error occurred. Please try again later.");
     });
+    genderInput.val(oldGender);
 });
 
 $(".overlay").click(function() {
@@ -137,10 +139,6 @@ document.addEventListener("DOMContentLoaded", function() {
         if (event.target.classList.contains("option")) {
             input.value = event.target.textContent;
             input.dataset.value = event.target.dataset.value;
-
-            options.querySelectorAll(".option").forEach(option => {
-            });
-
             options.style.display = "none";
         }
     });

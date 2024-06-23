@@ -542,7 +542,7 @@ public class MangaDAOMongoImpl extends BaseMongoDBDAO implements MediaContentDAO
             MongoCollection<Document> mangaCollection = getCollection(COLLECTION_NAME);
 
             Bson filter = eq("_id", new ObjectId(mangaId));
-            Bson update = set("likes", likes);
+            Bson update = inc("likes", likes);
 
             UpdateResult result = mangaCollection.updateOne(filter, update);
             if (result.getMatchedCount() == 0) {

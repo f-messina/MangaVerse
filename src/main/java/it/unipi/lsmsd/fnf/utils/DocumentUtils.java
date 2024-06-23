@@ -476,7 +476,7 @@ public class DocumentUtils {
             normalUser.setGender(Gender.fromString(doc.getString("gender")));
             normalUser.setLocation(doc.getString("location"));
             normalUser.setFollowers(doc.getInteger("followers"));
-            normalUser.setFollowed(doc.getInteger("followed"));
+            normalUser.setFollowed(doc.getInteger("followings"));
             normalUser.setReviewIds(doc.getList("review_ids", String.class));
             normalUser.setAppRating(doc.getInteger("app_rating"));
             user = normalUser;
