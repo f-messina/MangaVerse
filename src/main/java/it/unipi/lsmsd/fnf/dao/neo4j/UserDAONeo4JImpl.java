@@ -342,7 +342,7 @@ public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
             if (hasUsernameCondition || hasLoggedUserIdCondition) {
                 queryBuilder.append("WHERE ");
                 if (hasUsernameCondition) {
-                    queryBuilder.append("toLower(followed.username) CONTAINS toLower($username) ");
+                    queryBuilder.append("followed.username CONTAINS $username ");
                     params.put("username", username);
                 }
                 if (hasLoggedUserIdCondition) {
@@ -392,7 +392,7 @@ public class UserDAONeo4JImpl extends BaseNeo4JDAO implements UserDAO {
             if (hasUsernameCondition || hasLoggedUserIdCondition) {
                 queryBuilder.append("WHERE ");
                 if (hasUsernameCondition) {
-                    queryBuilder.append("toLower(follower.username) CONTAINS toLower($username) ");
+                    queryBuilder.append("follower.username CONTAINS $username ");
                     params.put("username", username);
                 }
                 if (hasLoggedUserIdCondition) {

@@ -1070,6 +1070,8 @@ db.reviews.aggregate([
             "anime.id": ObjectId("65789bbc2f5d29465d0b18b7"),
             rating: { $exists: true },
             date: { $gte: ISODate("2019-01-01"), $lt: ISODate("2022-01-01") }
+            // { $expr: { $gte: [{ $year: "$date" }, 2020] } }
+            // { $expr: { $lte: [{ $year: "$date" }, 2022] } }
         }
     },
     {

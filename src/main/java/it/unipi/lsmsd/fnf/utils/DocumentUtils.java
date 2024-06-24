@@ -645,7 +645,7 @@ public class DocumentUtils {
             case "$gte" -> gte(key, fieldValue);
             case "$lte" -> lte(key, fieldValue);
             case "$exists" -> exists(key, (Boolean) fieldValue);
-            case "$regex" -> regex(key, (String) fieldValue, "i");
+            case "$regex" -> regex(key, "^" + fieldValue, "i");
             default -> eq(key, fieldValue);
         };
     }

@@ -255,6 +255,8 @@ public class MediaContentServiceImpl implements MediaContentService {
     @Override
     public PageDTO<MediaContentDTO> searchByTitle(String title, int page, MediaContentType type) throws BusinessException {
         try {
+            if (StringUtils.isNotEmpty(title))
+                title = "^" + title;
             // Search for media content in MongoDB
             if (MediaContentType.ANIME.equals(type))
                 return animeDAOMongoDB.search(List.of(Pair.of("$regex", Pair.of("title", title))), Map.of("title", 1), page, true);

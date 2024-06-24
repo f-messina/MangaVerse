@@ -263,7 +263,7 @@ public class UserDAOMongoImpl extends BaseMongoDBDAO implements UserDAO {
 
             Bson filter;
             if (StringUtils.isNotBlank(username)) {
-                filter = and(regex("username", username, "ix"), eq("is_manager", null));
+                filter = and(regex("username", "^"  + username, "ix"), eq("is_manager", null));
             } else {
                 filter = eq("is_manager", null);
             }
