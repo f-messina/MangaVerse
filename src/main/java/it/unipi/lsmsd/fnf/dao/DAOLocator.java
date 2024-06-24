@@ -21,6 +21,13 @@ import it.unipi.lsmsd.fnf.model.mediaContent.Manga;
  * @see ReviewDAO
  */
 public class DAOLocator {
+    private static final AnimeDAOMongoImpl animeDAOMongo = new AnimeDAOMongoImpl();
+    private static final MangaDAOMongoImpl mangaDAOMongo = new MangaDAOMongoImpl();
+    private static final UserDAOMongoImpl userDAOMongo = new UserDAOMongoImpl();
+    private static final ReviewDAOMongoImpl reviewDAOMongo = new ReviewDAOMongoImpl();
+    private static final AnimeDAONeo4JImpl animeDAONeo4J = new AnimeDAONeo4JImpl();
+    private static final MangaDAONeo4JImpl mangaDAONeo4J = new MangaDAONeo4JImpl();
+    private static final UserDAONeo4JImpl userDAONeo4J = new UserDAONeo4JImpl();
 
     /**
      * Retrieves the appropriate DAO for handling Anime-related operations based on the data repository.
@@ -31,9 +38,9 @@ public class DAOLocator {
      */
     public static MediaContentDAO<Anime> getAnimeDAO(DataRepositoryEnum dataRepositoryEnum){
         if (DataRepositoryEnum.MONGODB.equals(dataRepositoryEnum)){
-            return new AnimeDAOMongoImpl();
+            return animeDAOMongo;
         } else if (DataRepositoryEnum.NEO4J.equals(dataRepositoryEnum)) {
-            return new AnimeDAONeo4JImpl();
+            return animeDAONeo4J;
         }
         throw new UnsupportedOperationException("Data repository not supported: " + dataRepositoryEnum);
     }
@@ -47,9 +54,9 @@ public class DAOLocator {
      */
     public static MediaContentDAO<Manga> getMangaDAO(DataRepositoryEnum dataRepositoryEnum){
         if (DataRepositoryEnum.MONGODB.equals(dataRepositoryEnum)){
-            return new MangaDAOMongoImpl();
+            return mangaDAOMongo;
         } else if (DataRepositoryEnum.NEO4J.equals(dataRepositoryEnum)) {
-            return new MangaDAONeo4JImpl();
+            return mangaDAONeo4J;
         }
         throw new UnsupportedOperationException("Data repository not supported: " + dataRepositoryEnum);
     }
@@ -63,9 +70,9 @@ public class DAOLocator {
      */
     public static UserDAO getUserDAO(DataRepositoryEnum dataRepositoryEnum){
         if (DataRepositoryEnum.MONGODB.equals(dataRepositoryEnum)){
-            return new UserDAOMongoImpl();
+            return userDAOMongo;
         } else if (DataRepositoryEnum.NEO4J.equals(dataRepositoryEnum)) {
-            return new UserDAONeo4JImpl();
+            return userDAONeo4J;
         }
         throw new UnsupportedOperationException("Data repository not supported: " + dataRepositoryEnum);
     }
@@ -79,7 +86,7 @@ public class DAOLocator {
      */
     public static ReviewDAO getReviewDAO(DataRepositoryEnum dataRepositoryEnum){
         if (DataRepositoryEnum.MONGODB.equals(dataRepositoryEnum)){
-            return new ReviewDAOMongoImpl();
+            return reviewDAOMongo;
         }
         throw new UnsupportedOperationException("Data repository not supported: " + dataRepositoryEnum);
     }

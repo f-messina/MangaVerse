@@ -1175,6 +1175,7 @@ db.reviews.aggregate([
                 { rating: { $exists: true } },
                 { date: { $gte: ISODate("2020-01-01") } },
                 { date: { $lt: ISODate("2020-12-31") } }
+                // { $expr: { $eq: [{ $year: "$date" }, 2020] } }
             ]
         } 
     },
