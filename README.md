@@ -1,6 +1,9 @@
 # Manga Universe
 
-This web application aims to provide users with a comprehensive platform to explore, search, and interact with a vast collection of manga. Users can register, personalize their profiles, and engage in a manga community. The platform also offers a set of features for registered users, such as liking manga, following other users, adding reviews, and managing their manga lists. Additionally, users receive personalized suggestions based on their preferences and current trends. The site administrator has access to detailed analytics about manga and user activities.
+This web application aims to provide users with a comprehensive platform to explore, search, and interact with a vast collection of manga. Users can register, personalize their profiles, and engage in a manga community. The platform also offers a set of features for registered users, such as liking manga, following other users, adding reviews, and managing their manga lists. Additionally, users receive personalized suggestions based on their preferences and current trends. The site administrator has access to detailed analytics about manga and user activities. 
+
+Note: This application is not an active production service, but rather a university project that works with local databases. It can be extended by integrating a remote-access database, but in its current form it does not include any synchronization mechanisms for manga or anime data, nor does it provide a complete database of titles. Therefore, if you are looking for a ready-to-use application to manage your personal manga list, this repository is not the right fit. Instead, it should be seen as a foundation or starting point for building such an application.
+
 
 ## FUNCTIONAL REQUIREMENTS
 
