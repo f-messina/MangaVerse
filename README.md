@@ -98,5 +98,5 @@ Note: This application is not an active production service, but rather a univers
 
     - User Interface:
 
-      - Responsiveness (?): The user interface should be responsive, providing a consistent and seamless experience across various devices and screen sizes.
+      - Responsiveness: The user interface should be responsive, providing a consistent and seamless experience across various devices and screen sizes.
       - Intuitiveness: The interface should be user-friendly, with clear navigation and easily understandable features.
